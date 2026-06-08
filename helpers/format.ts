@@ -1,0 +1,44 @@
+// helpers/format.ts
+
+export function fDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+export function fDateShort(date: string | Date): string {
+  return new Date(date).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export function fCurrency(amount: number): string {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
+}
+
+export function isOverdue(deadline: string | Date): boolean {
+  return new Date(deadline) < new Date();
+}
+
+export function isDueSoon(deadline: string | Date): boolean {
+  const diff = new Date(deadline).getTime() - Date.now();
+  return diff > 0 && diff < 86_400_000;
+}
+
+export function initials(name?: string | null): string {
+  if (!name) return "??";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
