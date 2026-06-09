@@ -1,18 +1,17 @@
-// app/petugas/dashboard/page.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
 import { api } from "@/helpers/api";
+import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
 import type { Transaksi, Barang } from "@/types";
 
 interface Me { id: string; name: string; email: string; }
 
 export default function PetugasDashboard() {
-  const [me, setMe]               = useState<Me | null>(null);
-  const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
-  const [allAktif, setAllAktif]   = useState<Transaksi[]>([]);
-  const [tersedia, setTersedia]   = useState<Barang[]>([]);
+  const [me,          setMe]          = useState<Me | null>(null);
+  const [myTrx,       setMyTrx]       = useState<Transaksi[]>([]);
+  const [allAktif,    setAllAktif]    = useState<Transaksi[]>([]);
+  const [tersediaList,setTersediaList]= useState<Barang[]>([]);
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
@@ -21,21 +20,23 @@ export default function PetugasDashboard() {
   useEffect(() => {
     fetch("/api/me").then(r => r.json()).then((d: Me) => {
       setMe(d);
-      api.get<Transaksi[]>(`/api/transaksi?userId=${d.id}`).then(setTransaksi);
+      api.get<Transaksi[]>(`/api/transaksi?userId=${d.id}`).then(setMyTrx);
     });
-    api.get<Transaksi[]>("/api/transaksi?status=AKTIF").then(setAllAktif);
-    api.get<Barang[]>("/api/barang?tersedia=true").then(d => setTersedia(d.slice(0, 5)));
+    api.get<Transaksi[]>("/api/transaksi?status=AKTIF").then(d => setAllAktif(d.slice(0, 5)));
+    api.get<Barang[]>("/api/barang").then(d =>
+      setTersediaList(d.filter(b => b.status === "TERSEDIA").slice(0, 5))
+    );
   }, []);
 
-  const aktif     = transaksi.filter(t => t.status === "AKTIF").length;
-  const selesai   = transaksi.filter(t => t.status === "SELESAI").length;
-  const terlambat = transaksi.filter(t => t.status === "TERLAMBAT").length;
+  const aktif     = myTrx.filter(t => t.status === "AKTIF").length;
+  const selesai   = myTrx.filter(t => t.status === "SELESAI").length;
+  const terlambat = myTrx.filter(t => t.status === "TERLAMBAT").length;
 
-  const statusBadge: Record<string, string> = {
-    AKTIF: "badge-warn", SELESAI: "badge-ok", TERLAMBAT: "badge-danger",
-  };
   const kondisiBadge: Record<string, string> = {
     BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger",
+  };
+  const statusBadge: Record<string, string> = {
+    AKTIF: "badge-warn", SELESAI: "badge-ok", TERLAMBAT: "badge-danger",
   };
 
   return (
@@ -45,171 +46,171 @@ export default function PetugasDashboard() {
         <p className="page-sub">{today}</p>
       </div>
 
-      {/* Stats — grid-3 → 2col @860px → 1col @640px */}
+      {/* Stat cards */}
       <div className="grid-3" style={{ marginBottom: 20 }}>
         {[
-          { label: "Sedang Saya Pinjam", value: aktif,     icon: "ti-arrow-bar-to-down", badge: "badge-warn" },
-          { label: "Sudah Dikembalikan", value: selesai,   icon: "ti-circle-check",      badge: "badge-ok" },
-          { label: "Terlambat Kembali",  value: terlambat, icon: "ti-alert-circle",      badge: "badge-danger" },
+          { label: "Saya Pinjam",     value: aktif,     icon: "ti-arrow-bar-to-down", href: "/petugas/riwayat" },
+          { label: "Sudah Kembali",   value: selesai,   icon: "ti-circle-check",      href: "/petugas/riwayat" },
+          { label: "Terlambat",       value: terlambat, icon: "ti-alert-circle",      href: "/petugas/kembali" },
         ].map(s => (
-          <div key={s.label} className="glass stat-card">
+          <Link key={s.label} href={s.href} className="glass stat-card" style={{ cursor: "pointer" }}>
             <div className="stat-card-header">
               <span className="section-label">{s.label}</span>
               <i className={`ti ${s.icon}`} style={{ fontSize: 18, color: "var(--ds-mist)", flexShrink: 0 }} />
             </div>
             <div className="stat-value">{s.value}</div>
-          </div>
+          </Link>
         ))}
       </div>
 
-      {/* Quick Actions — grid-2 → 1col @640px */}
-      <div className="grid-2" style={{ marginBottom: 20 }}>
-        <Link href="/petugas/pinjam" className="glass"
-          style={{ padding: 22, display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 50, height: 50, borderRadius: 14, flexShrink: 0, background: "rgba(65,90,119,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <i className="ti ti-arrow-bar-to-down" style={{ fontSize: 24, color: "var(--ds-mist)" }} />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>Pinjam Barang</div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>Catat peminjaman aset baru</div>
-          </div>
-        </Link>
-        <Link href="/petugas/kembali" className="glass"
-          style={{ padding: 22, display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 50, height: 50, borderRadius: 14, flexShrink: 0, background: "rgba(65,90,119,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <i className="ti ti-arrow-bar-to-up" style={{ fontSize: 24, color: "var(--ds-mist)" }} />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>Kembalikan Barang</div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>Catat pengembalian aset</div>
-          </div>
-        </Link>
-      </div>
+      {/* Main body */}
+      <div className="dash-body" style={{ marginBottom: 16 }}>
 
-      {/* Main content — dash-half → 1col @860px */}
-      <div className="dash-half" style={{ marginBottom: 16 }}>
+        {/* Left column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-        {/* Semua Peminjaman Aktif */}
-        <div className="glass">
-          <div style={{ padding: "16px 20px 0" }}>
-            <div className="section-header">
-              <span className="section-label">Semua Peminjaman Aktif</span>
-              <Link href="/petugas/kembali" className="see-all">Proses →</Link>
+          {/* Quick actions */}
+          <div className="dash-half">
+            <Link href="/petugas/pinjam" className="glass" style={{ padding: 20, display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 46, height: 46, borderRadius: 12, flexShrink: 0, background: "rgba(65,90,119,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <i className="ti ti-arrow-bar-to-down" style={{ fontSize: 22, color: "var(--ds-mist)" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>Pinjam Barang</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>Buat peminjaman baru</div>
+              </div>
+            </Link>
+            <Link href="/petugas/kembali" className="glass" style={{ padding: 20, display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 46, height: 46, borderRadius: 12, flexShrink: 0, background: "rgba(65,90,119,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <i className="ti ti-arrow-bar-to-up" style={{ fontSize: 22, color: "var(--ds-mist)" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>Kembalikan</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>Catat pengembalian</div>
+              </div>
+            </Link>
+          </div>
+
+          {/* Semua pinjaman aktif (semua user) */}
+          <div className="glass">
+            <div style={{ padding: "16px 20px 0" }}>
+              <div className="section-header">
+                <span className="section-label">Semua Peminjaman Aktif</span>
+                <Link href="/petugas/kembali" className="see-all">Proses →</Link>
+              </div>
+            </div>
+            <div style={{ padding: "0 20px 12px" }}>
+              {allAktif.length === 0 ? (
+                <div className="empty-state" style={{ padding: "20px 0" }}>
+                  <i className="ti ti-circle-check" style={{ fontSize: 24, color: "var(--color-ok)" }} />
+                  Tidak ada peminjaman aktif
+                </div>
+              ) : allAktif.map(t => {
+                const late = isOverdue(t.deadlineKembali);
+                const soon = !late && isDueSoon(t.deadlineKembali);
+                return (
+                  <div key={t.id} className="list-item">
+                    <div className="list-icon"><i className="ti ti-box" /></div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.barang.nama}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.user.name ?? t.user.email} · {fDateShort(t.deadlineKembali)}</div>
+                    </div>
+                    <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
+                      {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <div style={{ padding: "0 20px 12px" }}>
-            {allAktif.length === 0 ? (
-              <div className="empty-state" style={{ padding: "20px 0" }}>
-                <i className="ti ti-inbox" style={{ fontSize: 24 }} />Tidak ada
+
+          {/* Riwayat saya */}
+          <div className="glass">
+            <div style={{ padding: "16px 20px 0" }}>
+              <div className="section-header">
+                <span className="section-label">Riwayat Saya</span>
+                <Link href="/petugas/riwayat" className="see-all">Lihat semua →</Link>
               </div>
-            ) : allAktif.slice(0, 5).map(t => {
-              const late = isOverdue(t.deadlineKembali);
-              const soon = !late && isDueSoon(t.deadlineKembali);
-              return (
-                <div key={t.id} className="list-item">
+            </div>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "45%" }}>Barang</th>
+                    <th style={{ width: "30%" }}>Deadline</th>
+                    <th style={{ width: "25%" }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {myTrx.length === 0 ? (
+                    <tr><td colSpan={3}><div className="empty-state" style={{ padding: "20px 0" }}>Belum ada transaksi</div></td></tr>
+                  ) : myTrx.slice(0, 5).map(t => (
+                    <tr key={t.id}>
+                      <td>
+                        <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                        <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.barang.kodeBarang}</div>
+                      </td>
+                      <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
+                      <td><span className={`badge ${statusBadge[t.status]}`}>{t.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+          {/* Barang tersedia — preview, link ke listbarang */}
+          <div className="glass">
+            <div style={{ padding: "16px 20px 0" }}>
+              <div className="section-header">
+                <span className="section-label">Barang Tersedia</span>
+                <Link href="/petugas/listbarang" className="see-all">Semua →</Link>
+              </div>
+            </div>
+            <div style={{ padding: "0 20px 12px" }}>
+              {tersediaList.length === 0 ? (
+                <div className="empty-state" style={{ padding: "20px 0" }}>
+                  <i className="ti ti-box-off" style={{ fontSize: 24 }} />Tidak ada barang tersedia
+                </div>
+              ) : tersediaList.map(b => (
+                <div key={b.id} className="list-item">
                   <div className="list-icon"><i className="ti ti-box" /></div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.user.name ?? t.user.email}</div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.nama}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{b.kategori?.nama} · {b.kodeBarang}</div>
                   </div>
-                  <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}
-                    style={{ flexShrink: 0 }}>
-                    {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
-                  </span>
+                  <span className={`badge ${kondisiBadge[b.kondisi]}`}>{b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak Ringan" : "Rusak Berat"}</span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Riwayat Saya */}
-        <div className="glass">
-          <div style={{ padding: "16px 20px 0" }}>
-            <div className="section-header">
-              <span className="section-label">Riwayat Saya</span>
-              <Link href="/petugas/riwayat" className="see-all">Lihat semua →</Link>
+              ))}
+            </div>
+            <div style={{ padding: "0 20px 14px" }}>
+              <Link href="/petugas/listbarang" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+                <i className="ti ti-list-search" /> Lihat Semua Barang Tersedia
+              </Link>
             </div>
           </div>
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: "45%" }}>Barang</th>
-                  <th style={{ width: "30%" }}>Deadline</th>
-                  <th style={{ width: "25%" }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transaksi.length === 0 ? (
-                  <tr><td colSpan={3}>
-                    <div className="empty-state" style={{ padding: "20px 0" }}>Belum ada</div>
-                  </td></tr>
-                ) : transaksi.slice(0, 5).map(t => (
-                  <tr key={t.id}>
-                    <td>
-                      <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
-                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.barang.kodeBarang}</div>
-                    </td>
-                    <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
-                    <td><span className={`badge ${statusBadge[t.status]}`}>{t.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
 
-      {/* Barang Tersedia — fitur baru */}
-      <div className="glass">
-        <div style={{ padding: "16px 20px 0" }}>
-          <div className="section-header">
-            <span className="section-label">Barang Tersedia</span>
-            <Link href="/petugas/listbarang" className="see-all">Lihat semua →</Link>
-          </div>
-        </div>
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: "40%" }}>Nama Barang</th>
-                <th style={{ width: "20%" }}>Kode</th>
-                <th style={{ width: "20%" }}>Kategori</th>
-                <th style={{ width: "20%" }}>Kondisi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tersedia.length === 0 ? (
-                <tr><td colSpan={4}>
-                  <div className="empty-state" style={{ padding: "20px 0" }}>
-                    <i className="ti ti-inbox" style={{ fontSize: 24 }} />Semua barang sedang dipinjam
-                  </div>
-                </td></tr>
-              ) : tersedia.map(b => (
-                <tr key={b.id}>
-                  <td>
-                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.nama}</div>
-                  </td>
-                  <td style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-muted)" }}>
-                    {b.kodeBarang}
-                  </td>
-                  <td style={{ fontSize: 12 }}>{b.kategori?.nama ?? "—"}</td>
-                  <td>
-                    <span className={`badge ${kondisiBadge[b.kondisi] ?? "badge-muted"}`}>
-                      {b.kondisi?.replace(/_/g, " ") ?? "—"}
-                    </span>
-                  </td>
-                </tr>
+          {/* Quick links */}
+          <div className="glass" style={{ padding: "18px 20px" }}>
+            <span className="section-label" style={{ display: "block", marginBottom: 12 }}>Navigasi Cepat</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              {[
+                { href: "/petugas/pinjam",     icon: "ti-arrow-bar-to-down", label: "Form Pinjam Baru" },
+                { href: "/petugas/kembali",    icon: "ti-arrow-bar-to-up",   label: "Proses Pengembalian" },
+                { href: "/petugas/listbarang", icon: "ti-list-search",        label: "Cek Ketersediaan" },
+                { href: "/petugas/riwayat",    icon: "ti-history",            label: "Riwayat Lengkap" },
+              ].map(a => (
+                <Link key={a.href} href={a.href} className="quick-action">
+                  <i className={`ti ${a.icon}`} style={{ color: "var(--ds-mist)", fontSize: 16, flexShrink: 0 }} />
+                  {a.label}
+                </Link>
               ))}
-            </tbody>
-          </table>
-        </div>
-        {/* CTA pinjam langsung */}
-        <div style={{ padding: "12px 20px 16px", borderTop: "1px solid var(--glass-border)" }}>
-          <Link href="/petugas/pinjam" className="btn btn-primary btn-sm">
-            <i className="ti ti-arrow-bar-to-down" style={{ fontSize: 14 }} />
-            Pinjam Sekarang
-          </Link>
+            </div>
+          </div>
         </div>
       </div>
     </>

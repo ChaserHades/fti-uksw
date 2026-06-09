@@ -5,6 +5,7 @@ const navItems: NavItem[] = [
   { href: "/universitas/dashboard",  label: "Dashboard",  icon: "ti-layout-dashboard" },
   { href: "/universitas/barang",     label: "Daftar Aset",icon: "ti-box" },
   { href: "/universitas/transaksi",  label: "Laporan",    icon: "ti-file-description" },
+  { href: "/universitas/pembelian",  label: "Pembelian",  icon: "ti-receipt" },
 ];
 
 export default async function UniversitasLayout({ children }: { children: React.ReactNode }) {
