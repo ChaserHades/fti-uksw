@@ -1,11 +1,10 @@
-// prisma/schema.prisma
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -43,14 +42,12 @@ model User {
   name             String?
   email            String           @unique
   password         String?
-  image            String?
   provider         String           @default("credentials")
   role             Role             @default(PETUGAS)
   statusVerifikasi StatusVerifikasi @default(PENDING)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
-
-  transaksi Transaksi[]
+  transaksi        Transaksi[]
 
   @@map("users")
 }
@@ -61,8 +58,7 @@ model KategoriBarang {
   deskripsi String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  barang Barang[]
+  barang    Barang[]
 
   @@map("kategori_barang")
 }
@@ -76,32 +72,30 @@ model Ruangan {
   kapasitas Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  barang Barang[]
+  barang    Barang[]
 
   @@map("ruangan")
 }
 
 model Barang {
-  id         String        @id @default(cuid())
-  kodeBarang String        @unique
+  id         String         @id @default(cuid())
+  kodeBarang String         @unique
   nama       String
   deskripsi  String?
-  kondisi    KondisiBarang @default(BAIK)
-  status     StatusBarang  @default(TERSEDIA)
-  jumlah     Int           @default(1)
+  kondisi    KondisiBarang  @default(BAIK)
+  status     StatusBarang   @default(TERSEDIA)
+  jumlah     Int            @default(1)
   tahunBeli  Int?
   harga      Float?
-  qrCode     String?       @db.Text
+  qrCode     String?
   foto       String?
   kategoriId String
   ruanganId  String?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-
-  kategori  KategoriBarang @relation(fields: [kategoriId], references: [id])
-  ruangan   Ruangan?       @relation(fields: [ruanganId], references: [id])
-  transaksi Transaksi[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  kategori   KategoriBarang @relation(fields: [kategoriId], references: [id])
+  ruangan    Ruangan?       @relation(fields: [ruanganId], references: [id])
+  transaksi  Transaksi[]
 
   @@map("barang")
 }
@@ -117,9 +111,8 @@ model Transaksi {
   catatan         String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
-
-  barang Barang @relation(fields: [barangId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
+  barang          Barang          @relation(fields: [barangId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
 
   @@map("transaksi")
 }

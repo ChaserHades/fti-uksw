@@ -32,7 +32,7 @@ export default function AdminDashboard() {
         <p className="page-sub">{today} · FTI UKSW</p>
       </div>
 
-      {/* Stat Cards */}
+      {/* Stat Cards — grid-4 → 2col @1100px → 1col @640px */}
       <div className="grid-4" style={{ marginBottom: 18 }}>
         <StatCard
           label="Total Aset" value={stats?.totalBarang ?? "—"}
@@ -52,10 +52,10 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* Body Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16 }}>
+      {/* Body — dash-body: 1fr+320px → 1col @1100px */}
+      <div className="dash-body">
 
-        {/* Left */}
+        {/* Left column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Active loans */}
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
                     <div className="list-icon">
                       <i className="ti ti-device-laptop" />
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>
                         {t.barang.nama}
                       </div>
@@ -88,7 +88,8 @@ export default function AdminDashboard() {
                         {t.barang.kodeBarang} · {t.user.name ?? t.user.email}
                       </div>
                     </div>
-                    <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
+                    <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}
+                      style={{ flexShrink: 0 }}>
                       {late ? "Terlambat" : soon ? "Besok Deadline" : "Tepat Waktu"}
                     </span>
                   </div>
@@ -122,7 +123,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Right */}
+        {/* Right column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* User summary */}
@@ -133,7 +134,7 @@ export default function AdminDashboard() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {[
-                { label: "Total", val: stats?.totalUsers ?? 0, pct: 100 },
+                { label: "Total",   val: stats?.totalUsers ?? 0,         pct: 100 },
                 {
                   label: "Pending",
                   val: stats?.pendingVerifikasi ?? 0,
@@ -158,10 +159,10 @@ export default function AdminDashboard() {
             <span className="section-label">Aksi Cepat</span>
             <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 12 }}>
               {[
-                { href: "/admin/barang",     icon: "ti-plus",          label: "Tambah Barang" },
-                { href: "/admin/kategori",   icon: "ti-category",      label: "Kelola Kategori" },
-                { href: "/admin/verifikasi", icon: "ti-user-check",    label: "Verifikasi User" },
-                { href: "/admin/transaksi",  icon: "ti-file-export",   label: "Export Laporan" },
+                { href: "/admin/barang",     icon: "ti-plus",        label: "Tambah Barang" },
+                { href: "/admin/kategori",   icon: "ti-category",    label: "Kelola Kategori" },
+                { href: "/admin/verifikasi", icon: "ti-user-check",  label: "Verifikasi User" },
+                { href: "/admin/transaksi",  icon: "ti-file-export", label: "Export Laporan" },
               ].map((a) => (
                 <Link key={a.href} href={a.href} className="quick-action">
                   <i className={`ti ${a.icon}`} style={{ color: "var(--ds-mist)", fontSize: 16 }} />
