@@ -1,4 +1,3 @@
-// app/admin/kategori/page.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Modal from "@/components/Modal";

@@ -1,4 +1,3 @@
-// app/admin/transaksi/page.tsx
 "use client";
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";

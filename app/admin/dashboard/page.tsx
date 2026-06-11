@@ -1,8 +1,10 @@
+// app/admin/dashboard/page.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { api } from "@/helpers/api";
 import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
+import { SkeletonCard, SkeletonTable } from "@/components/LoadingSkeleton";
 import type { DashboardStats, Transaksi, Barang } from "@/types";
 
 interface KategoriStat { nama: string; total: number; }
@@ -11,36 +13,67 @@ const CHART_BARS = [40, 60, 45, 80, 65, 90, 55];
 const DAYS       = ["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
 
 export default function AdminDashboard() {
-  const [stats,       setStats]       = useState<DashboardStats | null>(null);
-  const [transaksi,   setTransaksi]   = useState<Transaksi[]>([]);
-  const [barang,      setBarang]      = useState<Barang[]>([]);
-  const [katStat,     setKatStat]     = useState<KategoriStat[]>([]);
+  const [stats,     setStats]     = useState<DashboardStats | null>(null);
+  const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
+  const [katStat,   setKatStat]   = useState<KategoriStat[]>([]);
+  const [statusStat,setStatusStat]= useState({ tersedia: 0, dipinjam: 0, maintenance: 0, total: 0 });
+  const [loaded,    setLoaded]    = useState(false);
+  const hasFetched = useRef(false);
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 
   useEffect(() => {
-    api.get<DashboardStats>("/api/dashboard/stats").then(setStats);
-    api.get<Transaksi[]>("/api/transaksi?status=AKTIF")
-      .then(d => setTransaksi(d.slice(0, 6)));
-    api.get<Barang[]>("/api/barang").then(d => {
-      setBarang(d);
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
+    // Parallel fetch — semua request jalan bersamaan
+    Promise.all([
+      api.get<DashboardStats>("/api/dashboard/stats"),
+      api.get<Transaksi[]>("/api/transaksi?status=AKTIF"),
+      api.get<Barang[]>("/api/barang"),
+    ]).then(([s, t, b]) => {
+      setStats(s);
+      setTransaksi(t.slice(0, 6));
+
+      // Kategori stat dari barang
       const map: Record<string, number> = {};
-      d.forEach(b => { const k = b.kategori?.nama ?? "Lainnya"; map[k] = (map[k] ?? 0) + 1; });
+      b.forEach(br => { const k = br.kategori?.nama ?? "Lainnya"; map[k] = (map[k] ?? 0) + 1; });
       setKatStat(
         Object.entries(map)
           .map(([nama, total]) => ({ nama, total }))
           .sort((a, b) => b.total - a.total)
           .slice(0, 5)
       );
-    });
+
+      setStatusStat({
+        tersedia:    b.filter(x => x.status === "TERSEDIA").length,
+        dipinjam:    b.filter(x => x.status === "DIPINJAM").length,
+        maintenance: b.filter(x => x.status === "MAINTENANCE").length,
+        total:       b.length,
+      });
+
+      setLoaded(true);
+    }).catch(console.error);
   }, []);
 
-  const tersedia   = barang.filter(b => b.status === "TERSEDIA").length;
-  const dipinjam   = barang.filter(b => b.status === "DIPINJAM").length;
-  const maintenance = barang.filter(b => b.status === "MAINTENANCE").length;
-  const maxKat     = Math.max(...katStat.map(k => k.total), 1);
+  const maxKat = Math.max(...katStat.map(k => k.total), 1);
+
+  if (!loaded) {
+    return (
+      <div>
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)" }}>Dashboard Admin</div>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{today}</div>
+        </div>
+        <div className="grid-4" style={{ marginBottom: 20 }}>
+          {[0,1,2,3].map(i => <SkeletonCard key={i} />)}
+        </div>
+        <SkeletonTable rows={5} cols={4} />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -49,39 +82,34 @@ export default function AdminDashboard() {
         <p className="page-sub">{today} · FTI UKSW</p>
       </div>
 
-      {/* Stat cards */}
       <div className="grid-4" style={{ marginBottom: 20 }}>
         {[
-          { label: "Total Aset",        value: stats?.totalBarang      ?? "—", icon: "ti-box",            href: "/admin/barang" },
-          { label: "Dipinjam",          value: stats?.dipinjam         ?? "—", icon: "ti-arrows-exchange", href: "/admin/transaksi" },
-          { label: "Pending Verifikasi",value: stats?.pendingVerifikasi ?? "—", icon: "ti-user-check",     href: "/admin/verifikasi" },
-          { label: "Terlambat",         value: stats?.terlambat        ?? "—", icon: "ti-alert-circle",   href: "/admin/transaksi" },
+          { label: "Total Aset",         value: stats?.totalBarang       ?? 0, icon: "ti-box",            href: "/admin/barang" },
+          { label: "Dipinjam",           value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", href: "/admin/transaksi" },
+          { label: "Pending Verifikasi", value: stats?.pendingVerifikasi ?? 0, icon: "ti-user-check",     href: "/admin/verifikasi" },
+          { label: "Terlambat",          value: stats?.terlambat         ?? 0, icon: "ti-alert-circle",   href: "/admin/transaksi" },
         ].map(s => (
           <Link key={s.label} href={s.href} className="glass stat-card" style={{ cursor: "pointer" }}>
             <div className="stat-card-header">
               <span className="section-label">{s.label}</span>
-              <i className={`ti ${s.icon}`} style={{ fontSize: 18, color: "var(--ds-mist)", flexShrink: 0 }} />
+              <i className={`ti ${s.icon} dash-stat-icon`} />
             </div>
             <div className="stat-value">{s.value}</div>
           </Link>
         ))}
       </div>
 
-      {/* Main body */}
       <div className="dash-body" style={{ marginBottom: 16 }}>
-
-        {/* Left column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-          {/* Active loans */}
+        <div className="dash-col-left">
+          {/* Peminjaman aktif */}
           <div className="glass">
-            <div style={{ padding: "16px 20px 0" }}>
+            <div className="dash-card-title">
               <div className="section-header">
                 <span className="section-label">Peminjaman Aktif</span>
                 <Link href="/admin/transaksi" className="see-all">Lihat semua →</Link>
               </div>
             </div>
-            <div style={{ padding: "0 20px 12px" }}>
+            <div className="dash-card-list">
               {transaksi.length === 0 ? (
                 <div className="empty-state" style={{ padding: "24px 0" }}>
                   <i className="ti ti-inbox" style={{ fontSize: 26 }} />Tidak ada peminjaman aktif
@@ -92,16 +120,12 @@ export default function AdminDashboard() {
                 return (
                   <div key={t.id} className="list-item">
                     <div className="list-icon"><i className="ti ti-box" /></div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {t.barang.nama}
-                      </div>
-                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                        {t.barang.kodeBarang} · {t.user.name ?? t.user.email}
-                      </div>
+                    <div className="list-item-info">
+                      <div className="list-item-name">{t.barang.nama}</div>
+                      <div className="list-item-sub">{t.barang.kodeBarang} · {t.user.name ?? t.user.email} · {fDateShort(t.deadlineKembali)}</div>
                     </div>
                     <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
-                      {late ? "Terlambat" : soon ? "Segera" : "Tepat Waktu"}
+                      {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
                     </span>
                   </div>
                 );
@@ -109,31 +133,27 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Statistik per Kategori */}
-          <div className="glass" style={{ padding: "18px 20px" }}>
+          {/* Distribusi Kategori */}
+          <div className="glass dash-card-pad">
             <div className="section-header">
               <span className="section-label">Distribusi per Kategori</span>
               <Link href="/admin/kategori" className="see-all">Detail →</Link>
             </div>
-            {katStat.length === 0 ? (
-              <div className="empty-state" style={{ padding: "16px 0" }}>Tidak ada data</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {katStat.map(k => (
-                  <div key={k.nama} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", width: 110, flexShrink: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.nama}</div>
-                    <div className="bar-track" style={{ flex: 1 }}>
-                      <div className="bar-fill" style={{ width: `${Math.round((k.total / maxKat) * 100)}%` }} />
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", width: 28, textAlign: "right", flexShrink: 0 }}>{k.total}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {katStat.map(k => (
+                <div key={k.nama} className="bar-row">
+                  <div className="bar-label" style={{ width: 110 }}>{k.nama}</div>
+                  <div className="bar-track">
+                    <div className="bar-fill" style={{ width: `${Math.round((k.total / maxKat) * 100)}%` }} />
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="bar-val">{k.total}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Aktivitas 7 hari */}
-          <div className="glass" style={{ padding: "18px 20px" }}>
+          {/* Chart */}
+          <div className="glass dash-card-pad">
             <div className="section-header">
               <span className="section-label">Aktivitas 7 Hari</span>
               <span className="badge badge-ok">+18%</span>
@@ -151,17 +171,15 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Right column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-          {/* Status aset */}
-          <div className="glass" style={{ padding: "18px 20px" }}>
+        <div className="dash-col-right">
+          {/* Status Aset */}
+          <div className="glass dash-card-pad">
             <span className="section-label" style={{ display: "block", marginBottom: 14 }}>Status Aset</span>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                { label: "Tersedia",    val: tersedia,    color: "var(--color-ok)",   pct: barang.length ? Math.round((tersedia / barang.length) * 100) : 0 },
-                { label: "Dipinjam",   val: dipinjam,    color: "var(--color-warn)",  pct: barang.length ? Math.round((dipinjam / barang.length) * 100) : 0 },
-                { label: "Maintenance",val: maintenance, color: "var(--text-muted)",  pct: barang.length ? Math.round((maintenance / barang.length) * 100) : 0 },
+                { label: "Tersedia",    val: statusStat.tersedia,    color: "var(--color-ok)",   pct: statusStat.total ? Math.round((statusStat.tersedia / statusStat.total) * 100) : 0 },
+                { label: "Dipinjam",   val: statusStat.dipinjam,    color: "var(--color-warn)",  pct: statusStat.total ? Math.round((statusStat.dipinjam / statusStat.total) * 100) : 0 },
+                { label: "Maintenance",val: statusStat.maintenance, color: "var(--text-muted)",  pct: statusStat.total ? Math.round((statusStat.maintenance / statusStat.total) * 100) : 0 },
               ].map(item => (
                 <div key={item.label}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
@@ -169,7 +187,7 @@ export default function AdminDashboard() {
                     <span style={{ fontSize: 12, fontWeight: 600, color: item.color }}>{item.val}</span>
                   </div>
                   <div className="bar-track">
-                    <div style={{ height: "100%", borderRadius: 10, width: `${item.pct}%`, background: item.color, transition: "width .4s ease" }} />
+                    <div style={{ height: "100%", borderRadius: 10, width: `${item.pct}%`, background: item.color, transition: "width .5s ease" }} />
                   </div>
                 </div>
               ))}
@@ -177,30 +195,30 @@ export default function AdminDashboard() {
           </div>
 
           {/* User stat */}
-          <div className="glass" style={{ padding: "18px 20px" }}>
+          <div className="glass dash-card-pad">
             <span className="section-label" style={{ display: "block", marginBottom: 12 }}>Pengguna Sistem</span>
             <div className="dash-summary" style={{ gridTemplateColumns: "1fr 1fr" }}>
               {[
-                { label: "Total User",  value: stats?.totalUsers ?? 0,          color: "var(--ds-mist)" },
-                { label: "Pending",     value: stats?.pendingVerifikasi ?? 0,   color: "var(--color-warn)" },
+                { label: "Total User", value: stats?.totalUsers        ?? 0, color: "var(--ds-mist)" },
+                { label: "Pending",    value: stats?.pendingVerifikasi ?? 0, color: "var(--color-warn)" },
               ].map(item => (
-                <div key={item.label} style={{ textAlign: "center", padding: "14px 8px", background: "rgba(65,90,119,0.15)", borderRadius: 12 }}>
-                  <div style={{ fontSize: 26, fontWeight: 700, color: item.color, marginBottom: 4 }}>{item.value}</div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{item.label}</div>
+                <div key={item.label} className="dash-summary-item">
+                  <div className="dash-summary-val" style={{ color: item.color }}>{item.value}</div>
+                  <div className="dash-summary-lbl">{item.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Aksi cepat */}
-          <div className="glass" style={{ padding: "18px 20px" }}>
+          {/* Aksi Cepat */}
+          <div className="glass dash-card-pad">
             <span className="section-label" style={{ display: "block", marginBottom: 12 }}>Aksi Cepat</span>
             <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
               {[
-                { href: "/admin/barang",     icon: "ti-plus",          label: "Tambah Barang" },
-                { href: "/admin/verifikasi", icon: "ti-user-check",    label: "Verifikasi User" },
-                { href: "/admin/transaksi",  icon: "ti-file-export",   label: "Export Laporan" },
-                { href: "/admin/ruangan",    icon: "ti-building",      label: "Kelola Ruangan" },
+                { href: "/admin/barang",     icon: "ti-plus",        label: "Tambah Barang" },
+                { href: "/admin/verifikasi", icon: "ti-user-check",  label: "Verifikasi User" },
+                { href: "/admin/transaksi",  icon: "ti-file-export", label: "Export Laporan" },
+                { href: "/admin/ruangan",    icon: "ti-building",    label: "Kelola Ruangan" },
               ].map(a => (
                 <Link key={a.href} href={a.href} className="quick-action">
                   <i className={`ti ${a.icon}`} style={{ color: "var(--ds-mist)", fontSize: 16, flexShrink: 0 }} />
