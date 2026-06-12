@@ -17,7 +17,7 @@ export async function GET(req: Request) {
       ...(userId ? { userId } : {}),
     },
     include: {
-      barang: { include: { kategori: true } },
+      barang: { include: { kategori: true, ruangan: true } },
       user: true,
     },
     orderBy: { createdAt: "desc" },
@@ -30,7 +30,14 @@ export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { barangId, deadlineKembali, catatan } = await req.json();
+  const { barangId, namaPeminjam, ruanganPinjam, deadlineKembali, catatan } = await req.json();
+
+  if (!namaPeminjam?.trim())
+    return NextResponse.json({ error: "Nama peminjam wajib diisi" }, { status: 400 });
+  if (!ruanganPinjam?.trim())
+    return NextResponse.json({ error: "Ruangan wajib diisi" }, { status: 400 });
+  if (!deadlineKembali)
+    return NextResponse.json({ error: "Deadline kembali wajib diisi" }, { status: 400 });
 
   const barang = await prisma.barang.findUnique({ where: { id: barangId } });
   if (!barang || barang.status !== "TERSEDIA")
@@ -40,12 +47,17 @@ export async function POST(req: Request) {
     prisma.transaksi.create({
       data: {
         barangId,
-        userId: session.id,
+        userId:          session.id,   // petugas yang scan
+        namaPeminjam:    namaPeminjam.trim(),
+        ruanganPinjam:   ruanganPinjam.trim(),
         deadlineKembali: new Date(deadlineKembali),
-        catatan: catatan ?? null,
-        status: "AKTIF",
+        catatan:         catatan ?? null,
+        status:          "AKTIF",
       },
-      include: { barang: { include: { kategori: true } }, user: true },
+      include: {
+        barang: { include: { kategori: true, ruangan: true } },
+        user: true,
+      },
     }),
     prisma.barang.update({ where: { id: barangId }, data: { status: "DIPINJAM" } }),
   ]);

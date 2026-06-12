@@ -19,6 +19,7 @@ export interface Barang {
   tahunBeli?: number | null;
   harga?: number | null;
   qrCode?: string | null;
+  foto?: string | null;
   kategoriId: string;
   ruanganId?: string | null;
   createdAt: string;
@@ -55,7 +56,12 @@ export interface User {
 export interface Transaksi {
   id: string;
   barangId: string;
+  /** Petugas yang melakukan scan/pencatatan */
   userId: string;
+  /** Peminjam aktual (mahasiswa/dosen/staf) — diisi petugas via modal */
+  namaPeminjam: string;
+  /** Ruangan tujuan penggunaan */
+  ruanganPinjam: string;
   tanggalPinjam: string;
   tanggalKembali?: string | null;
   deadlineKembali: string;

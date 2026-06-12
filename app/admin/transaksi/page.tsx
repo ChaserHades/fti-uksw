@@ -1,3 +1,4 @@
+// app/admin/transaksi/page.tsx
 "use client";
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
@@ -9,7 +10,7 @@ import type { Transaksi } from "@/types";
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
 export default function TransaksiAdminPage() {
-  const [list, setList]     = useState<Transaksi[]>([]);
+  const [list,   setList]   = useState<Transaksi[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("");
 
   useEffect(() => {
@@ -18,11 +19,16 @@ export default function TransaksiAdminPage() {
   }, [filter]);
 
   function exportCSV() {
-    const headers = ["ID", "Barang", "Kode", "Peminjam", "Email", "Tgl Pinjam", "Deadline", "Tgl Kembali", "Status"];
-    const rows = list.map((t) => [
+    const headers = [
+      "ID", "Barang", "Kode", "Nama Peminjam", "Ruangan Pinjam",
+      "Petugas", "Email Petugas", "Tgl Pinjam", "Deadline", "Tgl Kembali", "Status",
+    ];
+    const rows = list.map(t => [
       t.id,
       t.barang.nama,
       t.barang.kodeBarang,
+      t.namaPeminjam,
+      t.ruanganPinjam,
       t.user.name ?? "",
       t.user.email,
       fDateShort(t.tanggalPinjam),
@@ -30,7 +36,7 @@ export default function TransaksiAdminPage() {
       t.tanggalKembali ? fDateShort(t.tanggalKembali) : "",
       t.status,
     ]);
-    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
@@ -49,10 +55,9 @@ export default function TransaksiAdminPage() {
     <>
       <PageHeader title="Laporan Transaksi" subtitle="Riwayat lengkap peminjaman aset">
         <select
-          className="select"
-          style={{ width: 160 }}
+          className="select" style={{ flex: "0 1 160px" }}
           value={filter}
-          onChange={(e) => setFilter(e.target.value as StatusFilter)}
+          onChange={e => setFilter(e.target.value as StatusFilter)}
         >
           <option value="">Semua Status</option>
           <option value="AKTIF">Aktif</option>
@@ -67,50 +72,63 @@ export default function TransaksiAdminPage() {
       {/* Summary */}
       <div className="grid-3" style={{ marginBottom: 16 }}>
         {[
-          { label: "Total Transaksi", value: list.length,                                        badge: "badge-info" },
-          { label: "Sedang Dipinjam", value: list.filter((t) => t.status === "AKTIF").length,    badge: "badge-warn" },
-          { label: "Terlambat",       value: list.filter((t) => t.status === "TERLAMBAT").length, badge: "badge-danger" },
-        ].map((s) => (
-          <div key={s.label} className="glass" style={{ padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          { label: "Total Transaksi", value: list.length,                                         badge: "badge-info"   },
+          { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length,       badge: "badge-warn"   },
+          { label: "Terlambat",       value: list.filter(t => t.status === "TERLAMBAT").length,   badge: "badge-danger" },
+        ].map(s => (
+          <div key={s.label} className="glass" style={{ padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
-            <span className={`badge ${s.badge}`} style={{ fontSize: 14, fontWeight: 700, padding: "4px 14px" }}>{s.value}</span>
+            <span className={`badge ${s.badge}`} style={{ fontSize: 14, fontWeight: 700, padding: "4px 14px", flexShrink: 0 }}>{s.value}</span>
           </div>
         ))}
       </div>
 
       <div className="glass">
-        <div style={{ overflowX: "auto" }}>
+        <div className="table-wrap">
           <table className="table">
             <thead>
               <tr>
-                <th>Barang</th><th>Peminjam</th><th>Tgl Pinjam</th>
-                <th>Deadline</th><th>Tgl Kembali</th><th>Status</th>
+                <th style={{ width: "18%" }}>Barang</th>
+                <th style={{ width: "14%" }}>Peminjam</th>
+                <th style={{ width: "12%" }}>Ruangan</th>
+                <th style={{ width: "12%" }}>Petugas</th>
+                <th style={{ width: "11%" }}>Tgl Pinjam</th>
+                <th style={{ width: "11%" }}>Deadline</th>
+                <th style={{ width: "11%" }}>Tgl Kembali</th>
+                <th style={{ width: "11%" }}>Status</th>
               </tr>
             </thead>
             <tbody>
               {list.length === 0 ? (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={8}>
                     <div className="empty-state">
                       <i className="ti ti-file-off" style={{ fontSize: 28 }} />
                       Tidak ada data transaksi
                     </div>
                   </td>
                 </tr>
-              ) : list.map((t) => (
+              ) : list.map(t => (
                 <tr key={t.id}>
                   <td>
                     <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
                     <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.barang.kodeBarang}</div>
                   </td>
                   <td>
-                    <div style={{ color: "var(--text-primary)" }}>{t.user.name ?? "—"}</div>
+                    <div style={{ color: "var(--text-primary)", fontSize: 13 }}>{t.namaPeminjam}</div>
+                  </td>
+                  <td style={{ fontSize: 12 }}>{t.ruanganPinjam}</td>
+                  <td>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
                     <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.user.email}</div>
                   </td>
                   <td style={{ fontSize: 12 }}>{fDateShort(t.tanggalPinjam)}</td>
                   <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
                   <td style={{ fontSize: 12 }}>
-                    {t.tanggalKembali ? fDateShort(t.tanggalKembali) : <span style={{ color: "var(--text-muted)" }}>—</span>}
+                    {t.tanggalKembali
+                      ? fDateShort(t.tanggalKembali)
+                      : <span style={{ color: "var(--text-muted)" }}>—</span>
+                    }
                   </td>
                   <td>
                     <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>

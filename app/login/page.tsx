@@ -29,7 +29,9 @@ export default function LoginPage() {
       <div className="auth-wrapper">
         <div className="auth-card">
           <div className="auth-header">
-            {/* <div className="auth-logo">A</div> */}
+            <div className="auth-logo">
+              <img src="/uksw.png" alt="Logo" width="100" />
+            </div>
             <h1 className="auth-title">Aset FTI UKSW</h1>
             <p className="auth-sub">Sistem Manajemen Aset Fakultas Teknologi Informasi</p>
           </div>

@@ -8,13 +8,28 @@ export async function GET(req: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const search = searchParams.get("search") ?? "";
-  const kategoriId = searchParams.get("kategoriId") ?? "";
+  const search      = searchParams.get("search")      ?? "";
+  const kategoriId  = searchParams.get("kategoriId")  ?? "";
+  const kode        = searchParams.get("kode")        ?? ""; // lookup by kodeBarang (QR scan)
+  const tersedia    = searchParams.get("tersedia");          // "true" → hanya TERSEDIA
 
+  // ── QR lookup: GET /api/barang?kode=BRG-001 ──────────────────────────────
+  // Digunakan petugas setelah scan QR, return single item atau 404
+  if (kode) {
+    const item = await prisma.barang.findUnique({
+      where: { kodeBarang: kode },
+      include: { kategori: true, ruangan: true },
+    });
+    if (!item) return NextResponse.json({ error: "Barang tidak ditemukan" }, { status: 404 });
+    return NextResponse.json(item);
+  }
+
+  // ── List ─────────────────────────────────────────────────────────────────
   const list = await prisma.barang.findMany({
     where: {
-      ...(search ? { nama: { contains: search, mode: "insensitive" } } : {}),
-      ...(kategoriId ? { kategoriId } : {}),
+      ...(search     ? { nama: { contains: search, mode: "insensitive" } } : {}),
+      ...(kategoriId ? { kategoriId }                                       : {}),
+      ...(tersedia === "true" ? { status: "TERSEDIA" }                     : {}),
     },
     include: { kategori: true, ruangan: true },
     orderBy: { createdAt: "desc" },
@@ -32,14 +47,14 @@ export async function POST(req: Request) {
   const item = await prisma.barang.create({
     data: {
       kodeBarang: body.kodeBarang,
-      nama: body.nama,
-      deskripsi: body.deskripsi ?? null,
-      kondisi: body.kondisi ?? "BAIK",
-      jumlah: Number(body.jumlah) || 1,
-      tahunBeli: body.tahunBeli ? Number(body.tahunBeli) : null,
-      harga: body.harga ? Number(body.harga) : null,
+      nama:       body.nama,
+      deskripsi:  body.deskripsi  ?? null,
+      kondisi:    body.kondisi    ?? "BAIK",
+      jumlah:     Number(body.jumlah) || 1,
+      tahunBeli:  body.tahunBeli  ? Number(body.tahunBeli) : null,
+      harga:      body.harga      ? Number(body.harga)     : null,
       kategoriId: body.kategoriId,
-      ruanganId: body.ruanganId ?? null,
+      ruanganId:  body.ruanganId  ?? null,
     },
     include: { kategori: true, ruangan: true },
   });

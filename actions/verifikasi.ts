@@ -1,4 +1,3 @@
-// actions/verifikasi.ts
 "use server";
 
 import { prisma } from "@/lib/prisma";

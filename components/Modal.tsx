@@ -1,36 +1,37 @@
 // components/Modal.tsx
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface ModalProps {
-  open: boolean;
-  onClose: () => void;
-  title: string;
+  open:     boolean;
+  onClose:  () => void;
+  title:    string;
   children: React.ReactNode;
 }
 
 export default function Modal({ open, onClose, title, children }: ModalProps) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    if (open) document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    if (!open) return;
+    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", fn);
+    return () => window.removeEventListener("keydown", fn);
   }, [open, onClose]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
   if (!open) return null;
 
   return (
-    <div
-      className="modal-overlay"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
+    <div ref={overlayRef} className="modal-overlay" onClick={e => { if (e.target === overlayRef.current) onClose(); }}>
       <div className="modal">
         <div className="modal-title">
           <span>{title}</span>
-          <button
-            onClick={onClose}
-            className="btn btn-ghost btn-icon"
-            style={{ flexShrink: 0 }}
-          >
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 20, cursor: "pointer", lineHeight: 1, padding: 2 }} aria-label="Tutup">
             <i className="ti ti-x" />
           </button>
         </div>
