@@ -136,7 +136,7 @@ function GenerateTab() {
   );
 }
 
-// ── Tab Scan & Register ───────────────────────────────────
+// ── Tab Scan & Register
 function ScanTab() {
   const videoRef   = useRef<HTMLVideoElement>(null);
   const canvasRef  = useRef<HTMLCanvasElement>(null);

@@ -4,6 +4,7 @@ import Topbar, { NavItem } from "@/components/Topbar";
 const navItems: NavItem[] = [
   { href: "/admin/dashboard",  label: "Dashboard",  icon: "ti-layout-dashboard" },
   { href: "/admin/barang",     label: "Barang",     icon: "ti-box" },
+  { href: "/admin/barcode",    label: "Barcode",    icon: "ti-qrcode" },
   { href: "/admin/kategori",   label: "Kategori",   icon: "ti-category" },
   { href: "/admin/ruangan",    label: "Ruangan",    icon: "ti-building" },
   { href: "/admin/verifikasi", label: "Verifikasi", icon: "ti-user-check" },
