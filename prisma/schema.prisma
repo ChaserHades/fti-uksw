@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -104,6 +106,10 @@ model Transaksi {
   id              String          @id @default(cuid())
   barangId        String
   userId          String
+  /// Peminjam aktual (mahasiswa/dosen/staf) — diisi petugas via modal
+  namaPeminjam    String
+  /// Ruangan tujuan penggunaan — free-text
+  ruanganPinjam   String
   tanggalPinjam   DateTime        @default(now())
   tanggalKembali  DateTime?
   deadlineKembali DateTime

@@ -28,6 +28,8 @@ export type TransaksiMinAggregateOutputType = {
   id: string | null
   barangId: string | null
   userId: string | null
+  namaPeminjam: string | null
+  ruanganPinjam: string | null
   tanggalPinjam: Date | null
   tanggalKembali: Date | null
   deadlineKembali: Date | null
@@ -41,6 +43,8 @@ export type TransaksiMaxAggregateOutputType = {
   id: string | null
   barangId: string | null
   userId: string | null
+  namaPeminjam: string | null
+  ruanganPinjam: string | null
   tanggalPinjam: Date | null
   tanggalKembali: Date | null
   deadlineKembali: Date | null
@@ -54,6 +58,8 @@ export type TransaksiCountAggregateOutputType = {
   id: number
   barangId: number
   userId: number
+  namaPeminjam: number
+  ruanganPinjam: number
   tanggalPinjam: number
   tanggalKembali: number
   deadlineKembali: number
@@ -69,6 +75,8 @@ export type TransaksiMinAggregateInputType = {
   id?: true
   barangId?: true
   userId?: true
+  namaPeminjam?: true
+  ruanganPinjam?: true
   tanggalPinjam?: true
   tanggalKembali?: true
   deadlineKembali?: true
@@ -82,6 +90,8 @@ export type TransaksiMaxAggregateInputType = {
   id?: true
   barangId?: true
   userId?: true
+  namaPeminjam?: true
+  ruanganPinjam?: true
   tanggalPinjam?: true
   tanggalKembali?: true
   deadlineKembali?: true
@@ -95,6 +105,8 @@ export type TransaksiCountAggregateInputType = {
   id?: true
   barangId?: true
   userId?: true
+  namaPeminjam?: true
+  ruanganPinjam?: true
   tanggalPinjam?: true
   tanggalKembali?: true
   deadlineKembali?: true
@@ -181,6 +193,8 @@ export type TransaksiGroupByOutputType = {
   id: string
   barangId: string
   userId: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam: Date
   tanggalKembali: Date | null
   deadlineKembali: Date
@@ -215,6 +229,8 @@ export type TransaksiWhereInput = {
   id?: Prisma.StringFilter<"Transaksi"> | string
   barangId?: Prisma.StringFilter<"Transaksi"> | string
   userId?: Prisma.StringFilter<"Transaksi"> | string
+  namaPeminjam?: Prisma.StringFilter<"Transaksi"> | string
+  ruanganPinjam?: Prisma.StringFilter<"Transaksi"> | string
   tanggalPinjam?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
@@ -230,6 +246,8 @@ export type TransaksiOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  namaPeminjam?: Prisma.SortOrder
+  ruanganPinjam?: Prisma.SortOrder
   tanggalPinjam?: Prisma.SortOrder
   tanggalKembali?: Prisma.SortOrderInput | Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
@@ -248,6 +266,8 @@ export type TransaksiWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TransaksiWhereInput | Prisma.TransaksiWhereInput[]
   barangId?: Prisma.StringFilter<"Transaksi"> | string
   userId?: Prisma.StringFilter<"Transaksi"> | string
+  namaPeminjam?: Prisma.StringFilter<"Transaksi"> | string
+  ruanganPinjam?: Prisma.StringFilter<"Transaksi"> | string
   tanggalPinjam?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
@@ -263,6 +283,8 @@ export type TransaksiOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  namaPeminjam?: Prisma.SortOrder
+  ruanganPinjam?: Prisma.SortOrder
   tanggalPinjam?: Prisma.SortOrder
   tanggalKembali?: Prisma.SortOrderInput | Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
@@ -282,6 +304,8 @@ export type TransaksiScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
   barangId?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
+  namaPeminjam?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
+  ruanganPinjam?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
   tanggalPinjam?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
   tanggalKembali?: Prisma.DateTimeNullableWithAggregatesFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
@@ -293,6 +317,8 @@ export type TransaksiScalarWhereWithAggregatesInput = {
 
 export type TransaksiCreateInput = {
   id?: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -308,6 +334,8 @@ export type TransaksiUncheckedCreateInput = {
   id?: string
   barangId: string
   userId: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -319,6 +347,8 @@ export type TransaksiUncheckedCreateInput = {
 
 export type TransaksiUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -334,6 +364,8 @@ export type TransaksiUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   barangId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -347,6 +379,8 @@ export type TransaksiCreateManyInput = {
   id?: string
   barangId: string
   userId: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -358,6 +392,8 @@ export type TransaksiCreateManyInput = {
 
 export type TransaksiUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -371,6 +407,8 @@ export type TransaksiUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   barangId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -394,6 +432,8 @@ export type TransaksiCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  namaPeminjam?: Prisma.SortOrder
+  ruanganPinjam?: Prisma.SortOrder
   tanggalPinjam?: Prisma.SortOrder
   tanggalKembali?: Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
@@ -407,6 +447,8 @@ export type TransaksiMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  namaPeminjam?: Prisma.SortOrder
+  ruanganPinjam?: Prisma.SortOrder
   tanggalPinjam?: Prisma.SortOrder
   tanggalKembali?: Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
@@ -420,6 +462,8 @@ export type TransaksiMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  namaPeminjam?: Prisma.SortOrder
+  ruanganPinjam?: Prisma.SortOrder
   tanggalPinjam?: Prisma.SortOrder
   tanggalKembali?: Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
@@ -523,6 +567,8 @@ export type EnumStatusTransaksiFieldUpdateOperationsInput = {
 
 export type TransaksiCreateWithoutUserInput = {
   id?: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -536,6 +582,8 @@ export type TransaksiCreateWithoutUserInput = {
 export type TransaksiUncheckedCreateWithoutUserInput = {
   id?: string
   barangId: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -578,6 +626,8 @@ export type TransaksiScalarWhereInput = {
   id?: Prisma.StringFilter<"Transaksi"> | string
   barangId?: Prisma.StringFilter<"Transaksi"> | string
   userId?: Prisma.StringFilter<"Transaksi"> | string
+  namaPeminjam?: Prisma.StringFilter<"Transaksi"> | string
+  ruanganPinjam?: Prisma.StringFilter<"Transaksi"> | string
   tanggalPinjam?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
@@ -589,6 +639,8 @@ export type TransaksiScalarWhereInput = {
 
 export type TransaksiCreateWithoutBarangInput = {
   id?: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -602,6 +654,8 @@ export type TransaksiCreateWithoutBarangInput = {
 export type TransaksiUncheckedCreateWithoutBarangInput = {
   id?: string
   userId: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -640,6 +694,8 @@ export type TransaksiUpdateManyWithWhereWithoutBarangInput = {
 export type TransaksiCreateManyUserInput = {
   id?: string
   barangId: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -651,6 +707,8 @@ export type TransaksiCreateManyUserInput = {
 
 export type TransaksiUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -664,6 +722,8 @@ export type TransaksiUpdateWithoutUserInput = {
 export type TransaksiUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   barangId?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -676,6 +736,8 @@ export type TransaksiUncheckedUpdateWithoutUserInput = {
 export type TransaksiUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   barangId?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -688,6 +750,8 @@ export type TransaksiUncheckedUpdateManyWithoutUserInput = {
 export type TransaksiCreateManyBarangInput = {
   id?: string
   userId: string
+  namaPeminjam: string
+  ruanganPinjam: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
@@ -699,6 +763,8 @@ export type TransaksiCreateManyBarangInput = {
 
 export type TransaksiUpdateWithoutBarangInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -712,6 +778,8 @@ export type TransaksiUpdateWithoutBarangInput = {
 export type TransaksiUncheckedUpdateWithoutBarangInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -724,6 +792,8 @@ export type TransaksiUncheckedUpdateWithoutBarangInput = {
 export type TransaksiUncheckedUpdateManyWithoutBarangInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  namaPeminjam?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganPinjam?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -739,6 +809,8 @@ export type TransaksiSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   id?: boolean
   barangId?: boolean
   userId?: boolean
+  namaPeminjam?: boolean
+  ruanganPinjam?: boolean
   tanggalPinjam?: boolean
   tanggalKembali?: boolean
   deadlineKembali?: boolean
@@ -754,6 +826,8 @@ export type TransaksiSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   id?: boolean
   barangId?: boolean
   userId?: boolean
+  namaPeminjam?: boolean
+  ruanganPinjam?: boolean
   tanggalPinjam?: boolean
   tanggalKembali?: boolean
   deadlineKembali?: boolean
@@ -769,6 +843,8 @@ export type TransaksiSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   id?: boolean
   barangId?: boolean
   userId?: boolean
+  namaPeminjam?: boolean
+  ruanganPinjam?: boolean
   tanggalPinjam?: boolean
   tanggalKembali?: boolean
   deadlineKembali?: boolean
@@ -784,6 +860,8 @@ export type TransaksiSelectScalar = {
   id?: boolean
   barangId?: boolean
   userId?: boolean
+  namaPeminjam?: boolean
+  ruanganPinjam?: boolean
   tanggalPinjam?: boolean
   tanggalKembali?: boolean
   deadlineKembali?: boolean
@@ -793,7 +871,7 @@ export type TransaksiSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TransaksiOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barangId" | "userId" | "tanggalPinjam" | "tanggalKembali" | "deadlineKembali" | "status" | "catatan" | "createdAt" | "updatedAt", ExtArgs["result"]["transaksi"]>
+export type TransaksiOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barangId" | "userId" | "namaPeminjam" | "ruanganPinjam" | "tanggalPinjam" | "tanggalKembali" | "deadlineKembali" | "status" | "catatan" | "createdAt" | "updatedAt", ExtArgs["result"]["transaksi"]>
 export type TransaksiInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -817,6 +895,14 @@ export type $TransaksiPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     id: string
     barangId: string
     userId: string
+    /**
+     * Peminjam aktual (mahasiswa/dosen/staf) — diisi petugas via modal
+     */
+    namaPeminjam: string
+    /**
+     * Ruangan tujuan penggunaan — free-text
+     */
+    ruanganPinjam: string
     tanggalPinjam: Date
     tanggalKembali: Date | null
     deadlineKembali: Date
@@ -1252,6 +1338,8 @@ export interface TransaksiFieldRefs {
   readonly id: Prisma.FieldRef<"Transaksi", 'String'>
   readonly barangId: Prisma.FieldRef<"Transaksi", 'String'>
   readonly userId: Prisma.FieldRef<"Transaksi", 'String'>
+  readonly namaPeminjam: Prisma.FieldRef<"Transaksi", 'String'>
+  readonly ruanganPinjam: Prisma.FieldRef<"Transaksi", 'String'>
   readonly tanggalPinjam: Prisma.FieldRef<"Transaksi", 'DateTime'>
   readonly tanggalKembali: Prisma.FieldRef<"Transaksi", 'DateTime'>
   readonly deadlineKembali: Prisma.FieldRef<"Transaksi", 'DateTime'>

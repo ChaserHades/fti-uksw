@@ -5,7 +5,8 @@ import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
-import type { Barang } from "@/types";
+import type { Barang, Transaksi } from "@/types";
+import { Mode } from "fs";
 
 declare const jsQR: (
   data: Uint8ClampedArray, width: number, height: number
@@ -19,6 +20,16 @@ interface PinjamForm {
 }
 const EMPTY: PinjamForm = { namaPeminjam: "", ruanganPinjam: "", deadlineKembali: "", catatan: "" };
 
+/** QR payload bisa berupa JSON object {"id","kode","nama"} atau plain kodeBarang */
+function parseQrPayload(raw: string): string {
+  const trimmed = raw.trim();
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (parsed?.kode && typeof parsed.kode === "string") return parsed.kode;
+  } catch { /* plain string */ }
+  return trimmed;
+}
+
 export default function PinjamPage() {
   const videoRef  = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,12 +37,19 @@ export default function PinjamPage() {
   const rafRef    = useRef<number>(0);
   const jsqrReady = useRef(false);
 
-  const [scanning,   setScanning]   = useState(false);
-  const [barang,     setBarang]     = useState<Barang | null>(null);
-  const [lookErr,    setLookErr]    = useState("");
-  const [modalOpen,  setModalOpen]  = useState(false);
-  const [form,       setForm]       = useState<PinjamForm>(EMPTY);
-  const [saving,     setSaving]     = useState(false);
+  const [scanning,  setScanning]  = useState(false);
+  const [barang,    setBarang]    = useState<Barang | null>(null);
+  const [lookErr,   setLookErr]   = useState("");
+
+  // Modal pinjam (barang TERSEDIA)
+  const [modalPinjam, setModalPinjam] = useState(false);
+  const [form,        setForm]        = useState<PinjamForm>(EMPTY);
+  const [saving,      setSaving]      = useState(false);
+
+  // Modal auto-return konfirmasi (barang DIPINJAM)
+  const [modalKembali,  setModalKembali]  = useState(false);
+  const [transaksiAktif, setTransaksiAktif] = useState<Transaksi | null>(null);
+  const [processing,    setProcessing]    = useState(false);
 
   const minDate    = new Date(); minDate.setDate(minDate.getDate() + 1);
   const minDateStr = minDate.toISOString().split("T")[0];
@@ -85,20 +103,36 @@ export default function PinjamPage() {
     rafRef.current = requestAnimationFrame(scanLoop);
   }
 
-  async function handleScanResult(kode: string) {
+  async function handleScanResult(raw: string) {
+    const kode = parseQrPayload(raw);
     setLookErr(""); setBarang(null);
     try {
       const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode)}`);
-      if (data.status !== "TERSEDIA") {
-        setLookErr(`Barang "${data.nama}" berstatus ${data.status} — tidak bisa dipinjam.`);
-        return;
+      setBarang(data);
+
+      if (data.status === "TERSEDIA") {
+        // → form pinjam
+        setForm(EMPTY); setModalPinjam(true);
+      } else if (data.status === "DIPINJAM") {
+        // → cari transaksi aktif lalu tampil modal konfirmasi kembali
+        const list = await api.get<Transaksi[]>("/api/transaksi?status=AKTIF");
+        const trx  = list.find(t => t.barangId === data.id);
+        if (!trx) {
+          setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi transaksi aktif tidak ditemukan.`);
+          return;
+        }
+        setTransaksiAktif(trx); setModalKembali(true);
+      } else {
+        setLookErr(`Barang "${data.nama}" berstatus ${data.status} — tidak dapat diproses.`);
       }
-      setBarang(data); setForm(EMPTY); setModalOpen(true);
-    } catch { setLookErr(`Barang kode "${kode}" tidak ditemukan.`); }
+    } catch {
+      setLookErr(`Barang kode "${kode}" tidak ditemukan. Hubungi Admin untuk registrasi.`);
+    }
   }
 
   const setF = (k: keyof PinjamForm, v: string) => setForm(f => ({ ...f, [k]: v }));
 
+  // ── Submit pinjam ──
   async function handlePinjam() {
     if (!barang) return;
     if (!form.namaPeminjam.trim())  { toast.error("Nama peminjam wajib diisi"); return; }
@@ -113,25 +147,35 @@ export default function PinjamPage() {
         deadlineKembali: form.deadlineKembali,
         catatan:         form.catatan,
       });
-      toast.success(`Peminjaman "${barang.nama}" berhasil!`);
-      setModalOpen(false); setBarang(null); setLookErr("");
+      toast.success(`Peminjaman "${barang.nama}" berhasil dicatat!`);
+      setModalPinjam(false); setBarang(null);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Gagal meminjam");
     } finally { setSaving(false); }
   }
 
+  // ── Auto return ──
+  async function handleKembali() {
+    if (!transaksiAktif) return;
+    setProcessing(true);
+    try {
+      await api.post(`/api/transaksi/${transaksiAktif.id}/kembali`, {});
+      toast.success("Barang berhasil dikembalikan — status kembali Tersedia!");
+      setModalKembali(false); setTransaksiAktif(null); setBarang(null);
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Gagal memproses pengembalian");
+    } finally { setProcessing(false); }
+  }
+
   return (
     <>
-      <PageHeader title="Pinjam Barang" subtitle="Scan QR Code barang untuk memulai peminjaman" />
+      <PageHeader title="Pinjam / Kembali Barang" subtitle="Scan QR Code barang — sistem mendeteksi status otomatis" />
 
       <div style={{ maxWidth: 520 }}>
         <div className="glass" style={{ padding: 24 }}>
           <div style={{ textAlign: "center", marginBottom: 18 }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
               Scan QR Code Barang
-            </div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-              Arahkan kamera ke QR Code yang tertempel di barang
             </div>
           </div>
 
@@ -174,11 +218,10 @@ export default function PinjamPage() {
         </div>
       </div>
 
-      {/* Modal Form Peminjaman */}
-      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setBarang(null); }} title="Form Peminjaman">
+      {/* ── Modal: TERSEDIA → Form Pinjam ── */}
+      <Modal open={modalPinjam} onClose={() => { setModalPinjam(false); setBarang(null); }} title="Form Peminjaman">
         {barang && (
           <>
-            {/* Info barang */}
             <div style={{ padding: "12px 14px", borderRadius: 10, marginBottom: 20, background: "rgba(65,90,119,0.25)", border: "1px solid var(--glass-border)", display: "flex", gap: 12, alignItems: "center" }}>
               <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: "rgba(65,90,119,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <i className="ti ti-box" style={{ fontSize: 20, color: "var(--ds-mist)" }} />
@@ -208,9 +251,58 @@ export default function PinjamPage() {
             </div>
 
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button className="btn btn-ghost" onClick={() => { setModalOpen(false); setBarang(null); }}>Batal</button>
+              <button className="btn btn-ghost" onClick={() => { setModalPinjam(false); setBarang(null); }}>Batal</button>
               <button className="btn btn-primary" onClick={handlePinjam} disabled={saving}>
                 {saving ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-check" />Konfirmasi Pinjam</>}
+              </button>
+            </div>
+          </>
+        )}
+      </Modal>
+
+      {/* ── Modal: DIPINJAM → Konfirmasi Kembali ── */}
+      <Modal open={modalKembali} onClose={() => { setModalKembali(false); setTransaksiAktif(null); setBarang(null); }} title="Konfirmasi Pengembalian">
+        {barang && transaksiAktif && (
+          <>
+            <div style={{ padding: "12px 14px", borderRadius: 10, marginBottom: 16, background: "rgba(65,90,119,0.25)", border: "1px solid var(--glass-border)" }}>
+              <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 8 }}>{barang.nama}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {[
+                  { label: "Kode",     value: barang.kodeBarang },
+                  { label: "Peminjam", value: transaksiAktif.namaPeminjam },
+                  { label: "Ruangan",  value: transaksiAktif.ruanganPinjam },
+                  { label: "Deadline", value: new Date(transaksiAktif.deadlineKembali).toLocaleDateString("id-ID") },
+                ].map(row => (
+                  <div key={row.label} style={{ display: "flex", gap: 8, fontSize: 12 }}>
+                    <span style={{ color: "var(--text-muted)", width: 70, flexShrink: 0 }}>{row.label}</span>
+                    <span style={{ color: "var(--text-secondary)", fontFamily: row.label === "Kode" ? "monospace" : undefined }}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 20 }}>
+              Konfirmasi bahwa barang telah dikembalikan. Status akan otomatis berubah menjadi <strong>Tersedia</strong>.
+            </div>
+
+            {/* ── Mode switcher ── */}
+            {/* <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+              {(["scan", "list"] as Mode[]).map(m => (
+                <button
+                  key={m}
+                  className={`btn btn-sm ${mode === m ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => setMode(m)}
+                >
+                  <i className={`ti ${m === "scan" ? "ti-qrcode" : "ti-list"}`} />
+                  {m === "scan" ? "Scan QR" : "Lihat Daftar"}
+                </button>
+              ))}
+            </div> */}
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button className="btn btn-ghost" onClick={() => { setModalKembali(false); setTransaksiAktif(null); setBarang(null); }}>Batal</button>
+              <button className="btn btn-success" onClick={handleKembali} disabled={processing}>
+                {processing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-circle-check" />Konfirmasi Kembali</>}
               </button>
             </div>
           </>

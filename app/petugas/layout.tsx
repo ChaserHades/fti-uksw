@@ -3,8 +3,8 @@ import Topbar, { NavItem } from "@/components/Topbar";
 
 const navItems: NavItem[] = [
   { href: "/petugas/dashboard",  label: "Dashboard",   icon: "ti-layout-dashboard" },
-  { href: "/petugas/pinjam",     label: "Pinjam",      icon: "ti-arrow-bar-to-down" },
-  { href: "/petugas/kembali",    label: "Kembalikan",  icon: "ti-arrow-bar-to-up" },
+  { href: "/petugas/pinjam",     label: "Pinjam/ Kembali",      icon: "ti-arrow-bar-to-down" },
+  // { href: "/petugas/kembali",    label: "Kembalikan",  icon: "ti-arrow-bar-to-up" },
   { href: "/petugas/listbarang", label: "Cek Barang",  icon: "ti-list-search" },
   { href: "/petugas/riwayat",    label: "Riwayat",     icon: "ti-history" },
 ];

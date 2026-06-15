@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
-import type { Barang } from "@/types";
+import type { Barang, KategoriBarang, Ruangan } from "@/types";
 
 declare const jsQR: (
   data: Uint8ClampedArray, width: number, height: number
@@ -13,9 +13,23 @@ declare const jsQR: (
 
 type Tab = "generate" | "scan";
 
+const EMPTY_FORM = {
+  kodeBarang: "", nama: "", deskripsi: "", kondisi: "BAIK",
+  jumlah: 1, tahunBeli: "", harga: "", kategoriId: "", ruanganId: "",
+};
+
+/** QR payload bisa berupa JSON object {"id","kode","nama"} atau plain kodeBarang */
+function parseQrPayload(raw: string): string {
+  const trimmed = raw.trim();
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (parsed?.kode && typeof parsed.kode === "string") return parsed.kode;
+  } catch { /* plain string */ }
+  return trimmed;
+}
+
 export default function BarcodePage() {
   const [tab, setTab] = useState<Tab>("generate");
-
   return (
     <>
       <PageHeader title="Barcode / QR Code" subtitle="Generate & scan QR code aset FTI UKSW" />
@@ -36,7 +50,7 @@ export default function BarcodePage() {
   );
 }
 
-// ── Tab Generate ─────────────────────────────────────────
+// Tab Generate & View QR 
 function GenerateTab() {
   const [barang,    setBarang]    = useState<Barang[]>([]);
   const [search,    setSearch]    = useState("");
@@ -76,10 +90,10 @@ function GenerateTab() {
             <thead>
               <tr>
                 <th style={{ width: "18%" }}>Kode</th>
-                <th style={{ width: "38%" }}>Nama</th>
-                <th style={{ width: "18%" }}>Kategori</th>
+                <th style={{ width: "34%" }}>Nama</th>
+                <th style={{ width: "16%" }}>Kategori</th>
                 <th style={{ width: "10%" }}>QR</th>
-                <th style={{ width: "16%" }}>Aksi</th>
+                <th style={{ width: "22%" }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -97,14 +111,17 @@ function GenerateTab() {
                   <td>
                     {b.qrCode
                       ? <span className="badge badge-ok"><i className="ti ti-check" style={{ fontSize: 10 }} />Ada</span>
-                      : <span className="badge badge-warn">Belum</span>
-                    }
+                      : <span className="badge badge-warn">Belum</span>}
                   </td>
                   <td>
-                    <button className="btn btn-ghost btn-sm" onClick={() => handleGenerate(b)} disabled={loadingId === b.id}>
-                      {loadingId === b.id ? <div className="spinner" style={{ width: 13, height: 13 }} /> : <i className="ti ti-qrcode" />}
-                      {b.qrCode ? "Lihat QR" : "Generate"}
-                    </button>
+                    <div style={{ display: "flex", gap: 5 }}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => handleGenerate(b)} disabled={loadingId === b.id}>
+                        {loadingId === b.id
+                          ? <div className="spinner" style={{ width: 13, height: 13 }} />
+                          : <i className="ti ti-qrcode" />}
+                        {b.qrCode ? "Lihat / Perbarui QR" : "Generate QR"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -136,22 +153,35 @@ function GenerateTab() {
   );
 }
 
-// ── Tab Scan & Register
+// ── Tab Scan & Register ───────────────────────────────────────────────────────
 function ScanTab() {
-  const videoRef   = useRef<HTMLVideoElement>(null);
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const streamRef  = useRef<MediaStream | null>(null);
-  const rafRef     = useRef<number>(0);
-  const jsqrReady  = useRef(false);
+  const videoRef  = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const rafRef    = useRef<number>(0);
+  const jsqrReady = useRef(false);
 
-  const [scanning,  setScanning]  = useState(false);
-  const [result,    setResult]    = useState("");
-  const [barang,    setBarang]    = useState<Barang | null>(null);
-  const [lookErr,   setLookErr]   = useState("");
-  const [saving,    setSaving]    = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [scanning,    setScanning]    = useState(false);
+  const [scannedKode, setScannedKode] = useState("");  // parsed kodeBarang
+  const [lookErr,     setLookErr]     = useState("");
 
-  // Load jsQR dari CDN
+  // State: barang ditemukan → tampilkan info
+  const [foundBarang, setFoundBarang] = useState<Barang | null>(null);
+  const [qrModal,     setQrModal]     = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
+
+  // State: barang tidak ditemukan → form register baru
+  const [registerModal, setRegisterModal] = useState(false);
+  const [form,          setForm]          = useState<typeof EMPTY_FORM>(EMPTY_FORM);
+  const [kategori,      setKategori]      = useState<KategoriBarang[]>([]);
+  const [ruangan,       setRuangan]       = useState<Ruangan[]>([]);
+  const [saving,        setSaving]        = useState(false);
+
+  useEffect(() => {
+    api.get<KategoriBarang[]>("/api/kategori").then(setKategori).catch(console.error);
+    api.get<Ruangan[]>("/api/ruangan").then(setRuangan).catch(console.error);
+  }, []);
+
+  // Load jsQR
   useEffect(() => {
     if (document.getElementById("jsqr-script")) { jsqrReady.current = true; return; }
     const s = document.createElement("script");
@@ -164,18 +194,17 @@ function ScanTab() {
   useEffect(() => () => stopCamera(), []);
 
   async function startCamera() {
+    setLookErr(""); setFoundBarang(null); setScannedKode("");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
       });
       streamRef.current = stream;
       const v = videoRef.current!;
-      v.srcObject = stream;
-      await v.play();
-      setScanning(true);
-      scanLoop();
+      v.srcObject = stream; await v.play();
+      setScanning(true); scanLoop();
     } catch {
-      toast.error("Tidak dapat mengakses kamera. Pastikan izin kamera diberikan.");
+      toast.error("Tidak dapat mengakses kamera. Pastikan izin diberikan.");
     }
   }
 
@@ -188,59 +217,77 @@ function ScanTab() {
   }
 
   function scanLoop() {
-    const video  = videoRef.current;
-    const canvas = canvasRef.current;
+    const video = videoRef.current, canvas = canvasRef.current;
     if (!video || !canvas) return;
     if (!jsqrReady.current || video.readyState < video.HAVE_ENOUGH_DATA) {
       rafRef.current = requestAnimationFrame(scanLoop); return;
     }
     const ctx = canvas.getContext("2d")!;
-    canvas.width  = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(img.data, canvas.width, canvas.height);
-    if (code?.data) {
-      stopCamera();
-      handleScanResult(code.data);
-      return;
-    }
+    const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+    if (code?.data) { stopCamera(); handleScanResult(code.data); return; }
     rafRef.current = requestAnimationFrame(scanLoop);
   }
 
-  async function handleScanResult(kode: string) {
-    setResult(kode); setLookErr(""); setBarang(null);
+  async function handleScanResult(raw: string) {
+    const kode = parseQrPayload(raw);
+    setScannedKode(kode);
+    setLookErr("");
+    setFoundBarang(null);
+
     try {
+      // Barang ditemukan di DB
       const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode)}`);
-      setBarang(data); setModalOpen(true);
+      setFoundBarang(data);
+      // Auto-generate / refresh QR dan tampilkan
+      const qr = await api.get<{ qrCode: string; kode: string; nama: string }>(`/api/barang/${data.id}/qr`);
+      setQrModal(qr);
     } catch {
-      setLookErr(`Barang kode "${kode}" tidak ditemukan di database.`);
+      // 404 → barang belum di DB → buka form register dengan kode pre-filled
+      setForm({ ...EMPTY_FORM, kodeBarang: kode });
+      setRegisterModal(true);
     }
   }
 
+  const setF = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
+
   async function handleRegister() {
-    if (!barang) return;
+    if (!form.nama.trim())      { toast.error("Nama barang wajib diisi"); return; }
+    if (!form.kategoriId)       { toast.error("Kategori wajib dipilih"); return; }
     setSaving(true);
     try {
-      await api.post(`/api/barang/${barang.id}/qr-register`, { kode: result });
-      toast.success(`QR "${barang.nama}" berhasil diregistrasi!`);
-      setModalOpen(false); setResult(""); setBarang(null);
+      const body = {
+        ...form,
+        jumlah:    Number(form.jumlah) || 1,
+        tahunBeli: form.tahunBeli ? Number(form.tahunBeli) : null,
+        harga:     form.harga     ? Number(form.harga)     : null,
+        ruanganId: form.ruanganId || null,
+      };
+      await api.post("/api/barang", body);
+      toast.success(`Barang "${form.nama}" berhasil diregistrasi!`);
+      setRegisterModal(false);
+      setScannedKode("");
+      setForm(EMPTY_FORM);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Gagal registrasi");
     } finally { setSaving(false); }
   }
 
-  const reset = () => { setResult(""); setLookErr(""); setBarang(null); startCamera(); };
+  const reset = () => {
+    setScannedKode(""); setLookErr(""); setFoundBarang(null);
+    setQrModal(null); startCamera();
+  };
 
   return (
     <div style={{ maxWidth: 540 }}>
       <div className="glass" style={{ padding: 24 }}>
         <div style={{ textAlign: "center", marginBottom: 18 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
-            Scan QR Code untuk Register ke Database
+            Scan QR / Barcode Aset
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-            Scan QR fisik yang sudah dicetak — sistem mencatat ke record barang
+            Jika barang sudah ada di DB → tampil QR. Jika belum → form registrasi baru.
           </div>
         </div>
 
@@ -259,14 +306,9 @@ function ScanTab() {
               <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
             </div>
           )}
-          {/* Scan overlay */}
           {scanning && (
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-              <div style={{
-                width: 180, height: 180, borderRadius: 10,
-                border: "2px solid var(--color-ok)",
-                boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)",
-              }} />
+              <div style={{ width: 180, height: 180, borderRadius: 10, border: "2px solid var(--color-ok)", boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)" }} />
             </div>
           )}
         </div>
@@ -276,41 +318,129 @@ function ScanTab() {
             ? <button className="btn btn-primary" onClick={startCamera}><i className="ti ti-camera" />Buka Kamera</button>
             : <button className="btn btn-ghost" onClick={stopCamera}><i className="ti ti-camera-off" />Stop Kamera</button>
           }
+          {scannedKode && !scanning && (
+            <button className="btn btn-ghost" onClick={reset}><i className="ti ti-refresh" />Scan Ulang</button>
+          )}
         </div>
 
         {lookErr && (
           <div className="alert alert-danger" style={{ marginTop: 14 }}>
             <i className="ti ti-alert-circle" style={{ flexShrink: 0 }} />
             <span style={{ flex: 1 }}>{lookErr}</span>
-            <button className="btn btn-ghost btn-sm" onClick={reset}>Scan Ulang</button>
+          </div>
+        )}
+
+        {/* Info hasil scan */}
+        {scannedKode && !scanning && (
+          <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 10, background: "rgba(65,90,119,0.2)", border: "1px solid var(--glass-border)", fontSize: 12 }}>
+            <span style={{ color: "var(--text-muted)" }}>Kode terbaca: </span>
+            <span style={{ fontFamily: "monospace", color: "var(--text-primary)" }}>{scannedKode}</span>
           </div>
         )}
       </div>
 
-      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setResult(""); setBarang(null); }} title="Registrasi QR Code">
-        {barang && (
-          <>
-            <div style={{ padding: "12px 14px", borderRadius: 10, marginBottom: 16, background: "rgba(65,90,119,0.25)", border: "1px solid var(--glass-border)" }}>
-              <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 8 }}>{barang.nama}</div>
-              {[["Kode", barang.kodeBarang], ["Kategori", barang.kategori.nama], ["Status QR", barang.qrCode ? "Sudah terdaftar" : "Belum terdaftar"]].map(([l, v]) => (
-                <div key={l} style={{ display: "flex", gap: 8, fontSize: 12, marginBottom: 4 }}>
-                  <span style={{ color: "var(--text-muted)", width: 75, flexShrink: 0 }}>{l}</span>
-                  <span style={{ color: "var(--text-secondary)" }}>{v}</span>
-                </div>
-              ))}
+      {/* ── Modal: barang DITEMUKAN → tampil QR ── */}
+      <Modal open={!!qrModal} onClose={() => { setQrModal(null); setFoundBarang(null); }} title="Barang Ditemukan">
+        {qrModal && foundBarang && (
+          <div style={{ textAlign: "center" }}>
+            <div className="alert alert-info" style={{ marginBottom: 16, textAlign: "left" }}>
+              <i className="ti ti-circle-check" style={{ flexShrink: 0 }} />
+              Barang sudah terdaftar di database. QR Code telah diperbarui.
             </div>
-            {barang.qrCode
-              ? <div className="alert alert-warn" style={{ marginBottom: 16 }}><i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />QR sudah terdaftar. Scan ini akan menimpa data lama.</div>
-              : <div className="alert alert-info" style={{ marginBottom: 16 }}><i className="ti ti-info-circle" style={{ flexShrink: 0 }} />QR akan diregistrasikan ke database untuk barang ini.</div>
-            }
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button className="btn btn-ghost" onClick={() => { setModalOpen(false); setResult(""); setBarang(null); }}>Batal</button>
-              <button className="btn btn-primary" onClick={handleRegister} disabled={saving}>
-                {saving ? <><div className="spinner" style={{ width: 14, height: 14 }} />Menyimpan…</> : <><i className="ti ti-check" />Registrasi QR</>}
+            <div style={{ fontWeight: 600, marginBottom: 4, color: "var(--text-primary)" }}>{qrModal.nama}</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8, fontFamily: "monospace" }}>{qrModal.kode}</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 20 }}>
+              Status: <span className={`badge ${foundBarang.status === "TERSEDIA" ? "badge-ok" : "badge-warn"}`} style={{ fontSize: 11 }}>{foundBarang.status}</span>
+            </div>
+            <div style={{ display: "inline-block", background: "#fff", padding: 10, borderRadius: 12, marginBottom: 20 }}>
+              <img src={qrModal.qrCode} alt="QR" style={{ width: 200, height: 200, display: "block" }} />
+            </div>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <a href={qrModal.qrCode} download={`${qrModal.kode}-qr.png`} className="btn btn-primary btn-sm" style={{ display: "inline-flex" }}>
+                <i className="ti ti-download" />Download PNG
+              </a>
+              <button className="btn btn-ghost btn-sm" onClick={() => window.print()}>
+                <i className="ti ti-printer" />Print
+              </button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setQrModal(null); setFoundBarang(null); reset(); }}>
+                <i className="ti ti-refresh" />Scan Lagi
               </button>
             </div>
-          </>
+          </div>
         )}
+      </Modal>
+
+      {/* ── Modal: barang TIDAK DITEMUKAN → form register baru ── */}
+      <Modal open={registerModal} onClose={() => { setRegisterModal(false); setForm(EMPTY_FORM); }} title="Register Barang Baru">
+        <div className="alert alert-warn" style={{ marginBottom: 16 }}>
+          <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
+          Kode <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{scannedKode}</span> belum ada di database. Lengkapi data barang untuk mendaftarkannya.
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Kode Barang</label>
+            {/* Read-only — dari hasil scan */}
+            <input className="input" value={form.kodeBarang} readOnly style={{ opacity: 0.7, cursor: "not-allowed" }} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Kondisi</label>
+            <select className="select" value={form.kondisi} onChange={e => setF("kondisi", e.target.value)}>
+              <option value="BAIK">Baik</option>
+              <option value="RUSAK_RINGAN">Rusak Ringan</option>
+              <option value="RUSAK_BERAT">Rusak Berat</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Nama Barang *</label>
+          <input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} autoFocus />
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Kategori *</label>
+            <select className="select" value={form.kategoriId} onChange={e => setF("kategoriId", e.target.value)}>
+              <option value="">— Pilih kategori —</option>
+              {kategori.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Ruangan</label>
+            <select className="select" value={form.ruanganId} onChange={e => setF("ruanganId", e.target.value)}>
+              <option value="">Tidak ada</option>
+              {ruangan.map(r => <option key={r.id} value={r.id}>{r.kode} — {r.nama}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Jumlah</label>
+            <input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Tahun Beli</label>
+            <input type="number" className="input" placeholder="2024" value={form.tahunBeli} onChange={e => setF("tahunBeli", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Harga (Rp)</label>
+            <input type="number" className="input" placeholder="0" value={form.harga} onChange={e => setF("harga", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Deskripsi</label>
+          <input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setF("deskripsi", e.target.value)} />
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 4 }}>
+          <button className="btn btn-ghost" onClick={() => { setRegisterModal(false); setForm(EMPTY_FORM); }}>Batal</button>
+          <button className="btn btn-primary" onClick={handleRegister} disabled={saving}>
+            {saving ? <><div className="spinner" style={{ width: 14, height: 14 }} />Menyimpan…</> : <><i className="ti ti-plus" />Register Barang</>}
+          </button>
+        </div>
       </Modal>
     </div>
   );

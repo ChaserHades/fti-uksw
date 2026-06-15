@@ -139,6 +139,8 @@ export const TransaksiScalarFieldEnum = {
   id: 'id',
   barangId: 'barangId',
   userId: 'userId',
+  namaPeminjam: 'namaPeminjam',
+  ruanganPinjam: 'ruanganPinjam',
   tanggalPinjam: 'tanggalPinjam',
   tanggalKembali: 'tanggalKembali',
   deadlineKembali: 'deadlineKembali',
