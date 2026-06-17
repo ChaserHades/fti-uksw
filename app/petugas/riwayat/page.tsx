@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
-import { fDateShort } from "@/helpers/format";
+import { fDateShort, isOverdue } from "@/helpers/format";
 import { api } from "@/helpers/api";
 import type { Transaksi } from "@/types";
 
@@ -13,20 +13,27 @@ export default function RiwayatPage() {
   const [filter, setFilter]       = useState<StatusFilter>("");
 
   useEffect(() => {
-    // Ambil userId dulu dari /api/me, lalu filter
     fetch("/api/me")
       .then((r) => r.json())
       .then((d) => {
         const params = new URLSearchParams({ userId: d.id });
-        if (filter) params.set("status", filter);
+        // "TERLAMBAT" adalah computed filter, bukan status DB — kirim AKTIF lalu filter client-side
+        if (filter && filter !== "TERLAMBAT") params.set("status", filter);
+        else if (filter === "TERLAMBAT") params.set("status", "AKTIF");
         return api.get<Transaksi[]>(`/api/transaksi?${params}`);
       })
-      .then(setTransaksi)
+      .then((data) => {
+        if (filter === "TERLAMBAT") {
+          setTransaksi(data.filter(t => isOverdue(t.deadlineKembali)));
+        } else {
+          setTransaksi(data);
+        }
+      })
       .catch(console.error);
   }, [filter]);
 
   const statusBadge: Record<string, string> = {
-    AKTIF: "badge-warn", SELESAI: "badge-ok", TERLAMBAT: "badge-danger",
+    AKTIF: "badge-warn", SELESAI: "badge-ok",
   };
 
   return (
@@ -40,8 +47,8 @@ export default function RiwayatPage() {
         >
           <option value="">Semua Status</option>
           <option value="AKTIF">Aktif</option>
-          <option value="SELESAI">Selesai</option>
           <option value="TERLAMBAT">Terlambat</option>
+          <option value="SELESAI">Selesai</option>
         </select>
       </PageHeader>
 
@@ -64,25 +71,31 @@ export default function RiwayatPage() {
                     </div>
                   </td>
                 </tr>
-              ) : transaksi.map((t) => (
-                <tr key={t.id}>
-                  <td>
-                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.barang.kodeBarang}</div>
-                  </td>
-                  <td style={{ fontSize: 12 }}>{fDateShort(t.tanggalPinjam)}</td>
-                  <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
-                  <td style={{ fontSize: 12 }}>
-                    {t.tanggalKembali
-                      ? fDateShort(t.tanggalKembali)
-                      : <span style={{ color: "var(--text-muted)" }}>—</span>
-                    }
-                  </td>
-                  <td>
-                    <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
-                  </td>
-                </tr>
-              ))}
+              ) : transaksi.map((t) => {
+                const late = t.status === "AKTIF" && isOverdue(t.deadlineKembali);
+                return (
+                  <tr key={t.id}>
+                    <td>
+                      <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.barang.kodeBarang}</div>
+                    </td>
+                    <td style={{ fontSize: 12 }}>{fDateShort(t.tanggalPinjam)}</td>
+                    <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
+                    <td style={{ fontSize: 12 }}>
+                      {t.tanggalKembali
+                        ? fDateShort(t.tanggalKembali)
+                        : <span style={{ color: "var(--text-muted)" }}>—</span>
+                      }
+                    </td>
+                    <td>
+                      {late
+                        ? <span className="badge badge-danger">TERLAMBAT</span>
+                        : <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
+                      }
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

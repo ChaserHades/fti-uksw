@@ -18,6 +18,7 @@ export interface Barang {
   jumlah: number;
   tahunBeli?: number | null;
   harga?: number | null;
+  hasSticker: boolean;
   qrCode?: string | null;
   foto?: string | null;
   kategoriId: string;
@@ -58,14 +59,14 @@ export interface Transaksi {
   barangId: string;
   /** Petugas yang melakukan scan/pencatatan */
   userId: string;
-  /** Peminjam aktual (mahasiswa/dosen/staf) — diisi petugas via modal */
+  /** Peminjam aktual (mahasiswa/dosen/staf) */
   namaPeminjam: string;
   /** Ruangan tujuan penggunaan */
   ruanganPinjam: string;
   tanggalPinjam: string;
   tanggalKembali?: string | null;
   deadlineKembali: string;
-  status: "AKTIF" | "SELESAI" | "TERLAMBAT";
+  status: "AKTIF" | "SELESAI";
   catatan?: string | null;
   barang: Barang;
   user: User;

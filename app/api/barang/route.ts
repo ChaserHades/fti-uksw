@@ -8,13 +8,12 @@ export async function GET(req: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const search      = searchParams.get("search")      ?? "";
-  const kategoriId  = searchParams.get("kategoriId")  ?? "";
-  const kode        = searchParams.get("kode")        ?? ""; // lookup by kodeBarang (QR scan)
-  const tersedia    = searchParams.get("tersedia");          // "true" → hanya TERSEDIA
+  const search     = searchParams.get("search")     ?? "";
+  const kategoriId = searchParams.get("kategoriId") ?? "";
+  const kode       = searchParams.get("kode")       ?? "";
+  const tersedia   = searchParams.get("tersedia");
 
-  // ── QR lookup: GET /api/barang?kode=BRG-001 ──────────────────────────────
-  // Digunakan petugas setelah scan QR, return single item atau 404
+  // QR lookup: GET /api/barang?kode=xxx
   if (kode) {
     const item = await prisma.barang.findUnique({
       where: { kodeBarang: kode },
@@ -24,7 +23,6 @@ export async function GET(req: Request) {
     return NextResponse.json(item);
   }
 
-  // ── List ─────────────────────────────────────────────────────────────────
   const list = await prisma.barang.findMany({
     where: {
       ...(search     ? { nama: { contains: search, mode: "insensitive" } } : {}),
@@ -53,8 +51,9 @@ export async function POST(req: Request) {
       jumlah:     Number(body.jumlah) || 1,
       tahunBeli:  body.tahunBeli  ? Number(body.tahunBeli) : null,
       harga:      body.harga      ? Number(body.harga)     : null,
-      kategoriId: body.kategoriId,
+      hasSticker: body.hasSticker ?? false,
       ruanganId:  body.ruanganId  ?? null,
+      kategoriId: body.kategoriId,
     },
     include: { kategori: true, ruangan: true },
   });

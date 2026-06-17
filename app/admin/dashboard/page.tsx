@@ -105,7 +105,7 @@ export default function AdminDashboard() {
             <div className="dash-card-title">
               <div className="section-header">
                 <span className="section-label">Peminjaman Aktif</span>
-                <Link href="/admin/transaksi" className="see-all">Lihat semua →</Link>
+                <Link href="/admin/transaksi" className="see-all">Lihat semua</Link>
               </div>
             </div>
             <div className="dash-card-list">
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
           <div className="glass dash-card-pad">
             <div className="section-header">
               <span className="section-label">Distribusi per Kategori</span>
-              <Link href="/admin/kategori" className="see-all">Detail →</Link>
+              <Link href="/admin/kategori" className="see-all">Detail</Link>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {katStat.map(k => (

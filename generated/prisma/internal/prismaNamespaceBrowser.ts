@@ -124,6 +124,7 @@ export const BarangScalarFieldEnum = {
   jumlah: 'jumlah',
   tahunBeli: 'tahunBeli',
   harga: 'harga',
+  hasSticker: 'hasSticker',
   qrCode: 'qrCode',
   foto: 'foto',
   kategoriId: 'kategoriId',

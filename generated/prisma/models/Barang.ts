@@ -48,6 +48,7 @@ export type BarangMinAggregateOutputType = {
   jumlah: number | null
   tahunBeli: number | null
   harga: number | null
+  hasSticker: boolean | null
   qrCode: string | null
   foto: string | null
   kategoriId: string | null
@@ -66,6 +67,7 @@ export type BarangMaxAggregateOutputType = {
   jumlah: number | null
   tahunBeli: number | null
   harga: number | null
+  hasSticker: boolean | null
   qrCode: string | null
   foto: string | null
   kategoriId: string | null
@@ -84,6 +86,7 @@ export type BarangCountAggregateOutputType = {
   jumlah: number
   tahunBeli: number
   harga: number
+  hasSticker: number
   qrCode: number
   foto: number
   kategoriId: number
@@ -116,6 +119,7 @@ export type BarangMinAggregateInputType = {
   jumlah?: true
   tahunBeli?: true
   harga?: true
+  hasSticker?: true
   qrCode?: true
   foto?: true
   kategoriId?: true
@@ -134,6 +138,7 @@ export type BarangMaxAggregateInputType = {
   jumlah?: true
   tahunBeli?: true
   harga?: true
+  hasSticker?: true
   qrCode?: true
   foto?: true
   kategoriId?: true
@@ -152,6 +157,7 @@ export type BarangCountAggregateInputType = {
   jumlah?: true
   tahunBeli?: true
   harga?: true
+  hasSticker?: true
   qrCode?: true
   foto?: true
   kategoriId?: true
@@ -257,6 +263,7 @@ export type BarangGroupByOutputType = {
   jumlah: number
   tahunBeli: number | null
   harga: number | null
+  hasSticker: boolean
   qrCode: string | null
   foto: string | null
   kategoriId: string
@@ -298,6 +305,7 @@ export type BarangWhereInput = {
   jumlah?: Prisma.IntFilter<"Barang"> | number
   tahunBeli?: Prisma.IntNullableFilter<"Barang"> | number | null
   harga?: Prisma.FloatNullableFilter<"Barang"> | number | null
+  hasSticker?: Prisma.BoolFilter<"Barang"> | boolean
   qrCode?: Prisma.StringNullableFilter<"Barang"> | string | null
   foto?: Prisma.StringNullableFilter<"Barang"> | string | null
   kategoriId?: Prisma.StringFilter<"Barang"> | string
@@ -319,6 +327,7 @@ export type BarangOrderByWithRelationInput = {
   jumlah?: Prisma.SortOrder
   tahunBeli?: Prisma.SortOrderInput | Prisma.SortOrder
   harga?: Prisma.SortOrderInput | Prisma.SortOrder
+  hasSticker?: Prisma.SortOrder
   qrCode?: Prisma.SortOrderInput | Prisma.SortOrder
   foto?: Prisma.SortOrderInput | Prisma.SortOrder
   kategoriId?: Prisma.SortOrder
@@ -343,6 +352,7 @@ export type BarangWhereUniqueInput = Prisma.AtLeast<{
   jumlah?: Prisma.IntFilter<"Barang"> | number
   tahunBeli?: Prisma.IntNullableFilter<"Barang"> | number | null
   harga?: Prisma.FloatNullableFilter<"Barang"> | number | null
+  hasSticker?: Prisma.BoolFilter<"Barang"> | boolean
   qrCode?: Prisma.StringNullableFilter<"Barang"> | string | null
   foto?: Prisma.StringNullableFilter<"Barang"> | string | null
   kategoriId?: Prisma.StringFilter<"Barang"> | string
@@ -364,6 +374,7 @@ export type BarangOrderByWithAggregationInput = {
   jumlah?: Prisma.SortOrder
   tahunBeli?: Prisma.SortOrderInput | Prisma.SortOrder
   harga?: Prisma.SortOrderInput | Prisma.SortOrder
+  hasSticker?: Prisma.SortOrder
   qrCode?: Prisma.SortOrderInput | Prisma.SortOrder
   foto?: Prisma.SortOrderInput | Prisma.SortOrder
   kategoriId?: Prisma.SortOrder
@@ -390,6 +401,7 @@ export type BarangScalarWhereWithAggregatesInput = {
   jumlah?: Prisma.IntWithAggregatesFilter<"Barang"> | number
   tahunBeli?: Prisma.IntNullableWithAggregatesFilter<"Barang"> | number | null
   harga?: Prisma.FloatNullableWithAggregatesFilter<"Barang"> | number | null
+  hasSticker?: Prisma.BoolWithAggregatesFilter<"Barang"> | boolean
   qrCode?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
   foto?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
   kategoriId?: Prisma.StringWithAggregatesFilter<"Barang"> | string
@@ -408,6 +420,7 @@ export type BarangCreateInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   createdAt?: Date | string
@@ -427,6 +440,7 @@ export type BarangUncheckedCreateInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   kategoriId: string
@@ -446,6 +460,7 @@ export type BarangUpdateInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,6 +480,7 @@ export type BarangUncheckedUpdateInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -484,6 +500,7 @@ export type BarangCreateManyInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   kategoriId: string
@@ -502,6 +519,7 @@ export type BarangUpdateManyMutationInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -518,6 +536,7 @@ export type BarangUncheckedUpdateManyInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -546,6 +565,7 @@ export type BarangCountOrderByAggregateInput = {
   jumlah?: Prisma.SortOrder
   tahunBeli?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  hasSticker?: Prisma.SortOrder
   qrCode?: Prisma.SortOrder
   foto?: Prisma.SortOrder
   kategoriId?: Prisma.SortOrder
@@ -570,6 +590,7 @@ export type BarangMaxOrderByAggregateInput = {
   jumlah?: Prisma.SortOrder
   tahunBeli?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  hasSticker?: Prisma.SortOrder
   qrCode?: Prisma.SortOrder
   foto?: Prisma.SortOrder
   kategoriId?: Prisma.SortOrder
@@ -588,6 +609,7 @@ export type BarangMinOrderByAggregateInput = {
   jumlah?: Prisma.SortOrder
   tahunBeli?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  hasSticker?: Prisma.SortOrder
   qrCode?: Prisma.SortOrder
   foto?: Prisma.SortOrder
   kategoriId?: Prisma.SortOrder
@@ -715,6 +737,10 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type BarangCreateNestedOneWithoutTransaksiInput = {
   create?: Prisma.XOR<Prisma.BarangCreateWithoutTransaksiInput, Prisma.BarangUncheckedCreateWithoutTransaksiInput>
   connectOrCreate?: Prisma.BarangCreateOrConnectWithoutTransaksiInput
@@ -739,6 +765,7 @@ export type BarangCreateWithoutKategoriInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   createdAt?: Date | string
@@ -757,6 +784,7 @@ export type BarangUncheckedCreateWithoutKategoriInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   ruanganId?: string | null
@@ -804,6 +832,7 @@ export type BarangScalarWhereInput = {
   jumlah?: Prisma.IntFilter<"Barang"> | number
   tahunBeli?: Prisma.IntNullableFilter<"Barang"> | number | null
   harga?: Prisma.FloatNullableFilter<"Barang"> | number | null
+  hasSticker?: Prisma.BoolFilter<"Barang"> | boolean
   qrCode?: Prisma.StringNullableFilter<"Barang"> | string | null
   foto?: Prisma.StringNullableFilter<"Barang"> | string | null
   kategoriId?: Prisma.StringFilter<"Barang"> | string
@@ -822,6 +851,7 @@ export type BarangCreateWithoutRuanganInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   createdAt?: Date | string
@@ -840,6 +870,7 @@ export type BarangUncheckedCreateWithoutRuanganInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   kategoriId: string
@@ -884,6 +915,7 @@ export type BarangCreateWithoutTransaksiInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   createdAt?: Date | string
@@ -902,6 +934,7 @@ export type BarangUncheckedCreateWithoutTransaksiInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   kategoriId: string
@@ -936,6 +969,7 @@ export type BarangUpdateWithoutTransaksiInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -954,6 +988,7 @@ export type BarangUncheckedUpdateWithoutTransaksiInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -972,6 +1007,7 @@ export type BarangCreateManyKategoriInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   ruanganId?: string | null
@@ -989,6 +1025,7 @@ export type BarangUpdateWithoutKategoriInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1007,6 +1044,7 @@ export type BarangUncheckedUpdateWithoutKategoriInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1025,6 +1063,7 @@ export type BarangUncheckedUpdateManyWithoutKategoriInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1042,6 +1081,7 @@ export type BarangCreateManyRuanganInput = {
   jumlah?: number
   tahunBeli?: number | null
   harga?: number | null
+  hasSticker?: boolean
   qrCode?: string | null
   foto?: string | null
   kategoriId: string
@@ -1059,6 +1099,7 @@ export type BarangUpdateWithoutRuanganInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1077,6 +1118,7 @@ export type BarangUncheckedUpdateWithoutRuanganInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1095,6 +1137,7 @@ export type BarangUncheckedUpdateManyWithoutRuanganInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   tahunBeli?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1143,6 +1186,7 @@ export type BarangSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   jumlah?: boolean
   tahunBeli?: boolean
   harga?: boolean
+  hasSticker?: boolean
   qrCode?: boolean
   foto?: boolean
   kategoriId?: boolean
@@ -1165,6 +1209,7 @@ export type BarangSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   jumlah?: boolean
   tahunBeli?: boolean
   harga?: boolean
+  hasSticker?: boolean
   qrCode?: boolean
   foto?: boolean
   kategoriId?: boolean
@@ -1185,6 +1230,7 @@ export type BarangSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   jumlah?: boolean
   tahunBeli?: boolean
   harga?: boolean
+  hasSticker?: boolean
   qrCode?: boolean
   foto?: boolean
   kategoriId?: boolean
@@ -1205,6 +1251,7 @@ export type BarangSelectScalar = {
   jumlah?: boolean
   tahunBeli?: boolean
   harga?: boolean
+  hasSticker?: boolean
   qrCode?: boolean
   foto?: boolean
   kategoriId?: boolean
@@ -1213,7 +1260,7 @@ export type BarangSelectScalar = {
   updatedAt?: boolean
 }
 
-export type BarangOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kodeBarang" | "nama" | "deskripsi" | "kondisi" | "status" | "jumlah" | "tahunBeli" | "harga" | "qrCode" | "foto" | "kategoriId" | "ruanganId" | "createdAt" | "updatedAt", ExtArgs["result"]["barang"]>
+export type BarangOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kodeBarang" | "nama" | "deskripsi" | "kondisi" | "status" | "jumlah" | "tahunBeli" | "harga" | "hasSticker" | "qrCode" | "foto" | "kategoriId" | "ruanganId" | "createdAt" | "updatedAt", ExtArgs["result"]["barang"]>
 export type BarangInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kategori?: boolean | Prisma.KategoriBarangDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
@@ -1246,6 +1293,13 @@ export type $BarangPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     jumlah: number
     tahunBeli: number | null
     harga: number | null
+    /**
+     * true = barang punya sticker/barcode fisik (diregister via scan)
+     */
+    hasSticker: boolean
+    /**
+     * QR image data URL — hanya ada jika di-generate dari sistem
+     */
     qrCode: string | null
     foto: string | null
     kategoriId: string
@@ -1687,6 +1741,7 @@ export interface BarangFieldRefs {
   readonly jumlah: Prisma.FieldRef<"Barang", 'Int'>
   readonly tahunBeli: Prisma.FieldRef<"Barang", 'Int'>
   readonly harga: Prisma.FieldRef<"Barang", 'Float'>
+  readonly hasSticker: Prisma.FieldRef<"Barang", 'Boolean'>
   readonly qrCode: Prisma.FieldRef<"Barang", 'String'>
   readonly foto: Prisma.FieldRef<"Barang", 'String'>
   readonly kategoriId: Prisma.FieldRef<"Barang", 'String'>

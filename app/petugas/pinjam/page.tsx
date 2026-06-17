@@ -5,12 +5,14 @@ import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
+import { fDateShort, isOverdue } from "@/helpers/format";
 import type { Barang, Transaksi } from "@/types";
-import { Mode } from "fs";
 
 declare const jsQR: (
   data: Uint8ClampedArray, width: number, height: number
 ) => { data: string } | null;
+
+type Mode = "scan" | "list";
 
 interface PinjamForm {
   namaPeminjam:    string;
@@ -20,7 +22,6 @@ interface PinjamForm {
 }
 const EMPTY: PinjamForm = { namaPeminjam: "", ruanganPinjam: "", deadlineKembali: "", catatan: "" };
 
-/** QR payload bisa berupa JSON object {"id","kode","nama"} atau plain kodeBarang */
 function parseQrPayload(raw: string): string {
   const trimmed = raw.trim();
   try {
@@ -37,19 +38,24 @@ export default function PinjamPage() {
   const rafRef    = useRef<number>(0);
   const jsqrReady = useRef(false);
 
+  const [mode,      setMode]    = useState<Mode>("scan");
   const [scanning,  setScanning]  = useState(false);
   const [barang,    setBarang]    = useState<Barang | null>(null);
   const [lookErr,   setLookErr]   = useState("");
 
-  // Modal pinjam (barang TERSEDIA)
-  const [modalPinjam, setModalPinjam] = useState(false);
-  const [form,        setForm]        = useState<PinjamForm>(EMPTY);
-  const [saving,      setSaving]      = useState(false);
+  // Daftar transaksi aktif (mode list)
+  const [list,      setList]      = useState<Transaksi[]>([]);
+  const [loadingList, setLoadingList] = useState(false);
 
-  // Modal auto-return konfirmasi (barang DIPINJAM)
-  const [modalKembali,  setModalKembali]  = useState(false);
+  // Modal pinjam (TERSEDIA)
+  const [modalPinjam,  setModalPinjam]  = useState(false);
+  const [form,         setForm]         = useState<PinjamForm>(EMPTY);
+  const [saving,       setSaving]       = useState(false);
+
+  // Modal kembali (DIPINJAM)
+  const [modalKembali,   setModalKembali]   = useState(false);
   const [transaksiAktif, setTransaksiAktif] = useState<Transaksi | null>(null);
-  const [processing,    setProcessing]    = useState(false);
+  const [processing,     setProcessing]     = useState(false);
 
   const minDate    = new Date(); minDate.setDate(minDate.getDate() + 1);
   const minDateStr = minDate.toISOString().split("T")[0];
@@ -58,7 +64,7 @@ export default function PinjamPage() {
   useEffect(() => {
     if (document.getElementById("jsqr-script")) { jsqrReady.current = true; return; }
     const s = document.createElement("script");
-    s.id = "jsqr-script";
+    s.id  = "jsqr-script";
     s.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js";
     s.onload = () => { jsqrReady.current = true; };
     document.head.appendChild(s);
@@ -66,6 +72,21 @@ export default function PinjamPage() {
 
   useEffect(() => () => stopCamera(), []);
 
+  // Load list saat mode berganti ke list
+  useEffect(() => {
+    if (mode === "list") loadList();
+    else stopCamera();
+  }, [mode]);
+
+  function loadList() {
+    setLoadingList(true);
+    api.get<Transaksi[]>("/api/transaksi?status=AKTIF")
+      .then(setList)
+      .catch(console.error)
+      .finally(() => setLoadingList(false));
+  }
+
+  // ── Kamera ──────────────────────────────────────────────────────────────────
   async function startCamera() {
     setLookErr(""); setBarang(null);
     try {
@@ -103,6 +124,7 @@ export default function PinjamPage() {
     rafRef.current = requestAnimationFrame(scanLoop);
   }
 
+  // ── Scan result handler ──────────────────────────────────────────────────────
   async function handleScanResult(raw: string) {
     const kode = parseQrPayload(raw);
     setLookErr(""); setBarang(null);
@@ -111,12 +133,10 @@ export default function PinjamPage() {
       setBarang(data);
 
       if (data.status === "TERSEDIA") {
-        // → form pinjam
         setForm(EMPTY); setModalPinjam(true);
       } else if (data.status === "DIPINJAM") {
-        // → cari transaksi aktif lalu tampil modal konfirmasi kembali
-        const list = await api.get<Transaksi[]>("/api/transaksi?status=AKTIF");
-        const trx  = list.find(t => t.barangId === data.id);
+        const transaksiList = await api.get<Transaksi[]>("/api/transaksi?status=AKTIF");
+        const trx = transaksiList.find(t => t.barangId === data.id);
         if (!trx) {
           setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi transaksi aktif tidak ditemukan.`);
           return;
@@ -130,9 +150,9 @@ export default function PinjamPage() {
     }
   }
 
+  // ── Submit pinjam ────────────────────────────────────────────────────────────
   const setF = (k: keyof PinjamForm, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  // ── Submit pinjam ──
   async function handlePinjam() {
     if (!barang) return;
     if (!form.namaPeminjam.trim())  { toast.error("Nama peminjam wajib diisi"); return; }
@@ -154,69 +174,183 @@ export default function PinjamPage() {
     } finally { setSaving(false); }
   }
 
-  // ── Auto return ──
-  async function handleKembali() {
-    if (!transaksiAktif) return;
+  // ── Submit kembali ───────────────────────────────────────────────────────────
+  async function handleKembali(id: string) {
     setProcessing(true);
     try {
-      await api.post(`/api/transaksi/${transaksiAktif.id}/kembali`, {});
+      await api.post(`/api/transaksi/${id}/kembali`, {});
       toast.success("Barang berhasil dikembalikan — status kembali Tersedia!");
       setModalKembali(false); setTransaksiAktif(null); setBarang(null);
+      // refresh list jika sedang di mode list
+      if (mode === "list") loadList();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Gagal memproses pengembalian");
     } finally { setProcessing(false); }
   }
 
+  const terlambat = list.filter(t => isOverdue(t.deadlineKembali));
+
   return (
     <>
-      <PageHeader title="Pinjam / Kembali Barang" subtitle="Scan QR Code barang — sistem mendeteksi status otomatis" />
+      <PageHeader title="Pinjam / Kembali Barang" subtitle="Scan QR Code atau lihat daftar peminjaman aktif" />
 
-      <div style={{ maxWidth: 520 }}>
-        <div className="glass" style={{ padding: 24 }}>
-          <div style={{ textAlign: "center", marginBottom: 18 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
-              Scan QR Code Barang
+      {/* ── Mode switcher ── */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        {([
+          { key: "scan", icon: "ti-qrcode",  label: "Scan QR" },
+          { key: "list", icon: "ti-list",     label: "Daftar Aktif" },
+        ] as { key: Mode; icon: string; label: string }[]).map(m => (
+          <button
+            key={m.key}
+            className={`btn btn-sm ${mode === m.key ? "btn-primary" : "btn-ghost"}`}
+            onClick={() => setMode(m.key)}
+          >
+            <i className={`ti ${m.icon}`} />
+            {m.label}
+            {m.key === "list" && list.length > 0 && (
+              <span style={{
+                marginLeft: 4, background: terlambat.length > 0 ? "var(--color-err)" : "var(--color-ok)",
+                color: "#fff", borderRadius: 99, fontSize: 10, padding: "1px 6px", fontWeight: 700,
+              }}>
+                {list.length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ── MODE: SCAN ── */}
+      {mode === "scan" && (
+        <div style={{ maxWidth: 520 }}>
+          <div className="glass" style={{ padding: 24 }}>
+            <div style={{ textAlign: "center", marginBottom: 18 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
+                Scan QR Code Barang
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                Tersedia → form pinjam &nbsp;·&nbsp; Dipinjam → langsung kembalikan
+              </div>
             </div>
-          </div>
 
-          {/* Viewfinder */}
-          <div style={{
-            position: "relative", width: "100%", aspectRatio: "4/3",
-            borderRadius: 12, overflow: "hidden", background: "#000",
-            border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
-            marginBottom: 16, transition: "border-color .3s",
-          }}>
-            <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none" }} />
-            <canvas ref={canvasRef} style={{ display: "none" }} />
-            {!scanning && (
-              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                <i className="ti ti-qrcode" style={{ fontSize: 40, color: "var(--text-muted)" }} />
-                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
+            {/* Viewfinder */}
+            <div style={{
+              position: "relative", width: "100%", aspectRatio: "4/3",
+              borderRadius: 12, overflow: "hidden", background: "#000",
+              border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
+              marginBottom: 16, transition: "border-color .3s",
+            }}>
+              <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none" }} />
+              <canvas ref={canvasRef} style={{ display: "none" }} />
+              {!scanning && (
+                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                  <i className="ti ti-qrcode" style={{ fontSize: 40, color: "var(--text-muted)" }} />
+                  <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
+                </div>
+              )}
+              {scanning && (
+                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                  <div style={{ width: 180, height: 180, borderRadius: 10, border: "2px solid var(--color-ok)", boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)" }} />
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              {!scanning
+                ? <button className="btn btn-primary" onClick={startCamera}><i className="ti ti-camera" />Buka Kamera</button>
+                : <button className="btn btn-ghost" onClick={stopCamera}><i className="ti ti-camera-off" />Stop Kamera</button>
+              }
+            </div>
+
+            {lookErr && (
+              <div className="alert alert-danger" style={{ marginTop: 14 }}>
+                <i className="ti ti-alert-circle" style={{ flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{lookErr}</span>
+                <button className="btn btn-ghost btn-sm" onClick={startCamera}>Scan Ulang</button>
               </div>
             )}
-            {scanning && (
-              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div style={{ width: 180, height: 180, borderRadius: 10, border: "2px solid var(--color-ok)", boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)" }} />
-              </div>
-            )}
           </div>
+        </div>
+      )}
 
-          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-            {!scanning
-              ? <button className="btn btn-primary" onClick={startCamera}><i className="ti ti-camera" />Buka Kamera</button>
-              : <button className="btn btn-ghost" onClick={stopCamera}><i className="ti ti-camera-off" />Stop Kamera</button>
-            }
-          </div>
-
-          {lookErr && (
-            <div className="alert alert-danger" style={{ marginTop: 14 }}>
-              <i className="ti ti-alert-circle" style={{ flexShrink: 0 }} />
-              <span style={{ flex: 1 }}>{lookErr}</span>
-              <button className="btn btn-ghost btn-sm" onClick={startCamera}>Scan Ulang</button>
+      {/* ── MODE: LIST ── */}
+      {mode === "list" && (
+        <>
+          {terlambat.length > 0 && (
+            <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+              <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
+              <strong>{terlambat.length} barang</strong>&nbsp;sudah melewati deadline pengembalian!
             </div>
           )}
-        </div>
-      </div>
+
+          <div className="glass">
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "22%" }}>Barang</th>
+                    <th style={{ width: "18%" }}>Peminjam</th>
+                    <th style={{ width: "18%" }}>Ruangan</th>
+                    <th style={{ width: "13%" }}>Tgl Pinjam</th>
+                    <th style={{ width: "13%" }}>Deadline</th>
+                    <th style={{ width: "16%" }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadingList ? (
+                    <tr><td colSpan={6}>
+                      <div className="empty-state">
+                        <div className="spinner" style={{ width: 24, height: 24 }} />
+                      </div>
+                    </td></tr>
+                  ) : list.length === 0 ? (
+                    <tr><td colSpan={6}>
+                      <div className="empty-state">
+                        <i className="ti ti-circle-check" style={{ fontSize: 32, color: "var(--color-ok)" }} />
+                        Tidak ada barang yang sedang dipinjam
+                      </div>
+                    </td></tr>
+                  ) : list.map(t => {
+                    const late = isOverdue(t.deadlineKembali);
+                    return (
+                      <tr key={t.id}>
+                        <td>
+                          <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                          <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.barang.kodeBarang}</div>
+                        </td>
+                        <td>
+                          <div style={{ color: "var(--text-primary)", fontSize: 13 }}>{t.namaPeminjam}</div>
+                          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.user.name ?? t.user.email}</div>
+                        </td>
+                        <td style={{ fontSize: 12 }}>{t.ruanganPinjam}</td>
+                        <td style={{ fontSize: 12 }}>{fDateShort(t.tanggalPinjam)}</td>
+                        <td>
+                          <span style={{ fontSize: 12, color: late ? "var(--color-err)" : "inherit", fontWeight: late ? 600 : 400 }}>
+                            {fDateShort(t.deadlineKembali)}{late && " ⚠"}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            className={`btn btn-sm ${late ? "btn-danger" : "btn-success"}`}
+                            onClick={() => {
+                              setBarang(t.barang);
+                              setTransaksiAktif(t);
+                              setModalKembali(true);
+                            }}
+                            disabled={processing}
+                          >
+                            <i className="ti ti-arrow-bar-to-up" />
+                            Kembalikan
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ── Modal: TERSEDIA → Form Pinjam ── */}
       <Modal open={modalPinjam} onClose={() => { setModalPinjam(false); setBarang(null); }} title="Form Peminjaman">
@@ -271,7 +405,8 @@ export default function PinjamPage() {
                   { label: "Kode",     value: barang.kodeBarang },
                   { label: "Peminjam", value: transaksiAktif.namaPeminjam },
                   { label: "Ruangan",  value: transaksiAktif.ruanganPinjam },
-                  { label: "Deadline", value: new Date(transaksiAktif.deadlineKembali).toLocaleDateString("id-ID") },
+                  { label: "Dipinjam", value: fDateShort(transaksiAktif.tanggalPinjam) },
+                  { label: "Deadline", value: fDateShort(transaksiAktif.deadlineKembali) },
                 ].map(row => (
                   <div key={row.label} style={{ display: "flex", gap: 8, fontSize: 12 }}>
                     <span style={{ color: "var(--text-muted)", width: 70, flexShrink: 0 }}>{row.label}</span>
@@ -281,27 +416,20 @@ export default function PinjamPage() {
               </div>
             </div>
 
+            {isOverdue(transaksiAktif.deadlineKembali) && (
+              <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+                <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
+                Barang ini sudah melewati deadline pengembalian!
+              </div>
+            )}
+
             <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 20 }}>
               Konfirmasi bahwa barang telah dikembalikan. Status akan otomatis berubah menjadi <strong>Tersedia</strong>.
             </div>
 
-            {/* ── Mode switcher ── */}
-            {/* <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-              {(["scan", "list"] as Mode[]).map(m => (
-                <button
-                  key={m}
-                  className={`btn btn-sm ${mode === m ? "btn-primary" : "btn-ghost"}`}
-                  onClick={() => setMode(m)}
-                >
-                  <i className={`ti ${m === "scan" ? "ti-qrcode" : "ti-list"}`} />
-                  {m === "scan" ? "Scan QR" : "Lihat Daftar"}
-                </button>
-              ))}
-            </div> */}
-
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
               <button className="btn btn-ghost" onClick={() => { setModalKembali(false); setTransaksiAktif(null); setBarang(null); }}>Batal</button>
-              <button className="btn btn-success" onClick={handleKembali} disabled={processing}>
+              <button className="btn btn-success" onClick={() => handleKembali(transaksiAktif.id)} disabled={processing}>
                 {processing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-circle-check" />Konfirmasi Kembali</>}
               </button>
             </div>
