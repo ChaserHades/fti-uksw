@@ -10,7 +10,7 @@ export default async function RootPage() {
   // if (session.statusVerifikasi === "REJECTED") redirect("/rejected");
 
   // if (session.role === "ADMIN") redirect("/admin/dashboard");
-  // if (session.role === "PETUGAS") redirect("/petugas/dashboard");
+  // if (session.role === "TEKNISI") redirect("/petugas/dashboard");
   // if (session.role === "UNIVERSITAS") redirect("/universitas/dashboard");
 
   redirect("/login");

@@ -2,14 +2,13 @@ import { requireRole } from "@/lib/auth";
 import Topbar, { NavItem } from "@/components/Topbar";
 
 const navItems: NavItem[] = [
-  { href: "/admin/dashboard",  label: "Dashboard",  icon: "ti-layout-dashboard" },
-  { href: "/admin/barang",     label: "Barang",     icon: "ti-box" },
-  { href: "/admin/barcode",    label: "Barcode",    icon: "ti-qrcode" },
-  { href: "/admin/kategori",   label: "Kategori",   icon: "ti-category" },
-  { href: "/admin/ruangan",    label: "Ruangan",    icon: "ti-building" },
-  { href: "/admin/verifikasi", label: "Verifikasi", icon: "ti-user-check" },
-  { href: "/admin/petugas",    label: "Petugas",    icon: "ti-users" },
-  { href: "/admin/transaksi",  label: "Laporan",    icon: "ti-file-description" },
+  { href: "/admin/dashboard",  label: "Dashboard",        icon: "ti-layout-dashboard" },
+  { href: "/admin/barang",     label: "Barang",           icon: "ti-box" },
+  { href: "/admin/ruangan",    label: "Ruangan",          icon: "ti-building" },
+  { href: "/admin/pinjam",     label: "Pinjam",           icon: "ti-qrcode" },
+  { href: "/admin/riwayat",    label: "Riwayat",          icon: "ti-history" },
+  { href: "/admin/laporan",    label: "Laporan",          icon: "ti-file-description" },
+  { href: "/admin/tim",        label: "Tim & Verifikasi", icon: "ti-users" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

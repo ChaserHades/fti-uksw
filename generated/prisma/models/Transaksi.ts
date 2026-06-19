@@ -34,6 +34,7 @@ export type TransaksiMinAggregateOutputType = {
   tanggalKembali: Date | null
   deadlineKembali: Date | null
   status: $Enums.StatusTransaksi | null
+  terlambat: boolean | null
   catatan: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +50,7 @@ export type TransaksiMaxAggregateOutputType = {
   tanggalKembali: Date | null
   deadlineKembali: Date | null
   status: $Enums.StatusTransaksi | null
+  terlambat: boolean | null
   catatan: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -64,6 +66,7 @@ export type TransaksiCountAggregateOutputType = {
   tanggalKembali: number
   deadlineKembali: number
   status: number
+  terlambat: number
   catatan: number
   createdAt: number
   updatedAt: number
@@ -81,6 +84,7 @@ export type TransaksiMinAggregateInputType = {
   tanggalKembali?: true
   deadlineKembali?: true
   status?: true
+  terlambat?: true
   catatan?: true
   createdAt?: true
   updatedAt?: true
@@ -96,6 +100,7 @@ export type TransaksiMaxAggregateInputType = {
   tanggalKembali?: true
   deadlineKembali?: true
   status?: true
+  terlambat?: true
   catatan?: true
   createdAt?: true
   updatedAt?: true
@@ -111,6 +116,7 @@ export type TransaksiCountAggregateInputType = {
   tanggalKembali?: true
   deadlineKembali?: true
   status?: true
+  terlambat?: true
   catatan?: true
   createdAt?: true
   updatedAt?: true
@@ -199,6 +205,7 @@ export type TransaksiGroupByOutputType = {
   tanggalKembali: Date | null
   deadlineKembali: Date
   status: $Enums.StatusTransaksi
+  terlambat: boolean
   catatan: string | null
   createdAt: Date
   updatedAt: Date
@@ -235,6 +242,7 @@ export type TransaksiWhereInput = {
   tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   status?: Prisma.EnumStatusTransaksiFilter<"Transaksi"> | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFilter<"Transaksi"> | boolean
   catatan?: Prisma.StringNullableFilter<"Transaksi"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
@@ -252,6 +260,7 @@ export type TransaksiOrderByWithRelationInput = {
   tanggalKembali?: Prisma.SortOrderInput | Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  terlambat?: Prisma.SortOrder
   catatan?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -272,6 +281,7 @@ export type TransaksiWhereUniqueInput = Prisma.AtLeast<{
   tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   status?: Prisma.EnumStatusTransaksiFilter<"Transaksi"> | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFilter<"Transaksi"> | boolean
   catatan?: Prisma.StringNullableFilter<"Transaksi"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
@@ -289,6 +299,7 @@ export type TransaksiOrderByWithAggregationInput = {
   tanggalKembali?: Prisma.SortOrderInput | Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  terlambat?: Prisma.SortOrder
   catatan?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -310,6 +321,7 @@ export type TransaksiScalarWhereWithAggregatesInput = {
   tanggalKembali?: Prisma.DateTimeNullableWithAggregatesFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
   status?: Prisma.EnumStatusTransaksiWithAggregatesFilter<"Transaksi"> | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolWithAggregatesFilter<"Transaksi"> | boolean
   catatan?: Prisma.StringNullableWithAggregatesFilter<"Transaksi"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
@@ -323,6 +335,7 @@ export type TransaksiCreateInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -340,6 +353,7 @@ export type TransaksiUncheckedCreateInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -353,6 +367,7 @@ export type TransaksiUpdateInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -370,6 +385,7 @@ export type TransaksiUncheckedUpdateInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -385,6 +401,7 @@ export type TransaksiCreateManyInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -398,6 +415,7 @@ export type TransaksiUpdateManyMutationInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -413,6 +431,7 @@ export type TransaksiUncheckedUpdateManyInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -438,6 +457,7 @@ export type TransaksiCountOrderByAggregateInput = {
   tanggalKembali?: Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  terlambat?: Prisma.SortOrder
   catatan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -453,6 +473,7 @@ export type TransaksiMaxOrderByAggregateInput = {
   tanggalKembali?: Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  terlambat?: Prisma.SortOrder
   catatan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -468,6 +489,7 @@ export type TransaksiMinOrderByAggregateInput = {
   tanggalKembali?: Prisma.SortOrder
   deadlineKembali?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  terlambat?: Prisma.SortOrder
   catatan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -573,6 +595,7 @@ export type TransaksiCreateWithoutUserInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -588,6 +611,7 @@ export type TransaksiUncheckedCreateWithoutUserInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -632,6 +656,7 @@ export type TransaksiScalarWhereInput = {
   tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
   deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   status?: Prisma.EnumStatusTransaksiFilter<"Transaksi"> | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFilter<"Transaksi"> | boolean
   catatan?: Prisma.StringNullableFilter<"Transaksi"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
@@ -645,6 +670,7 @@ export type TransaksiCreateWithoutBarangInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -660,6 +686,7 @@ export type TransaksiUncheckedCreateWithoutBarangInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -700,6 +727,7 @@ export type TransaksiCreateManyUserInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -713,6 +741,7 @@ export type TransaksiUpdateWithoutUserInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -728,6 +757,7 @@ export type TransaksiUncheckedUpdateWithoutUserInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -742,6 +772,7 @@ export type TransaksiUncheckedUpdateManyWithoutUserInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -756,6 +787,7 @@ export type TransaksiCreateManyBarangInput = {
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
   status?: $Enums.StatusTransaksi
+  terlambat?: boolean
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -769,6 +801,7 @@ export type TransaksiUpdateWithoutBarangInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -784,6 +817,7 @@ export type TransaksiUncheckedUpdateWithoutBarangInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -798,6 +832,7 @@ export type TransaksiUncheckedUpdateManyWithoutBarangInput = {
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  terlambat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -815,6 +850,7 @@ export type TransaksiSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   tanggalKembali?: boolean
   deadlineKembali?: boolean
   status?: boolean
+  terlambat?: boolean
   catatan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -832,6 +868,7 @@ export type TransaksiSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   tanggalKembali?: boolean
   deadlineKembali?: boolean
   status?: boolean
+  terlambat?: boolean
   catatan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -849,6 +886,7 @@ export type TransaksiSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   tanggalKembali?: boolean
   deadlineKembali?: boolean
   status?: boolean
+  terlambat?: boolean
   catatan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -866,12 +904,13 @@ export type TransaksiSelectScalar = {
   tanggalKembali?: boolean
   deadlineKembali?: boolean
   status?: boolean
+  terlambat?: boolean
   catatan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransaksiOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barangId" | "userId" | "namaPeminjam" | "ruanganPinjam" | "tanggalPinjam" | "tanggalKembali" | "deadlineKembali" | "status" | "catatan" | "createdAt" | "updatedAt", ExtArgs["result"]["transaksi"]>
+export type TransaksiOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barangId" | "userId" | "namaPeminjam" | "ruanganPinjam" | "tanggalPinjam" | "tanggalKembali" | "deadlineKembali" | "status" | "terlambat" | "catatan" | "createdAt" | "updatedAt", ExtArgs["result"]["transaksi"]>
 export type TransaksiInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -907,6 +946,10 @@ export type $TransaksiPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     tanggalKembali: Date | null
     deadlineKembali: Date
     status: $Enums.StatusTransaksi
+    /**
+     * Persisten: true jika pernah melewati deadline, tidak di-reset saat dikembalikan
+     */
+    terlambat: boolean
     catatan: string | null
     createdAt: Date
     updatedAt: Date
@@ -1344,6 +1387,7 @@ export interface TransaksiFieldRefs {
   readonly tanggalKembali: Prisma.FieldRef<"Transaksi", 'DateTime'>
   readonly deadlineKembali: Prisma.FieldRef<"Transaksi", 'DateTime'>
   readonly status: Prisma.FieldRef<"Transaksi", 'StatusTransaksi'>
+  readonly terlambat: Prisma.FieldRef<"Transaksi", 'Boolean'>
   readonly catatan: Prisma.FieldRef<"Transaksi", 'String'>
   readonly createdAt: Prisma.FieldRef<"Transaksi", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Transaksi", 'DateTime'>

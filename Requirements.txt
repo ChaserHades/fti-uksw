@@ -1,0 +1,126 @@
+# Requirements Web App Manajemen Aset Laboran FTI UKSW
+# Versi 3.0 | 2026
+
+---
+
+## TECH STACK
+
+- Framework : Next.js (TypeScript) - SSR + App Router + Full-stack API Routes
+- ORM       : Prisma ORM
+- Database  : PostgreSQL
+- Styling   : Tailwind CSS
+- Auth      : NextAuth.js v5 - Google OAuth SSO (domain @student.uksw.edu / @uksw.edu)
+- QR Code   : Generate & Scanning via device camera (browser-based)
+- Import    : CSV / Excel bulk import
+
+---
+
+## ROLES & AKSES
+
+- Admin / SPV : Full access - semua CRUD, tambah barang, acc/reject user & role, pindah barang antar ruangan, laporan, riwayat, daftar aktif
+- Teknisi     : Terbatas - hanya kelola peminjaman (pinjam/kembali) dan pindah barang antar ruangan. Tidak bisa tambah barang/aset dan tidak bisa acc anggota
+- Universitas : Read-only - hanya lihat laporan aset dan laporan pengeluaran FTI (transparansi). Tidak ada akses peminjaman
+
+---
+
+## LOGIN PAGE
+
+- Form field: Email & Password (wajib domain @student.uksw.edu atau @uksw.edu)
+- Tombol: Login with Google (SSO UKSW, dibatasi domain institusi)
+- Tombol: Signup (khusus pengajuan role, bukan registrasi umum)
+- Tombol: Forgot Password
+
+---
+
+## DASHBOARD ADMIN & SPV (Full Access, Responsive)
+
+### Homepage
+- Widget summary: Total Barang, Total Ruangan, Peminjaman Aktif, Pending Verifikasi
+
+### Dashboard Barang
+- Tab Add Item:
+  - Scan QR   : barang sudah punya QR tapi belum di database -> otomatis register ke database
+  - Manual Input : barang tanpa QR & tanpa database -> auto-generate QR -> langsung Print dari browser (bukan download)
+  - Import CSV/Excel : bulk add; jika ada kolom 'ruangan' -> otomatis sync ke Dashboard Ruangan
+- CRUD lengkap: tambah, edit, hapus barang
+- Filter & search berdasarkan kategori
+- CRUD Kategori Barang
+- Semua fungsi QR (generate & scan) berada di dashboard ini. Dashboard Barcode dihapus
+
+### Dashboard Ruangan
+- CRUD Ruangan
+- Pindah barang antar ruangan: scan QR atau input kode manual -> form modal muncul dengan data existing -> ubah field ruangan -> simpan
+- Tambah barang ke ruangan tertentu via QR atau manual
+- Jika import CSV/Excel pada Dashboard Barang memiliki kolom ruangan -> otomatis sync tanpa input manual
+
+### Dashboard Verifikasi & Petugas (digabung jadi 1 dashboard)
+- Monitoring petugas aktif / on duty
+- Acc / Decline pengajuan user dan role baru
+- Tombol "Perlu Diverifikasi" dengan badge notifikasi merah jika ada pending (fallback jika bug notif)
+
+### Dashboard Laporan
+- Input pengeluaran: pembelian aset, maintenance, pengeluaran lainnya
+- Upload nota / receipt sebagai bukti (opsional, bukan wajib)
+- Dapat dilihat juga oleh role Universitas (read-only)
+- Export data ke CSV / Excel
+
+### Dashboard Riwayat (History)
+- Riwayat semua transaksi peminjaman (filterable)
+- Badge status "Terlambat" tetap muncul meski barang sudah dikembalikan jika melewati batas waktu
+
+### Dashboard Pinjam
+- Scan QR atau manual form modal untuk pinjam / kembalikan barang
+- Form modal pinjam: nama peminjam (dosen/mahasiswa/dll), ruangan penggunaan, keperluan
+- Daftar Aktif: live monitoring barang yang belum dikembalikan
+
+---
+
+## DASHBOARD TEKNISI (Akses Terbatas, Responsive)
+
+### Dashboard Pinjam
+- Scan QR atau manual form modal untuk catat pinjam / kembali barang
+- Form modal pinjam: nama peminjam, ruangan penggunaan, keperluan
+- Daftar Aktif: live monitoring barang belum kembali
+- Riwayat peminjaman dengan badge status "Terlambat"
+
+### Dashboard Ruangan (Pindah Barang)
+- Pindah barang dari ruangan A ke ruangan B via QR scan atau input kode manual
+- Form modal muncul dengan data existing -> ubah field ruangan -> simpan
+- Tidak bisa tambah barang baru atau approve anggota
+
+---
+
+## DASHBOARD UNIVERSITAS (Read-Only, Responsive)
+
+- Lihat laporan aset FTI: daftar barang, kondisi, status
+- Lihat laporan pengeluaran FTI: pembelian, maintenance, outflow dana
+- Export laporan ke CSV / Excel
+- Tidak ada akses fitur peminjaman atau manajemen barang
+
+---
+
+## FLOW QR CODE
+
+| Skenario                          | Alur                                                                                      |
+|-----------------------------------|-------------------------------------------------------------------------------------------|
+| Barang punya QR, belum di DB      | Scan QR -> otomatis register ke database                                                  |
+| Barang tanpa QR & tanpa DB        | Manual Input -> auto-generate QR -> langsung Print dari browser                           |
+| Bulk import data                  | Import CSV/Excel -> jika ada kolom 'ruangan' -> auto-sync ke Dashboard Ruangan            |
+| Pinjam barang                     | Scan QR atau manual form modal -> isi nama peminjam, ruangan, keperluan -> simpan         |
+| Kembalikan barang                 | Scan QR atau manual form modal -> update status kembali                                   |
+| Pindah ruangan                    | Scan QR atau input kode manual -> form modal existing data -> ubah ruangan -> simpan      |
+
+---
+
+## CATATAN TEKNIS
+
+- Semua dashboard responsive (mobile-first)
+- QR Scan menggunakan device camera (browser-based, tanpa app terpisah)
+- Print QR langsung dari browser, tidak perlu download terpisah
+- SSO Google dibatasi hanya domain @student.uksw.edu dan @uksw.edu via NextAuth.js v5
+- Import CSV/Excel: jika kolom 'ruangan' ada -> auto-sync ke Dashboard Ruangan tanpa input manual
+- Dashboard Barcode dihapus, semua fungsi QR pindah ke Dashboard Barang dan Dashboard Ruangan
+- Dashboard Verifikasi + Dashboard Petugas digabung menjadi 1 dashboard
+- Badge "Terlambat" persisten meskipun barang sudah dikembalikan
+- Nota/receipt pada laporan bersifat opsional
+- Pengembangan dimulai Mei 2026, saat ini fase revisi penambahan fitur

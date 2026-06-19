@@ -15,7 +15,7 @@ const registerSchema = z.object({
   name: z.string().min(2, "Nama minimal 2 karakter"),
   email: z.string().email("Format email tidak valid"),
   password: z.string().min(8, "Password minimal 8 karakter"),
-  role: z.enum(["PETUGAS", "UNIVERSITAS"]),
+  role: z.enum(["TEKNISI", "UNIVERSITAS"]),
 });
 
 export async function loginAction(formData: FormData) {
@@ -46,7 +46,7 @@ export async function loginAction(formData: FormData) {
   if (user.statusVerifikasi === "PENDING")  redirect("/pending");
   if (user.statusVerifikasi === "REJECTED") redirect("/rejected");
   if (user.role === "ADMIN")       redirect("/admin/dashboard");
-  if (user.role === "PETUGAS")     redirect("/petugas/dashboard");
+  if (user.role === "TEKNISI")     redirect("/petugas/dashboard");
   if (user.role === "UNIVERSITAS") redirect("/universitas/dashboard");
   redirect("/");
 }

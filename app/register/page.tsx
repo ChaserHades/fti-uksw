@@ -60,7 +60,7 @@ export default function RegisterPage() {
               <div className="form-group">
                 <label className="form-label">Role yang Diajukan</label>
                 <select name="role" className="select">
-                  <option value="PETUGAS">Petugas</option>
+                  <option value="TEKNISI">Teknisi</option>
                   <option value="UNIVERSITAS">Universitas</option>
                 </select>
               </div>

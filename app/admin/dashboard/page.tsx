@@ -8,9 +8,6 @@ import type { DashboardStats, Transaksi, Barang } from "@/types";
 
 interface KategoriStat { nama: string; total: number; }
 
-const CHART_BARS = [40, 60, 45, 80, 65, 90, 55];
-const DAYS       = ["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
-
 export default function AdminDashboard() {
   const [stats,     setStats]     = useState<DashboardStats | null>(null);
   const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
@@ -27,7 +24,6 @@ export default function AdminDashboard() {
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    // Parallel fetch — semua request jalan bersamaan
     Promise.all([
       api.get<DashboardStats>("/api/dashboard/stats"),
       api.get<Transaksi[]>("/api/transaksi?status=AKTIF"),
@@ -36,7 +32,6 @@ export default function AdminDashboard() {
       setStats(s);
       setTransaksi(t.slice(0, 6));
 
-      // Kategori stat dari barang
       const map: Record<string, number> = {};
       b.forEach(br => { const k = br.kategori?.nama ?? "Lainnya"; map[k] = (map[k] ?? 0) + 1; });
       setKatStat(
@@ -81,12 +76,13 @@ export default function AdminDashboard() {
         <p className="page-sub">{today} · FTI UKSW</p>
       </div>
 
+      {/* Stats — sesuai Requirements: Total Barang, Total Ruangan, Peminjaman Aktif, Pending Verifikasi */}
       <div className="grid-4 mb-20">
         {[
-          { label: "Total Aset",         value: stats?.totalBarang       ?? 0, icon: "ti-box",            href: "/admin/barang" },
-          { label: "Dipinjam",           value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", href: "/admin/transaksi" },
-          { label: "Pending Verifikasi", value: stats?.pendingVerifikasi ?? 0, icon: "ti-user-check",     href: "/admin/verifikasi" },
-          { label: "Terlambat",          value: stats?.terlambat         ?? 0, icon: "ti-alert-circle",   href: "/admin/transaksi" },
+          { label: "Total Barang",       value: stats?.totalBarang       ?? 0, icon: "ti-box",            href: "/admin/barang" },
+          { label: "Total Ruangan",      value: stats?.totalRuangan      ?? 0, icon: "ti-building",       href: "/admin/ruangan" },
+          { label: "Peminjaman Aktif",   value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", href: "/admin/pinjam" },
+          { label: "Pending Verifikasi", value: stats?.pendingVerifikasi ?? 0, icon: "ti-user-check",     href: "/admin/tim" },
         ].map(s => (
           <Link key={s.label} href={s.href} className="glass stat-card" style={{ cursor: "pointer" }}>
             <div className="stat-card-header">
@@ -105,7 +101,7 @@ export default function AdminDashboard() {
             <div className="dash-card-title">
               <div className="section-header">
                 <span className="section-label">Peminjaman Aktif</span>
-                <Link href="/admin/transaksi" className="see-all">Lihat semua</Link>
+                <Link href="/admin/pinjam" className="see-all">Lihat semua</Link>
               </div>
             </div>
             <div className="dash-card-list">
@@ -121,7 +117,7 @@ export default function AdminDashboard() {
                     <div className="list-icon"><i className="ti ti-box" /></div>
                     <div className="list-item-info">
                       <div className="list-item-name">{t.barang.nama}</div>
-                      <div className="list-item-sub">{t.barang.kodeBarang} · {t.user.name ?? t.user.email} · {fDateShort(t.deadlineKembali)}</div>
+                      <div className="list-item-sub">{t.barang.kodeBarang} · {t.namaPeminjam} · {fDateShort(t.deadlineKembali)}</div>
                     </div>
                     <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
                       {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
@@ -136,7 +132,7 @@ export default function AdminDashboard() {
           <div className="glass dash-card-pad">
             <div className="section-header">
               <span className="section-label">Distribusi per Kategori</span>
-              <Link href="/admin/kategori" className="see-all">Detail</Link>
+              <Link href="/admin/barang" className="see-all">Detail</Link>
             </div>
             <div className="flex-col gap-10">
               {katStat.map(k => (
@@ -147,24 +143,6 @@ export default function AdminDashboard() {
                   </div>
                   <div className="bar-val">{k.total}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Chart */}
-          <div className="glass dash-card-pad">
-            <div className="section-header">
-              <span className="section-label">Aktivitas 7 Hari</span>
-              <span className="badge badge-ok">+18%</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 72 }}>
-              {CHART_BARS.map((h, i) => (
-                <div key={i} className={`chart-bar${i === 5 ? " active" : ""}`} style={{ height: `${h}%` }} />
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 5, paddingTop: 6 }}>
-              {DAYS.map(d => (
-                <div key={d} style={{ flex: 1, fontSize: 9, color: "var(--text-muted)", textAlign: "center" }}>{d}</div>
               ))}
             </div>
           </div>
@@ -209,15 +187,16 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Aksi Cepat */}
+          {/* Aksi Cepat — updated links */}
           <div className="glass dash-card-pad">
             <span className="section-label nav-quick-label">Aksi Cepat</span>
             <div className="nav-quick-list">
               {[
-                { href: "/admin/barang",     icon: "ti-plus",        label: "Tambah Barang" },
-                { href: "/admin/verifikasi", icon: "ti-user-check",  label: "Verifikasi User" },
-                { href: "/admin/transaksi",  icon: "ti-file-export", label: "Export Laporan" },
-                { href: "/admin/ruangan",    icon: "ti-building",    label: "Kelola Ruangan" },
+                { href: "/admin/barang",   icon: "ti-plus",            label: "Tambah Barang" },
+                { href: "/admin/tim",      icon: "ti-user-check",      label: "Verifikasi User" },
+                { href: "/admin/laporan",  icon: "ti-file-description", label: "Input Pengeluaran" },
+                { href: "/admin/ruangan",  icon: "ti-building",        label: "Kelola Ruangan" },
+                { href: "/admin/pinjam",   icon: "ti-qrcode",          label: "Scan QR Pinjam" },
               ].map(a => (
                 <Link key={a.href} href={a.href} className="quick-action">
                   <i className={`ti ${a.icon} quick-action-icon`} />

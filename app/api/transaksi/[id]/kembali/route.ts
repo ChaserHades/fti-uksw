@@ -14,10 +14,14 @@ export async function POST(_: Request, { params }: Params) {
   if (!transaksi || transaksi.status === "SELESAI")
     return NextResponse.json({ error: "Transaksi tidak valid" }, { status: 400 });
 
+  // Persisten: jika kembali melewati deadline → terlambat = true, tidak pernah di-reset
+  const now = new Date();
+  const wasLate = transaksi.terlambat || now > transaksi.deadlineKembali;
+
   const [updated] = await prisma.$transaction([
     prisma.transaksi.update({
       where: { id },
-      data: { status: "SELESAI", tanggalKembali: new Date() },
+      data: { status: "SELESAI", tanggalKembali: now, terlambat: wasLate },
     }),
     prisma.barang.update({
       where: { id: transaksi.barangId },

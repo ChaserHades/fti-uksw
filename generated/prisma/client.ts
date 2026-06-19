@@ -66,3 +66,8 @@ export type Barang = Prisma.BarangModel
  * 
  */
 export type Transaksi = Prisma.TransaksiModel
+/**
+ * Model Pengeluaran
+ * 
+ */
+export type Pengeluaran = Prisma.PengeluaranModel

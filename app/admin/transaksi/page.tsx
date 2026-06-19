@@ -10,7 +10,7 @@ import type { Transaksi } from "@/types";
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
 export default function TransaksiAdminPage() {
-  const [list,   setList]   = useState<Transaksi[]>([]);
+  const [list, setList] = useState<Transaksi[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("");
 
   useEffect(() => {
@@ -36,10 +36,10 @@ export default function TransaksiAdminPage() {
       t.tanggalKembali ? fDateShort(t.tanggalKembali) : "",
       t.status,
     ]);
-    const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
     a.href = url;
     a.download = `laporan-transaksi-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
@@ -72,9 +72,9 @@ export default function TransaksiAdminPage() {
       {/* Summary */}
       <div className="grid-3 mb-16">
         {[
-          { label: "Total Transaksi", value: list.length,                                         badge: "badge-info"   },
-          { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length,       badge: "badge-warn"   },
-          { label: "Terlambat",       value: list.filter(t => t.status === "TERLAMBAT").length,   badge: "badge-danger" },
+          { label: "Total Transaksi", value: list.length, badge: "badge-info" },
+          { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length, badge: "badge-warn" },
+          { label: "Terlambat", value: list.filter(t => t.status === "TERLAMBAT").length, badge: "badge-danger" },
         ].map(s => (
           <div key={s.label} className="glass summary-badge-row">
             <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
@@ -110,20 +110,20 @@ export default function TransaksiAdminPage() {
                 </tr>
               ) : list.map(t => (
                 <tr key={t.id}>
-                    <td>
-                      <div className="td-name">{t.barang.nama}</div>
-                      <div className="td-code">{t.barang.kodeBarang}</div>
-                    </td>
-                    <td>
-                      <div className="td-sm" style={{ color: "var(--text-primary)" }}>{t.namaPeminjam}</div>
-                    </td>
-                    <td className="td-sm">{t.ruanganPinjam}</td>
-                    <td>
-                      <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
-                      <div className="td-code">{t.user.email}</div>
-                    </td>
-                    <td className="td-sm">{fDateShort(t.tanggalPinjam)}</td>
-                    <td className="td-sm">{fDateShort(t.deadlineKembali)}</td>
+                  <td>
+                    <div className="td-name">{t.barang.nama}</div>
+                    <div className="td-code">{t.barang.kodeBarang}</div>
+                  </td>
+                  <td>
+                    <div className="td-sm" style={{ color: "var(--text-primary)" }}>{t.namaPeminjam}</div>
+                  </td>
+                  <td className="td-sm">{t.ruanganPinjam}</td>
+                  <td>
+                    <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
+                    <div className="td-code">{t.user.email}</div>
+                  </td>
+                  <td className="td-sm">{fDateShort(t.tanggalPinjam)}</td>
+                  <td className="td-sm">{fDateShort(t.deadlineKembali)}</td>
                   <td style={{ fontSize: 12 }}>
                     {t.tanggalKembali
                       ? fDateShort(t.tanggalKembali)

@@ -14,7 +14,7 @@ const prisma  = new PrismaClient({ adapter });
 async function main() {
   const users = [
     { email: "admin@fti.local",       name: "Administrator", password: "admin123",       role: "ADMIN"       as const, statusVerifikasi: "APPROVED" as const },
-    { email: "petugas@fti.local",     name: "Petugas Demo",  password: "petugas123",     role: "PETUGAS"     as const, statusVerifikasi: "APPROVED" as const },
+    { email: "teknisi@fti.local",     name: "Teknisi Demo",  password: "teknisi123",     role: "TEKNISI"     as const, statusVerifikasi: "APPROVED" as const },
     { email: "universitas@fti.local", name: "Pihak Univ",   password: "universitas123", role: "UNIVERSITAS" as const, statusVerifikasi: "APPROVED" as const },
   ];
   for (const u of users) {
@@ -50,7 +50,7 @@ async function main() {
 
   console.log("Seed selesai!");
   console.log("  admin@fti.local       / admin123");
-  console.log("  petugas@fti.local     / petugas123");
+  console.log("  teknisi@fti.local     / teknisi123");
   console.log("  universitas@fti.local / universitas123");
 }
 

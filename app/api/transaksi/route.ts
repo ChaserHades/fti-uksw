@@ -11,11 +11,20 @@ export async function GET(req: Request) {
   const status = searchParams.get("status");
   const userId = searchParams.get("userId");
 
+  // Build where clause
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {};
+  if (userId) where.userId = userId;
+
+  if (status === "TERLAMBAT") {
+    // Terlambat = pernah melewati deadline (persisten, termasuk yang sudah SELESAI)
+    where.terlambat = true;
+  } else if (status === "AKTIF" || status === "SELESAI") {
+    where.status = status;
+  }
+
   const list = await prisma.transaksi.findMany({
-    where: {
-      ...(status ? { status: status as "AKTIF" | "SELESAI" | "TERLAMBAT" } : {}),
-      ...(userId ? { userId } : {}),
-    },
+    where,
     include: {
       barang: { include: { kategori: true, ruangan: true } },
       user: true,
@@ -47,12 +56,13 @@ export async function POST(req: Request) {
     prisma.transaksi.create({
       data: {
         barangId,
-        userId:          session.id,   // petugas yang scan
+        userId:          session.id,
         namaPeminjam:    namaPeminjam.trim(),
         ruanganPinjam:   ruanganPinjam.trim(),
         deadlineKembali: new Date(deadlineKembali),
         catatan:         catatan ?? null,
         status:          "AKTIF",
+        terlambat:       false,
       },
       include: {
         barang: { include: { kategori: true, ruangan: true } },

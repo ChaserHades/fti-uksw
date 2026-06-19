@@ -3,8 +3,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
-export async function GET() {
-  const list = await prisma.ruangan.findMany({ orderBy: { kode: "asc" } });
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const includeCount = searchParams.get("include") === "count";
+
+  const list = await prisma.ruangan.findMany({
+    orderBy: { kode: "asc" },
+    ...(includeCount ? { include: { _count: { select: { barang: true } } } } : {}),
+  });
   return NextResponse.json(list);
 }
 

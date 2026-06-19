@@ -4,7 +4,7 @@ export interface SessionPayload {
   id: string;
   email: string;
   name: string;
-  role: "ADMIN" | "PETUGAS" | "UNIVERSITAS";
+  role: "ADMIN" | "TEKNISI" | "UNIVERSITAS";
   statusVerifikasi: "PENDING" | "APPROVED" | "REJECTED";
 }
 
@@ -49,7 +49,7 @@ export interface User {
   id: string;
   name?: string | null;
   email: string;
-  role: "ADMIN" | "PETUGAS" | "UNIVERSITAS";
+  role: "ADMIN" | "TEKNISI" | "UNIVERSITAS";
   statusVerifikasi: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
 }
@@ -57,7 +57,7 @@ export interface User {
 export interface Transaksi {
   id: string;
   barangId: string;
-  /** Petugas yang melakukan scan/pencatatan */
+  /** Petugas/Teknisi yang melakukan scan/pencatatan */
   userId: string;
   /** Peminjam aktual (mahasiswa/dosen/staf) */
   namaPeminjam: string;
@@ -67,6 +67,8 @@ export interface Transaksi {
   tanggalKembali?: string | null;
   deadlineKembali: string;
   status: "AKTIF" | "SELESAI";
+  /** Persisten: true jika pernah melewati deadline */
+  terlambat: boolean;
   catatan?: string | null;
   barang: Barang;
   user: User;
@@ -74,8 +76,22 @@ export interface Transaksi {
 
 export interface DashboardStats {
   totalBarang: number;
+  totalRuangan: number;
   totalUsers: number;
   pendingVerifikasi: number;
   dipinjam: number;
   terlambat: number;
+}
+
+export interface Pengeluaran {
+  id: string;
+  judul: string;
+  deskripsi?: string | null;
+  nominal: number;
+  tanggal: string;
+  jenis: "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
+  notaUrl?: string | null;
+  userId: string;
+  createdAt: string;
+  user: User;
 }

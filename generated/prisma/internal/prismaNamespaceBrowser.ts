@@ -55,7 +55,8 @@ export const ModelName = {
   KategoriBarang: 'KategoriBarang',
   Ruangan: 'Ruangan',
   Barang: 'Barang',
-  Transaksi: 'Transaksi'
+  Transaksi: 'Transaksi',
+  Pengeluaran: 'Pengeluaran'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -146,12 +147,29 @@ export const TransaksiScalarFieldEnum = {
   tanggalKembali: 'tanggalKembali',
   deadlineKembali: 'deadlineKembali',
   status: 'status',
+  terlambat: 'terlambat',
   catatan: 'catatan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TransaksiScalarFieldEnum = (typeof TransaksiScalarFieldEnum)[keyof typeof TransaksiScalarFieldEnum]
+
+
+export const PengeluaranScalarFieldEnum = {
+  id: 'id',
+  judul: 'judul',
+  deskripsi: 'deskripsi',
+  nominal: 'nominal',
+  tanggal: 'tanggal',
+  jenis: 'jenis',
+  notaUrl: 'notaUrl',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PengeluaranScalarFieldEnum = (typeof PengeluaranScalarFieldEnum)[keyof typeof PengeluaranScalarFieldEnum]
 
 
 export const SortOrder = {

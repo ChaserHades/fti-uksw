@@ -16,22 +16,21 @@ interface TopbarProps {
 }
 
 export const ADMIN_NAV: NavItem[] = [
-  { href: "/admin/dashboard",  label: "Dashboard",  icon: "ti-layout-dashboard" },
-  { href: "/admin/barang",     label: "Barang",     icon: "ti-box" },
-  { href: "/admin/barcode",    label: "Barcode",    icon: "ti-qrcode" },
-  { href: "/admin/kategori",   label: "Kategori",   icon: "ti-category" },
-  { href: "/admin/ruangan",    label: "Ruangan",    icon: "ti-door" },
-  { href: "/admin/transaksi",  label: "Transaksi",  icon: "ti-arrows-exchange" },
-  { href: "/admin/verifikasi", label: "Verifikasi", icon: "ti-user-check" },
-  { href: "/admin/petugas",    label: "Petugas",    icon: "ti-users" },
+  { href: "/admin/dashboard",  label: "Dashboard",        icon: "ti-layout-dashboard" },
+  { href: "/admin/barang",     label: "Barang",           icon: "ti-box" },
+  { href: "/admin/ruangan",    label: "Ruangan",          icon: "ti-building" },
+  { href: "/admin/pinjam",     label: "Pinjam",           icon: "ti-qrcode" },
+  { href: "/admin/riwayat",    label: "Riwayat",          icon: "ti-history" },
+  { href: "/admin/laporan",    label: "Laporan",          icon: "ti-file-description" },
+  { href: "/admin/tim",        label: "Tim & Verifikasi", icon: "ti-users" },
 ];
 
-export const PETUGAS_NAV: NavItem[] = [
-  { href: "/petugas/dashboard",  label: "Dashboard",   icon: "ti-layout-dashboard" },
-  { href: "/petugas/pinjam",     label: "Pinjam",      icon: "ti-arrow-bar-to-down" },
-  { href: "/petugas/kembali",    label: "Kembali",     icon: "ti-arrow-bar-to-up" },
-  { href: "/petugas/listbarang", label: "List Barang", icon: "ti-list" },
-  { href: "/petugas/riwayat",    label: "Riwayat",     icon: "ti-history" },
+export const TEKNISI_NAV: NavItem[] = [
+  { href: "/petugas/dashboard",  label: "Dashboard",       icon: "ti-layout-dashboard" },
+  { href: "/petugas/pinjam",     label: "Pinjam",          icon: "ti-arrow-bar-to-down" },
+  { href: "/petugas/ruangan",    label: "Ruangan",         icon: "ti-building" },
+  { href: "/petugas/listbarang", label: "List Barang",     icon: "ti-list" },
+  { href: "/petugas/riwayat",    label: "Riwayat",         icon: "ti-history" },
 ];
 
 export const UNIVERSITAS_NAV: NavItem[] = [

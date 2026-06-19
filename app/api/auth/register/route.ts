@@ -11,7 +11,7 @@ const schema = z.object({
     "Hanya email institusi UKSW"
   ),
   password: z.string().min(8),
-  role: z.enum(["PETUGAS", "UNIVERSITAS"]),
+  role: z.enum(["TEKNISI", "UNIVERSITAS"]),
 });
 
 export async function POST(req: Request) {

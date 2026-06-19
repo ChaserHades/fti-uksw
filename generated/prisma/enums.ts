@@ -11,7 +11,7 @@
 
 export const Role = {
   ADMIN: 'ADMIN',
-  PETUGAS: 'PETUGAS',
+  TEKNISI: 'TEKNISI',
   UNIVERSITAS: 'UNIVERSITAS'
 } as const
 
@@ -47,8 +47,16 @@ export type StatusBarang = (typeof StatusBarang)[keyof typeof StatusBarang]
 
 export const StatusTransaksi = {
   AKTIF: 'AKTIF',
-  SELESAI: 'SELESAI',
-  TERLAMBAT: 'TERLAMBAT'
+  SELESAI: 'SELESAI'
 } as const
 
 export type StatusTransaksi = (typeof StatusTransaksi)[keyof typeof StatusTransaksi]
+
+
+export const JenisPengeluaran = {
+  PEMBELIAN_ASET: 'PEMBELIAN_ASET',
+  MAINTENANCE: 'MAINTENANCE',
+  LAINNYA: 'LAINNYA'
+} as const
+
+export type JenisPengeluaran = (typeof JenisPengeluaran)[keyof typeof JenisPengeluaran]
