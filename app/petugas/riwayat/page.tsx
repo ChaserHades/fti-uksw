@@ -76,8 +76,8 @@ export default function RiwayatPage() {
                 return (
                   <tr key={t.id}>
                     <td>
-                      <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
-                      <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.barang.kodeBarang}</div>
+                      <div className="td-name">{t.barang.nama}</div>
+                      <div className="td-code">{t.barang.kodeBarang}</div>
                     </td>
                     <td style={{ fontSize: 12 }}>{fDateShort(t.tanggalPinjam)}</td>
                     <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>

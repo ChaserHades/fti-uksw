@@ -44,11 +44,11 @@ export default function ListBarangPage() {
       </PageHeader>
 
       {/* Filters */}
-      <div className="glass" style={{ padding: "12px 16px", marginBottom: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 180 }}>
-          <i className="ti ti-search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", fontSize: 14 }} />
+      <div className="glass filter-bar mb-16">
+        <div className="search-wrap">
+          <i className="ti ti-search search-icon" />
           <input
-            className="input" style={{ paddingLeft: 36 }}
+            className="input"
             placeholder="Cari nama barang…"
             value={search} onChange={e => setSearch(e.target.value)}
           />
@@ -66,13 +66,13 @@ export default function ListBarangPage() {
       </div>
 
       {/* Summary badges */}
-      <div className="grid-3" style={{ marginBottom: 16 }}>
+      <div className="grid-3 mb-16">
         {[
           { label: "Tersedia",      val: barang.length,                                         cls: "badge-ok" },
           { label: "Kondisi Baik",  val: barang.filter(b => b.kondisi === "BAIK").length,        cls: "badge-ok" },
           { label: "Perlu Periksa", val: barang.filter(b => b.kondisi !== "BAIK").length,        cls: "badge-warn" },
         ].map(s => (
-          <div key={s.label} className="glass" style={{ padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div key={s.label} className="glass summary-badge-row">
             <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
             <span className={`badge ${s.cls}`} style={{ fontSize: 14, fontWeight: 700, padding: "4px 14px" }}>{s.val}</span>
           </div>
@@ -105,8 +105,8 @@ export default function ListBarangPage() {
               ) : filtered.map(b => (
                 <tr key={b.id}>
                   <td>
-                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.nama}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{b.kodeBarang}</div>
+                    <div className="td-name">{b.nama}</div>
+                    <div className="td-code">{b.kodeBarang}</div>
                   </td>
                   <td style={{ fontSize: 12 }}>{b.kategori?.nama ?? "—"}</td>
                   <td>

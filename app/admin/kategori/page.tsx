@@ -62,11 +62,11 @@ export default function KategoriPage() {
               <tr><td colSpan={4}><div className="empty-state"><i className="ti ti-category-minus" style={{ fontSize: 28 }} />Belum ada kategori</div></td></tr>
             ) : list.map((k, i) => (
               <tr key={k.id}>
-                <td style={{ color: "var(--text-muted)" }}>{i + 1}</td>
-                <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>{k.nama}</td>
+                <td className="td-sm text-muted">{i + 1}</td>
+                <td className="td-name">{k.nama}</td>
                 <td>{k.deskripsi ?? "—"}</td>
                 <td>
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div className="action-row">
                     <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(k)}><i className="ti ti-edit" /></button>
                     <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(k.id, k.nama)}><i className="ti ti-trash" /></button>
                   </div>
@@ -86,7 +86,7 @@ export default function KategoriPage() {
           <label className="form-label">Deskripsi</label>
           <input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={(e) => setForm({ ...form, deskripsi: e.target.value })} />
         </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+        <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(false)}>Batal</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? <><div className="spinner" />Menyimpan…</> : "Simpan"}

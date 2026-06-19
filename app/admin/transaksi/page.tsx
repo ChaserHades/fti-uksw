@@ -70,13 +70,13 @@ export default function TransaksiAdminPage() {
       </PageHeader>
 
       {/* Summary */}
-      <div className="grid-3" style={{ marginBottom: 16 }}>
+      <div className="grid-3 mb-16">
         {[
           { label: "Total Transaksi", value: list.length,                                         badge: "badge-info"   },
           { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length,       badge: "badge-warn"   },
           { label: "Terlambat",       value: list.filter(t => t.status === "TERLAMBAT").length,   badge: "badge-danger" },
         ].map(s => (
-          <div key={s.label} className="glass" style={{ padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+          <div key={s.label} className="glass summary-badge-row">
             <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
             <span className={`badge ${s.badge}`} style={{ fontSize: 14, fontWeight: 700, padding: "4px 14px", flexShrink: 0 }}>{s.value}</span>
           </div>
@@ -110,20 +110,20 @@ export default function TransaksiAdminPage() {
                 </tr>
               ) : list.map(t => (
                 <tr key={t.id}>
-                  <td>
-                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.barang.kodeBarang}</div>
-                  </td>
-                  <td>
-                    <div style={{ color: "var(--text-primary)", fontSize: 13 }}>{t.namaPeminjam}</div>
-                  </td>
-                  <td style={{ fontSize: 12 }}>{t.ruanganPinjam}</td>
-                  <td>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.user.email}</div>
-                  </td>
-                  <td style={{ fontSize: 12 }}>{fDateShort(t.tanggalPinjam)}</td>
-                  <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
+                    <td>
+                      <div className="td-name">{t.barang.nama}</div>
+                      <div className="td-code">{t.barang.kodeBarang}</div>
+                    </td>
+                    <td>
+                      <div className="td-sm" style={{ color: "var(--text-primary)" }}>{t.namaPeminjam}</div>
+                    </td>
+                    <td className="td-sm">{t.ruanganPinjam}</td>
+                    <td>
+                      <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
+                      <div className="td-code">{t.user.email}</div>
+                    </td>
+                    <td className="td-sm">{fDateShort(t.tanggalPinjam)}</td>
+                    <td className="td-sm">{fDateShort(t.deadlineKembali)}</td>
                   <td style={{ fontSize: 12 }}>
                     {t.tanggalKembali
                       ? fDateShort(t.tanggalKembali)

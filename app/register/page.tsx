@@ -38,9 +38,9 @@ export default function RegisterPage() {
             <h1 className="auth-title">Daftar Akun</h1>
             <p className="auth-sub">Akun baru perlu diverifikasi oleh Admin</p>
           </div>
-          <div className="glass" style={{ padding: "28px" }}>
+          <div className="glass auth-body">
             {error && (
-              <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+              <div className="alert alert-danger mb-16">
                 <i className="ti ti-alert-circle" /> {error}
               </div>
             )}
@@ -66,19 +66,18 @@ export default function RegisterPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary"
-                style={{ width: "100%", justifyContent: "center" }}
+                className="btn btn-primary btn-full"
                 disabled={isPending}
               >
                 {isPending
-                  ? <><div className="spinner" style={{ width: 16, height: 16 }} /> Mendaftar...</>
+                  ? <><div className="spinner spinner-sm" /> Mendaftar...</>
                   : "Daftar"
                 }
               </button>
             </form>
-            <div style={{ marginTop: 16, textAlign: "center", fontSize: 12, color: "var(--text-muted)" }}>
+            <div className="auth-footer">
               Sudah punya akun?{" "}
-              <Link href="/login" style={{ color: "var(--ds-mist)" }}>Masuk di sini</Link>
+              <Link href="/login">Masuk di sini</Link>
             </div>
           </div>
         </div>

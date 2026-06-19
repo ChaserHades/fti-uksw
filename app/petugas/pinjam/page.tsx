@@ -195,7 +195,7 @@ export default function PinjamPage() {
       <PageHeader title="Pinjam / Kembali Barang" subtitle="Scan QR Code atau lihat daftar peminjaman aktif" />
 
       {/* ── Mode switcher ── */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      <div className="mode-switcher">
         {([
           { key: "scan", icon: "ti-qrcode",  label: "Scan QR" },
           { key: "list", icon: "ti-list",     label: "Daftar Aktif" },
@@ -221,15 +221,11 @@ export default function PinjamPage() {
 
       {/* ── MODE: SCAN ── */}
       {mode === "scan" && (
-        <div style={{ maxWidth: 520 }}>
+        <div className="scan-container">
           <div className="glass" style={{ padding: 24 }}>
-            <div style={{ textAlign: "center", marginBottom: 18 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
-                Scan QR Code Barang
-              </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                Tersedia → form pinjam &nbsp;·&nbsp; Dipinjam → langsung kembalikan
-              </div>
+            <div className="scan-heading">
+              <div className="scan-title">Scan QR Code Barang</div>
+              <div className="scan-sub">Tersedia → form pinjam &nbsp;·&nbsp; Dipinjam → langsung kembalikan</div>
             </div>
 
             {/* Viewfinder */}
@@ -276,7 +272,7 @@ export default function PinjamPage() {
       {mode === "list" && (
         <>
           {terlambat.length > 0 && (
-            <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+            <div className="alert alert-danger mb-16">
               <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
               <strong>{terlambat.length} barang</strong>&nbsp;sudah melewati deadline pengembalian!
             </div>
@@ -356,13 +352,13 @@ export default function PinjamPage() {
       <Modal open={modalPinjam} onClose={() => { setModalPinjam(false); setBarang(null); }} title="Form Peminjaman">
         {barang && (
           <>
-            <div style={{ padding: "12px 14px", borderRadius: 10, marginBottom: 20, background: "rgba(65,90,119,0.25)", border: "1px solid var(--glass-border)", display: "flex", gap: 12, alignItems: "center" }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: "rgba(65,90,119,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <i className="ti ti-box" style={{ fontSize: 20, color: "var(--ds-mist)" }} />
+            <div className="modal-preview-with-icon">
+              <div className="qa-card-icon" style={{ width: 40, height: 40 }}>
+                <i className="ti ti-box" style={{ fontSize: 20 }} />
               </div>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 14 }}>{barang.nama}</div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{barang.kodeBarang}</div>
+              <div className="flex-1" style={{ minWidth: 0 }}>
+                <div className="modal-preview-title">{barang.nama}</div>
+                <div className="td-code">{barang.kodeBarang}</div>
               </div>
               <span className="badge badge-ok" style={{ flexShrink: 0 }}>Tersedia</span>
             </div>
@@ -384,7 +380,7 @@ export default function PinjamPage() {
               <input className="input" placeholder="Keperluan / keterangan" value={form.catatan} onChange={e => setF("catatan", e.target.value)} />
             </div>
 
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <div className="modal-footer">
               <button className="btn btn-ghost" onClick={() => { setModalPinjam(false); setBarang(null); }}>Batal</button>
               <button className="btn btn-primary" onClick={handlePinjam} disabled={saving}>
                 {saving ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-check" />Konfirmasi Pinjam</>}
@@ -398,9 +394,9 @@ export default function PinjamPage() {
       <Modal open={modalKembali} onClose={() => { setModalKembali(false); setTransaksiAktif(null); setBarang(null); }} title="Konfirmasi Pengembalian">
         {barang && transaksiAktif && (
           <>
-            <div style={{ padding: "12px 14px", borderRadius: 10, marginBottom: 16, background: "rgba(65,90,119,0.25)", border: "1px solid var(--glass-border)" }}>
-              <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 8 }}>{barang.nama}</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <div className="modal-preview">
+              <div className="modal-preview-title" style={{ marginBottom: 8 }}>{barang.nama}</div>
+              <div className="flex-col" style={{ gap: 5 }}>
                 {[
                   { label: "Kode",     value: barang.kodeBarang },
                   { label: "Peminjam", value: transaksiAktif.namaPeminjam },
@@ -408,16 +404,16 @@ export default function PinjamPage() {
                   { label: "Dipinjam", value: fDateShort(transaksiAktif.tanggalPinjam) },
                   { label: "Deadline", value: fDateShort(transaksiAktif.deadlineKembali) },
                 ].map(row => (
-                  <div key={row.label} style={{ display: "flex", gap: 8, fontSize: 12 }}>
-                    <span style={{ color: "var(--text-muted)", width: 70, flexShrink: 0 }}>{row.label}</span>
-                    <span style={{ color: "var(--text-secondary)", fontFamily: row.label === "Kode" ? "monospace" : undefined }}>{row.value}</span>
+                  <div key={row.label} className="modal-preview-row">
+                    <span className="modal-preview-label">{row.label}</span>
+                    <span className="modal-preview-value" style={{ fontFamily: row.label === "Kode" ? "monospace" : undefined }}>{row.value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {isOverdue(transaksiAktif.deadlineKembali) && (
-              <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+              <div className="alert alert-danger mb-16">
                 <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
                 Barang ini sudah melewati deadline pengembalian!
               </div>
@@ -427,7 +423,7 @@ export default function PinjamPage() {
               Konfirmasi bahwa barang telah dikembalikan. Status akan otomatis berubah menjadi <strong>Tersedia</strong>.
             </div>
 
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <div className="modal-footer">
               <button className="btn btn-ghost" onClick={() => { setModalKembali(false); setTransaksiAktif(null); setBarang(null); }}>Batal</button>
               <button className="btn btn-success" onClick={() => handleKembali(transaksiAktif.id)} disabled={processing}>
                 {processing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-circle-check" />Konfirmasi Kembali</>}

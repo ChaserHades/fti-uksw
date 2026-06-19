@@ -62,11 +62,11 @@ export default function AdminDashboard() {
   if (!loaded) {
     return (
       <div>
-        <div style={{ marginBottom: 24 }}>
+        <div className="dash-heading">
           <div style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)" }}>Dashboard Admin</div>
           <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{today}</div>
         </div>
-        <div className="grid-4" style={{ marginBottom: 20 }}>
+        <div className="grid-4 mb-20">
           {[0,1,2,3].map(i => <SkeletonCard key={i} />)}
         </div>
         <SkeletonTable rows={5} cols={4} />
@@ -76,12 +76,12 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div style={{ marginBottom: 24 }}>
+      <div className="dash-heading">
         <h1 className="page-title">Dashboard Admin</h1>
         <p className="page-sub">{today} · FTI UKSW</p>
       </div>
 
-      <div className="grid-4" style={{ marginBottom: 20 }}>
+      <div className="grid-4 mb-20">
         {[
           { label: "Total Aset",         value: stats?.totalBarang       ?? 0, icon: "ti-box",            href: "/admin/barang" },
           { label: "Dipinjam",           value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", href: "/admin/transaksi" },
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="dash-body" style={{ marginBottom: 16 }}>
+      <div className="dash-body mb-16">
         <div className="dash-col-left">
           {/* Peminjaman aktif */}
           <div className="glass">
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
               <span className="section-label">Distribusi per Kategori</span>
               <Link href="/admin/kategori" className="see-all">Detail</Link>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div className="flex-col gap-10">
               {katStat.map(k => (
                 <div key={k.nama} className="bar-row">
                   <div className="bar-label" style={{ width: 110 }}>{k.nama}</div>
@@ -173,8 +173,8 @@ export default function AdminDashboard() {
         <div className="dash-col-right">
           {/* Status Aset */}
           <div className="glass dash-card-pad">
-            <span className="section-label" style={{ display: "block", marginBottom: 14 }}>Status Aset</span>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <span className="section-label nav-quick-label">Status Aset</span>
+            <div className="flex-col gap-10">
               {[
                 { label: "Tersedia",    val: statusStat.tersedia,    color: "var(--color-ok)",   pct: statusStat.total ? Math.round((statusStat.tersedia / statusStat.total) * 100) : 0 },
                 { label: "Dipinjam",   val: statusStat.dipinjam,    color: "var(--color-warn)",  pct: statusStat.total ? Math.round((statusStat.dipinjam / statusStat.total) * 100) : 0 },
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
 
           {/* User stat */}
           <div className="glass dash-card-pad">
-            <span className="section-label" style={{ display: "block", marginBottom: 12 }}>Pengguna Sistem</span>
+            <span className="section-label nav-quick-label">Pengguna Sistem</span>
             <div className="dash-summary" style={{ gridTemplateColumns: "1fr 1fr" }}>
               {[
                 { label: "Total User", value: stats?.totalUsers        ?? 0, color: "var(--ds-mist)" },
@@ -211,8 +211,8 @@ export default function AdminDashboard() {
 
           {/* Aksi Cepat */}
           <div className="glass dash-card-pad">
-            <span className="section-label" style={{ display: "block", marginBottom: 12 }}>Aksi Cepat</span>
-            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            <span className="section-label nav-quick-label">Aksi Cepat</span>
+            <div className="nav-quick-list">
               {[
                 { href: "/admin/barang",     icon: "ti-plus",        label: "Tambah Barang" },
                 { href: "/admin/verifikasi", icon: "ti-user-check",  label: "Verifikasi User" },
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
                 { href: "/admin/ruangan",    icon: "ti-building",    label: "Kelola Ruangan" },
               ].map(a => (
                 <Link key={a.href} href={a.href} className="quick-action">
-                  <i className={`ti ${a.icon}`} style={{ color: "var(--ds-mist)", fontSize: 16, flexShrink: 0 }} />
+                  <i className={`ti ${a.icon} quick-action-icon`} />
                   {a.label}
                 </Link>
               ))}

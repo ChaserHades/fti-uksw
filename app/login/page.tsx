@@ -35,9 +35,9 @@ export default function LoginPage() {
             <h1 className="auth-title">Aset FTI UKSW</h1>
             <p className="auth-sub">Sistem Manajemen Aset Fakultas Teknologi Informasi</p>
           </div>
-          <div className="glass" style={{ padding: "28px" }}>
+          <div className="glass auth-body">
             {error && (
-              <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+              <div className="alert alert-danger mb-16">
                 <i className="ti ti-alert-circle" /> {error}
               </div>
             )}
@@ -66,18 +66,17 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary"
-                style={{ width: "100%", justifyContent: "center", marginTop: 4 }}
+                className="btn btn-primary btn-full mt-4"
                 disabled={isPending}
               >
                 {isPending
-                  ? <><div className="spinner" style={{ width: 16, height: 16 }} /> Memverifikasi...</>
+                  ? <><div className="spinner spinner-sm" /> Memverifikasi...</>
                   : <><i className="ti ti-login" /> Masuk</>
                 }
               </button>
             </form>
-            <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-              <Link href="/register" style={{ color: "var(--ds-mist)" }}>Daftar Akun Baru</Link>
+            <div className="auth-footer">
+              <Link href="/register">Daftar Akun Baru</Link>
             </div>
           </div>
         </div>

@@ -68,13 +68,13 @@ export default function UniversitasDashboard() {
 
   return (
     <>
-      <div style={{ marginBottom: 24 }}>
+      <div className="dash-heading">
         <h1 className="page-title">Overview Aset FTI UKSW</h1>
         <p className="page-sub">{today}</p>
       </div>
 
       {/* Stat Cards — grid-4 → 2col @1100px → 1col @640px */}
-      <div className="grid-4" style={{ marginBottom: 20 }}>
+      <div className="grid-4 mb-20">
         {[
           { label: "Total Aset", value: stats?.totalBarang ?? "—", icon: "ti-box" },
           { label: "Dipinjam",   value: stats?.dipinjam    ?? "—", icon: "ti-arrows-exchange" },
@@ -84,7 +84,7 @@ export default function UniversitasDashboard() {
           <div key={s.label} className="glass stat-card">
             <div className="stat-card-header">
               <span className="section-label">{s.label}</span>
-              <i className={`ti ${s.icon}`} style={{ fontSize: 18, color: "var(--ds-mist)", flexShrink: 0 }} />
+              <i className={`ti ${s.icon} dash-stat-icon`} />
             </div>
             <div className="stat-value">{s.value}</div>
           </div>
@@ -121,47 +121,42 @@ export default function UniversitasDashboard() {
           </div>
         </div>
 
-        {/* Paling Sering Dipinjam */}
         <div className="glass">
-          <div style={{ padding: "16px 20px 0" }}>
+          <div className="dash-card-title">
             <div className="section-header">
-              <span className="section-label">Paling Sering Dipinjam</span>
-              <Link href="/universitas/transaksi" className="see-all">Lihat semua →</Link>
+              <span className="section-label">Peminjaman Aktif Saya</span>
+              <Link href="/universitas/transaksi" className="see-all">Riwayat</Link>
             </div>
           </div>
-          <div style={{ padding: "0 20px 12px" }}>
+          <div className="dash-card-list">
             {topBarang.length === 0 ? (
               <div className="empty-state" style={{ padding: "20px 0" }}>
                 <i className="ti ti-inbox" style={{ fontSize: 24 }} />Belum ada data
               </div>
             ) : topBarang.map((b, i) => (
               <div key={b.kode} className="list-item">
-                <div style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, background: "rgba(65,90,119,.40)", border: "1px solid rgba(119,141,169,.20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "var(--ds-mist)" }}>
+                <div className="list-item-idx">
                   {i + 1}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.nama}</div>
-                  <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{b.kode}</div>
+                <div className="list-item-info">
+                  <div className="list-item-name">{b.nama}</div>
+                  <div className="list-item-sub">{b.kode}</div>
                 </div>
-                <span className="badge badge-info" style={{ flexShrink: 0 }}>{b.count}x</span>
+                <span className="badge badge-info">{b.count}x</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Statistik per Kategori */}
       <div className="glass" style={{ padding: "18px 20px", marginBottom: 16 }}>
-        <div className="section-header">
-          <span className="section-label">Statistik per Kategori Barang</span>
-          <Link href="/universitas/barang" className="see-all">Detail →</Link>
-        </div>
+        <span className="section-label nav-quick-label">Status Aset Universitas</span>
         {kategoriStat.length === 0 ? (
           <div className="empty-state" style={{ padding: "16px 0" }}>Tidak ada data</div>
         ) : (() => {
           const maxVal = Math.max(...kategoriStat.map(k => k.total), 1);
           return (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div className="flex-col gap-10">
               {kategoriStat.map(k => (
                 <div key={k.nama} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)", width: 120, flexShrink: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.nama}</div>
@@ -176,7 +171,6 @@ export default function UniversitasDashboard() {
         })()}
       </div>
 
-      {/* Transaksi + Aset terbaru — dash-half → 1col @860px */}
       <div className="dash-half" style={{ marginBottom: 16 }}>
         <div className="glass">
           <div style={{ padding: "16px 20px 0" }}>
@@ -247,24 +241,30 @@ export default function UniversitasDashboard() {
         </div>
       </div>
 
-      {/* Ringkasan Status Aset */}
       <div className="glass" style={{ padding: "18px 20px", marginBottom: 16 }}>
         <span className="section-label" style={{ marginBottom: 14, display: "block" }}>Ringkasan Status Aset</span>
         <div className="dash-summary">
-          {[
-            { label: "Total Terdaftar", value: stats?.totalBarang ?? 0,                                color: "var(--color-ok)" },
-            { label: "Sedang Dipinjam", value: stats?.dipinjam    ?? 0,                                color: "var(--color-warn)" },
-            { label: "Tersedia",        value: (stats?.totalBarang ?? 0) - (stats?.dipinjam ?? 0),     color: "var(--ds-mist)" },
-          ].map(item => (
-            <div key={item.label} style={{ textAlign: "center", padding: "16px 8px", background: "rgba(65,90,119,0.15)", borderRadius: 12 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: item.color, marginBottom: 4 }}>{item.value}</div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{item.label}</div>
-            </div>
-          ))}
+          <Link href="/universitas/barang" className="glass qa-card">
+              <div className="qa-card-icon">
+                <i className="ti ti-box" />
+              </div>
+              <div>
+                <div className="qa-card-title">Lihat Inventaris</div>
+                <div className="qa-card-sub">Daftar semua aset universitas</div>
+              </div>
+          </Link>
+          <Link href="/universitas/pembelian" className="glass qa-card">
+              <div className="qa-card-icon">
+                <i className="ti ti-shopping-cart" />
+              </div>
+              <div>
+                <div className="qa-card-title">Pengajuan Pembelian</div>
+                <div className="qa-card-sub">Ajukan pembelian aset baru</div>
+              </div>
+          </Link>
         </div>
       </div>
 
-      {/* Shortcut ke Pembelian Barang */}
       <div className="glass" style={{ padding: "16px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>

@@ -65,7 +65,7 @@ export default function VerifikasiPage() {
       </PageHeader>
 
       {pendingCount > 0 && filter === "PENDING" && (
-        <div className="alert alert-warn" style={{ marginBottom: 16 }}>
+        <div className="alert alert-warn mb-16">
           <i className="ti ti-info-circle" />
           Ada <strong>{pendingCount}</strong> user menunggu verifikasi
         </div>
@@ -98,10 +98,10 @@ export default function VerifikasiPage() {
                 const isProcessing = loading === u.id;
                 return (
                   <tr key={u.id}>
-                    <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>
+                    <td className="td-name">
                       {u.name ?? "—"}
                     </td>
-                    <td style={{ fontFamily: "monospace", fontSize: 12 }}>
+                    <td className="td-mono td-sm">
                       {u.email}
                     </td>
                     <td>
@@ -114,10 +114,10 @@ export default function VerifikasiPage() {
                         {u.statusVerifikasi}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12 }}>{fDateShort(u.createdAt)}</td>
+                    <td className="td-sm">{fDateShort(u.createdAt)}</td>
                     <td>
                       {u.statusVerifikasi === "PENDING" ? (
-                        <div style={{ display: "flex", gap: 6 }}>
+                        <div className="action-row">
                           <button
                             className="btn btn-success btn-sm"
                             onClick={() => handleAction(u.id, "APPROVE")}

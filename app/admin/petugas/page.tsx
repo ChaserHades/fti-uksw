@@ -30,7 +30,7 @@ export default function PetugasPage() {
   return (
     <>
       <PageHeader title="Daftar Petugas & Universitas" subtitle="Seluruh pengguna non-admin">
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="action-row">
           <span className="badge badge-ok">{approved} Aktif</span>
           {pending > 0 && <span className="badge badge-warn">{pending} Pending</span>}
         </div>
@@ -56,16 +56,16 @@ export default function PetugasPage() {
               </tr>
             ) : users.map((u, i) => (
               <tr key={u.id}>
-                <td style={{ color: "var(--text-muted)" }}>{i + 1}</td>
-                <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>{u.name ?? "—"}</td>
-                <td style={{ fontFamily: "monospace", fontSize: 12 }}>{u.email}</td>
+                <td className="td-sm" style={{ color: "var(--text-muted)" }}>{i + 1}</td>
+                <td className="td-name">{u.name ?? "—"}</td>
+                <td className="td-mono td-sm">{u.email}</td>
                 <td><span className={`badge ${roleBadge[u.role] ?? "badge-muted"}`}>{u.role}</span></td>
                 <td>
                   <span className={`badge ${statusBadge[u.statusVerifikasi]}`}>
                     {u.statusVerifikasi}
                   </span>
                 </td>
-                <td style={{ fontSize: 12 }}>{fDateShort(u.createdAt)}</td>
+                <td className="td-sm">{fDateShort(u.createdAt)}</td>
               </tr>
             ))}
           </tbody>

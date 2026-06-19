@@ -88,13 +88,13 @@ export default function RuanganPage() {
               </tr>
             ) : list.map((r) => (
               <tr key={r.id}>
-                <td style={{ fontFamily: "monospace", fontWeight: 600, color: "var(--text-primary)" }}>{r.kode}</td>
-                <td style={{ color: "var(--text-primary)" }}>{r.nama}</td>
+                <td className="td-mono td-bold">{r.kode}</td>
+                <td className="td-name">{r.nama}</td>
                 <td>{r.gedung ?? "—"}</td>
                 <td>{r.lantai ?? "—"}</td>
                 <td>{r.kapasitas ?? "—"}</td>
                 <td>
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div className="action-row">
                     <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(r)}>
                       <i className="ti ti-edit" />
                     </button>
@@ -110,7 +110,7 @@ export default function RuanganPage() {
       </div>
 
       <Modal open={modal} onClose={() => setModal(false)} title={selected ? "Edit Ruangan" : "Tambah Ruangan"}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="form-grid-2-fixed">
           <div className="form-group">
             <label className="form-label">Kode Ruangan *</label>
             <input className="input" placeholder="LAB1" value={form.kode} onChange={(e) => setF("kode", e.target.value)} />
@@ -124,7 +124,7 @@ export default function RuanganPage() {
           <label className="form-label">Nama Ruangan *</label>
           <input className="input" placeholder="Lab Komputer 1" value={form.nama} onChange={(e) => setF("nama", e.target.value)} />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="form-grid-2-fixed">
           <div className="form-group">
             <label className="form-label">Gedung</label>
             <input className="input" placeholder="A" value={form.gedung} onChange={(e) => setF("gedung", e.target.value)} />
@@ -134,7 +134,7 @@ export default function RuanganPage() {
             <input className="input" placeholder="1" value={form.lantai} onChange={(e) => setF("lantai", e.target.value)} />
           </div>
         </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+        <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(false)}>Batal</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? <><div className="spinner" />Menyimpan…</> : "Simpan"}

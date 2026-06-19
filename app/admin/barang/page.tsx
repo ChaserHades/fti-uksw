@@ -109,11 +109,11 @@ export default function BarangPage() {
       </PageHeader>
 
       {/* Filters */}
-      <div className="glass" style={{ padding: "12px 16px", marginBottom: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ position: "relative", flex: "1 1 180px", minWidth: 150 }}>
-          <i className="ti ti-search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", fontSize: 14, pointerEvents: "none" }} />
+      <div className="glass filter-bar mb-16">
+        <div className="search-wrap" style={{ flex: "1 1 180px", minWidth: 150 }}>
+          <i className="ti ti-search search-icon" />
           <input
-            className="input" style={{ paddingLeft: 36 }}
+            className="input"
             placeholder="Cari nama barang…" value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -154,18 +154,18 @@ export default function BarangPage() {
                 </tr>
               ) : barang.map(b => (
                 <tr key={b.id}>
-                  <td style={{ fontFamily: "monospace", fontSize: 11, color: "var(--text-muted)" }}>
+                  <td className="td-code">
                     {b.kodeBarang}
                   </td>
                   <td>
-                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.nama}</div>
+                    <div className="td-name">{b.nama}</div>
                     {b.ruangan && (
-                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                      <div className="td-code">
                         <i className="ti ti-map-pin" style={{ fontSize: 10 }} /> {b.ruangan.kode}
                       </div>
                     )}
                   </td>
-                  <td style={{ fontSize: 12 }}>{b.kategori.nama}</td>
+                  <td className="td-sm">{b.kategori.nama}</td>
                   <td>
                     <span className={`badge ${kondisiBadge[b.kondisi] ?? "badge-muted"}`}>
                       {b.kondisi.replace(/_/g, " ")}
@@ -178,7 +178,7 @@ export default function BarangPage() {
                   </td>
                   <td style={{ fontSize: 13 }}>{b.jumlah}</td>
                   <td>
-                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                    <div className="action-row" style={{ flexWrap: "wrap" }}>
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openQR(b)} title="QR Code">
                         <i className="ti ti-qrcode" />
                       </button>
@@ -200,7 +200,7 @@ export default function BarangPage() {
       {/* Form Modal */}
       <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Barang" : "Tambah Barang"}>
         {/* 2-col grid → 1-col di mobile via CSS clamp */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+        <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kode Barang *</label>
             <input className="input" placeholder="BRG-001" value={form.kodeBarang} onChange={e => setF("kodeBarang", e.target.value)} />
@@ -218,7 +218,7 @@ export default function BarangPage() {
           <label className="form-label">Nama Barang *</label>
           <input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+        <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kategori *</label>
             <select className="select" value={form.kategoriId} onChange={e => setF("kategoriId", e.target.value)}>
@@ -234,7 +234,7 @@ export default function BarangPage() {
             </select>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
+        <div className="form-grid-3">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Jumlah</label>
             <input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} />
@@ -252,7 +252,7 @@ export default function BarangPage() {
           <label className="form-label">Deskripsi</label>
           <input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setF("deskripsi", e.target.value)} />
         </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 4 }}>
+        <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(null)}>Batal</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? <><div className="spinner" />Menyimpan…</> : "Simpan"}
