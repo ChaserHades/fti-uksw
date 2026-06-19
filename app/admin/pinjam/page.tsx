@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
-import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
+import { fDateShort, isOverdue, isDueSoon, parseQrPayload } from "@/helpers/format";
 import type { Barang, Transaksi } from "@/types";
 
 declare const jsQR: (
@@ -13,15 +13,6 @@ declare const jsQR: (
 ) => { data: string } | null;
 
 type Mode = "scan" | "list";
-
-function parseQrPayload(raw: string): string {
-  const trimmed = raw.trim();
-  try {
-    const parsed = JSON.parse(trimmed);
-    if (parsed?.kode && typeof parsed.kode === "string") return parsed.kode;
-  } catch { /* plain string */ }
-  return trimmed;
-}
 
 export default function AdminPinjamPage() {
   // ── State ──
@@ -203,7 +194,7 @@ export default function AdminPinjamPage() {
               border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
               marginBottom: 16, transition: "border-color .3s",
             }}>
-              <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none" }} />
+              <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "none" }} />
               <canvas ref={canvasRef} style={{ display: "none" }} />
               {!scanning && (
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>

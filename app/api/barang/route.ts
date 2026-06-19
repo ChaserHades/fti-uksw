@@ -15,10 +15,28 @@ export async function GET(req: Request) {
 
   // QR lookup: GET /api/barang?kode=xxx
   if (kode) {
-    const item = await prisma.barang.findUnique({
+    // Try exact match first
+    let item = await prisma.barang.findUnique({
       where: { kodeBarang: kode },
       include: { kategori: true, ruangan: true },
     });
+
+    // Fallback: case-insensitive search (handles slight differences)
+    if (!item) {
+      item = await prisma.barang.findFirst({
+        where: { kodeBarang: { equals: kode, mode: "insensitive" } },
+        include: { kategori: true, ruangan: true },
+      });
+    }
+
+    // Fallback: maybe the QR contains the database ID directly
+    if (!item) {
+      item = await prisma.barang.findUnique({
+        where: { id: kode },
+        include: { kategori: true, ruangan: true },
+      });
+    }
+
     if (!item) return NextResponse.json({ error: "Barang tidak ditemukan" }, { status: 404 });
     return NextResponse.json(item);
   }

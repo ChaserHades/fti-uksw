@@ -1,3 +1,4 @@
+// app/admin/dashboard/page.tsx
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
@@ -76,26 +77,28 @@ export default function AdminDashboard() {
         <p className="page-sub">{today} · FTI UKSW</p>
       </div>
 
-      {/* Stats — sesuai Requirements: Total Barang, Total Ruangan, Peminjaman Aktif, Pending Verifikasi */}
-      <div className="grid-4 mb-20">
+      {/* Stats — 4 stat cards */}
+      <div className="grid-4 mb-16">
         {[
-          { label: "Total Barang",       value: stats?.totalBarang       ?? 0, icon: "ti-box",            href: "/admin/barang" },
-          { label: "Total Ruangan",      value: stats?.totalRuangan      ?? 0, icon: "ti-building",       href: "/admin/ruangan" },
-          { label: "Peminjaman Aktif",   value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", href: "/admin/pinjam" },
-          { label: "Pending Verifikasi", value: stats?.pendingVerifikasi ?? 0, icon: "ti-user-check",     href: "/admin/tim" },
+          { label: "Total Barang",       value: stats?.totalBarang       ?? 0, icon: "ti-box",             color: "var(--ds-mist)",   href: "/admin/barang" },
+          { label: "Total Ruangan",      value: stats?.totalRuangan      ?? 0, icon: "ti-building",        color: "var(--color-ok)",  href: "/admin/ruangan" },
+          { label: "Peminjaman Aktif",   value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", color: "var(--color-warn)", href: "/admin/pinjam" },
+          { label: "Pending Verifikasi", value: stats?.pendingVerifikasi ?? 0, icon: "ti-user-check",      color: "var(--color-err)", href: "/admin/tim" },
         ].map(s => (
           <Link key={s.label} href={s.href} className="glass stat-card" style={{ cursor: "pointer" }}>
             <div className="stat-card-header">
               <span className="section-label">{s.label}</span>
-              <i className={`ti ${s.icon} dash-stat-icon`} />
+              <i className={`ti ${s.icon} dash-stat-icon`} style={{ color: s.color }} />
             </div>
             <div className="stat-value">{s.value}</div>
           </Link>
         ))}
       </div>
 
-      <div className="dash-body mb-16">
+      {/* Body: left (wider) + right sidebar */}
+      <div className="dash-body">
         <div className="dash-col-left">
+
           {/* Peminjaman aktif */}
           <div className="glass">
             <div className="dash-card-title">
@@ -128,50 +131,58 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Distribusi Kategori */}
-          <div className="glass dash-card-pad">
-            <div className="section-header">
-              <span className="section-label">Distribusi per Kategori</span>
-              <Link href="/admin/barang" className="see-all">Detail</Link>
-            </div>
-            <div className="flex-col gap-10">
-              {katStat.map(k => (
-                <div key={k.nama} className="bar-row">
-                  <div className="bar-label" style={{ width: 110 }}>{k.nama}</div>
-                  <div className="bar-track">
-                    <div className="bar-fill" style={{ width: `${Math.round((k.total / maxKat) * 100)}%` }} />
-                  </div>
-                  <div className="bar-val">{k.total}</div>
+          {/* Distribusi Kategori + Status Aset — side by side */}
+          <div className="dash-half">
+            {/* Distribusi per Kategori */}
+            <div className="glass dash-card-pad">
+              <div className="section-header">
+                <span className="section-label">Distribusi per Kategori</span>
+                <Link href="/admin/barang" className="see-all">Detail</Link>
+              </div>
+              {katStat.length === 0 ? (
+                <div className="empty-state" style={{ padding: "16px 0" }}>Tidak ada data</div>
+              ) : (
+                <div className="flex-col gap-10">
+                  {katStat.map(k => (
+                    <div key={k.nama} className="bar-row">
+                      <div className="bar-label" style={{ width: 100 }}>{k.nama}</div>
+                      <div className="bar-track">
+                        <div className="bar-fill" style={{ width: `${Math.round((k.total / maxKat) * 100)}%` }} />
+                      </div>
+                      <div className="bar-val">{k.total}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
+            </div>
+
+            {/* Status Aset — stacked bars */}
+            <div className="glass dash-card-pad">
+              <span className="section-label" style={{ display: "block", marginBottom: 14 }}>Status Aset</span>
+              <div className="flex-col gap-10">
+                {[
+                  { label: "Tersedia",    val: statusStat.tersedia,    color: "var(--color-ok)",   pct: statusStat.total ? Math.round((statusStat.tersedia / statusStat.total) * 100) : 0 },
+                  { label: "Dipinjam",    val: statusStat.dipinjam,    color: "var(--color-warn)", pct: statusStat.total ? Math.round((statusStat.dipinjam / statusStat.total) * 100) : 0 },
+                  { label: "Maintenance", val: statusStat.maintenance, color: "var(--text-muted)", pct: statusStat.total ? Math.round((statusStat.maintenance / statusStat.total) * 100) : 0 },
+                ].map(item => (
+                  <div key={item.label}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{item.label}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: item.color }}>{item.val}</span>
+                    </div>
+                    <div className="bar-track">
+                      <div style={{ height: "100%", borderRadius: 10, width: `${item.pct}%`, background: item.color, transition: "width .5s ease" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Right sidebar */}
         <div className="dash-col-right">
-          {/* Status Aset */}
-          <div className="glass dash-card-pad">
-            <span className="section-label nav-quick-label">Status Aset</span>
-            <div className="flex-col gap-10">
-              {[
-                { label: "Tersedia",    val: statusStat.tersedia,    color: "var(--color-ok)",   pct: statusStat.total ? Math.round((statusStat.tersedia / statusStat.total) * 100) : 0 },
-                { label: "Dipinjam",   val: statusStat.dipinjam,    color: "var(--color-warn)",  pct: statusStat.total ? Math.round((statusStat.dipinjam / statusStat.total) * 100) : 0 },
-                { label: "Maintenance",val: statusStat.maintenance, color: "var(--text-muted)",  pct: statusStat.total ? Math.round((statusStat.maintenance / statusStat.total) * 100) : 0 },
-              ].map(item => (
-                <div key={item.label}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{item.label}</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: item.color }}>{item.val}</span>
-                  </div>
-                  <div className="bar-track">
-                    <div style={{ height: "100%", borderRadius: 10, width: `${item.pct}%`, background: item.color, transition: "width .5s ease" }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* User stat */}
+          {/* Pengguna Sistem */}
           <div className="glass dash-card-pad">
             <span className="section-label nav-quick-label">Pengguna Sistem</span>
             <div className="dash-summary" style={{ gridTemplateColumns: "1fr 1fr" }}>
@@ -187,16 +198,16 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Aksi Cepat — updated links */}
+          {/* Aksi Cepat */}
           <div className="glass dash-card-pad">
             <span className="section-label nav-quick-label">Aksi Cepat</span>
             <div className="nav-quick-list">
               {[
-                { href: "/admin/barang",   icon: "ti-plus",            label: "Tambah Barang" },
-                { href: "/admin/tim",      icon: "ti-user-check",      label: "Verifikasi User" },
+                { href: "/admin/barang",   icon: "ti-plus",             label: "Tambah Barang" },
+                { href: "/admin/tim",      icon: "ti-user-check",       label: "Verifikasi User" },
                 { href: "/admin/laporan",  icon: "ti-file-description", label: "Input Pengeluaran" },
-                { href: "/admin/ruangan",  icon: "ti-building",        label: "Kelola Ruangan" },
-                { href: "/admin/pinjam",   icon: "ti-qrcode",          label: "Scan QR Pinjam" },
+                { href: "/admin/ruangan",  icon: "ti-building",         label: "Kelola Ruangan" },
+                { href: "/admin/pinjam",   icon: "ti-qrcode",           label: "Scan QR Pinjam" },
               ].map(a => (
                 <Link key={a.href} href={a.href} className="quick-action">
                   <i className={`ti ${a.icon} quick-action-icon`} />

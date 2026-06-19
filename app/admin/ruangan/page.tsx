@@ -5,6 +5,7 @@ import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
+import { parseQrPayload } from "@/helpers/format";
 import type { Ruangan, Barang } from "@/types";
 
 declare const jsQR: (
@@ -12,14 +13,6 @@ declare const jsQR: (
 ) => { data: string } | null;
 
 const EMPTY = { kode: "", nama: "", gedung: "", lantai: "", kapasitas: "" };
-
-interface RuanganWithCount extends Ruangan { _count?: { barang: number }; }
-
-function parseQrPayload(raw: string): string {
-  const trimmed = raw.trim();
-  try { const p = JSON.parse(trimmed); if (p?.kode) return p.kode; } catch { /* */ }
-  return trimmed;
-}
 
 export default function RuanganPage() {
   const [list, setList]         = useState<RuanganWithCount[]>([]);

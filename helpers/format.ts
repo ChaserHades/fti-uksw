@@ -42,3 +42,16 @@ export function initials(name?: string | null): string {
     .slice(0, 2)
     .toUpperCase();
 }
+
+/** Parse QR payload — handles JSON {id,kode,nama} or plain kode string */
+export function parseQrPayload(raw: string): string {
+  const trimmed = raw.trim();
+  try {
+    const parsed = JSON.parse(trimmed);
+    // Prefer kode (the unique identifier used in DB)
+    if (parsed?.kode && typeof parsed.kode === "string") return parsed.kode;
+    // Fallback to id
+    if (parsed?.id && typeof parsed.id === "string") return parsed.id;
+  } catch { /* plain string */ }
+  return trimmed;
+}

@@ -5,6 +5,7 @@ import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
+import { parseQrPayload } from "@/helpers/format";
 import type { Barang, KategoriBarang, Ruangan } from "@/types";
 
 declare const jsQR: (
@@ -18,15 +19,6 @@ const EMPTY = {
   kodeBarang: "", nama: "", deskripsi: "", kondisi: "BAIK",
   jumlah: 1, tahunBeli: "", harga: "", kategoriId: "", ruanganId: "",
 };
-
-function parseQrPayload(raw: string): string {
-  const trimmed = raw.trim();
-  try {
-    const parsed = JSON.parse(trimmed);
-    if (parsed?.kode && typeof parsed.kode === "string") return parsed.kode;
-  } catch { /* plain string */ }
-  return trimmed;
-}
 
 export default function BarangPage() {
   const [tab, setTab] = useState<Tab>("daftar");
@@ -418,7 +410,7 @@ function ScanRegisterSection() {
           <div className="scan-sub">Sudah di DB → tampil info &nbsp;·&nbsp; Belum → form registrasi baru</div>
         </div>
         <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", borderRadius: 12, overflow: "hidden", background: "#000", border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`, marginBottom: 16 }}>
-          <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none" }} />
+          <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "none" }} />
           <canvas ref={canvasRef} style={{ display: "none" }} />
           {!scanning && (
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>

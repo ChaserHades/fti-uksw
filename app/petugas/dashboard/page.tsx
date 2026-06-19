@@ -1,3 +1,4 @@
+// app/petugas/dashboard/page.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -7,11 +8,11 @@ import type { Transaksi, Barang } from "@/types";
 
 interface Me { id: string; name: string; email: string; }
 
-export default function PetugasDashboard() {
-  const [me,          setMe]          = useState<Me | null>(null);
-  const [myTrx,       setMyTrx]       = useState<Transaksi[]>([]);
-  const [allAktif,    setAllAktif]    = useState<Transaksi[]>([]);
-  const [tersediaList,setTersediaList]= useState<Barang[]>([]);
+export default function TeknisiDashboard() {
+  const [me,       setMe]       = useState<Me | null>(null);
+  const [myTrx,    setMyTrx]    = useState<Transaksi[]>([]);
+  const [allAktif, setAllAktif] = useState<Transaksi[]>([]);
+  const [tersedia, setTersedia] = useState<Barang[]>([]);
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
@@ -24,7 +25,7 @@ export default function PetugasDashboard() {
     });
     api.get<Transaksi[]>("/api/transaksi?status=AKTIF").then(d => setAllAktif(d.slice(0, 5)));
     api.get<Barang[]>("/api/barang").then(d =>
-      setTersediaList(d.filter(b => b.status === "TERSEDIA").slice(0, 5))
+      setTersedia(d.filter(b => b.status === "TERSEDIA").slice(0, 5))
     );
   }, []);
 
@@ -32,70 +33,65 @@ export default function PetugasDashboard() {
   const selesai   = myTrx.filter(t => t.status === "SELESAI").length;
   const terlambat = myTrx.filter(t => t.status === "AKTIF" && isOverdue(t.deadlineKembali)).length;
 
-  const kondisiBadge: Record<string, string> = {
-    BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger",
-  };
-  const statusBadge: Record<string, string> = {
-    AKTIF: "badge-warn", SELESAI: "badge-ok",
-  };
+  const statusBadge: Record<string, string> = { AKTIF: "badge-warn", SELESAI: "badge-ok" };
+  const kondisiBadge: Record<string, string> = { BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger" };
 
   return (
     <>
+      {/* Header */}
       <div className="dash-heading">
-        <h1 className="page-title">Selamat datang, {me?.name ?? "Petugas"}</h1>
+        <h1 className="page-title">Selamat datang, {me?.name ?? "Teknisi"}</h1>
         <p className="page-sub">{today}</p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid-3 mb-20">
+      <div className="grid-3 mb-16">
         {[
-          { label: "Di Pinjam",     value: aktif,     icon: "ti-arrow-bar-to-down", href: "/petugas/riwayat" },
-          { label: "Sudah Kembali",   value: selesai,   icon: "ti-circle-check",      href: "/petugas/riwayat" },
-          { label: "Terlambat",       value: terlambat, icon: "ti-alert-circle",      href: "/petugas/pinjam" },
+          { label: "Di Pinjam",     value: aktif,     icon: "ti-arrow-bar-to-down", color: "var(--color-warn)",  href: "/petugas/riwayat" },
+          { label: "Sudah Kembali", value: selesai,   icon: "ti-circle-check",      color: "var(--color-ok)",    href: "/petugas/riwayat" },
+          { label: "Terlambat",     value: terlambat, icon: "ti-alert-circle",       color: "var(--color-err)",  href: "/petugas/pinjam" },
         ].map(s => (
           <Link key={s.label} href={s.href} className="glass stat-card" style={{ cursor: "pointer" }}>
             <div className="stat-card-header">
               <span className="section-label">{s.label}</span>
-              <i className={`ti ${s.icon} dash-stat-icon`} />
+              <i className={`ti ${s.icon} dash-stat-icon`} style={{ color: s.color }} />
             </div>
             <div className="stat-value">{s.value}</div>
           </Link>
         ))}
       </div>
 
-      {/* Main body */}
-      <div className="dash-body mb-16">
+      {/* Quick actions — prominent scan button */}
+      <div className="dash-half mb-16">
+        <Link href="/petugas/pinjam" className="glass qa-card">
+          <div className="qa-card-icon">
+            <i className="ti ti-qrcode" />
+          </div>
+          <div>
+            <div className="qa-card-title">Scan QR Barang</div>
+            <div className="qa-card-sub">Pinjam atau kembalikan otomatis</div>
+          </div>
+        </Link>
+        <Link href="/petugas/listbarang" className="glass qa-card">
+          <div className="qa-card-icon">
+            <i className="ti ti-list-search" />
+          </div>
+          <div>
+            <div className="qa-card-title">Cek Ketersediaan</div>
+            <div className="qa-card-sub">Lihat daftar barang</div>
+          </div>
+        </Link>
+      </div>
 
-        {/* Left column */}
+      {/* Body: two columns */}
+      <div className="dash-body">
         <div className="dash-col-left">
 
-          {/* Quick actions — satu page menangani pinjam & kembali via scan */}
-          <div className="dash-half">
-            <Link href="/petugas/pinjam" className="glass qa-card">
-              <div className="qa-card-icon">
-                <i className="ti ti-qrcode" />
-              </div>
-              <div>
-                <div className="qa-card-title">Scan QR Barang</div>
-                <div className="qa-card-sub">Pinjam atau kembalikan otomatis</div>
-              </div>
-            </Link>
-            <Link href="/petugas/listbarang" className="glass qa-card">
-              <div className="qa-card-icon">
-                <i className="ti ti-list-search" />
-              </div>
-              <div>
-                <div className="qa-card-title">Cek Ketersediaan</div>
-                <div className="qa-card-sub">Lihat daftar barang</div>
-              </div>
-            </Link>
-          </div>
-
-          {/* Semua pinjaman aktif (semua user) */}
+          {/* Semua peminjaman aktif */}
           <div className="glass">
             <div className="dash-card-title">
               <div className="section-header">
-                <span className="section-label">Semua Peminjaman Aktif</span>
+                <span className="section-label">Peminjaman Aktif</span>
                 <Link href="/petugas/pinjam" className="see-all">Proses</Link>
               </div>
             </div>
@@ -113,7 +109,7 @@ export default function PetugasDashboard() {
                     <div className="list-icon"><i className="ti ti-box" /></div>
                     <div className="list-item-info">
                       <div className="list-item-name">{t.barang.nama}</div>
-                      <div className="list-item-sub">{t.user.name ?? t.user.email} · {fDateShort(t.deadlineKembali)}</div>
+                      <div className="list-item-sub">{t.namaPeminjam} · {fDateShort(t.deadlineKembali)}</div>
                     </div>
                     <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
                       {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
@@ -128,7 +124,7 @@ export default function PetugasDashboard() {
           <div className="glass">
             <div className="dash-card-title">
               <div className="section-header">
-                <span className="section-label">Riwayat</span>
+                <span className="section-label">Riwayat Saya</span>
                 <Link href="/petugas/riwayat" className="see-all">Lihat semua</Link>
               </div>
             </div>
@@ -148,7 +144,7 @@ export default function PetugasDashboard() {
                   ) : myTrx.slice(0, 5).map(t => (
                     <tr key={t.id}>
                       <td>
-                       <div className="td-name">{t.barang.nama}</div>
+                        <div className="td-name">{t.barang.nama}</div>
                         <div className="td-code">{t.barang.kodeBarang}</div>
                       </td>
                       <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
@@ -160,7 +156,7 @@ export default function PetugasDashboard() {
                       </td>
                       <td>
                         {t.status === "AKTIF" && isOverdue(t.deadlineKembali)
-                          ? <span className="badge badge-danger">TERLAMBAT</span>
+                          ? <span className="badge badge-danger">Terlambat</span>
                           : <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
                         }
                       </td>
@@ -175,7 +171,7 @@ export default function PetugasDashboard() {
         {/* Right column */}
         <div className="dash-col-right">
 
-          {/* Barang tersedia — preview, link ke listbarang */}
+          {/* Barang tersedia */}
           <div className="glass">
             <div className="dash-card-title">
               <div className="section-header">
@@ -184,36 +180,38 @@ export default function PetugasDashboard() {
               </div>
             </div>
             <div className="dash-card-list">
-              {tersediaList.length === 0 ? (
+              {tersedia.length === 0 ? (
                 <div className="empty-state" style={{ padding: "20px 0" }}>
-                  <i className="ti ti-box-off" style={{ fontSize: 24 }} />Tidak ada barang tersedia
+                  <i className="ti ti-box-off" style={{ fontSize: 24 }} />Tidak ada
                 </div>
-              ) : tersediaList.map(b => (
+              ) : tersedia.map(b => (
                 <div key={b.id} className="list-item">
                   <div className="list-icon"><i className="ti ti-box" /></div>
                   <div className="list-item-info">
                     <div className="list-item-name">{b.nama}</div>
                     <div className="list-item-sub">{b.kategori?.nama} · {b.kodeBarang}</div>
                   </div>
-                  <span className={`badge ${kondisiBadge[b.kondisi]}`}>{b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak Ringan" : "Rusak Berat"}</span>
+                  <span className={`badge ${kondisiBadge[b.kondisi]}`}>
+                    {b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak Ringan" : "Rusak Berat"}
+                  </span>
                 </div>
               ))}
             </div>
             <div style={{ padding: "0 20px 14px" }}>
               <Link href="/petugas/listbarang" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
-                <i className="ti ti-list-search" /> Lihat Semua Barang Tersedia
+                <i className="ti ti-list-search" /> Lihat Semua Barang
               </Link>
             </div>
           </div>
 
-          {/* Quick links — key unik per item, walau href sama untuk dua aksi pinjam page */}
+          {/* Navigasi Cepat */}
           <div className="glass nav-quick-section">
-            <span className="section-label nav-quick-label">Navigasi Cepat</span>
+            <span className="section-label nav-quick-label">NAVIGASI CEPAT</span>
             <div className="nav-quick-list">
               {[
-                { key: "scan",      href: "/petugas/pinjam",     icon: "ti-qrcode",             label: "Scan QR (Pinjam / Kembali)" },
-                { key: "listbarang",href: "/petugas/listbarang", icon: "ti-list-search",        label: "Cek Ketersediaan" },
-                { key: "riwayat",   href: "/petugas/riwayat",    icon: "ti-history",            label: "Riwayat Lengkap" },
+                { key: "scan",       href: "/petugas/pinjam",     icon: "ti-qrcode",      label: "Scan QR (Pinjam / Kembali)" },
+                { key: "listbarang", href: "/petugas/listbarang", icon: "ti-list-search",  label: "Cek Ketersediaan" },
+                { key: "riwayat",    href: "/petugas/riwayat",    icon: "ti-history",      label: "Riwayat Lengkap" },
               ].map(a => (
                 <Link key={a.key} href={a.href} className="quick-action">
                   <i className={`ti ${a.icon} quick-action-icon`} />
