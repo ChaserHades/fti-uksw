@@ -209,9 +209,10 @@ export default function TeknisiDashboard() {
             <span className="section-label nav-quick-label">NAVIGASI CEPAT</span>
             <div className="nav-quick-list">
               {[
-                { key: "scan",       href: "/petugas/pinjam",     icon: "ti-qrcode",      label: "Scan QR (Pinjam / Kembali)" },
-                { key: "listbarang", href: "/petugas/listbarang", icon: "ti-list-search",  label: "Cek Ketersediaan" },
-                { key: "riwayat",    href: "/petugas/riwayat",    icon: "ti-history",      label: "Riwayat Lengkap" },
+                { key: "scan",       href: "/petugas/pinjam",     icon: "ti-qrcode",          label: "Scan QR (Pinjam / Kembali)" },
+                { key: "ruangan",    href: "/petugas/ruangan",    icon: "ti-arrows-exchange",  label: "Pindah Barang" },
+                { key: "listbarang", href: "/petugas/listbarang", icon: "ti-list-search",      label: "Cek Ketersediaan" },
+                { key: "riwayat",    href: "/petugas/riwayat",    icon: "ti-history",          label: "Riwayat Lengkap" },
               ].map(a => (
                 <Link key={a.key} href={a.href} className="quick-action">
                   <i className={`ti ${a.icon} quick-action-icon`} />

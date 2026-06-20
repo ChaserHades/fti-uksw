@@ -14,6 +14,8 @@ declare const jsQR: (
 
 const EMPTY = { kode: "", nama: "", gedung: "", lantai: "", kapasitas: "" };
 
+interface RuanganWithCount extends Ruangan { _count?: { barang: number }; }
+
 export default function RuanganPage() {
   const [list, setList]         = useState<RuanganWithCount[]>([]);
   const [modal, setModal]       = useState<"form" | "pindah" | null>(null);
@@ -229,7 +231,7 @@ export default function RuanganPage() {
 
         {/* Camera area (small) */}
         <div style={{ position: "relative", width: "100%", aspectRatio: "3/2", borderRadius: 10, overflow: "hidden", background: "#000", border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`, marginBottom: 12 }}>
-          <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none" }} />
+          <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "none" }} />
           <canvas ref={canvasRef} style={{ display: "none" }} />
           {!scanning && (
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>

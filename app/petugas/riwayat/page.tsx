@@ -17,14 +17,16 @@ export default function RiwayatPage() {
       .then((r) => r.json())
       .then((d) => {
         const params = new URLSearchParams({ userId: d.id });
-        // "TERLAMBAT" adalah computed filter, bukan status DB — kirim AKTIF lalu filter client-side
+        // "TERLAMBAT" is a computed filter — fetch all/AKTIF then filter client-side
         if (filter && filter !== "TERLAMBAT") params.set("status", filter);
-        else if (filter === "TERLAMBAT") params.set("status", "AKTIF");
         return api.get<Transaksi[]>(`/api/transaksi?${params}`);
       })
       .then((data) => {
         if (filter === "TERLAMBAT") {
-          setTransaksi(data.filter(t => isOverdue(t.deadlineKembali)));
+          // Show both: actively overdue AND returned-late (terlambat=true)
+          setTransaksi(data.filter(t =>
+            (t.status === "AKTIF" && isOverdue(t.deadlineKembali)) || t.terlambat
+          ));
         } else {
           setTransaksi(data);
         }
@@ -72,7 +74,9 @@ export default function RiwayatPage() {
                   </td>
                 </tr>
               ) : transaksi.map((t) => {
-                const late = t.status === "AKTIF" && isOverdue(t.deadlineKembali);
+                const activelyLate = t.status === "AKTIF" && isOverdue(t.deadlineKembali);
+                // Persistent: show "Terlambat" badge even for SELESAI if t.terlambat === true
+                const wasLate = t.terlambat === true;
                 return (
                   <tr key={t.id}>
                     <td>
@@ -88,10 +92,16 @@ export default function RiwayatPage() {
                       }
                     </td>
                     <td>
-                      {late
-                        ? <span className="badge badge-danger">TERLAMBAT</span>
-                        : <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
-                      }
+                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                        {activelyLate
+                          ? <span className="badge badge-danger">TERLAMBAT</span>
+                          : <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
+                        }
+                        {/* Persistent badge: if returned late */}
+                        {wasLate && t.status === "SELESAI" && (
+                          <span className="badge badge-danger" style={{ opacity: 0.7, fontSize: 10 }}>Terlambat</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
