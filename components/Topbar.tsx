@@ -49,20 +49,6 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
   const ghostRef   = useRef<HTMLDivElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
 
-  // hide-on-scroll via data attr (CSS handles transform)
-  useEffect(() => {
-    let lastY = 0;
-    const onScroll = () => {
-      const y = window.scrollY;
-      const h = headerRef.current;
-      if (!h) return;
-      if (y < 60) { h.removeAttribute("data-hidden"); lastY = y; return; }
-      h.dataset.hidden = String(y > lastY);
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // overflow detection → toggle .topbar-compact class 
   const checkOverflow = useCallback(() => {
@@ -108,12 +94,21 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
   };
 
   return (
-    <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
-      <header ref={headerRef} className={`topbar${compact ? " topbar-compact" : ""}`}>
+    <div className="topbar-wrapper" onMouseLeave={handleMouseLeave}>
+      <header 
+        ref={headerRef} 
+        className={`topbar${compact ? " topbar-compact" : ""}`}
+      >
 
         {/* Brand */}
         <div className="topbar-brand">
-          <div className="topbar-logo">A</div>
+          <div className="topbar-logo" style={{ background: "transparent", padding: 0 }}>
+            <img 
+              src={role === "UNIVERSITAS" ? "/logo/UKSW%20NO%20BG.png" : "/logo/FTI%20no%20bg.png"} 
+              alt={`Logo ${role}`} 
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </div>
           <div className="topbar-brand-text">
             <div className="topbar-brand-name">Aset FTI</div>
             <div className="topbar-brand-role">{role}</div>
@@ -171,11 +166,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
           {/* hamburger — shown by CSS in compact */}
           <button
             className="topbar-hamburger"
-            onMouseEnter={() => {
-              if (timeoutRef.current) clearTimeout(timeoutRef.current);
-              setOpen(true);
-            }}
-            onClick={() => setOpen(p => !p)}
+            onMouseEnter={handleMouseEnter}
             aria-label={open ? "Tutup menu" : "Buka menu"}
             aria-expanded={open}
           >
@@ -190,6 +181,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
         data-hidden={String(!open || !compact)}
         role="navigation"
         aria-label="Menu navigasi"
+        onMouseEnter={handleMouseEnter}
       >
         {items.map(item => (
           <Link

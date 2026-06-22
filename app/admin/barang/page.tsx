@@ -60,10 +60,11 @@ function DaftarTab() {
   const [ruangan,   setRuangan]   = useState<Ruangan[]>([]);
   const [search,    setSearch]    = useState("");
   const [filterKat, setFilterKat] = useState("");
-  const [modal,     setModal]     = useState<"form" | "qr" | null>(null);
+  const [modal,     setModal]     = useState<"form" | "qr" | "bulk-qr" | null>(null);
   const [selected,  setSelected]  = useState<Barang | null>(null);
   const [form,      setForm]      = useState<typeof EMPTY>(EMPTY);
   const [qrData,    setQrData]    = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
+  const [bulkQrData, setBulkQrData] = useState<{ qrCode: string; kode: string; nama: string }[] | null>(null);
   const [saving,    setSaving]    = useState(false);
 
   const load = useCallback(() => {
@@ -102,6 +103,26 @@ function DaftarTab() {
     } catch { toast.error("Gagal generate QR"); }
   }
 
+  async function handleBulkPrint() {
+    if (barang.length === 0) {
+      toast.error("Tidak ada barang untuk di-print");
+      return;
+    }
+    const toastId = toast.loading("Mempersiapkan dokumen cetak...");
+    try {
+      const ids = barang.map(b => b.id);
+      const res = await api.post<{ qrCode: string; kode: string; nama: string }[]>("/api/barang/qr-bulk", { ids });
+      setBulkQrData(res);
+      toast.success("Siap dicetak!", { id: toastId });
+      // Beri waktu 500ms agar DOM ter-update sebelum memanggil window.print()
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch {
+      toast.error("Gagal menyiapkan dokumen cetak", { id: toastId });
+    }
+  }
+
   async function handleSave() {
     if (!form.kodeBarang || !form.nama || !form.kategoriId) {
       toast.error("Kode, nama, dan kategori wajib diisi"); return;
@@ -133,7 +154,9 @@ function DaftarTab() {
     try {
       await api.delete(`/api/barang/${id}`);
       toast.success("Barang dihapus"); load();
-    } catch { toast.error("Gagal menghapus"); }
+    } catch (e: any) { 
+      toast.error(e.message || "Gagal menghapus"); 
+    }
   }
 
   const kondisiBadge: Record<string, string> = { BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger" };
@@ -153,6 +176,9 @@ function DaftarTab() {
         </select>
         <button className="btn btn-primary" onClick={openAdd}>
           <i className="ti ti-plus" /> Tambah
+        </button>
+        <button className="btn btn-ghost" onClick={handleBulkPrint} title="Print QR Semua Barang (Bulk)">
+          <i className="ti ti-printer" /> Bulk Print
         </button>
       </div>
 
@@ -261,22 +287,63 @@ function DaftarTab() {
 
       {/* QR Modal */}
       <Modal open={modal === "qr"} onClose={() => setModal(null)} title="QR Code Barang">
-        {qrData && (
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "var(--text-primary)" }}>{qrData.nama}</div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 20, fontFamily: "monospace" }}>{qrData.kode}</div>
-            <img src={qrData.qrCode} alt="QR" style={{ width: 200, height: 200, borderRadius: 12, margin: "0 auto 20px", display: "block", background: "#fff", padding: 8 }} />
-            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              <a href={qrData.qrCode} download={`${qrData.kode}-qr.png`} className="btn btn-primary btn-sm" style={{ display: "inline-flex" }}>
-                <i className="ti ti-download" /> Download PNG
-              </a>
-              <button className="btn btn-ghost btn-sm" onClick={() => window.print()}>
-                <i className="ti ti-printer" /> Print
-              </button>
+        {qrData && (() => {
+          const downloadQR = () => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              canvas.width = 300;
+              canvas.height = 360;
+              const ctx = canvas.getContext("2d");
+              if (!ctx) return;
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(img, 25, 25, 250, 250);
+              ctx.fillStyle = "#000000";
+              ctx.font = "bold 24px monospace";
+              ctx.textAlign = "center";
+              ctx.fillText(qrData.kode, 150, 315);
+              const a = document.createElement("a");
+              a.href = canvas.toDataURL("image/png");
+              a.download = `${qrData.kode}-qr.png`;
+              a.click();
+            };
+            img.src = qrData.qrCode;
+          };
+
+          return (
+            <div style={{ textAlign: "center" }}>
+              <div id="print-qr-area" style={{ background: "#fff", padding: "24px", borderRadius: "12px", display: "inline-block", margin: "0 auto 20px" }}>
+                <img src={qrData.qrCode} alt="QR" style={{ width: 200, height: 200, display: "block", marginBottom: 16 }} />
+                <div style={{ fontSize: 18, color: "#000", fontWeight: "bold", fontFamily: "monospace", letterSpacing: "2px" }}>
+                  {qrData.kode}
+                </div>
+              </div>
+              
+              <div style={{ display: "flex", gap: 10, justifyContent: "center" }} className="no-print">
+                <button onClick={downloadQR} className="btn btn-primary btn-sm">
+                  <i className="ti ti-download" /> Download PNG
+                </button>
+                <button className="btn btn-ghost btn-sm" onClick={() => window.print()}>
+                  <i className="ti ti-printer" /> Print
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </Modal>
+
+      {/* Hidden Bulk Print Area (Hanya muncul saat dicetak) */}
+      {bulkQrData && bulkQrData.length > 0 && (
+        <div id="bulk-print-area">
+          {bulkQrData.map((qr) => (
+            <div key={qr.kode} className="bulk-qr-item">
+              <img src={qr.qrCode} alt="QR" />
+              <div>{qr.kode}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

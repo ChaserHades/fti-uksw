@@ -1,4 +1,5 @@
-// components/StatCard.tsx
+import React from "react";
+
 interface StatCardProps {
   label: string;
   value: string | number;

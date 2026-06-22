@@ -84,7 +84,7 @@ export default function UniversitasDashboard() {
       {/* Kondisi + Kategori — side by side */}
       <div className="dash-half mb-16">
         {/* Kondisi Barang */}
-        <div className="glass" style={{ padding: "18px 20px" }}>
+        <div className="glass dash-card-pad">
           <div className="section-header">
             <span className="section-label">Kondisi Barang</span>
             <Link href="/universitas/barang" className="see-all">Detail →</Link>
@@ -97,7 +97,7 @@ export default function UniversitasDashboard() {
         </div>
 
         {/* Distribusi Kategori */}
-        <div className="glass" style={{ padding: "18px 20px" }}>
+        <div className="glass dash-card-pad">
           <span className="section-label" style={{ display: "block", marginBottom: 14 }}>Distribusi per Kategori</span>
           {kategoriStat.length === 0 ? (
             <div className="empty-state" style={{ padding: "16px 0" }}>Tidak ada data</div>
@@ -119,7 +119,7 @@ export default function UniversitasDashboard() {
       <div className="dash-body">
         <div className="dash-col-left">
           {/* Aset Terbaru */}
-          <div className="glass">
+          <div className="glass" style={{ padding: 0 }}>
             <div style={{ padding: "16px 20px 0" }}>
               <div className="section-header">
                 <span className="section-label">Aset Terbaru FTI</span>

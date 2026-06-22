@@ -46,6 +46,16 @@ export async function DELETE(_: Request, { params }: Params) {
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  await prisma.barang.delete({ where: { id } });
-  return NextResponse.json({ message: "Deleted" });
+  try {
+    await prisma.barang.delete({ where: { id } });
+    return NextResponse.json({ message: "Deleted" });
+  } catch (error: any) {
+    if (error?.message?.includes("foreign key constraint") || error?.code === "P2003") {
+      return NextResponse.json(
+        { error: "Aset tidak bisa dihapus karena masih terikat dengan riwayat peminjaman. Sebagai gantinya, ubah status kondisi aset ini." }, 
+        { status: 400 }
+      );
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }

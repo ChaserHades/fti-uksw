@@ -38,7 +38,7 @@ export default function RegisterPage() {
             <h1 className="auth-title">Daftar Akun</h1>
             <p className="auth-sub">Akun baru perlu diverifikasi oleh Admin</p>
           </div>
-          <div className="glass auth-body">
+          <div className="auth-body">
             {error && (
               <div className="alert alert-danger mb-16">
                 <i className="ti ti-alert-circle" /> {error}

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
 import { verifikasiUserAction } from "@/actions/verifikasi";
+import LiquidWrapper from "@/components/LiquidWrapper";
 import type { User } from "@/types";
 
 type Tab = "anggota" | "verifikasi";
@@ -83,7 +84,7 @@ export default function TimVerifikasiPage() {
 
       {/* Tab: Anggota Aktif */}
       {tab === "anggota" && (
-        <div className="glass">
+        <div className="glass" style={{ padding: 0 }}>
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -106,7 +107,7 @@ export default function TimVerifikasiPage() {
                   <tr key={u.id}>
                     <td className="td-sm" style={{ color: "var(--text-muted)" }}>{i + 1}</td>
                     <td className="td-name">{u.name ?? "—"}</td>
-                    <td className="td-mono td-sm">{u.email}</td>
+                    <td className="td-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
                     <td><span className={`badge ${roleBadge[u.role] ?? "badge-muted"}`}>{u.role}</span></td>
                     <td className="td-sm">{fDateShort(u.createdAt)}</td>
                   </tr>
@@ -136,12 +137,11 @@ export default function TimVerifikasiPage() {
 
           {pendingCount > 0 && filter === "PENDING" && (
             <div className="alert alert-warn mb-16">
-              <i className="ti ti-info-circle" />
-              Ada <strong>{pendingCount}</strong> user menunggu verifikasi
+              <i className="ti ti-alert-triangle" /> Ada {pendingCount} user menunggu verifikasi
             </div>
           )}
 
-          <div className="glass">
+          <div className="glass" style={{ padding: 0 }}>
             <div className="table-wrap">
               <table className="table">
                 <thead>
@@ -165,7 +165,7 @@ export default function TimVerifikasiPage() {
                     return (
                       <tr key={u.id}>
                         <td className="td-name">{u.name ?? "—"}</td>
-                        <td className="td-mono td-sm">{u.email}</td>
+                        <td className="td-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
                         <td><span className={`badge ${roleBadge[u.role] ?? "badge-muted"}`}>{u.role}</span></td>
                         <td><span className={`badge ${statusBadge[u.statusVerifikasi]}`}>{u.statusVerifikasi}</span></td>
                         <td className="td-sm">{fDateShort(u.createdAt)}</td>

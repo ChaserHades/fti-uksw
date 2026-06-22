@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 interface QuickActionCardProps {
   href: string;
@@ -10,8 +11,14 @@ interface QuickActionCardProps {
 }
 
 export default function QuickActionCard({ href, icon, title, subtitle, className = "" }: QuickActionCardProps) {
+  const router = useRouter();
+  
   return (
-    <Link href={href} className={`qa-card ${className}`}>
+    <div
+      className={`glass qa-card ${className}`}
+      onClick={() => router.push(href)}
+      style={{ cursor: "pointer", display: "flex", flexDirection: "column", gap: "16px", padding: "20px", height: "100%", width: "100%" }}
+    >
       <div className="qa-card-icon">
         <i className={`ti ${icon}`} />
       </div>
@@ -19,6 +26,6 @@ export default function QuickActionCard({ href, icon, title, subtitle, className
         <div className="qa-card-title">{title}</div>
         <div className="qa-card-sub">{subtitle}</div>
       </div>
-    </Link>
+    </div>
   );
 }
