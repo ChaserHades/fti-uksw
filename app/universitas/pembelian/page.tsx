@@ -1,95 +1,87 @@
+// app/universitas/pembelian/page.tsx
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import { api } from "@/helpers/api";
-import { fDateShort, fCurrency } from "@/helpers/format";
-import type { Barang, KategoriBarang } from "@/types";
+import { fDateShort } from "@/helpers/format";
+import type { Pengeluaran } from "@/types";
 
-export default function PembelianPage() {
-  const [barang,   setBarang]   = useState<Barang[]>([]);
-  const [kategori, setKategori] = useState<KategoriBarang[]>([]);
-  const [search,   setSearch]   = useState("");
-  const [filterKat,setFilterKat]= useState("");
-  const [filterThn,setFilterThn]= useState("");
+type JenisFilter = "" | "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
 
-  const load = useCallback(() => {
-    const p = new URLSearchParams();
-    if (search)    p.set("search", search);
-    if (filterKat) p.set("kategoriId", filterKat);
-    api.get<Barang[]>(`/api/barang?${p}`).then(setBarang).catch(console.error);
-  }, [search, filterKat]);
+const jenisLabel: Record<string, string> = {
+  PEMBELIAN_ASET: "Pembelian Aset",
+  MAINTENANCE: "Maintenance",
+  LAINNYA: "Lainnya",
+};
+const jenisBadge: Record<string, string> = {
+  PEMBELIAN_ASET: "badge-info",
+  MAINTENANCE: "badge-warn",
+  LAINNYA: "badge-muted",
+};
 
-  useEffect(() => { load(); }, [load]);
-  useEffect(() => { api.get<KategoriBarang[]>("/api/kategori").then(setKategori); }, []);
+export default function CashflowUniversitasPage() {
+  const [list,    setList]    = useState<Pengeluaran[]>([]);
+  const [filter,  setFilter]  = useState<JenisFilter>("");
 
-  const filtered = filterThn
-    ? barang.filter(b => b.tahunBeli?.toString() === filterThn)
-    : barang;
+  const load = () => {
+    const params = filter ? `?jenis=${filter}` : "";
+    api.get<Pengeluaran[]>(`/api/pengeluaran${params}`).then(setList).catch(console.error);
+  };
 
-  const withHarga = filtered.filter(b => b.harga && b.harga > 0);
-  const totalNilai = withHarga.reduce((sum, b) => sum + (b.harga ?? 0) * b.jumlah, 0);
-
-  const tahunList = [...new Set(barang.map(b => b.tahunBeli).filter(Boolean))].sort((a, b) => (b ?? 0) - (a ?? 0));
+  useEffect(() => { load(); }, [filter]);
 
   function exportCSV() {
-    const headers = ["Kode", "Nama", "Kategori", "Kondisi", "Jumlah", "Tahun Beli", "Harga Satuan", "Total Nilai"];
-    const rows = filtered.map(b => [
-      b.kodeBarang, b.nama, b.kategori?.nama ?? "",
-      b.kondisi.replace(/_/g, " "),
-      b.jumlah,
-      b.tahunBeli ?? "",
-      b.harga ?? "",
-      b.harga ? b.harga * b.jumlah : "",
+    const headers = ["Judul", "Jenis", "Nominal (Rp)", "Tanggal", "Deskripsi", "Pencatat"];
+    const rows = list.map(p => [
+      p.judul,
+      jenisLabel[p.jenis] ?? p.jenis,
+      p.nominal.toString(),
+      fDateShort(p.tanggal),
+      p.deskripsi ?? "",
+      p.user.name ?? p.user.email,
     ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+    const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
-    a.href = url;
-    a.download = `pembelian-aset-fti-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = `laporan-pengeluaran-fti-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
   }
+
+  const totalNominal = list.reduce((sum, p) => sum + p.nominal, 0);
 
   return (
     <>
-      <PageHeader title="Pembelian & Anggaran Aset" subtitle="Transparansi penggunaan anggaran FTI UKSW">
-        <button className="btn btn-primary" onClick={exportCSV}>
+      <PageHeader title="Laporan Pengeluaran FTI" subtitle="Data pembelian aset, maintenance, dan pengeluaran lainnya (Read-only)" />
+
+      {/* Filters & Export */}
+      <div className="glass filter-bar mb-16">
+        <select
+          className="select" style={{ flex: "0 1 180px" }}
+          value={filter} onChange={e => setFilter(e.target.value as JenisFilter)}
+        >
+          <option value="">Semua Jenis</option>
+          <option value="PEMBELIAN_ASET">Pembelian Aset</option>
+          <option value="MAINTENANCE">Maintenance</option>
+          <option value="LAINNYA">Lainnya</option>
+        </select>
+        <button className="btn btn-ghost" onClick={exportCSV}>
           <i className="ti ti-file-export" /> Export CSV
         </button>
-      </PageHeader>
-
-      {/* Summary */}
-      <div className="grid-4" style={{ marginBottom: 16 }}>
-        {[
-          { label: "Total Item",      value: filtered.length,           color: "var(--ds-mist)" },
-          { label: "Ada Harga",       value: withHarga.length,          color: "var(--color-ok)" },
-          { label: "Total Nilai",     value: fCurrency(totalNilai),     color: "var(--color-warn)" },
-          { label: "Rata-rata",       value: withHarga.length > 0 ? fCurrency(Math.round(totalNilai / withHarga.length)) : "—", color: "var(--text-secondary)" },
-        ].map(s => (
-          <div key={s.label} className="glass stat-card">
-            <div className="stat-card-header">
-              <span className="section-label">{s.label}</span>
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: s.color, lineHeight: 1.3 }}>{s.value}</div>
-          </div>
-        ))}
       </div>
 
-      {/* Filters */}
-      <div className="glass" style={{ padding: "12px 16px", marginBottom: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 180 }}>
-          <i className="ti ti-search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", fontSize: 14 }} />
-          <input className="input" style={{ paddingLeft: 36 }} placeholder="Cari nama barang…" value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <select className="select" style={{ width: 180 }} value={filterKat} onChange={e => setFilterKat(e.target.value)}>
-          <option value="">Semua Kategori</option>
-          {kategori.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
-        </select>
-        <select className="select" style={{ width: 140 }} value={filterThn} onChange={e => setFilterThn(e.target.value)}>
-          <option value="">Semua Tahun</option>
-          {tahunList.map(t => <option key={t} value={t!}>{t}</option>)}
-        </select>
+      {/* Summary */}
+      <div className="grid-3 mb-16">
+        {[
+          { label: "Total Data Pengeluaran", value: list.length,                                                   badge: "badge-info" },
+          { label: "Total Nominal",          value: `Rp ${totalNominal.toLocaleString("id-ID")}`,                  badge: "badge-warn" },
+          { label: "Pembelian Aset",         value: list.filter(p => p.jenis === "PEMBELIAN_ASET").length,          badge: "badge-ok" },
+        ].map(s => (
+          <div key={s.label} className="glass summary-badge-row">
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
+            <span className={`badge ${s.badge}`} style={{ fontSize: 13, fontWeight: 700, padding: "4px 14px" }}>{s.value}</span>
+          </div>
+        ))}
       </div>
 
       {/* Table */}
@@ -98,43 +90,44 @@ export default function PembelianPage() {
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: "30%" }}>Nama Barang</th>
-                <th style={{ width: "15%" }}>Kategori</th>
-                <th style={{ width: "12%" }}>Kondisi</th>
-                <th style={{ width: "8%" }}>Jml</th>
-                <th style={{ width: "10%" }}>Tahun</th>
-                <th style={{ width: "13%" }}>Harga Satuan</th>
-                <th style={{ width: "12%" }}>Total Nilai</th>
+                <th style={{ width: "25%" }}>Judul</th>
+                <th style={{ width: "15%" }}>Jenis</th>
+                <th style={{ width: "18%" }}>Nominal</th>
+                <th style={{ width: "12%" }}>Tanggal</th>
+                <th style={{ width: "18%" }}>Pencatat</th>
+                <th style={{ width: "12%" }}>Nota</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {list.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={6}>
                     <div className="empty-state">
-                      <i className="ti ti-receipt-off" style={{ fontSize: 28 }} />Tidak ada data
+                      <i className="ti ti-file-off" style={{ fontSize: 28 }} />
+                      Belum ada data pengeluaran
                     </div>
                   </td>
                 </tr>
-              ) : filtered.map(b => (
-                <tr key={b.id}>
+              ) : list.map(p => (
+                <tr key={p.id}>
                   <td>
-                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.nama}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{b.kodeBarang}</div>
+                    <div className="td-name">{p.judul}</div>
+                    {p.deskripsi && <div className="td-code">{p.deskripsi}</div>}
                   </td>
-                  <td style={{ fontSize: 12 }}>{b.kategori?.nama ?? "—"}</td>
+                  <td><span className={`badge ${jenisBadge[p.jenis]}`}>{jenisLabel[p.jenis]}</span></td>
+                  <td style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 13 }}>
+                    Rp {p.nominal.toLocaleString("id-ID")}
+                  </td>
+                  <td className="td-sm">{fDateShort(p.tanggal)}</td>
+                  <td className="td-sm">{p.user.name ?? "—"}</td>
                   <td>
-                    <span className={`badge ${b.kondisi === "BAIK" ? "badge-ok" : b.kondisi === "RUSAK_RINGAN" ? "badge-warn" : "badge-danger"}`}>
-                      {b.kondisi.replace(/_/g, " ")}
-                    </span>
-                  </td>
-                  <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.jumlah}</td>
-                  <td style={{ fontSize: 12 }}>{b.tahunBeli ?? <span style={{ color: "var(--text-muted)" }}>—</span>}</td>
-                  <td style={{ fontSize: 12 }}>
-                    {b.harga ? fCurrency(b.harga) : <span style={{ color: "var(--text-muted)" }}>—</span>}
-                  </td>
-                  <td style={{ fontSize: 12, fontWeight: 500, color: "var(--color-ok)" }}>
-                    {b.harga ? fCurrency(b.harga * b.jumlah) : <span style={{ color: "var(--text-muted)" }}>—</span>}
+                    {p.notaUrl ? (
+                      <a href={p.notaUrl} target="_blank" rel="noopener" className="btn btn-ghost btn-icon btn-sm" title="Lihat Nota">
+                        <i className="ti ti-file-check" />
+                      </a>
+                    ) : (
+                      <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
+                    )}
                   </td>
                 </tr>
               ))}

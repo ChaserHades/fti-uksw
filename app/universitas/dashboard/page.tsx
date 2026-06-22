@@ -3,18 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/helpers/api";
-import { fDateShort, isOverdue } from "@/helpers/format";
-import type { DashboardStats, Transaksi, Barang } from "@/types";
+import type { DashboardStats, Barang, Pengeluaran } from "@/types";
 
 interface KategoriStat { nama: string; total: number; }
-interface BarangFreq   { nama: string; kode: string; count: number; }
 
 export default function UniversitasDashboard() {
   const [stats,        setStats]        = useState<DashboardStats | null>(null);
-  const [recent,       setRecent]       = useState<Transaksi[]>([]);
   const [barang,       setBarang]       = useState<Barang[]>([]);
+  const [pengeluaran,  setPengeluaran]  = useState<Pengeluaran[]>([]);
   const [kategoriStat, setKategoriStat] = useState<KategoriStat[]>([]);
-  const [topBarang,    setTopBarang]    = useState<BarangFreq[]>([]);
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
@@ -22,9 +19,13 @@ export default function UniversitasDashboard() {
 
   useEffect(() => {
     api.get<DashboardStats>("/api/dashboard/stats").then(setStats);
-    api.get<Transaksi[]>("/api/transaksi").then(d => setRecent(d.slice(0, 6)));
+    
+    api.get<Pengeluaran[]>("/api/pengeluaran").then(d => {
+      setPengeluaran(d);
+    });
+
     api.get<Barang[]>("/api/barang").then(d => {
-      setBarang(d.slice(0, 5));
+      setBarang(d.slice(0, 8)); // Get latest 8 items
       const katMap: Record<string, number> = {};
       d.forEach(b => {
         const k = b.kategori?.nama ?? "Lainnya";
@@ -34,19 +35,6 @@ export default function UniversitasDashboard() {
         Object.entries(katMap)
           .map(([nama, total]) => ({ nama, total }))
           .sort((a, b) => b.total - a.total)
-          .slice(0, 5)
-      );
-    });
-    api.get<Transaksi[]>("/api/transaksi").then(all => {
-      const freq: Record<string, { nama: string; kode: string; count: number }> = {};
-      all.forEach(t => {
-        const id = t.barang.id;
-        if (!freq[id]) freq[id] = { nama: t.barang.nama, kode: t.barang.kodeBarang, count: 0 };
-        freq[id].count++;
-      });
-      setTopBarang(
-        Object.values(freq)
-          .sort((a, b) => b.count - a.count)
           .slice(0, 5)
       );
     });
@@ -62,6 +50,7 @@ export default function UniversitasDashboard() {
     RUSAK_BERAT:  barang.filter(b => b.kondisi === "RUSAK_BERAT").length,
   };
   const totalBarangSample = Object.values(kondisiCount).reduce((a, b) => a + b, 0);
+  const totalNominal = pengeluaran.reduce((sum, p) => sum + p.nominal, 0);
 
   return (
     <>
@@ -73,17 +62,17 @@ export default function UniversitasDashboard() {
       {/* Stat Cards */}
       <div className="grid-4 mb-16">
         {[
-          { label: "Total Aset", value: stats?.totalBarang ?? "—", icon: "ti-box",             color: "var(--ds-mist)" },
-          { label: "Dipinjam",   value: stats?.dipinjam    ?? "—", icon: "ti-arrows-exchange", color: "var(--color-warn)" },
-          { label: "Terlambat",  value: stats?.terlambat   ?? "—", icon: "ti-alert-circle",    color: "var(--color-err)" },
-          { label: "Total User", value: stats?.totalUsers  ?? "—", icon: "ti-users",           color: "var(--color-ok)" },
+          { label: "Total Aset",       value: stats?.totalBarang ?? "—",                       icon: "ti-box",      color: "var(--ds-mist)" },
+          { label: "Data Pengeluaran", value: pengeluaran.length,                              icon: "ti-receipt",  color: "var(--color-warn)" },
+          { label: "Total Nominal",    value: `Rp ${totalNominal.toLocaleString("id-ID")}`,    icon: "ti-wallet",   color: "var(--color-ok)" },
+          { label: "Kategori Barang",  value: kategoriStat.length,                             icon: "ti-category", color: "var(--color-info)" },
         ].map(s => (
           <div key={s.label} className="glass stat-card">
             <div className="stat-card-header">
               <span className="section-label">{s.label}</span>
               <i className={`ti ${s.icon} dash-stat-icon`} style={{ color: s.color }} />
             </div>
-            <div className="stat-value">{s.value}</div>
+            <div className="stat-value" style={{ fontSize: s.label === "Total Nominal" ? 20 : undefined }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -144,56 +133,11 @@ export default function UniversitasDashboard() {
       {/* Body: Tables + sidebar */}
       <div className="dash-body">
         <div className="dash-col-left">
-          {/* Transaksi Terbaru */}
-          <div className="glass">
-            <div style={{ padding: "16px 20px 0" }}>
-              <div className="section-header">
-                <span className="section-label">Transaksi Terbaru</span>
-                <Link href="/universitas/transaksi" className="see-all">Lihat semua →</Link>
-              </div>
-            </div>
-            <div className="table-wrap">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th style={{ width: "35%" }}>Barang</th>
-                    <th style={{ width: "25%" }}>Peminjam</th>
-                    <th style={{ width: "20%" }}>Deadline</th>
-                    <th style={{ width: "20%" }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.length === 0 ? (
-                    <tr><td colSpan={4}><div className="empty-state" style={{ padding: "20px 0" }}>Tidak ada data</div></td></tr>
-                  ) : recent.map(t => {
-                    const late = t.status === "AKTIF" && isOverdue(t.deadlineKembali);
-                    return (
-                      <tr key={t.id}>
-                        <td>
-                          <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{t.barang.nama}</div>
-                          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.barang.kodeBarang}</div>
-                        </td>
-                        <td style={{ fontSize: 12 }}>{t.user.name ?? t.user.email}</td>
-                        <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
-                        <td>
-                          {late
-                            ? <span className="badge badge-danger">Terlambat</span>
-                            : <span className={`badge ${t.status === "SELESAI" ? "badge-ok" : "badge-warn"}`}>{t.status}</span>
-                          }
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
           {/* Aset Terbaru */}
           <div className="glass">
             <div style={{ padding: "16px 20px 0" }}>
               <div className="section-header">
-                <span className="section-label">Aset Terbaru</span>
+                <span className="section-label">Aset Terbaru FTI</span>
                 <Link href="/universitas/barang" className="see-all">Lihat semua →</Link>
               </div>
             </div>
@@ -227,39 +171,13 @@ export default function UniversitasDashboard() {
 
         {/* Right sidebar */}
         <div className="dash-col-right">
-          {/* Barang paling sering dipinjam */}
-          <div className="glass">
-            <div className="dash-card-title">
-              <div className="section-header">
-                <span className="section-label">Paling Sering Dipinjam</span>
-              </div>
-            </div>
-            <div className="dash-card-list">
-              {topBarang.length === 0 ? (
-                <div className="empty-state" style={{ padding: "20px 0" }}>
-                  <i className="ti ti-inbox" style={{ fontSize: 24 }} />Belum ada data
-                </div>
-              ) : topBarang.map((b, i) => (
-                <div key={b.kode} className="list-item">
-                  <div className="list-item-idx">{i + 1}</div>
-                  <div className="list-item-info">
-                    <div className="list-item-name">{b.nama}</div>
-                    <div className="list-item-sub">{b.kode}</div>
-                  </div>
-                  <span className="badge badge-info">{b.count}x</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Quick Links */}
           <div className="glass dash-card-pad">
             <span className="section-label nav-quick-label">NAVIGASI</span>
             <div className="nav-quick-list">
               {[
                 { href: "/universitas/barang",    icon: "ti-box",           label: "Inventaris Aset" },
-                { href: "/universitas/transaksi", icon: "ti-history",       label: "Riwayat Transaksi" },
-                { href: "/universitas/pembelian", icon: "ti-shopping-cart", label: "Pengajuan Pembelian" },
+                { href: "/universitas/pembelian", icon: "ti-receipt",       label: "Laporan Cashflow" },
               ].map(a => (
                 <Link key={a.href} href={a.href} className="quick-action">
                   <i className={`ti ${a.icon} quick-action-icon`} />
@@ -275,11 +193,11 @@ export default function UniversitasDashboard() {
               Transparansi Anggaran
             </div>
             <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 14 }}>
-              Riwayat pembelian & penggunaan anggaran FTI
+              Pantau laporan pembelian aset, maintenance, dan pengeluaran dana lainnya.
             </div>
             <Link href="/universitas/pembelian" className="btn btn-primary btn-sm" style={{ width: "100%", justifyContent: "center" }}>
               <i className="ti ti-receipt" style={{ fontSize: 14 }} />
-              Lihat Pembelian
+              Lihat Laporan Cashflow
             </Link>
           </div>
         </div>

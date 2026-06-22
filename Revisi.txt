@@ -1,0 +1,24 @@
+Revisi:
+
+
+Ada pembaruan requirments. Jadi pada laboran itu memiliki 3 role utama dengan batasan masing - masing.
+
+SPV dan ADMIN memiliki full access sudah sesuai dengan yang kamu buat, namun ada tambahan yaitu dapat update pindah barang dari ruangan 1 ke ruangan lainnya semisal barang A berada di FTI 227 dipindahkan ke FTI 400. Tambah barang dan acc role atau teknisi baru sesuai yang sudah ada sebelumnya.
+
+lalu untuk role Teknisi pada laboran hanya dapat akses edit peminjaman barang keluar atau masuk, dan update pindah barang (tidak bisa tambah barang atau aset dan tidak bisa acc anggota seperti sebelumnya.
+
+lalu untuk universitas hanya dapat melihat pembelian aset yang dilakukan oleh FTI.
+
+Untuk Pinjam barang keluar dan kembali full QR namun tetap bisa manual jika bermasalah. QR berlaku juga untuk tambah barang pada admin dan spv karena mereka full access.
+
+Untuk update flow terbaru:
+
+Dashboard Utama Admin dan SPV: Pada Dashboard Barang, ada 2 tab fungsi add item (Scan dan Manual Input). Scan berlaku jika sebuah barang sudah memiliki QR Code namun belum ada database, sehingga nanti hanya perlu scan agar masuk ke dalam database. Manual Input berlaku jika memang barang tersebut tidak ada keduanya (QR dan Database) sehingga nanti akan auto generate QR untuk di Print (bukan download, tapi langsung print, supaya dapat langsung di gunakan). Serta ada fungsi Import CSV atau excel, yang berguna untuk bulk add data banyak (biasanya ini sudah punya QR Code);
+
+Sehingga dashboard Barcode akan dihilangkan dan semua function/ future join di dalam dashboard Barang. Sehingga fungsi generate QR dan Scan & Register berada di dalam dashboard Barang. Untuk dashboard Ruangan, future atau function disini untuk update atau edit pindah barang maupun tambah barang ke ruangan tertentu yang di inginkan. Namun jika pada import csv/excel pada dashboard barang tadi terdapat kolom tempat, maka barang yang sudah memiliki tempat otomatis sync pada dashboard ruangan. Sehingga tidak perlu melakukan input manual.
+
+Berikutnya ada dashboard Verifikasi dan Petugas. Aku mau kedua dashboard ini menjadi 1 dashboard dengan fitur atau fungsi yang sama seperti saat ini. Hanya dibuat dalam 1 dashboard. Pada dashboard verifikasi, hanya untuk acc/deceline permintaan user. Untuk dashboard Petugas, Untuk monitoring petugas mana yang sedang aktif atau hadir atau sedang on duty. Sehingga jika kedua dashboard tersebut dijadikan ke dalam 1 dashboard, maka hanya perlu menambahkan button "Perlu Di Verifikasi" Ketika ada notif merah atau alert artinya ada yang perlu di verifikasi. Sehingga tombol ini berguna untuk crosscheck siapa yang perlu di verifikasi walapun jika terjadi bug tidak ada notifikasi perlu di verifikasi.
+
+Pada Dashboard Laporan, bertujuan untuk transparansi Pengeluaran baik pembelian atau maintance asset yang ada di FTI, yang dapat di lihat langsung oleh Universitas. Sehingga pada laporan kita juga bisa ekspor data untuk laporan, kasus ini terjadi jika dari Univ membutuhkan data tertulis diluar aplikasi. Fitur lainnya pada dashboard ini dapat input data baru jika terjadi maintance atau pembelian atau hal lainnya yang perlu melakukan pengeluaran dana untuk asset. Pada CRUD disini dapat menyertakan Nota atau recipt sebagai bukti, namun tidak wajib. Selayaknya invoice.
+
+Dashboard Utama Teknisi:                    
