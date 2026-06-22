@@ -44,6 +44,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
   const pathname = usePathname();
   const [open,    setOpen]    = useState(false);
   const [compact, setCompact] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const headerRef  = useRef<HTMLElement>(null);
   const ghostRef   = useRef<HTMLDivElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -95,8 +96,19 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
 
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (compact) setOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 250); // 250ms debounce
+  };
+
   return (
-    <>
+    <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
       <header ref={headerRef} className={`topbar${compact ? " topbar-compact" : ""}`}>
 
         {/* Brand */}
@@ -159,6 +171,10 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
           {/* hamburger — shown by CSS in compact */}
           <button
             className="topbar-hamburger"
+            onMouseEnter={() => {
+              if (timeoutRef.current) clearTimeout(timeoutRef.current);
+              setOpen(true);
+            }}
             onClick={() => setOpen(p => !p)}
             aria-label={open ? "Tutup menu" : "Buka menu"}
             aria-expanded={open}
@@ -204,6 +220,6 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
           </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }

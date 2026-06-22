@@ -2,6 +2,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import StatCard from "@/components/StatCard";
+import QuickActionCard from "@/components/QuickActionCard";
+import ProgressList from "@/components/ProgressList";
 import { api } from "@/helpers/api";
 import type { DashboardStats, Barang, Pengeluaran } from "@/types";
 
@@ -67,13 +70,14 @@ export default function UniversitasDashboard() {
           { label: "Total Nominal",    value: `Rp ${totalNominal.toLocaleString("id-ID")}`,    icon: "ti-wallet",   color: "var(--color-ok)" },
           { label: "Kategori Barang",  value: kategoriStat.length,                             icon: "ti-category", color: "var(--color-info)" },
         ].map(s => (
-          <div key={s.label} className="glass stat-card">
-            <div className="stat-card-header">
-              <span className="section-label">{s.label}</span>
-              <i className={`ti ${s.icon} dash-stat-icon`} style={{ color: s.color }} />
-            </div>
-            <div className="stat-value" style={{ fontSize: s.label === "Total Nominal" ? 20 : undefined }}>{s.value}</div>
-          </div>
+          <StatCard 
+            key={s.label} 
+            label={s.label} 
+            value={s.value} 
+            icon={s.icon} 
+            iconColor={s.color} 
+            valueStyle={{ fontSize: s.label === "Total Nominal" ? 20 : undefined }} 
+          />
         ))}
       </div>
 
@@ -85,25 +89,11 @@ export default function UniversitasDashboard() {
             <span className="section-label">Kondisi Barang</span>
             <Link href="/universitas/barang" className="see-all">Detail →</Link>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {[
-              { label: "Baik",         val: kondisiCount.BAIK,         color: "var(--color-ok)",  pct: totalBarangSample ? Math.round((kondisiCount.BAIK / totalBarangSample) * 100) : 0 },
-              { label: "Rusak Ringan", val: kondisiCount.RUSAK_RINGAN, color: "var(--color-warn)", pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_RINGAN / totalBarangSample) * 100) : 0 },
-              { label: "Rusak Berat",  val: kondisiCount.RUSAK_BERAT,  color: "var(--color-err)",  pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_BERAT / totalBarangSample) * 100) : 0 },
-            ].map(item => (
-              <div key={item.label}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{item.label}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: item.color }}>
-                    {item.val} <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>({item.pct}%)</span>
-                  </span>
-                </div>
-                <div className="bar-track">
-                  <div style={{ height: "100%", borderRadius: 10, width: `${item.pct}%`, background: item.color, transition: "width .4s ease" }} />
-                </div>
-              </div>
-            ))}
-          </div>
+          <ProgressList items={[
+            { label: "Baik",         val: kondisiCount.BAIK,         color: "var(--color-ok)",  pct: totalBarangSample ? Math.round((kondisiCount.BAIK / totalBarangSample) * 100) : 0 },
+            { label: "Rusak Ringan", val: kondisiCount.RUSAK_RINGAN, color: "var(--color-warn)", pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_RINGAN / totalBarangSample) * 100) : 0 },
+            { label: "Rusak Berat",  val: kondisiCount.RUSAK_BERAT,  color: "var(--color-err)",  pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_BERAT / totalBarangSample) * 100) : 0 },
+          ]} />
         </div>
 
         {/* Distribusi Kategori */}
@@ -114,17 +104,12 @@ export default function UniversitasDashboard() {
           ) : (() => {
             const maxVal = Math.max(...kategoriStat.map(k => k.total), 1);
             return (
-              <div className="flex-col gap-10">
-                {kategoriStat.map(k => (
-                  <div key={k.nama} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", width: 100, flexShrink: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.nama}</div>
-                    <div className="bar-track" style={{ flex: 1 }}>
-                      <div className="bar-fill" style={{ width: `${Math.round((k.total / maxVal) * 100)}%` }} />
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", width: 28, textAlign: "right", flexShrink: 0 }}>{k.total}</div>
-                  </div>
-                ))}
-              </div>
+              <ProgressList items={kategoriStat.map(k => ({
+                label: k.nama,
+                val: k.total,
+                color: "var(--color-info)",
+                pct: Math.round((k.total / maxVal) * 100)
+              }))} />
             );
           })()}
         </div>
@@ -176,13 +161,17 @@ export default function UniversitasDashboard() {
             <span className="section-label nav-quick-label">NAVIGASI</span>
             <div className="nav-quick-list">
               {[
-                { href: "/universitas/barang",    icon: "ti-box",           label: "Inventaris Aset" },
-                { href: "/universitas/pembelian", icon: "ti-receipt",       label: "Laporan Cashflow" },
+                { href: "/universitas/barang",    icon: "ti-box",           label: "Inventaris Aset", subtitle: "Data seluruh barang" },
+                { href: "/universitas/pembelian", icon: "ti-receipt",       label: "Laporan Cashflow", subtitle: "Catatan pengeluaran" },
               ].map(a => (
-                <Link key={a.href} href={a.href} className="quick-action">
-                  <i className={`ti ${a.icon} quick-action-icon`} />
-                  {a.label}
-                </Link>
+                <QuickActionCard 
+                  key={a.href} 
+                  href={a.href} 
+                  icon={a.icon} 
+                  title={a.label} 
+                  subtitle={a.subtitle} 
+                  className="mb-2" 
+                />
               ))}
             </div>
           </div>
