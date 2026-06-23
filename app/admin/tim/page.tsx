@@ -150,24 +150,34 @@ export default function TimVerifikasiPage() {
       </PageHeader>
 
       {/* Tab Switcher */}
-      <div className="mode-switcher">
+      <div className="mobile-scroll-x" style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         {([
           { key: "anggota" as Tab,     icon: "ti-users",      label: "Anggota Aktif" },
           { key: "verifikasi" as Tab,  icon: "ti-user-check", label: `Verifikasi ${pendingCount > 0 ? `(${pendingCount})` : ""}` },
-        ]).map(t => (
-          <button
-            key={t.key}
-            className={`btn btn-sm ${tab === t.key ? "btn-primary" : "btn-ghost"}`}
-            onClick={() => setTab(t.key)}
-          >
-            <i className={`ti ${t.icon}`} />{t.label}
-          </button>
-        ))}
+        ]).map(t => {
+          const active = tab === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px", padding: "12px 4px", fontSize: "14px",
+                fontWeight: active ? 600 : 500,
+                background: "transparent", color: active ? "#FFF" : "var(--text-secondary)",
+                border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
+                transition: "all 0.2s", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
+                marginBottom: "-1px"
+              }}
+            >
+              <i className={`ti ${t.icon}`} style={{ opacity: active ? 1 : 0.6 }} />{t.label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Tab: Anggota Aktif */}
       {tab === "anggota" && (
-        <div className="glass" style={{ padding: 0 }}>
+        <div className="glass">
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -213,14 +223,14 @@ export default function TimVerifikasiPage() {
                       )}
                     </td>
                     <td style={{textAlign: "right"}}>
-                      <div className="action-row" style={{ justifyContent: "flex-end" }}>
-                        <button className="btn btn-primary btn-sm" onClick={() => setEditModal(u)} title="Edit User">
-                          <i className="ti ti-pencil" />
+                      <div className="action-row" style={{ justifyContent: "flex-end", flexWrap: "wrap" }}>
+                        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => setEditModal(u)} title="Edit User">
+                          <i className="ti ti-edit" />
                         </button>
-                        <button className="btn btn-warn btn-sm" onClick={() => handleResetPassword(u.id, u.name ?? "")} title="Force Reset Password">
+                        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => handleResetPassword(u.id, u.name ?? "")} title="Force Reset Password">
                           <i className="ti ti-key" />
                         </button>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(u.id, u.name ?? "")} title="Hapus User">
+                        <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDeleteUser(u.id, u.name ?? "")} title="Hapus User">
                           <i className="ti ti-trash" />
                         </button>
                       </div>
@@ -257,7 +267,7 @@ export default function TimVerifikasiPage() {
             </div>
           )}
 
-          <div className="glass" style={{ padding: 0 }}>
+          <div className="glass">
             <div className="table-wrap">
               <table className="table">
                 <thead>
@@ -289,7 +299,7 @@ export default function TimVerifikasiPage() {
                           {u.statusVerifikasi === "PENDING" ? (
                             <div className="action-row">
                               <button
-                                className="btn btn-success btn-sm"
+                                className="btn btn-primary btn-sm"
                                 onClick={() => handleAction(u.id, "APPROVE")}
                                 disabled={isProcessing || isPending}
                               >
