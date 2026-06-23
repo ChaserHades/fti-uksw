@@ -33,6 +33,7 @@ export default function PinjamPage() {
   const [scanning,  setScanning]  = useState(false);
   const [barang,    setBarang]    = useState<Barang | null>(null);
   const [lookErr,   setLookErr]   = useState("");
+  const [manualInput, setManualInput] = useState("");
 
   // Daftar transaksi aktif (mode list)
   const [list,      setList]      = useState<Transaksi[]>([]);
@@ -116,29 +117,52 @@ export default function PinjamPage() {
   }
 
   // ── Scan result handler ──────────────────────────────────────────────────────
+  async function processBarang(data: Barang) {
+    setBarang(data);
+    if (data.status === "TERSEDIA") {
+      setForm(EMPTY); setModalPinjam(true);
+    } else if (data.status === "DIPINJAM") {
+      const transaksiList = await api.get<Transaksi[]>("/api/transaksi?status=AKTIF");
+      const trx = transaksiList.find(t => t.barangId === data.id);
+      if (!trx) {
+        setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi transaksi aktif tidak ditemukan.`);
+        return;
+      }
+      setTransaksiAktif(trx); setModalKembali(true);
+    } else {
+      setLookErr(`Barang "${data.nama}" berstatus ${data.status} — tidak dapat diproses.`);
+    }
+  }
+
   async function handleScanResult(raw: string) {
     const kode = parseQrPayload(raw);
     setLookErr(""); setBarang(null);
     try {
+      // 1. Coba berdasar kode eksak
       const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode)}`);
-      setBarang(data);
-
-      if (data.status === "TERSEDIA") {
-        setForm(EMPTY); setModalPinjam(true);
-      } else if (data.status === "DIPINJAM") {
-        const transaksiList = await api.get<Transaksi[]>("/api/transaksi?status=AKTIF");
-        const trx = transaksiList.find(t => t.barangId === data.id);
-        if (!trx) {
-          setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi transaksi aktif tidak ditemukan.`);
-          return;
-        }
-        setTransaksiAktif(trx); setModalKembali(true);
-      } else {
-        setLookErr(`Barang "${data.nama}" berstatus ${data.status} — tidak dapat diproses.`);
-      }
+      await processBarang(data);
     } catch {
-      setLookErr(`Barang kode "${kode}" tidak ditemukan. Hubungi Admin untuk registrasi.`);
+      // 2. Jika tidak ketemu kode, coba cari berdasar nama
+      try {
+        const listData = await api.get<Barang[]>(`/api/barang?search=${encodeURIComponent(kode)}`);
+        if (listData.length === 1) {
+          await processBarang(listData[0]);
+        } else if (listData.length > 1) {
+          setLookErr(`Ditemukan ${listData.length} barang dengan kata kunci "${kode}". Harap ketik nama lebih lengkap atau gunakan Kode Barang.`);
+        } else {
+          setLookErr(`Barang "${kode}" tidak ditemukan.`);
+        }
+      } catch {
+        setLookErr(`Barang "${kode}" tidak ditemukan.`);
+      }
     }
+  }
+
+  async function handleManualSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!manualInput.trim()) return;
+    stopCamera();
+    handleScanResult(manualInput.trim());
   }
 
   // ── Submit pinjam ────────────────────────────────────────────────────────────
@@ -255,6 +279,26 @@ export default function PinjamPage() {
                 <button className="btn btn-ghost btn-sm" onClick={startCamera}>Scan Ulang</button>
               </div>
             )}
+
+            {/* Input Manual Form */}
+            <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px dashed var(--glass-border)" }}>
+              <label style={{ display: "block", marginBottom: 8, fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>
+                Atau input manual Kode / Nama Barang:
+              </label>
+              <form onSubmit={handleManualSubmit} style={{ display: "flex", gap: 10 }}>
+                <input
+                  type="text"
+                  className="input"
+                  style={{ flex: 1 }}
+                  placeholder="Ketik kode atau nama..."
+                  value={manualInput}
+                  onChange={(e) => setManualInput(e.target.value)}
+                />
+                <button type="submit" className="btn btn-primary" disabled={!manualInput.trim()}>
+                  Cek
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}

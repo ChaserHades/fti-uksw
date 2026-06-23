@@ -4,6 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
+import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
@@ -217,14 +218,17 @@ export default function TeknisiRuanganPage() {
 
             <div className="form-group">
               <label className="form-label">Ruangan Tujuan *</label>
-              <select className="select" value={pindahTarget} onChange={e => setPindahTarget(e.target.value)}>
-                <option value="">— Pilih ruangan —</option>
-                {list.map(r => (
-                  <option key={r.id} value={r.id}>
-                    {r.kode} — {r.nama} {r.id === pindahBarang.ruanganId ? "(saat ini)" : ""}
-                  </option>
-                ))}
-              </select>
+              <LiquidSelect
+                value={pindahTarget}
+                onChange={setPindahTarget}
+                options={[
+                  { value: "", label: "— Pilih ruangan —" },
+                  ...list.map(r => ({
+                    value: r.id,
+                    label: `${r.kode} — ${r.nama} ${r.id === pindahBarang.ruanganId ? "(saat ini)" : ""}`
+                  }))
+                ]}
+              />
             </div>
 
             <div className="modal-footer">

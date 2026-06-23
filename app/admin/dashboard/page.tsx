@@ -85,12 +85,14 @@ export default function AdminDashboard() {
           { label: "Peminjaman Aktif",   value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", color: "var(--color-warn)", href: "/admin/pinjam" },
           { label: "Pending Verifikasi", value: stats?.pendingVerifikasi ?? 0, icon: "ti-user-check",      color: "var(--color-err)", href: "/admin/tim" },
         ].map(s => (
-          <Link key={s.label} href={s.href} className="glass stat-card" style={{ cursor: "pointer" }}>
-            <div className="stat-card-header">
-              <span className="section-label">{s.label}</span>
-              <i className={`ti ${s.icon} dash-stat-icon`} style={{ color: s.color }} />
+          <Link key={s.label} href={s.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "20px", gap: "16px", textDecoration: "none" }}>
+            <div className="flex-center" style={{ width: 48, height: 48, background: "rgba(255,255,255,0.05)", borderRadius: 12, flexShrink: 0, border: "1px solid rgba(255,255,255,0.05)" }}>
+              <i className={`ti ${s.icon}`} style={{ fontSize: 24, color: s.color }} />
             </div>
-            <div className="stat-value">{s.value}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: 1 }}>
+              <span className="section-label" style={{ marginBottom: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.label}</span>
+              <div className="stat-value" style={{ fontSize: "clamp(18px, 1.5vw, 24px)", lineHeight: 1.2, marginTop: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.value}</div>
+            </div>
           </Link>
         ))}
       </div>
@@ -184,7 +186,7 @@ export default function AdminDashboard() {
         <div className="dash-col-right">
           {/* Pengguna Sistem */}
           <div className="glass dash-card-pad">
-            <span className="section-label nav-quick-label">Pengguna Sistem</span>
+            <span className="section-label" style={{ display: "block", marginBottom: 16 }}>Pengguna Sistem</span>
             <div className="dash-summary" style={{ gridTemplateColumns: "1fr 1fr" }}>
               {[
                 { label: "Total User", value: stats?.totalUsers        ?? 0, color: "var(--ds-mist)" },
@@ -199,19 +201,24 @@ export default function AdminDashboard() {
           </div>
 
           {/* Aksi Cepat */}
-          <div className="glass dash-card-pad">
-            <span className="section-label nav-quick-label">Aksi Cepat</span>
-            <div className="nav-quick-list">
+          <div className="glass dash-card-pad" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <span className="section-label" style={{ display: "block" }}>Aksi Cepat</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
-                { href: "/admin/barang",   icon: "ti-plus",             label: "Tambah Barang" },
-                { href: "/admin/tim",      icon: "ti-user-check",       label: "Verifikasi User" },
-                { href: "/admin/laporan",  icon: "ti-file-description", label: "Input Pengeluaran" },
-                { href: "/admin/ruangan",  icon: "ti-building",         label: "Kelola Ruangan" },
-                { href: "/admin/pinjam",   icon: "ti-qrcode",           label: "Scan QR Pinjam" },
+                { href: "/admin/barang",   icon: "ti-plus",             label: "Tambah Barang", sub: "Input data baru", color: "var(--color-ok)" },
+                { href: "/admin/tim",      icon: "ti-user-check",       label: "Verifikasi User", sub: "Kelola anggota", color: "var(--color-warn)" },
+                { href: "/admin/laporan",  icon: "ti-file-description", label: "Pengeluaran", sub: "Input nominal", color: "var(--color-err)" },
+                { href: "/admin/ruangan",  icon: "ti-building",         label: "Kelola Ruangan", sub: "Daftar ruangan", color: "var(--ds-mist)" },
+                { href: "/admin/pinjam",   icon: "ti-qrcode",           label: "Scan QR", sub: "Pinjam & Kembali", color: "var(--color-info)" },
               ].map(a => (
-                <Link key={a.href} href={a.href} className="quick-action">
-                  <i className={`ti ${a.icon} quick-action-icon`} />
-                  {a.label}
+                <Link key={a.href} href={a.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
+                  <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
+                    <i className={`ti ${a.icon}`} style={{ fontSize: 20, color: a.color }} />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>{a.label}</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{a.sub}</span>
+                  </div>
                 </Link>
               ))}
             </div>

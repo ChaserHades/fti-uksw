@@ -51,12 +51,14 @@ export default function TeknisiDashboard() {
           { label: "Sudah Kembali", value: selesai,   icon: "ti-circle-check",      color: "var(--color-ok)",    href: "/petugas/riwayat" },
           { label: "Terlambat",     value: terlambat, icon: "ti-alert-circle",       color: "var(--color-err)",  href: "/petugas/pinjam" },
         ].map(s => (
-          <Link key={s.label} href={s.href} className="glass stat-card" style={{ cursor: "pointer" }}>
-            <div className="stat-card-header">
-              <span className="section-label">{s.label}</span>
-              <i className={`ti ${s.icon} dash-stat-icon`} style={{ color: s.color }} />
+          <Link key={s.label} href={s.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "20px", gap: "16px", textDecoration: "none" }}>
+            <div className="flex-center" style={{ width: 48, height: 48, background: "rgba(255,255,255,0.05)", borderRadius: 12, flexShrink: 0, border: "1px solid rgba(255,255,255,0.05)" }}>
+              <i className={`ti ${s.icon}`} style={{ fontSize: 24, color: s.color }} />
             </div>
-            <div className="stat-value">{s.value}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: 1 }}>
+              <span className="section-label" style={{ marginBottom: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.label}</span>
+              <div className="stat-value" style={{ fontSize: "clamp(18px, 1.5vw, 24px)", lineHeight: 1.2, marginTop: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.value}</div>
+            </div>
           </Link>
         ))}
       </div>

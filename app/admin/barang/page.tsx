@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
+import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
@@ -170,10 +171,16 @@ function DaftarTab() {
           <i className="ti ti-search search-icon" />
           <input className="input" placeholder="Cari nama barang…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        <select className="select" style={{ flex: "0 1 180px" }} value={filterKat} onChange={e => setFilterKat(e.target.value)}>
-          <option value="">Semua Kategori</option>
-          {kategori.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
-        </select>
+        <div style={{ flex: "0 1 180px", minWidth: 150 }}>
+          <LiquidSelect
+            value={filterKat}
+            onChange={setFilterKat}
+            options={[
+              { value: "", label: "Semua Kategori" },
+              ...kategori.map(k => ({ value: k.id, label: k.nama }))
+            ]}
+          />
+        </div>
         <button className="btn btn-primary" onClick={openAdd}>
           <i className="ti ti-plus" /> Tambah
         </button>
@@ -234,9 +241,15 @@ function DaftarTab() {
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kondisi</label>
-            <select className="select" value={form.kondisi} onChange={e => setF("kondisi", e.target.value)}>
-              <option value="BAIK">Baik</option><option value="RUSAK_RINGAN">Rusak Ringan</option><option value="RUSAK_BERAT">Rusak Berat</option>
-            </select>
+            <LiquidSelect
+              value={form.kondisi}
+              onChange={val => setF("kondisi", val)}
+              options={[
+                { value: "BAIK", label: "Baik" },
+                { value: "RUSAK_RINGAN", label: "Rusak Ringan" },
+                { value: "RUSAK_BERAT", label: "Rusak Berat" }
+              ]}
+            />
           </div>
         </div>
         <div className="form-group">
@@ -246,17 +259,25 @@ function DaftarTab() {
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kategori *</label>
-            <select className="select" value={form.kategoriId} onChange={e => setF("kategoriId", e.target.value)}>
-              <option value="">— Pilih kategori —</option>
-              {kategori.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
-            </select>
+            <LiquidSelect
+              value={form.kategoriId}
+              onChange={val => setF("kategoriId", val)}
+              options={[
+                { value: "", label: "— Pilih kategori —" },
+                ...kategori.map(k => ({ value: k.id, label: k.nama }))
+              ]}
+            />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Ruangan</label>
-            <select className="select" value={form.ruanganId} onChange={e => setF("ruanganId", e.target.value)}>
-              <option value="">Tidak ada</option>
-              {ruangan.map(r => <option key={r.id} value={r.id}>{r.kode} — {r.nama}</option>)}
-            </select>
+            <LiquidSelect
+              value={form.ruanganId}
+              onChange={val => setF("ruanganId", val)}
+              options={[
+                { value: "", label: "Tidak ada" },
+                ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
+              ]}
+            />
           </div>
         </div>
         <div className="form-grid-3">
@@ -518,15 +539,41 @@ function ScanRegisterSection() {
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kondisi</label>
-            <select className="select" value={form.kondisi} onChange={e => setF("kondisi", e.target.value)}>
-              <option value="BAIK">Baik</option><option value="RUSAK_RINGAN">Rusak Ringan</option><option value="RUSAK_BERAT">Rusak Berat</option>
-            </select>
+            <LiquidSelect
+              value={form.kondisi}
+              onChange={val => setF("kondisi", val)}
+              options={[
+                { value: "BAIK", label: "Baik" },
+                { value: "RUSAK_RINGAN", label: "Rusak Ringan" },
+                { value: "RUSAK_BERAT", label: "Rusak Berat" }
+              ]}
+            />
           </div>
         </div>
         <div className="form-group"><label className="form-label">Nama Barang *</label><input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} autoFocus /></div>
         <div className="form-grid-2">
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Kategori *</label><select className="select" value={form.kategoriId} onChange={e => setF("kategoriId", e.target.value)}><option value="">— Pilih —</option>{kategori.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}</select></div>
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Ruangan</label><select className="select" value={form.ruanganId} onChange={e => setF("ruanganId", e.target.value)}><option value="">Tidak ada</option>{ruangan.map(r => <option key={r.id} value={r.id}>{r.kode} — {r.nama}</option>)}</select></div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Kategori *</label>
+            <LiquidSelect
+              value={form.kategoriId}
+              onChange={val => setF("kategoriId", val)}
+              options={[
+                { value: "", label: "— Pilih —" },
+                ...kategori.map(k => ({ value: k.id, label: k.nama }))
+              ]}
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Ruangan</label>
+            <LiquidSelect
+              value={form.ruanganId}
+              onChange={val => setF("ruanganId", val)}
+              options={[
+                { value: "", label: "Tidak ada" },
+                ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
+              ]}
+            />
+          </div>
         </div>
         <div className="form-grid-3">
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Jumlah</label><input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} /></div>
@@ -595,15 +642,41 @@ function ManualAddSection() {
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kondisi</label>
-            <select className="select" value={form.kondisi} onChange={e => setF("kondisi", e.target.value)}>
-              <option value="BAIK">Baik</option><option value="RUSAK_RINGAN">Rusak Ringan</option><option value="RUSAK_BERAT">Rusak Berat</option>
-            </select>
+            <LiquidSelect
+              value={form.kondisi}
+              onChange={val => setF("kondisi", val)}
+              options={[
+                { value: "BAIK", label: "Baik" },
+                { value: "RUSAK_RINGAN", label: "Rusak Ringan" },
+                { value: "RUSAK_BERAT", label: "Rusak Berat" }
+              ]}
+            />
           </div>
         </div>
         <div className="form-group"><label className="form-label">Nama Barang *</label><input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} /></div>
         <div className="form-grid-2">
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Kategori *</label><select className="select" value={form.kategoriId} onChange={e => setF("kategoriId", e.target.value)}><option value="">— Pilih —</option>{kategori.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}</select></div>
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Ruangan</label><select className="select" value={form.ruanganId} onChange={e => setF("ruanganId", e.target.value)}><option value="">Tidak ada</option>{ruangan.map(r => <option key={r.id} value={r.id}>{r.kode} — {r.nama}</option>)}</select></div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Kategori *</label>
+            <LiquidSelect
+              value={form.kategoriId}
+              onChange={val => setF("kategoriId", val)}
+              options={[
+                { value: "", label: "— Pilih —" },
+                ...kategori.map(k => ({ value: k.id, label: k.nama }))
+              ]}
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Ruangan</label>
+            <LiquidSelect
+              value={form.ruanganId}
+              onChange={val => setF("ruanganId", val)}
+              options={[
+                { value: "", label: "Tidak ada" },
+                ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
+              ]}
+            />
+          </div>
         </div>
         <div className="form-grid-3">
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Jumlah</label><input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} /></div>

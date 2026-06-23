@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
+import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
@@ -58,16 +59,18 @@ export default function RiwayatAdminPage() {
   return (
     <>
       <PageHeader title="Riwayat Transaksi" subtitle="Riwayat lengkap peminjaman aset">
-        <select
-          className="select" style={{ flex: "0 1 160px" }}
-          value={filter}
-          onChange={e => setFilter(e.target.value as StatusFilter)}
-        >
-          <option value="">Semua Status</option>
-          <option value="AKTIF">Aktif</option>
-          <option value="SELESAI">Selesai</option>
-          <option value="TERLAMBAT">Terlambat</option>
-        </select>
+        <div style={{ flex: "0 1 160px", minWidth: 140 }}>
+          <LiquidSelect
+            value={filter}
+            onChange={val => setFilter(val as StatusFilter)}
+            options={[
+              { value: "", label: "Semua Status" },
+              { value: "AKTIF", label: "Aktif" },
+              { value: "SELESAI", label: "Selesai" },
+              { value: "TERLAMBAT", label: "Terlambat" }
+            ]}
+          />
+        </div>
         <button className="btn btn-primary" onClick={exportCSV}>
           <i className="ti ti-file-export" /> Export CSV
         </button>

@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { registerAction } from "@/actions/auth";
+import LiquidSelect from "@/components/LiquidSelect";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [role, setRole] = useState("TEKNISI");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,10 +61,15 @@ export default function RegisterPage() {
               </div>
               <div className="form-group">
                 <label className="form-label">Role yang Diajukan</label>
-                <select name="role" className="select">
-                  <option value="TEKNISI">Teknisi</option>
-                  <option value="UNIVERSITAS">Universitas</option>
-                </select>
+                <LiquidSelect
+                  value={role}
+                  onChange={setRole}
+                  options={[
+                    { value: "TEKNISI", label: "Teknisi" },
+                    { value: "UNIVERSITAS", label: "Universitas" }
+                  ]}
+                />
+                <input type="hidden" name="role" value={role} />
               </div>
               <button
                 type="submit"

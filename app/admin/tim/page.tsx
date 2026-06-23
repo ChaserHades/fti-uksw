@@ -7,6 +7,7 @@ import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
 import { verifikasiUserAction } from "@/actions/verifikasi";
 import LiquidWrapper from "@/components/LiquidWrapper";
+import LiquidSelect from "@/components/LiquidSelect";
 import ConfirmModal from "@/components/ConfirmModal";
 import type { User } from "@/types";
 
@@ -235,17 +236,18 @@ export default function TimVerifikasiPage() {
       {tab === "verifikasi" && (
         <>
           <div className="glass filter-bar mb-16">
-            <select
-              className="select"
-              style={{ width: 180 }}
-              value={filter}
-              onChange={e => setFilter(e.target.value as FilterStatus)}
-            >
-              <option value="PENDING">Pending ({pendingCount})</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="ALL">Semua</option>
-            </select>
+            <div style={{ width: 180 }}>
+              <LiquidSelect
+                value={filter}
+                onChange={val => setFilter(val as FilterStatus)}
+                options={[
+                  { value: "PENDING", label: `Pending (${pendingCount})` },
+                  { value: "APPROVED", label: "Approved" },
+                  { value: "REJECTED", label: "Rejected" },
+                  { value: "ALL", label: "Semua" }
+                ]}
+              />
+            </div>
           </div>
 
           {pendingCount > 0 && filter === "PENDING" && (
@@ -336,19 +338,29 @@ export default function TimVerifikasiPage() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Role</label>
-                  <select name="role" className="select" defaultValue={editModal.role}>
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="TEKNISI">TEKNISI</option>
-                    <option value="UNIVERSITAS">UNIVERSITAS</option>
-                  </select>
+                  <LiquidSelect
+                    value={editModal.role}
+                    onChange={val => setEditModal({ ...editModal, role: val as any })}
+                    options={[
+                      { value: "ADMIN", label: "ADMIN" },
+                      { value: "TEKNISI", label: "TEKNISI" },
+                      { value: "UNIVERSITAS", label: "UNIVERSITAS" }
+                    ]}
+                  />
+                  <input type="hidden" name="role" value={editModal.role} />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Status Verifikasi</label>
-                  <select name="statusVerifikasi" className="select" defaultValue={editModal.statusVerifikasi}>
-                    <option value="APPROVED">APPROVED</option>
-                    <option value="PENDING">PENDING</option>
-                    <option value="REJECTED">REJECTED</option>
-                  </select>
+                  <LiquidSelect
+                    value={editModal.statusVerifikasi}
+                    onChange={val => setEditModal({ ...editModal, statusVerifikasi: val as any })}
+                    options={[
+                      { value: "APPROVED", label: "APPROVED" },
+                      { value: "PENDING", label: "PENDING" },
+                      { value: "REJECTED", label: "REJECTED" }
+                    ]}
+                  />
+                  <input type="hidden" name="statusVerifikasi" value={editModal.statusVerifikasi} />
                 </div>
               </div>
               <div className="modal-footer">

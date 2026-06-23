@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
+import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
@@ -109,15 +110,18 @@ export default function LaporanPage() {
 
       {/* Filters & Export */}
       <div className="glass filter-bar mb-16">
-        <select
-          className="select" style={{ flex: "0 1 180px" }}
-          value={filter} onChange={e => setFilter(e.target.value as JenisFilter)}
-        >
-          <option value="">Semua Jenis</option>
-          <option value="PEMBELIAN_ASET">Pembelian Aset</option>
-          <option value="MAINTENANCE">Maintenance</option>
-          <option value="LAINNYA">Lainnya</option>
-        </select>
+        <div style={{ flex: "0 1 180px", minWidth: 150 }}>
+          <LiquidSelect
+            value={filter}
+            onChange={val => setFilter(val as JenisFilter)}
+            options={[
+              { value: "", label: "Semua Jenis" },
+              { value: "PEMBELIAN_ASET", label: "Pembelian Aset" },
+              { value: "MAINTENANCE", label: "Maintenance" },
+              { value: "LAINNYA", label: "Lainnya" }
+            ]}
+          />
+        </div>
         <button className="btn btn-ghost" onClick={exportCSV}>
           <i className="ti ti-file-export" /> Export CSV
         </button>
@@ -204,11 +208,15 @@ export default function LaporanPage() {
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Jenis *</label>
-            <select className="select" value={form.jenis} onChange={e => setF("jenis", e.target.value)}>
-              <option value="PEMBELIAN_ASET">Pembelian Aset</option>
-              <option value="MAINTENANCE">Maintenance</option>
-              <option value="LAINNYA">Lainnya</option>
-            </select>
+            <LiquidSelect
+              value={form.jenis}
+              onChange={val => setF("jenis", val)}
+              options={[
+                { value: "PEMBELIAN_ASET", label: "Pembelian Aset" },
+                { value: "MAINTENANCE", label: "Maintenance" },
+                { value: "LAINNYA", label: "Lainnya" }
+              ]}
+            />
           </div>
         </div>
         <div className="form-grid-2">

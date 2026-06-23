@@ -20,6 +20,8 @@ export default function AdminPinjamPage() {
   const [allAktif, setAllAktif]     = useState<Transaksi[]>([]);
   const [barang, setBarang]         = useState<Barang | null>(null);
   const [transaksiAktif, setTransaksiAktif] = useState<Transaksi | null>(null);
+  const [lookErr,   setLookErr]   = useState("");
+  const [manualInput, setManualInput] = useState("");
 
   // Scan state
   const videoRef  = useRef<HTMLVideoElement>(null);
@@ -89,30 +91,44 @@ export default function AdminPinjamPage() {
     rafRef.current = requestAnimationFrame(scanLoop);
   }
 
+  async function processBarang(data: Barang) {
+    setBarang(data);
+    if (data.status === "TERSEDIA") {
+      setForm({ namaPeminjam: "", ruanganPinjam: "", deadlineKembali: "", catatan: "" });
+      setModalPinjam(true);
+    } else if (data.status === "DIPINJAM") {
+      const trxList = await api.get<Transaksi[]>("/api/transaksi?status=AKTIF");
+      const found = trxList.find(t => t.barangId === data.id);
+      if (found) {
+        setTransaksiAktif(found);
+        setModalKembali(true);
+      } else {
+        setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi transaksi tidak ditemukan`);
+      }
+    } else {
+      setLookErr(`Barang "${data.nama}" berstatus ${data.status} — tidak dapat diproses.`);
+    }
+  }
+
   async function handleScanResult(raw: string) {
     const kode = parseQrPayload(raw);
+    setLookErr(""); setBarang(null);
     try {
-      const b = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode)}`);
-      setBarang(b);
-
-      if (b.status === "DIPINJAM") {
-        // Cari transaksi aktif untuk barang ini
-        const trxList = await api.get<Transaksi[]>(`/api/transaksi?status=AKTIF`);
-        const found = trxList.find(t => t.barangId === b.id);
-        if (found) {
-          setTransaksiAktif(found);
-          setModalKembali(true);
-        } else {
-          toast.error("Barang dipinjam tapi transaksi tidak ditemukan");
-        }
-      } else if (b.status === "TERSEDIA") {
-        setForm({ namaPeminjam: "", ruanganPinjam: "", deadlineKembali: "", catatan: "" });
-        setModalPinjam(true);
-      } else {
-        toast.error(`Barang status: ${b.status}`);
-      }
+      const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode)}`);
+      await processBarang(data);
     } catch {
-      toast.error(`Barang dengan kode "${kode}" tidak ditemukan`);
+      try {
+        const listData = await api.get<Barang[]>(`/api/barang?search=${encodeURIComponent(kode)}`);
+        if (listData.length === 1) {
+          await processBarang(listData[0]);
+        } else if (listData.length > 1) {
+          setLookErr(`Ditemukan ${listData.length} barang dengan kata kunci "${kode}". Harap ketik nama lebih spesifik atau gunakan Kode Barang.`);
+        } else {
+          setLookErr(`Barang "${kode}" tidak ditemukan.`);
+        }
+      } catch {
+        setLookErr(`Barang "${kode}" tidak ditemukan.`);
+      }
     }
   }
 
@@ -188,6 +204,12 @@ export default function AdminPinjamPage() {
               <div className="scan-sub">Tersedia → form pinjam &nbsp;·&nbsp; Dipinjam → langsung kembalikan</div>
             </div>
 
+            {lookErr && (
+              <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+                <i className="ti ti-alert-triangle" /> {lookErr}
+              </div>
+            )}
+
             <div style={{
               position: "relative", width: "100%", aspectRatio: "4/3",
               borderRadius: 12, overflow: "hidden", background: "#000",
@@ -214,6 +236,26 @@ export default function AdminPinjamPage() {
                 ? <button className="btn btn-primary" onClick={startCamera}><i className="ti ti-camera" />Buka Kamera</button>
                 : <button className="btn btn-ghost" onClick={stopCamera}><i className="ti ti-camera-off" />Stop Kamera</button>
               }
+            </div>
+
+            <div style={{ marginTop: 24, padding: "16px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12 }}>Atau input manual (Kode / Nama):</div>
+              <form style={{ display: "flex", gap: 8 }} onSubmit={e => {
+                e.preventDefault();
+                if (manualInput.trim()) {
+                  stopCamera();
+                  handleScanResult(manualInput.trim());
+                }
+              }}>
+                <input 
+                  className="input" 
+                  placeholder="Ketik kode atau nama barang..." 
+                  value={manualInput} 
+                  onChange={e => setManualInput(e.target.value)} 
+                  style={{ flex: 1 }}
+                />
+                <button type="submit" className="btn btn-primary"><i className="ti ti-search" />Cari</button>
+              </form>
             </div>
           </div>
         </div>
