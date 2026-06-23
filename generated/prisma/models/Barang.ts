@@ -737,10 +737,6 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type BarangCreateNestedOneWithoutTransaksiInput = {
   create?: Prisma.XOR<Prisma.BarangCreateWithoutTransaksiInput, Prisma.BarangUncheckedCreateWithoutTransaksiInput>
   connectOrCreate?: Prisma.BarangCreateOrConnectWithoutTransaksiInput

@@ -13,6 +13,7 @@ export async function GET() {
     select: {
       id: true, name: true, email: true,
       role: true, statusVerifikasi: true, createdAt: true,
+      mustChangePassword: true,
     },
   });
   return NextResponse.json(users);

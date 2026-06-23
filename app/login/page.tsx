@@ -76,7 +76,10 @@ export default function LoginPage() {
                 }
               </button>
             </form>
-            <div className="auth-footer">
+            <div className="auth-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Link href="#" onClick={(e) => { e.preventDefault(); toast.error("Fitur reset password akan diintegrasikan dengan SSO nantinya."); }} style={{ color: "var(--text-secondary)" }}>
+                Lupa Password?
+              </Link>
               <Link href="/register">Daftar Akun Baru</Link>
             </div>
           </div>

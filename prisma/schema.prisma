@@ -50,11 +50,12 @@ model User {
   email            String           @unique
   password         String?
   provider         String           @default("credentials")
-  role             Role             @default(TEKNISI)
-  statusVerifikasi StatusVerifikasi @default(PENDING)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  transaksi        Transaksi[]
+  role               Role             @default(TEKNISI)
+  statusVerifikasi   StatusVerifikasi @default(PENDING)
+  mustChangePassword Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  transaksi          Transaksi[]
   pengeluaran      Pengeluaran[]
 
   @@map("users")

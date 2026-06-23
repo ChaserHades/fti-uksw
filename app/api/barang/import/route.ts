@@ -80,10 +80,14 @@ export async function POST(req: Request) {
       // Resolve ruangan if provided
       let ruanganId: string | null = null;
       if (row.ruangan) {
-        const rn = await prisma.ruangan.findFirst({
+        let rn = await prisma.ruangan.findFirst({
           where: { OR: [{ kode: row.ruangan }, { nama: row.ruangan }] },
         });
-        if (rn) ruanganId = rn.id;
+        
+        // Sesuai revisi: jika ruangan tidak ditemukan, biarkan null dan JANGAN auto-create
+        if (rn) {
+          ruanganId = rn.id;
+        }
       }
 
       const kondisiMap: Record<string, string> = {

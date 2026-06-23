@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import PageHeader from "@/components/PageHeader";
+import LiquidSelect from "@/components/LiquidSelect";
 import { api } from "@/helpers/api";
 import { fCurrency } from "@/helpers/format";
 import type { Barang, KategoriBarang } from "@/types";
@@ -44,10 +45,15 @@ export default function UniversitasBarangPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <select className="select" style={{ width: 200 }} value={filterKat} onChange={(e) => setFilterKat(e.target.value)}>
-          <option value="">Semua Kategori</option>
-          {kategori.map((k) => <option key={k.id} value={k.id}>{k.nama}</option>)}
-        </select>
+        <LiquidSelect 
+          value={filterKat} 
+          onChange={(val) => setFilterKat(val)}
+          options={[
+            { value: "", label: "Semua Kategori" },
+            ...kategori.map(k => ({ value: k.id, label: k.nama }))
+          ]}
+          style={{ width: 200 }}
+        />
       </div>
 
       <div className="glass">

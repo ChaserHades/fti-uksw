@@ -61,27 +61,7 @@ export default function TeknisiDashboard() {
         ))}
       </div>
 
-      {/* Quick actions — prominent scan button */}
-      <div className="dash-half mb-16">
-        <Link href="/petugas/pinjam" className="glass qa-card">
-          <div className="qa-card-icon">
-            <i className="ti ti-qrcode" />
-          </div>
-          <div>
-            <div className="qa-card-title">Scan QR Barang</div>
-            <div className="qa-card-sub">Pinjam atau kembalikan otomatis</div>
-          </div>
-        </Link>
-        <Link href="/petugas/listbarang" className="glass qa-card">
-          <div className="qa-card-icon">
-            <i className="ti ti-list-search" />
-          </div>
-          <div>
-            <div className="qa-card-title">Cek Ketersediaan</div>
-            <div className="qa-card-sub">Lihat daftar barang</div>
-          </div>
-        </Link>
-      </div>
+      {/* Quick actions (dihapus karena redundan dengan Navigasi Cepat) */}
 
       {/* Body: two columns */}
       <div className="dash-body">
@@ -205,18 +185,23 @@ export default function TeknisiDashboard() {
           </div>
 
           {/* Navigasi Cepat */}
-          <div className="glass nav-quick-section">
-            <span className="section-label nav-quick-label">NAVIGASI CEPAT</span>
-            <div className="nav-quick-list">
+          <div className="glass dash-card-pad" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <span className="section-label" style={{ display: "block" }}>Navigasi Cepat</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
-                { key: "scan",       href: "/petugas/pinjam",     icon: "ti-qrcode",          label: "Scan QR (Pinjam / Kembali)" },
-                { key: "ruangan",    href: "/petugas/ruangan",    icon: "ti-arrows-exchange",  label: "Pindah Barang" },
-                { key: "listbarang", href: "/petugas/listbarang", icon: "ti-list-search",      label: "Cek Ketersediaan" },
-                { key: "riwayat",    href: "/petugas/riwayat",    icon: "ti-history",          label: "Riwayat Lengkap" },
+                { key: "scan",       href: "/petugas/pinjam",     icon: "ti-qrcode",          label: "Scan QR", sub: "Pinjam & Kembali", color: "var(--color-ok)" },
+                { key: "ruangan",    href: "/petugas/ruangan",    icon: "ti-arrows-exchange",  label: "Pindah Barang", sub: "Ubah lokasi", color: "var(--color-warn)" },
+                { key: "listbarang", href: "/petugas/listbarang", icon: "ti-list-search",      label: "Cek Ketersediaan", sub: "Stok barang", color: "var(--color-info)" },
+                { key: "riwayat",    href: "/petugas/riwayat",    icon: "ti-history",          label: "Riwayat Lengkap", sub: "Data log", color: "var(--text-secondary)" },
               ].map(a => (
-                <Link key={a.key} href={a.href} className="quick-action">
-                  <i className={`ti ${a.icon} quick-action-icon`} />
-                  {a.label}
+                <Link key={a.key} href={a.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
+                  <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
+                    <i className={`ti ${a.icon}`} style={{ fontSize: 20, color: a.color }} />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>{a.label}</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{a.sub}</span>
+                  </div>
                 </Link>
               ))}
             </div>

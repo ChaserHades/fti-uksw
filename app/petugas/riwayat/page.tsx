@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
+import LiquidSelect from "@/components/LiquidSelect";
 import { fDateShort, isOverdue } from "@/helpers/format";
 import { api } from "@/helpers/api";
 import type { Transaksi } from "@/types";
@@ -41,17 +42,17 @@ export default function RiwayatPage() {
   return (
     <>
       <PageHeader title="Riwayat Peminjaman" subtitle="Semua transaksi milik Anda">
-        <select
-          className="select"
-          style={{ width: 160 }}
+        <LiquidSelect
           value={filter}
-          onChange={(e) => setFilter(e.target.value as StatusFilter)}
-        >
-          <option value="">Semua Status</option>
-          <option value="AKTIF">Aktif</option>
-          <option value="TERLAMBAT">Terlambat</option>
-          <option value="SELESAI">Selesai</option>
-        </select>
+          onChange={(val) => setFilter(val as StatusFilter)}
+          options={[
+            { value: "", label: "Semua Status" },
+            { value: "AKTIF", label: "Aktif" },
+            { value: "TERLAMBAT", label: "Terlambat" },
+            { value: "SELESAI", label: "Selesai" }
+          ]}
+          className="w-40"
+        />
       </PageHeader>
 
       <div className="glass">

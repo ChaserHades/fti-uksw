@@ -13,6 +13,7 @@ export interface SessionPayload {
   name: string;
   role: string;
   statusVerifikasi: string;
+  mustChangePassword: boolean;
 }
 
 export async function createSession(payload: SessionPayload) {

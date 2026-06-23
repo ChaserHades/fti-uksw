@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
+import LiquidSelect from "@/components/LiquidSelect";
 import { api } from "@/helpers/api";
 import type { Barang, KategoriBarang } from "@/types";
 
@@ -44,8 +45,8 @@ export default function ListBarangPage() {
       </PageHeader>
 
       {/* Filters */}
-      <div className="glass filter-bar mb-16">
-        <div className="search-wrap">
+      <div className="glass filter-bar mb-16" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div className="search-wrap" style={{ flex: 1 }}>
           <i className="ti ti-search search-icon" />
           <input
             className="input"
@@ -53,16 +54,26 @@ export default function ListBarangPage() {
             value={search} onChange={e => setSearch(e.target.value)}
           />
         </div>
-        <select className="select" style={{ width: 180 }} value={filterKat} onChange={e => setFilterKat(e.target.value)}>
-          <option value="">Semua Kategori</option>
-          {kategori.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
-        </select>
-        <select className="select" style={{ width: 160 }} value={filterKon} onChange={e => setFilterKon(e.target.value)}>
-          <option value="">Semua Kondisi</option>
-          <option value="BAIK">Baik</option>
-          <option value="RUSAK_RINGAN">Rusak Ringan</option>
-          <option value="RUSAK_BERAT">Rusak Berat</option>
-        </select>
+        <LiquidSelect
+          value={filterKat}
+          onChange={setFilterKat}
+          options={[
+            { value: "", label: "Semua Kategori" },
+            ...kategori.map(k => ({ value: k.id, label: k.nama }))
+          ]}
+          className="w-48"
+        />
+        <LiquidSelect
+          value={filterKon}
+          onChange={setFilterKon}
+          options={[
+            { value: "", label: "Semua Kondisi" },
+            { value: "BAIK", label: "Baik" },
+            { value: "RUSAK_RINGAN", label: "Rusak Ringan" },
+            { value: "RUSAK_BERAT", label: "Rusak Berat" },
+          ]}
+          className="w-48"
+        />
       </div>
 
       {/* Summary badges */}

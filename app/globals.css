@@ -143,11 +143,13 @@ button {
 .orb {
   position: absolute;
   border-radius: 50%;
-  border: 120px solid rgba(255, 255, 255, 0.15); /* Significantly increased opacity and thickness */
+  border: 120px solid rgba(255, 255, 255, 0.15);
+  /* Significantly increased opacity and thickness */
   filter: blur(100px);
   pointer-events: none;
   z-index: -1;
-  transform: translateZ(0); /* Hardware acceleration */
+  transform: translateZ(0);
+  /* Hardware acceleration */
 }
 
 .orb-1 {
@@ -163,7 +165,8 @@ button {
   bottom: -100px;
   left: -200px;
   border-width: 140px;
-  border-color: rgba(255, 255, 255, 0.12); /* Increased opacity */
+  border-color: rgba(255, 255, 255, 0.12);
+  /* Increased opacity */
 }
 
 .orb-3 {
@@ -173,7 +176,8 @@ button {
   left: 50%;
   transform: translate(-50%, -50%);
   border-width: 80px;
-  border-color: rgba(255, 255, 255, 0.08); /* Increased opacity */
+  border-color: rgba(255, 255, 255, 0.08);
+  /* Increased opacity */
   filter: blur(140px);
 }
 
@@ -193,7 +197,8 @@ button {
   gap: 4px;
   border-radius: var(--r-md);
   border: 1px solid var(--glass-border);
-  background: rgba(30, 30, 32, 0.7); /* Darker solid glass for better UI contrast */
+  background: rgba(30, 30, 32, 0.7);
+  /* Darker solid glass for better UI contrast */
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -998,6 +1003,26 @@ button {
   gap: 20px;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   17. POINTER & LINK COLORS
+   ═══════════════════════════════════════════════════════════ */
+/* Semua element yang interaktif wajib cursor pointer */
+a,
+button,
+select,
+.btn,
+.clickable,
+[role="button"],
+.modal-close,
+.see-all,
+input[type="checkbox"],
+input[type="radio"],
+summary {
+  cursor: pointer !important;
+}
+
+/* Link yang bertuliskan Lihat Semua / Detail (Dihapus karena sudah ada di bawah, hanya pointer saja) */
+
 .dash-body {
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -1429,13 +1454,14 @@ button {
 
 .see-all {
   font-size: 13px;
-  color: var(--color-info);
+  color: var(--ds-mid);
   font-weight: 500;
-  transition: color .2s;
+  text-decoration: none;
+  transition: opacity .2s;
 }
 
 .see-all:hover {
-  color: #1E40AF;
+  opacity: 0.8;
   text-decoration: underline;
 }
 
@@ -1998,7 +2024,8 @@ button {
     flex: 1 1 100%;
   }
 
-  .filter-bar .select, .filter-bar .btn {
+  .filter-bar .select,
+  .filter-bar .btn {
     flex: 1 1 auto;
   }
 }
@@ -2012,6 +2039,7 @@ button {
    99. PRINT FORMATTING (QR Code Sticker Layout)
    ═══════════════════════════════════════════════════════════ */
 @media print {
+
   /* Menghilangkan teks default browser (Tanggal, URL, Page Number) */
   @page {
     margin: 0;
@@ -2023,8 +2051,10 @@ button {
   }
 
   /* Only make the print areas and their children visible */
-  #print-qr-area, #print-qr-area *,
-  #bulk-print-area, #bulk-print-area * {
+  #print-qr-area,
+  #print-qr-area *,
+  #bulk-print-area,
+  #bulk-print-area * {
     visibility: visible;
   }
 
@@ -2047,7 +2077,8 @@ button {
     background: white !important;
     color: black !important;
     margin: 0 !important;
-    border-radius: 0.2cm !important; /* Rounded corners like the photo */
+    border-radius: 0.2cm !important;
+    /* Rounded corners like the photo */
   }
 
   #print-qr-area img {
@@ -2080,8 +2111,10 @@ button {
     height: auto !important;
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 1cm !important;         /* Jarak 1cm antar stiker */
-    padding: 1cm !important;     /* Jarak 1cm dari tepi kertas */
+    gap: 1cm !important;
+    /* Jarak 1cm antar stiker */
+    padding: 1cm !important;
+    /* Jarak 1cm dari tepi kertas */
     background: white !important;
     justify-content: flex-start !important;
     align-content: flex-start !important;
@@ -2099,8 +2132,10 @@ button {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    border: 1px dashed #aaa !important; /* Garis potong stiker */
-    page-break-inside: avoid !important; /* Jangan potong stiker antar halaman */
+    border: 1px dashed #aaa !important;
+    /* Garis potong stiker */
+    page-break-inside: avoid !important;
+    /* Jangan potong stiker antar halaman */
     background: white !important;
     color: black !important;
     border-radius: 0.2cm !important;
@@ -2126,7 +2161,11 @@ button {
   }
 
   /* Clear out backgrounds and overlays */
-  html, body, .ds-bg, .modal-overlay, .modal {
+  html,
+  body,
+  .ds-bg,
+  .modal-overlay,
+  .modal {
     background: transparent !important;
     box-shadow: none !important;
     border: none !important;

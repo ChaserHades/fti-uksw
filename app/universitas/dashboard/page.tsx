@@ -11,9 +11,9 @@ import type { DashboardStats, Barang, Pengeluaran } from "@/types";
 interface KategoriStat { nama: string; total: number; }
 
 export default function UniversitasDashboard() {
-  const [stats,        setStats]        = useState<DashboardStats | null>(null);
-  const [barang,       setBarang]       = useState<Barang[]>([]);
-  const [pengeluaran,  setPengeluaran]  = useState<Pengeluaran[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [barang, setBarang] = useState<Barang[]>([]);
+  const [pengeluaran, setPengeluaran] = useState<Pengeluaran[]>([]);
   const [kategoriStat, setKategoriStat] = useState<KategoriStat[]>([]);
 
   const today = new Date().toLocaleDateString("id-ID", {
@@ -22,7 +22,7 @@ export default function UniversitasDashboard() {
 
   useEffect(() => {
     api.get<DashboardStats>("/api/dashboard/stats").then(setStats);
-    
+
     api.get<Pengeluaran[]>("/api/pengeluaran").then(d => {
       setPengeluaran(d);
     });
@@ -48,9 +48,9 @@ export default function UniversitasDashboard() {
   };
 
   const kondisiCount = {
-    BAIK:         barang.filter(b => b.kondisi === "BAIK").length,
+    BAIK: barang.filter(b => b.kondisi === "BAIK").length,
     RUSAK_RINGAN: barang.filter(b => b.kondisi === "RUSAK_RINGAN").length,
-    RUSAK_BERAT:  barang.filter(b => b.kondisi === "RUSAK_BERAT").length,
+    RUSAK_BERAT: barang.filter(b => b.kondisi === "RUSAK_BERAT").length,
   };
   const totalBarangSample = Object.values(kondisiCount).reduce((a, b) => a + b, 0);
   const totalNominal = pengeluaran.reduce((sum, p) => sum + p.nominal, 0);
@@ -65,18 +65,18 @@ export default function UniversitasDashboard() {
       {/* Stat Cards */}
       <div className="grid-4 mb-16">
         {[
-          { label: "Total Aset",       value: stats?.totalBarang ?? "—",                       icon: "ti-box",      color: "var(--ds-mist)" },
-          { label: "Data Pengeluaran", value: pengeluaran.length,                              icon: "ti-receipt",  color: "var(--color-warn)" },
-          { label: "Total Nominal",    value: `Rp ${totalNominal.toLocaleString("id-ID")}`,    icon: "ti-wallet",   color: "var(--color-ok)" },
-          { label: "Kategori Barang",  value: kategoriStat.length,                             icon: "ti-category", color: "var(--color-info)" },
+          { label: "Total Aset", value: stats?.totalBarang ?? "—", icon: "ti-box", color: "var(--ds-mist)" },
+          { label: "Data Pengeluaran", value: pengeluaran.length, icon: "ti-receipt", color: "var(--color-warn)" },
+          { label: "Total Nominal", value: `Rp ${totalNominal.toLocaleString("id-ID")}`, icon: "ti-wallet", color: "var(--color-ok)" },
+          { label: "Kategori Barang", value: kategoriStat.length, icon: "ti-category", color: "var(--color-info)" },
         ].map(s => (
-          <StatCard 
-            key={s.label} 
-            label={s.label} 
-            value={s.value} 
-            icon={s.icon} 
-            iconColor={s.color} 
-            valueStyle={{ fontSize: s.label === "Total Nominal" ? 20 : undefined }} 
+          <StatCard
+            key={s.label}
+            label={s.label}
+            value={s.value}
+            icon={s.icon}
+            iconColor={s.color}
+            valueStyle={{ fontSize: s.label === "Total Nominal" ? 20 : undefined }}
           />
         ))}
       </div>
@@ -87,12 +87,12 @@ export default function UniversitasDashboard() {
         <div className="glass dash-card-pad">
           <div className="section-header">
             <span className="section-label">Kondisi Barang</span>
-            <Link href="/universitas/barang" className="see-all">Detail →</Link>
+            <Link href="/universitas/barang" className="see-all">Detail</Link>
           </div>
           <ProgressList items={[
-            { label: "Baik",         val: kondisiCount.BAIK,         color: "var(--color-ok)",  pct: totalBarangSample ? Math.round((kondisiCount.BAIK / totalBarangSample) * 100) : 0 },
+            { label: "Baik", val: kondisiCount.BAIK, color: "var(--color-ok)", pct: totalBarangSample ? Math.round((kondisiCount.BAIK / totalBarangSample) * 100) : 0 },
             { label: "Rusak Ringan", val: kondisiCount.RUSAK_RINGAN, color: "var(--color-warn)", pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_RINGAN / totalBarangSample) * 100) : 0 },
-            { label: "Rusak Berat",  val: kondisiCount.RUSAK_BERAT,  color: "var(--color-err)",  pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_BERAT / totalBarangSample) * 100) : 0 },
+            { label: "Rusak Berat", val: kondisiCount.RUSAK_BERAT, color: "var(--color-err)", pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_BERAT / totalBarangSample) * 100) : 0 },
           ]} />
         </div>
 
@@ -123,7 +123,7 @@ export default function UniversitasDashboard() {
             <div style={{ padding: "16px 20px 0" }}>
               <div className="section-header">
                 <span className="section-label">Aset Terbaru FTI</span>
-                <Link href="/universitas/barang" className="see-all">Lihat semua →</Link>
+                <Link href="/universitas/barang" className="see-all">Lihat semua</Link>
               </div>
             </div>
             <div className="table-wrap">
@@ -156,38 +156,29 @@ export default function UniversitasDashboard() {
 
         {/* Right sidebar */}
         <div className="dash-col-right">
-          {/* Quick Links */}
-          <div className="glass dash-card-pad">
-            <span className="section-label nav-quick-label">NAVIGASI</span>
-            <div className="nav-quick-list">
-              {[
-                { href: "/universitas/barang",    icon: "ti-box",           label: "Inventaris Aset", subtitle: "Data seluruh barang" },
-                { href: "/universitas/pembelian", icon: "ti-receipt",       label: "Laporan Cashflow", subtitle: "Catatan pengeluaran" },
-              ].map(a => (
-                <QuickActionCard 
-                  key={a.href} 
-                  href={a.href} 
-                  icon={a.icon} 
-                  title={a.label} 
-                  subtitle={a.subtitle} 
-                  className="mb-2" 
-                />
-              ))}
+          {/* Quick Links Compact */}
+          <div className="glass dash-card-pad" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <span className="section-label" style={{ display: "block" }}>Navigasi Cepat</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <Link href="/universitas/barang" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
+                <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
+                  <i className="ti ti-box" style={{ fontSize: 20, color: "var(--color-info)" }} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>Inventaris Aset</span>
+                  <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Data seluruh barang</span>
+                </div>
+              </Link>
+              <Link href="/universitas/pembelian" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
+                <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
+                  <i className="ti ti-receipt" style={{ fontSize: 20, color: "var(--color-warn)" }} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>Laporan Cashflow</span>
+                  <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Catatan pengeluaran</span>
+                </div>
+              </Link>
             </div>
-          </div>
-
-          {/* Transparansi Anggaran */}
-          <div className="glass dash-card-pad">
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
-              Transparansi Anggaran
-            </div>
-            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 14 }}>
-              Pantau laporan pembelian aset, maintenance, dan pengeluaran dana lainnya.
-            </div>
-            <Link href="/universitas/pembelian" className="btn btn-primary btn-sm" style={{ width: "100%", justifyContent: "center" }}>
-              <i className="ti ti-receipt" style={{ fontSize: 14 }} />
-              Lihat Laporan Cashflow
-            </Link>
           </div>
         </div>
       </div>

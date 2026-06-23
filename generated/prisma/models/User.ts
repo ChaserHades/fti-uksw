@@ -32,6 +32,7 @@ export type UserMinAggregateOutputType = {
   provider: string | null
   role: $Enums.Role | null
   statusVerifikasi: $Enums.StatusVerifikasi | null
+  mustChangePassword: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +45,7 @@ export type UserMaxAggregateOutputType = {
   provider: string | null
   role: $Enums.Role | null
   statusVerifikasi: $Enums.StatusVerifikasi | null
+  mustChangePassword: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +58,7 @@ export type UserCountAggregateOutputType = {
   provider: number
   role: number
   statusVerifikasi: number
+  mustChangePassword: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -70,6 +73,7 @@ export type UserMinAggregateInputType = {
   provider?: true
   role?: true
   statusVerifikasi?: true
+  mustChangePassword?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +86,7 @@ export type UserMaxAggregateInputType = {
   provider?: true
   role?: true
   statusVerifikasi?: true
+  mustChangePassword?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +99,7 @@ export type UserCountAggregateInputType = {
   provider?: true
   role?: true
   statusVerifikasi?: true
+  mustChangePassword?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -179,6 +185,7 @@ export type UserGroupByOutputType = {
   provider: string
   role: $Enums.Role
   statusVerifikasi: $Enums.StatusVerifikasi
+  mustChangePassword: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -212,6 +219,7 @@ export type UserWhereInput = {
   provider?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFilter<"User"> | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   transaksi?: Prisma.TransaksiListRelationFilter
@@ -226,6 +234,7 @@ export type UserOrderByWithRelationInput = {
   provider?: Prisma.SortOrder
   role?: Prisma.SortOrder
   statusVerifikasi?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   transaksi?: Prisma.TransaksiOrderByRelationAggregateInput
@@ -243,6 +252,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   provider?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFilter<"User"> | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   transaksi?: Prisma.TransaksiListRelationFilter
@@ -257,6 +267,7 @@ export type UserOrderByWithAggregationInput = {
   provider?: Prisma.SortOrder
   role?: Prisma.SortOrder
   statusVerifikasi?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -275,6 +286,7 @@ export type UserScalarWhereWithAggregatesInput = {
   provider?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiWithAggregatesFilter<"User"> | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -287,6 +299,7 @@ export type UserCreateInput = {
   provider?: string
   role?: $Enums.Role
   statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   transaksi?: Prisma.TransaksiCreateNestedManyWithoutUserInput
@@ -301,6 +314,7 @@ export type UserUncheckedCreateInput = {
   provider?: string
   role?: $Enums.Role
   statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   transaksi?: Prisma.TransaksiUncheckedCreateNestedManyWithoutUserInput
@@ -315,6 +329,7 @@ export type UserUpdateInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transaksi?: Prisma.TransaksiUpdateManyWithoutUserNestedInput
@@ -329,6 +344,7 @@ export type UserUncheckedUpdateInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transaksi?: Prisma.TransaksiUncheckedUpdateManyWithoutUserNestedInput
@@ -343,6 +359,7 @@ export type UserCreateManyInput = {
   provider?: string
   role?: $Enums.Role
   statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -355,6 +372,7 @@ export type UserUpdateManyMutationInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -367,6 +385,7 @@ export type UserUncheckedUpdateManyInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -379,6 +398,7 @@ export type UserCountOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   role?: Prisma.SortOrder
   statusVerifikasi?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -391,6 +411,7 @@ export type UserMaxOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   role?: Prisma.SortOrder
   statusVerifikasi?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -403,6 +424,7 @@ export type UserMinOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   role?: Prisma.SortOrder
   statusVerifikasi?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,6 +448,10 @@ export type EnumRoleFieldUpdateOperationsInput = {
 
 export type EnumStatusVerifikasiFieldUpdateOperationsInput = {
   set?: $Enums.StatusVerifikasi
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -468,6 +494,7 @@ export type UserCreateWithoutTransaksiInput = {
   provider?: string
   role?: $Enums.Role
   statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   pengeluaran?: Prisma.PengeluaranCreateNestedManyWithoutUserInput
@@ -481,6 +508,7 @@ export type UserUncheckedCreateWithoutTransaksiInput = {
   provider?: string
   role?: $Enums.Role
   statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   pengeluaran?: Prisma.PengeluaranUncheckedCreateNestedManyWithoutUserInput
@@ -510,6 +538,7 @@ export type UserUpdateWithoutTransaksiInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pengeluaran?: Prisma.PengeluaranUpdateManyWithoutUserNestedInput
@@ -523,6 +552,7 @@ export type UserUncheckedUpdateWithoutTransaksiInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pengeluaran?: Prisma.PengeluaranUncheckedUpdateManyWithoutUserNestedInput
@@ -536,6 +566,7 @@ export type UserCreateWithoutPengeluaranInput = {
   provider?: string
   role?: $Enums.Role
   statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   transaksi?: Prisma.TransaksiCreateNestedManyWithoutUserInput
@@ -549,6 +580,7 @@ export type UserUncheckedCreateWithoutPengeluaranInput = {
   provider?: string
   role?: $Enums.Role
   statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   transaksi?: Prisma.TransaksiUncheckedCreateNestedManyWithoutUserInput
@@ -578,6 +610,7 @@ export type UserUpdateWithoutPengeluaranInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transaksi?: Prisma.TransaksiUpdateManyWithoutUserNestedInput
@@ -591,6 +624,7 @@ export type UserUncheckedUpdateWithoutPengeluaranInput = {
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transaksi?: Prisma.TransaksiUncheckedUpdateManyWithoutUserNestedInput
@@ -644,6 +678,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   provider?: boolean
   role?: boolean
   statusVerifikasi?: boolean
+  mustChangePassword?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   transaksi?: boolean | Prisma.User$transaksiArgs<ExtArgs>
@@ -659,6 +694,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   provider?: boolean
   role?: boolean
   statusVerifikasi?: boolean
+  mustChangePassword?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -671,6 +707,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   provider?: boolean
   role?: boolean
   statusVerifikasi?: boolean
+  mustChangePassword?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -683,11 +720,12 @@ export type UserSelectScalar = {
   provider?: boolean
   role?: boolean
   statusVerifikasi?: boolean
+  mustChangePassword?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "provider" | "role" | "statusVerifikasi" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "provider" | "role" | "statusVerifikasi" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transaksi?: boolean | Prisma.User$transaksiArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.User$pengeluaranArgs<ExtArgs>
@@ -710,6 +748,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     provider: string
     role: $Enums.Role
     statusVerifikasi: $Enums.StatusVerifikasi
+    mustChangePassword: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1144,6 +1183,7 @@ export interface UserFieldRefs {
   readonly provider: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly statusVerifikasi: Prisma.FieldRef<"User", 'StatusVerifikasi'>
+  readonly mustChangePassword: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

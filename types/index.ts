@@ -51,6 +51,7 @@ export interface User {
   email: string;
   role: "ADMIN" | "TEKNISI" | "UNIVERSITAS";
   statusVerifikasi: "PENDING" | "APPROVED" | "REJECTED";
+  mustChangePassword?: boolean;
   createdAt: string;
 }
 

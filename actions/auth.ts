@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { createSession, deleteSession } from "@/lib/session";
+import { createSession, deleteSession, getSession } from "@/lib/session";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -41,14 +41,55 @@ export async function loginAction(formData: FormData) {
     name:             user.name ?? "",
     role:             user.role,
     statusVerifikasi: user.statusVerifikasi,
+    mustChangePassword: user.mustChangePassword,
   });
 
   if (user.statusVerifikasi === "PENDING")  redirect("/pending");
   if (user.statusVerifikasi === "REJECTED") redirect("/rejected");
+  if (user.mustChangePassword)              redirect("/force-change-password");
   if (user.role === "ADMIN")       redirect("/admin/dashboard");
   if (user.role === "TEKNISI")     redirect("/petugas/dashboard");
   if (user.role === "UNIVERSITAS") redirect("/universitas/dashboard");
   redirect("/");
+}
+
+const changePasswordSchema = z.object({
+  password: z.string().min(8, "Password minimal 8 karakter"),
+  confirmPassword: z.string().min(8, "Konfirmasi Password minimal 8 karakter"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Password tidak cocok",
+  path: ["confirmPassword"],
+});
+
+export async function changePasswordAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) return { error: "Sesi tidak valid" };
+
+  const raw = {
+    password:        formData.get("password") as string,
+    confirmPassword: formData.get("confirmPassword") as string,
+  };
+
+  const parsed = changePasswordSchema.safeParse(raw);
+  if (!parsed.success) return { error: parsed.error.errors[0].message };
+
+  const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
+
+  const updatedUser = await prisma.user.update({
+    where: { id: session.id },
+    data: { password: hashedPassword, mustChangePassword: false },
+  });
+
+  await createSession({
+    id:               updatedUser.id,
+    email:            updatedUser.email,
+    name:             updatedUser.name ?? "",
+    role:             updatedUser.role,
+    statusVerifikasi: updatedUser.statusVerifikasi,
+    mustChangePassword: false,
+  });
+
+  return { success: true };
 }
 
 export async function registerAction(formData: FormData) {

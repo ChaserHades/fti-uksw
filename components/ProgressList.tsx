@@ -23,8 +23,14 @@ export default function ProgressList({ items, className = "" }: ProgressListProp
               {item.val} <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>({item.pct}%)</span>
             </span>
           </div>
-          <div style={{ height: 6, background: "#F3F4F6", borderRadius: 3, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${item.pct}%`, background: item.color, borderRadius: 3 }} />
+          <div style={{ height: 8, background: "rgba(255, 255, 255, 0.05)", borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255, 255, 255, 0.05)", boxShadow: "inset 0 1px 3px rgba(0,0,0,0.2)" }}>
+            <div style={{ 
+              height: "100%", width: `${item.pct}%`, 
+              background: `linear-gradient(90deg, ${item.color}80, ${item.color})`, 
+              borderRadius: 10,
+              boxShadow: `0 0 10px ${item.color}40`,
+              transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)"
+            }} />
           </div>
         </div>
       ))}

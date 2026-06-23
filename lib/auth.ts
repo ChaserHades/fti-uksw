@@ -7,6 +7,7 @@ export async function requireAuth() {
   if (!session) redirect("/login");
   if (session.statusVerifikasi === "PENDING") redirect("/pending");
   if (session.statusVerifikasi === "REJECTED") redirect("/rejected");
+  if (session.mustChangePassword) redirect("/force-change-password");
   return session;
 }
 
