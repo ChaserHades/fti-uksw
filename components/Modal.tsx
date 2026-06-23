@@ -31,7 +31,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
       <div className="modal">
         <div className="modal-title">
           <span>{title}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 20, cursor: "pointer", lineHeight: 1, padding: 2 }} aria-label="Tutup">
+          <button onClick={onClose} className="modal-close" aria-label="Tutup">
             <i className="ti ti-x" />
           </button>
         </div>

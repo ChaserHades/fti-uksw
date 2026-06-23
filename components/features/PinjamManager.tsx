@@ -181,7 +181,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   return (
     <>
       {/* Mode switcher */}
-      <div style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="mobile-scroll-x" style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         {([
           { key: "scan" as Mode, icon: "ti-qrcode",  label: "Scan QR" },
           { key: "list" as Mode, icon: "ti-list",     label: "Daftar Aktif" },
@@ -197,7 +197,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                 color: active ? "#FFF" : "var(--text-secondary)",
                 background: "transparent",
                 border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
-                transition: "all 0.2s", cursor: "pointer",
+                transition: "all 0.2s", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
                 marginBottom: "-1px"
               }}
             >

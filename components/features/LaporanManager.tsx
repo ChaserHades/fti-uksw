@@ -8,6 +8,7 @@ import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
+import ConfirmModal from "@/components/ConfirmModal";
 import type { Pengeluaran } from "@/types";
 
 type JenisFilter = "" | "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
@@ -32,6 +33,9 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   const [form,    setForm]    = useState(EMPTY);
   const [nota,    setNota]    = useState<File | null>(null);
   const [saving,  setSaving]  = useState(false);
+
+  const [confirmDel, setConfirmDel] = useState<{ id: string, judul: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const load = () => {
     const params = filter ? `?jenis=${filter}` : "";
@@ -78,13 +82,19 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
     } finally { setSaving(false); }
   }
 
-  async function handleDelete(id: string, judul: string) {
-    if (!confirm(`Hapus pengeluaran "${judul}"?`)) return;
+  function handleDelete(id: string, judul: string) {
+    setConfirmDel({ id, judul });
+  }
+
+  async function performDelete() {
+    if (!confirmDel) return;
+    setIsDeleting(true);
     try {
-      await api.delete(`/api/pengeluaran/${id}`);
+      await api.delete(`/api/pengeluaran/${confirmDel.id}`);
       toast.success("Pengeluaran dihapus");
       load();
     } catch { toast.error("Gagal menghapus"); }
+    finally { setIsDeleting(false); setConfirmDel(null); }
   }
 
   function exportCSV() {
@@ -208,8 +218,18 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
         </div>
       </div>
 
+      <ConfirmModal
+        isOpen={!!confirmDel}
+        title="Hapus Laporan"
+        message={`Apakah Anda yakin ingin menghapus laporan "${confirmDel?.judul}"?`}
+        danger
+        isLoading={isDeleting}
+        onConfirm={performDelete}
+        onCancel={() => setConfirmDel(null)}
+      />
+
       {/* Modal Input Pengeluaran */}
-      <Modal open={modal} onClose={() => setModal(false)} title="Input Pengeluaran">
+      <Modal open={modal} onClose={() => setModal(false)} title="Catat Pengeluaran Baru">
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Judul *</label>

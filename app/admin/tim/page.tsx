@@ -9,6 +9,7 @@ import { verifikasiUserAction } from "@/actions/verifikasi";
 import LiquidWrapper from "@/components/LiquidWrapper";
 import LiquidSelect from "@/components/LiquidSelect";
 import ConfirmModal from "@/components/ConfirmModal";
+import Modal from "@/components/Modal";
 import type { User } from "@/types";
 
 type Tab = "anggota" | "verifikasi";
@@ -319,60 +320,52 @@ export default function TimVerifikasiPage() {
       )}
 
       {/* MODAL EDIT USER */}
-      {editModal && (
-        <div className="modal-overlay" onClick={() => setEditModal(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <button type="button" className="modal-close" onClick={() => setEditModal(null)}>
-              <i className="ti ti-x" />
-            </button>
-            <h3 className="modal-title">Edit User: {editModal.name}</h3>
-            <form onSubmit={handleSaveEdit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">Nama</label>
-                  <input name="name" type="text" className="input" defaultValue={editModal.name || ""} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <input name="email" type="email" className="input" defaultValue={editModal.email} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Role</label>
-                  <LiquidSelect
-                    value={editModal.role}
-                    onChange={val => setEditModal({ ...editModal, role: val as any })}
-                    options={[
-                      { value: "ADMIN", label: "ADMIN" },
-                      { value: "TEKNISI", label: "TEKNISI" },
-                      { value: "UNIVERSITAS", label: "UNIVERSITAS" }
-                    ]}
-                  />
-                  <input type="hidden" name="role" value={editModal.role} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Status Verifikasi</label>
-                  <LiquidSelect
-                    value={editModal.statusVerifikasi}
-                    onChange={val => setEditModal({ ...editModal, statusVerifikasi: val as any })}
-                    options={[
-                      { value: "APPROVED", label: "APPROVED" },
-                      { value: "PENDING", label: "PENDING" },
-                      { value: "REJECTED", label: "REJECTED" }
-                    ]}
-                  />
-                  <input type="hidden" name="statusVerifikasi" value={editModal.statusVerifikasi} />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-ghost" onClick={() => setEditModal(null)}>Batal</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? <div className="spinner spinner-sm" /> : <i className="ti ti-device-floppy" />} Simpan Perubahan
-                </button>
-              </div>
-            </form>
+      <Modal open={!!editModal} onClose={() => setEditModal(null)} title={`Edit User: ${editModal?.name}`}>
+        <form onSubmit={handleSaveEdit}>
+          <div className="modal-body">
+            <div className="form-group">
+              <label className="form-label">Nama</label>
+              <input name="name" type="text" className="input" defaultValue={editModal?.name || ""} required />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input name="email" type="email" className="input" defaultValue={editModal?.email} required />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Role</label>
+              <LiquidSelect
+                value={editModal?.role || ""}
+                onChange={val => setEditModal(prev => prev ? { ...prev, role: val as any } : null)}
+                options={[
+                  { value: "ADMIN", label: "ADMIN" },
+                  { value: "TEKNISI", label: "TEKNISI" },
+                  { value: "UNIVERSITAS", label: "UNIVERSITAS" }
+                ]}
+              />
+              <input type="hidden" name="role" value={editModal?.role} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Status Verifikasi</label>
+              <LiquidSelect
+                value={editModal?.statusVerifikasi || ""}
+                onChange={val => setEditModal(prev => prev ? { ...prev, statusVerifikasi: val as any } : null)}
+                options={[
+                  { value: "APPROVED", label: "APPROVED" },
+                  { value: "PENDING", label: "PENDING" },
+                  { value: "REJECTED", label: "REJECTED" }
+                ]}
+              />
+              <input type="hidden" name="statusVerifikasi" value={editModal?.statusVerifikasi} />
+            </div>
           </div>
-        </div>
-      )}
+          <div className="modal-footer">
+            <button type="button" className="btn btn-ghost" onClick={() => setEditModal(null)}>Batal</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? <div className="spinner spinner-sm" /> : <i className="ti ti-device-floppy" />} Simpan Perubahan
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* CONFIRM MODAL */}
       <ConfirmModal

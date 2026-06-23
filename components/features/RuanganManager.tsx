@@ -7,6 +7,7 @@ import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
+import ConfirmModal from "@/components/ConfirmModal";
 import type { Ruangan, Barang } from "@/types";
 
 declare const jsQR: (
@@ -24,6 +25,9 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   const [selected, setSelected] = useState<Ruangan | null>(null);
   const [form, setForm]         = useState(EMPTY);
   const [saving, setSaving]     = useState(false);
+
+  const [confirmDel, setConfirmDel] = useState<{ id: string, nama: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Pindah barang state
   const [pindahBarang, setPindahBarang]   = useState<Barang | null>(null);
@@ -74,10 +78,16 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     finally { setSaving(false); }
   }
 
-  async function handleDelete(id: string, nama: string) {
-    if (!confirm(`Hapus ruangan "${nama}"?`)) return;
-    try { await api.delete(`/api/ruangan/${id}`); toast.success("Ruangan dihapus"); load(); }
+  function handleDelete(id: string, nama: string) {
+    setConfirmDel({ id, nama });
+  }
+
+  async function performDelete() {
+    if (!confirmDel) return;
+    setIsDeleting(true);
+    try { await api.delete(`/api/ruangan/${confirmDel.id}`); toast.success("Ruangan dihapus"); load(); }
     catch { toast.error("Gagal — mungkin masih ada barang di ruangan ini"); }
+    finally { setIsDeleting(false); setConfirmDel(null); }
   }
 
   const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
@@ -209,6 +219,16 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
           </table>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!confirmDel}
+        title="Hapus Ruangan"
+        message={`Apakah Anda yakin ingin menghapus ruangan "${confirmDel?.nama}"?`}
+        danger
+        isLoading={isDeleting}
+        onConfirm={performDelete}
+        onCancel={() => setConfirmDel(null)}
+      />
 
       {/* Modal CRUD Ruangan */}
       <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Ruangan" : "Tambah Ruangan"}>

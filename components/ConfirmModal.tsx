@@ -40,7 +40,7 @@ export default function ConfirmModal({
           <button className="btn btn-ghost" onClick={onCancel} disabled={isLoading}>
             {cancelLabel}
           </button>
-          <button className={`btn ${danger ? "btn-danger" : "btn-primary"}`} onClick={onConfirm} disabled={isLoading}>
+          <button className={`btn ${danger ? "btn-solid-danger" : "btn-primary"}`} onClick={onConfirm} disabled={isLoading}>
             {isLoading ? <div className="spinner spinner-sm" /> : confirmLabel}
           </button>
         </div>

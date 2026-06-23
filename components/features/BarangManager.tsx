@@ -8,6 +8,7 @@ import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
+import ConfirmModal from "@/components/ConfirmModal";
 import type { Barang, KategoriBarang, Ruangan } from "@/types";
 
 declare const jsQR: (
@@ -44,7 +45,7 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
   return (
     <div className="animate-fade-in">
       {/* Tab switcher */}
-      <div style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="mobile-scroll-x" style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         {availableTabs.map(t => {
           const active = tab === t.key;
           return (
@@ -58,7 +59,7 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
                 background: "transparent",
                 border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
                 transition: "all 0.2s", cursor: "pointer",
-                marginBottom: "-1px"
+                marginBottom: "-1px", whiteSpace: "nowrap", flexShrink: 0
               }}
             >
               <i className={`ti ${t.icon}`} style={{ opacity: active ? 1 : 0.6 }} />{t.label}
@@ -89,6 +90,9 @@ function DaftarTab({ role }: { role: string }) {
   const [qrData,    setQrData]    = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
   const [bulkQrData, setBulkQrData] = useState<{ qrCode: string; kode: string; nama: string }[] | null>(null);
   const [saving,    setSaving]    = useState(false);
+
+  const [confirmDel, setConfirmDel] = useState<{ id: string, nama: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const load = useCallback(() => {
     const p = new URLSearchParams();
@@ -172,13 +176,21 @@ function DaftarTab({ role }: { role: string }) {
     } finally { setSaving(false); }
   }
 
-  async function handleDelete(id: string, nama: string) {
-    if (!confirm(`Hapus barang "${nama}"?`)) return;
+  function handleDelete(id: string, nama: string) {
+    setConfirmDel({ id, nama });
+  }
+
+  async function performDelete() {
+    if (!confirmDel) return;
+    setIsDeleting(true);
     try {
-      await api.delete(`/api/barang/${id}`);
+      await api.delete(`/api/barang/${confirmDel.id}`);
       toast.success("Barang dihapus"); load();
     } catch (e: any) { 
       toast.error(e.message || "Gagal menghapus"); 
+    } finally {
+      setIsDeleting(false);
+      setConfirmDel(null);
     }
   }
 
@@ -261,6 +273,16 @@ function DaftarTab({ role }: { role: string }) {
           </table>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!confirmDel}
+        title="Hapus Barang"
+        message={`Apakah Anda yakin ingin menghapus barang "${confirmDel?.nama}"?`}
+        danger
+        isLoading={isDeleting}
+        onConfirm={performDelete}
+        onCancel={() => setConfirmDel(null)}
+      />
 
       {/* Form Modal */}
       <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Barang" : "Tambah Barang"}>
@@ -407,7 +429,7 @@ function AddItemTab() {
 
   return (
     <>
-      <div style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="mobile-scroll-x" style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         {([
           { key: "scan" as AddMode,   icon: "ti-qrcode",      label: "Scan QR" },
           { key: "manual" as AddMode, icon: "ti-forms",        label: "Manual Input" },
@@ -425,7 +447,7 @@ function AddItemTab() {
                 background: "transparent",
                 border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
                 transition: "all 0.2s", cursor: "pointer",
-                marginBottom: "-1px"
+                marginBottom: "-1px", whiteSpace: "nowrap", flexShrink: 0
               }}
             >
               <i className={`ti ${m.icon}`} style={{ opacity: active ? 1 : 0.6 }} />{m.label}
@@ -452,6 +474,7 @@ function ScanRegisterSection() {
   const [scanning,    setScanning]    = useState(false);
   const [scannedKode, setScannedKode] = useState("");
   const [foundBarang, setFoundBarang] = useState<Barang | null>(null);
+
   const [registerModal, setRegisterModal] = useState(false);
   const [form, setForm]   = useState<typeof EMPTY>(EMPTY);
   const [kategori, setKategori] = useState<KategoriBarang[]>([]);
@@ -843,6 +866,9 @@ function KategoriTab() {
   const [form, setForm]         = useState({ nama: "", deskripsi: "" });
   const [saving, setSaving]     = useState(false);
 
+  const [confirmDel, setConfirmDel] = useState<{ id: string, nama: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const load = () => api.get<KategoriBarang[]>("/api/kategori").then(setList).catch(console.error);
   useEffect(() => { load(); }, []);
 
@@ -860,10 +886,16 @@ function KategoriTab() {
     finally { setSaving(false); }
   }
 
-  async function handleDelete(id: string, nama: string) {
-    if (!confirm(`Hapus kategori "${nama}"?`)) return;
-    try { await api.delete(`/api/kategori/${id}`); toast.success("Dihapus"); load(); }
+  function handleDelete(id: string, nama: string) {
+    setConfirmDel({ id, nama });
+  }
+
+  async function performDelete() {
+    if (!confirmDel) return;
+    setIsDeleting(true);
+    try { await api.delete(`/api/kategori/${confirmDel.id}`); toast.success("Dihapus"); load(); }
     catch { toast.error("Gagal — mungkin masih ada barang di kategori ini"); }
+    finally { setIsDeleting(false); setConfirmDel(null); }
   }
 
   return (
@@ -893,6 +925,16 @@ function KategoriTab() {
           </tbody>
         </table>
       </div>
+      <ConfirmModal
+        isOpen={!!confirmDel}
+        title="Hapus Kategori"
+        message={`Apakah Anda yakin ingin menghapus kategori "${confirmDel?.nama}"?`}
+        danger
+        isLoading={isDeleting}
+        onConfirm={performDelete}
+        onCancel={() => setConfirmDel(null)}
+      />
+
       <Modal open={modal} onClose={() => setModal(false)} title={selected ? "Edit Kategori" : "Tambah Kategori"}>
         <div className="form-group"><label className="form-label">Nama Kategori *</label><input className="input" placeholder="Komputer…" value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} /></div>
         <div className="form-group"><label className="form-label">Deskripsi</label><input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setForm({ ...form, deskripsi: e.target.value })} /></div>
