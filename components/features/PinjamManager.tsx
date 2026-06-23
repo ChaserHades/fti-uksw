@@ -1,6 +1,7 @@
 // app/admin/pinjam/page.tsx
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import toast from "react-hot-toast";
@@ -14,7 +15,9 @@ declare const jsQR: (
 
 type Mode = "scan" | "list";
 
-export default function AdminPinjamPage() {
+export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
+  const searchParams = useSearchParams();
+  
   // ── State ──
   const [mode, setMode]             = useState<Mode>("scan");
   const [allAktif, setAllAktif]     = useState<Transaksi[]>([]);
@@ -42,7 +45,10 @@ export default function AdminPinjamPage() {
   const loadAktif = () =>
     api.get<Transaksi[]>("/api/transaksi?status=AKTIF").then(setAllAktif).catch(console.error);
 
-  useEffect(() => { loadAktif(); }, []);
+  useEffect(() => { 
+    loadAktif(); 
+    if (searchParams.get("action") === "scan") setMode("scan");
+  }, [searchParams]);
 
   // ── jsQR script ──
   useEffect(() => {
@@ -193,6 +199,9 @@ export default function AdminPinjamPage() {
             )}
           </button>
         ))}
+        {role === "ADMIN" && (
+           <div className="badge badge-neutral">Mode Admin</div>
+        )}
       </div>
 
       {/* MODE: SCAN */}

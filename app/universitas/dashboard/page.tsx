@@ -160,22 +160,22 @@ export default function UniversitasDashboard() {
           <div className="glass dash-card-pad" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <span className="section-label" style={{ display: "block" }}>Navigasi Cepat</span>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <Link href="/universitas/barang" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
-                <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
-                  <i className="ti ti-box" style={{ fontSize: 20, color: "var(--color-info)" }} />
+              <Link href="/universitas/barang" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "12px 16px", gap: "12px", textDecoration: "none", margin: 0 }}>
+                <div className="flex-center" style={{ width: 34, height: 34, background: "rgba(255,255,255,0.05)", borderRadius: 6, flexShrink: 0 }}>
+                  <i className="ti ti-box" style={{ fontSize: 18, color: "var(--color-info)" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>Inventaris Aset</span>
-                  <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Data seluruh barang</span>
+                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 14, lineHeight: 1.2 }}>Inventaris Aset</span>
+                  <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Data seluruh barang</span>
                 </div>
               </Link>
-              <Link href="/universitas/pembelian" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
-                <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
-                  <i className="ti ti-receipt" style={{ fontSize: 20, color: "var(--color-warn)" }} />
+              <Link href="/universitas/pembelian" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "12px 16px", gap: "12px", textDecoration: "none", margin: 0 }}>
+                <div className="flex-center" style={{ width: 34, height: 34, background: "rgba(255,255,255,0.05)", borderRadius: 6, flexShrink: 0 }}>
+                  <i className="ti ti-receipt" style={{ fontSize: 18, color: "var(--color-warn)" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>Laporan Cashflow</span>
-                  <span style={{ color: "var(--text-muted)", fontSize: 12 }}>Catatan pengeluaran</span>
+                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 14, lineHeight: 1.2 }}>Laporan Cashflow</span>
+                  <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Catatan pengeluaran</span>
                 </div>
               </Link>
             </div>

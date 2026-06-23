@@ -1,7 +1,7 @@
 // components/Topbar.tsx
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { logoutAction } from "@/actions/auth";
 import { initials } from "@/helpers/format";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -42,6 +42,7 @@ export const UNIVERSITAS_NAV: NavItem[] = [
 
 export default function Topbar({ items, role, userName }: TopbarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open,    setOpen]    = useState(false);
   const [compact, setCompact] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -79,8 +80,18 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
 
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  const isActive = (href: string) =>
-    pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+  const isActive = (href: string) => {
+    // If href has a query param, we must match pathname AND the specific tab param
+    if (href.includes("?")) {
+      const [path, query] = href.split("?");
+      if (pathname !== path) return false;
+      const params = new URLSearchParams(query);
+      const tab = params.get("tab");
+      return tab ? searchParams.get("tab") === tab : false;
+    }
+    // Strict exact match for dashboard or fallback
+    return pathname === href;
+  };
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);

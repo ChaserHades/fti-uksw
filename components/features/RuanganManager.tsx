@@ -1,5 +1,4 @@
-// app/petugas/ruangan/page.tsx
-// Teknisi: pindah barang antar ruangan via QR/manual. Tidak bisa CRUD ruangan.
+// app/admin/ruangan/page.tsx
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Modal from "@/components/Modal";
@@ -14,15 +13,22 @@ declare const jsQR: (
   data: Uint8ClampedArray, width: number, height: number
 ) => { data: string } | null;
 
+const EMPTY = { kode: "", nama: "", gedung: "", lantai: "", kapasitas: "" };
+
 interface RuanganWithCount extends Ruangan { _count?: { barang: number }; }
 
-export default function TeknisiRuanganPage() {
-  const [list, setList]               = useState<RuanganWithCount[]>([]);
-  const [modal, setModal]             = useState(false);
-  const [pindahBarang, setPindahBarang] = useState<Barang | null>(null);
-  const [pindahTarget, setPindahTarget] = useState("");
-  const [pindahSaving, setPindahSaving] = useState(false);
-  const [kodeInput, setKodeInput]     = useState("");
+export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
+  const [list, setList]         = useState<RuanganWithCount[]>([]);
+  const [modal, setModal]       = useState<"form" | "pindah" | null>(null);
+  const [selected, setSelected] = useState<Ruangan | null>(null);
+  const [form, setForm]         = useState(EMPTY);
+  const [saving, setSaving]     = useState(false);
+
+  // Pindah barang state
+  const [pindahBarang, setPindahBarang]   = useState<Barang | null>(null);
+  const [pindahTarget, setPindahTarget]   = useState("");
+  const [pindahSaving, setPindahSaving]   = useState(false);
+  const [kodeInput,    setKodeInput]      = useState("");
 
   // Camera state
   const videoRef  = useRef<HTMLVideoElement>(null);
@@ -47,10 +53,38 @@ export default function TeknisiRuanganPage() {
   }, []);
   useEffect(() => () => stopCamera(), []);
 
+  // ── CRUD Ruangan ──
+  function openAdd() { setSelected(null); setForm(EMPTY); setModal("form"); }
+  function openEdit(r: Ruangan) {
+    setSelected(r);
+    setForm({ kode: r.kode, nama: r.nama, gedung: r.gedung ?? "", lantai: r.lantai ?? "", kapasitas: r.kapasitas?.toString() ?? "" });
+    setModal("form");
+  }
+
+  async function handleSave() {
+    if (!form.kode || !form.nama) { toast.error("Kode dan nama wajib diisi"); return; }
+    setSaving(true);
+    const body = { ...form, kapasitas: form.kapasitas ? Number(form.kapasitas) : null };
+    try {
+      if (selected) { await api.put(`/api/ruangan/${selected.id}`, body); toast.success("Ruangan diperbarui"); }
+      else { await api.post("/api/ruangan", body); toast.success("Ruangan ditambahkan"); }
+      setModal(null); load();
+    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Gagal menyimpan"); }
+    finally { setSaving(false); }
+  }
+
+  async function handleDelete(id: string, nama: string) {
+    if (!confirm(`Hapus ruangan "${nama}"?`)) return;
+    try { await api.delete(`/api/ruangan/${id}`); toast.success("Ruangan dihapus"); load(); }
+    catch { toast.error("Gagal — mungkin masih ada barang di ruangan ini"); }
+  }
+
+  const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
   // ── Pindah Barang ──
   function openPindah() {
     setPindahBarang(null); setPindahTarget(""); setKodeInput("");
-    setModal(true);
+    setModal("pindah");
   }
 
   async function lookupBarang(kode: string) {
@@ -73,19 +107,17 @@ export default function TeknisiRuanganPage() {
     try {
       await api.put(`/api/barang/${pindahBarang.id}`, { ruanganId: pindahTarget });
       toast.success(`"${pindahBarang.nama}" dipindahkan ke ruangan baru`);
-      setModal(false); setPindahBarang(null);
+      setModal(null); setPindahBarang(null);
       load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal memindahkan");
     } finally { setPindahSaving(false); }
   }
 
-  // Camera
+  // Camera for pindah
   async function startCamera() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } });
       streamRef.current = stream;
       const v = videoRef.current!; v.srcObject = stream; await v.play();
       setScanning(true); scanLoop();
@@ -103,29 +135,26 @@ export default function TeknisiRuanganPage() {
   function scanLoop() {
     const video = videoRef.current, canvas = canvasRef.current;
     if (!video || !canvas) return;
-    if (!jsqrReady.current || video.readyState < video.HAVE_ENOUGH_DATA) {
-      rafRef.current = requestAnimationFrame(scanLoop); return;
-    }
+    if (!jsqrReady.current || video.readyState < video.HAVE_ENOUGH_DATA) { rafRef.current = requestAnimationFrame(scanLoop); return; }
     const ctx = canvas.getContext("2d")!;
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
     const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
-    if (code?.data) {
-      stopCamera();
-      const kode = parseQrPayload(code.data);
-      setKodeInput(kode);
-      lookupBarang(kode);
-      return;
-    }
+    if (code?.data) { stopCamera(); const kode = parseQrPayload(code.data); setKodeInput(kode); lookupBarang(kode); return; }
     rafRef.current = requestAnimationFrame(scanLoop);
   }
 
   return (
     <>
-      <PageHeader title="Ruangan" subtitle="Lihat daftar ruangan dan pindahkan barang antar ruangan">
-        <button className="btn btn-primary" onClick={openPindah}>
+      <PageHeader title="Manajemen Ruangan" subtitle="Lokasi penyimpanan aset FTI">
+        <button className="btn btn-ghost" onClick={openPindah}>
           <i className="ti ti-arrows-exchange" /> Pindah Barang
         </button>
+        {role === "ADMIN" && (
+          <button className="btn btn-primary" onClick={openAdd}>
+            <i className="ti ti-plus" /> Tambah Ruangan
+          </button>
+        )}
       </PageHeader>
 
       <div className="glass">
@@ -135,11 +164,12 @@ export default function TeknisiRuanganPage() {
               <tr>
                 <th>Kode</th><th>Nama</th><th>Gedung</th>
                 <th>Lantai</th><th>Kapasitas</th><th>Jml Barang</th>
+                {role === "ADMIN" && <th>Aksi</th>}
               </tr>
             </thead>
             <tbody>
               {list.length === 0 ? (
-                <tr><td colSpan={6}><div className="empty-state"><i className="ti ti-building-off" style={{ fontSize: 28 }} />Belum ada ruangan</div></td></tr>
+                <tr><td colSpan={7}><div className="empty-state"><i className="ti ti-building-off" style={{ fontSize: 28 }} />Belum ada ruangan</div></td></tr>
               ) : list.map(r => (
                 <tr key={r.id}>
                   <td className="td-mono td-bold">{r.kode}</td>
@@ -150,6 +180,14 @@ export default function TeknisiRuanganPage() {
                   <td>
                     <span className="badge badge-info">{r._count?.barang ?? 0}</span>
                   </td>
+                  {role === "ADMIN" && (
+                    <td>
+                      <div className="action-row">
+                        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(r)}><i className="ti ti-edit" /></button>
+                        <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(r.id, r.nama)}><i className="ti ti-trash" /></button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -157,30 +195,54 @@ export default function TeknisiRuanganPage() {
         </div>
       </div>
 
+      {/* Modal CRUD Ruangan */}
+      <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Ruangan" : "Tambah Ruangan"}>
+        <div className="form-grid-2-fixed">
+          <div className="form-group">
+            <label className="form-label">Kode Ruangan *</label>
+            <input className="input" placeholder="LAB1" value={form.kode} onChange={e => setF("kode", e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Kapasitas</label>
+            <input type="number" className="input" placeholder="30" value={form.kapasitas} onChange={e => setF("kapasitas", e.target.value)} />
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Nama Ruangan *</label>
+          <input className="input" placeholder="Lab Komputer 1" value={form.nama} onChange={e => setF("nama", e.target.value)} />
+        </div>
+        <div className="form-grid-2-fixed">
+          <div className="form-group">
+            <label className="form-label">Gedung</label>
+            <input className="input" placeholder="A" value={form.gedung} onChange={e => setF("gedung", e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Lantai</label>
+            <input className="input" placeholder="1" value={form.lantai} onChange={e => setF("lantai", e.target.value)} />
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={() => setModal(null)}>Batal</button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? <><div className="spinner" />Menyimpan…</> : "Simpan"}
+          </button>
+        </div>
+      </Modal>
+
       {/* Modal Pindah Barang */}
-      <Modal open={modal} onClose={() => { setModal(false); stopCamera(); }} title="Pindah Barang ke Ruangan Lain">
+      <Modal open={modal === "pindah"} onClose={() => { setModal(null); stopCamera(); }} title="Pindah Barang ke Ruangan Lain">
         <div className="scan-heading" style={{ marginBottom: 14 }}>
           <div className="scan-sub">Scan QR atau input kode barang manual, lalu pilih ruangan tujuan.</div>
         </div>
 
-        {/* Camera area */}
-        <div style={{
-          position: "relative", width: "100%", aspectRatio: "3/2",
-          borderRadius: 10, overflow: "hidden", background: "#000",
-          border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
-          marginBottom: 12,
-        }}>
+        {/* Camera area (small) */}
+        <div style={{ position: "relative", width: "100%", aspectRatio: "3/2", borderRadius: 10, overflow: "hidden", background: "#000", border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`, marginBottom: 12 }}>
           <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "none" }} />
           <canvas ref={canvasRef} style={{ display: "none" }} />
           {!scanning && (
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <i className="ti ti-camera-off" style={{ fontSize: 28, color: "var(--text-muted)" }} />
               <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
-            </div>
-          )}
-          {scanning && (
-            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-              <div style={{ width: 140, height: 140, borderRadius: 10, border: "2px solid var(--color-ok)", boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)" }} />
             </div>
           )}
         </div>
@@ -232,7 +294,7 @@ export default function TeknisiRuanganPage() {
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-ghost" onClick={() => { setModal(false); stopCamera(); }}>Batal</button>
+              <button className="btn btn-ghost" onClick={() => { setModal(null); stopCamera(); }}>Batal</button>
               <button className="btn btn-primary" onClick={handlePindah} disabled={pindahSaving}>
                 {pindahSaving ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memindahkan…</> : <><i className="ti ti-arrows-exchange" />Pindahkan</>}
               </button>

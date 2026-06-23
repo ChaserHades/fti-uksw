@@ -1,6 +1,7 @@
 // app/admin/laporan/page.tsx
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import LiquidSelect from "@/components/LiquidSelect";
@@ -23,7 +24,8 @@ const jenisBadge: Record<string, string> = {
   LAINNYA: "badge-muted",
 };
 
-export default function LaporanPage() {
+export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
+  const searchParams = useSearchParams();
   const [list,    setList]    = useState<Pengeluaran[]>([]);
   const [filter,  setFilter]  = useState<JenisFilter>("");
   const [modal,   setModal]   = useState(false);
@@ -37,6 +39,12 @@ export default function LaporanPage() {
   };
 
   useEffect(() => { load(); }, [filter]);
+
+  useEffect(() => {
+    if (searchParams.get("action") === "add" && role === "ADMIN") {
+      setModal(true);
+    }
+  }, [searchParams, role]);
 
   const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
@@ -103,9 +111,11 @@ export default function LaporanPage() {
   return (
     <>
       <PageHeader title="Laporan Pengeluaran" subtitle="Catat pembelian aset, maintenance, dan pengeluaran lainnya">
-        <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNota(null); setModal(true); }}>
-          <i className="ti ti-plus" /> Input Pengeluaran
-        </button>
+        {role === "ADMIN" && (
+          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNota(null); setModal(true); }}>
+            <i className="ti ti-plus" /> Input Pengeluaran
+          </button>
+        )}
       </PageHeader>
 
       {/* Filters & Export */}
@@ -153,7 +163,7 @@ export default function LaporanPage() {
                 <th style={{ width: "12%" }}>Tanggal</th>
                 <th style={{ width: "14%" }}>Pencatat</th>
                 <th style={{ width: "8%" }}>Nota</th>
-                <th style={{ width: "14%" }}>Aksi</th>
+                {role === "ADMIN" && <th style={{ width: "14%" }}>Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -187,11 +197,13 @@ export default function LaporanPage() {
                       <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
                     )}
                   </td>
-                  <td>
-                    <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(p.id, p.judul)} title="Hapus">
-                      <i className="ti ti-trash" />
-                    </button>
-                  </td>
+                  {role === "ADMIN" && (
+                    <td>
+                      <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(p.id, p.judul)} title="Hapus">
+                        <i className="ti ti-trash" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

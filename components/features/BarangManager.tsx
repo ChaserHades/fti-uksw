@@ -1,6 +1,7 @@
 // app/admin/barang/page.tsx
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
 import LiquidSelect from "@/components/LiquidSelect";
@@ -21,8 +22,24 @@ const EMPTY = {
   jumlah: 1, tahunBeli: "", harga: "", kategoriId: "", ruanganId: "",
 };
 
-export default function BarangPage() {
+export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("daftar");
+
+  useEffect(() => {
+    const action = searchParams.get("action");
+    if (action === "add" && role === "ADMIN") {
+      setTab("add");
+    }
+  }, [searchParams, role]);
+
+  const availableTabs = [
+    { key: "daftar" as Tab, icon: "ti-list", label: "Daftar Barang" },
+  ];
+  if (role === "ADMIN") {
+    availableTabs.push({ key: "add" as Tab, icon: "ti-plus", label: "Add Item" });
+    availableTabs.push({ key: "kategori" as Tab, icon: "ti-category", label: "Kategori" });
+  }
 
   return (
     <>
@@ -30,11 +47,7 @@ export default function BarangPage() {
 
       {/* Tab switcher */}
       <div className="mode-switcher">
-        {([
-          { key: "daftar" as Tab, icon: "ti-list",     label: "Daftar Barang" },
-          { key: "add" as Tab,    icon: "ti-plus",     label: "Add Item" },
-          { key: "kategori" as Tab, icon: "ti-category", label: "Kategori" },
-        ]).map(t => (
+        {availableTabs.map(t => (
           <button
             key={t.key}
             className={`btn btn-sm ${tab === t.key ? "btn-primary" : "btn-ghost"}`}
@@ -45,9 +58,9 @@ export default function BarangPage() {
         ))}
       </div>
 
-      {tab === "daftar"   && <DaftarTab />}
-      {tab === "add"      && <AddItemTab />}
-      {tab === "kategori" && <KategoriTab />}
+      {tab === "daftar"   && <DaftarTab role={role} />}
+      {tab === "add"      && role === "ADMIN" && <AddItemTab />}
+      {tab === "kategori" && role === "ADMIN" && <KategoriTab />}
     </>
   );
 }
@@ -55,7 +68,7 @@ export default function BarangPage() {
 // ══════════════════════════════════════════════════════════════════════════════
 // Tab: Daftar Barang (existing CRUD)
 // ══════════════════════════════════════════════════════════════════════════════
-function DaftarTab() {
+function DaftarTab({ role }: { role: string }) {
   const [barang,    setBarang]    = useState<Barang[]>([]);
   const [kategori,  setKategori]  = useState<KategoriBarang[]>([]);
   const [ruangan,   setRuangan]   = useState<Ruangan[]>([]);
@@ -181,12 +194,16 @@ function DaftarTab() {
             ]}
           />
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <i className="ti ti-plus" /> Tambah
-        </button>
-        <button className="btn btn-ghost" onClick={handleBulkPrint} title="Print QR Semua Barang (Bulk)">
-          <i className="ti ti-printer" /> Bulk Print
-        </button>
+        {role === "ADMIN" && (
+          <>
+            <button className="btn btn-primary" onClick={openAdd}>
+              <i className="ti ti-plus" /> Tambah
+            </button>
+            <button className="btn btn-ghost" onClick={handleBulkPrint} title="Print QR Semua Barang (Bulk)">
+              <i className="ti ti-printer" /> Bulk Print
+            </button>
+          </>
+        )}
       </div>
 
       {/* Table */}
@@ -221,8 +238,12 @@ function DaftarTab() {
                   <td>
                     <div className="action-row" style={{ flexWrap: "wrap" }}>
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openQR(b)} title="QR Code"><i className="ti ti-qrcode" /></button>
-                      <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit"><i className="ti ti-edit" /></button>
-                      <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(b.id, b.nama)} title="Hapus"><i className="ti ti-trash" /></button>
+                      {role === "ADMIN" && (
+                        <>
+                          <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit"><i className="ti ti-edit" /></button>
+                          <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(b.id, b.nama)} title="Hapus"><i className="ti ti-trash" /></button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

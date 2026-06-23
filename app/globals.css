@@ -54,8 +54,14 @@
   --topbar-h: 60px;
   --topbar-gap: 16px;
   /* Floating gap */
-  --topbar-side: 24px;
-  /* Floating side margin */
+  --topbar-side: 108px;
+  /* Floating side margin (24px + 60px island + 24px gap) */
+}
+
+@media (max-width: 768px) {
+  :root {
+    --topbar-side: 16px; /* Reset on mobile */
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -284,14 +290,20 @@ button {
 }
 
 .topbar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-primary);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
 }
 
 .topbar-nav-item.active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
   font-weight: 600;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.05), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--glass-border);
 }
 
 .topbar-actions {
@@ -496,7 +508,7 @@ button {
 .main-content {
   flex: 1 0 auto;
   padding-top: calc(var(--topbar-h) + 24px);
-  padding-left: 24px;
+  padding-left: var(--topbar-side);
   padding-right: 24px;
   padding-bottom: 40px;
   overflow-x: hidden;
@@ -506,6 +518,14 @@ button {
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 100px; /* Space for bottom island */
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2178,5 +2198,119 @@ summary {
   /* Ensure buttons are never printed */
   .no-print {
     display: none !important;
+  }
+}
+
+/* =========================================
+   DYNAMIC ISLAND SIDEBAR
+   ========================================= */
+.dynamic-island-wrapper {
+  position: fixed;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+}
+
+.dynamic-island {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 40px;
+  width: 60px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+  background: rgba(30, 30, 35, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dynamic-island:hover {
+  width: 220px;
+  background: rgba(40, 40, 45, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.island-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: var(--text-primary);
+  border-radius: 30px;
+  padding: 6px;
+  transition: background 0.2s;
+  width: max-content;
+}
+
+.island-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.island-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+}
+
+.island-label {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  padding-right: 16px;
+}
+
+.dynamic-island:hover .island-label {
+  opacity: 1;
+  transition-delay: 0.1s;
+}
+
+/* Mobile layout for Dynamic Island */
+@media (max-width: 768px) {
+  .dynamic-island-wrapper {
+    left: 50%;
+    top: auto;
+    bottom: 24px;
+    transform: translateX(-50%);
+  }
+
+  .dynamic-island {
+    flex-direction: row;
+    width: auto;
+    height: 60px;
+    padding: 10px 16px;
+    gap: 20px;
+    border-radius: 30px;
+  }
+
+  .dynamic-island:hover {
+    width: auto; /* Prevent expansion on mobile */
+  }
+
+  .island-btn {
+    padding: 4px;
+    gap: 0; /* Hide label gap */
+  }
+
+  .island-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .island-label {
+    display: none; /* Never show labels on mobile */
   }
 }

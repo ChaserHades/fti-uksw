@@ -196,13 +196,13 @@ export default function TeknisiDashboard() {
                 { key: "listbarang", href: "/petugas/listbarang", icon: "ti-list-search",      label: "Cek Ketersediaan", sub: "Stok barang", color: "var(--color-info)" },
                 { key: "riwayat",    href: "/petugas/riwayat",    icon: "ti-history",          label: "Riwayat Lengkap", sub: "Data log", color: "var(--text-secondary)" },
               ].map(a => (
-                <Link key={a.key} href={a.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
-                  <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
-                    <i className={`ti ${a.icon}`} style={{ fontSize: 20, color: a.color }} />
+                <Link key={a.key} href={a.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "12px 16px", gap: "12px", textDecoration: "none", margin: 0 }}>
+                  <div className="flex-center" style={{ width: 34, height: 34, background: "rgba(255,255,255,0.05)", borderRadius: 6, flexShrink: 0 }}>
+                    <i className={`ti ${a.icon}`} style={{ fontSize: 18, color: a.color }} />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>{a.label}</span>
-                    <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{a.sub}</span>
+                    <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 14, lineHeight: 1.2 }}>{a.label}</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: 11 }}>{a.sub}</span>
                   </div>
                 </Link>
               ))}

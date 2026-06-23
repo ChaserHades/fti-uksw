@@ -80,10 +80,10 @@ export default function AdminDashboard() {
       {/* Stats — 4 stat cards */}
       <div className="grid-4 mb-16">
         {[
-          { label: "Total Barang",       value: stats?.totalBarang       ?? 0, icon: "ti-box",             color: "var(--ds-mist)",   href: "/admin/barang" },
-          { label: "Total Ruangan",      value: stats?.totalRuangan      ?? 0, icon: "ti-building",        color: "var(--color-ok)",  href: "/admin/ruangan" },
-          { label: "Peminjaman Aktif",   value: stats?.dipinjam          ?? 0, icon: "ti-arrows-exchange", color: "var(--color-warn)", href: "/admin/pinjam" },
-          { label: "Pending Verifikasi", value: stats?.pendingVerifikasi ?? 0, icon: "ti-user-check",      color: "var(--color-err)", href: "/admin/tim" },
+          { label: "Total Barang",     value: stats?.totalBarang  ?? 0, icon: "ti-box",             color: "var(--color-info)", href: "/admin/barang" },
+          { label: "Total Ruangan",    value: stats?.totalRuangan ?? 0, icon: "ti-building",        color: "var(--color-ok)",   href: "/admin/ruangan" },
+          { label: "Peminjaman Aktif", value: stats?.dipinjam     ?? 0, icon: "ti-arrows-exchange", color: "var(--color-warn)", href: "/admin/pinjam" },
+          { label: "Total Pengguna",   value: stats?.totalUsers   ?? 0, icon: "ti-users",           color: "var(--ds-mist)",    href: "/admin/tim" },
         ].map(s => (
           <Link key={s.label} href={s.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "20px", gap: "16px", textDecoration: "none" }}>
             <div className="flex-center" style={{ width: 48, height: 48, background: "rgba(255,255,255,0.05)", borderRadius: 12, flexShrink: 0, border: "1px solid rgba(255,255,255,0.05)" }}>
@@ -101,39 +101,7 @@ export default function AdminDashboard() {
       <div className="dash-body">
         <div className="dash-col-left">
 
-          {/* Peminjaman aktif */}
-          <div className="glass">
-            <div className="dash-card-title">
-              <div className="section-header">
-                <span className="section-label">Peminjaman Aktif</span>
-                <Link href="/admin/pinjam" className="see-all">Lihat semua</Link>
-              </div>
-            </div>
-            <div className="dash-card-list">
-              {transaksi.length === 0 ? (
-                <div className="empty-state" style={{ padding: "24px 0" }}>
-                  <i className="ti ti-inbox" style={{ fontSize: 26 }} />Tidak ada peminjaman aktif
-                </div>
-              ) : transaksi.map(t => {
-                const late = isOverdue(t.deadlineKembali);
-                const soon = !late && isDueSoon(t.deadlineKembali);
-                return (
-                  <div key={t.id} className="list-item">
-                    <div className="list-icon"><i className="ti ti-box" /></div>
-                    <div className="list-item-info">
-                      <div className="list-item-name">{t.barang.nama}</div>
-                      <div className="list-item-sub">{t.barang.kodeBarang} · {t.namaPeminjam} · {fDateShort(t.deadlineKembali)}</div>
-                    </div>
-                    <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
-                      {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Distribusi Kategori + Status Aset — side by side */}
+          {/* Overview Aset (Distribusi & Status) */}
           <div className="dash-half">
             {/* Distribusi per Kategori */}
             <div className="glass dash-card-pad">
@@ -180,24 +148,72 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Peminjaman aktif */}
+          <div className="glass">
+            <div className="dash-card-title">
+              <div className="section-header">
+                <span className="section-label">Peminjaman Aktif</span>
+                <Link href="/admin/pinjam" className="see-all">Lihat semua</Link>
+              </div>
+            </div>
+            <div className="dash-card-list">
+              {transaksi.length === 0 ? (
+                <div className="empty-state" style={{ padding: "24px 0" }}>
+                  <i className="ti ti-inbox" style={{ fontSize: 26 }} />Tidak ada peminjaman aktif
+                </div>
+              ) : transaksi.map(t => {
+                const late = isOverdue(t.deadlineKembali);
+                const soon = !late && isDueSoon(t.deadlineKembali);
+                return (
+                  <div key={t.id} className="list-item">
+                    <div className="list-icon"><i className="ti ti-box" /></div>
+                    <div className="list-item-info">
+                      <div className="list-item-name">{t.barang.nama}</div>
+                      <div className="list-item-sub">{t.barang.kodeBarang} · {t.namaPeminjam} · {fDateShort(t.deadlineKembali)}</div>
+                    </div>
+                    <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
+                      {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
         </div>
 
         {/* Right sidebar */}
         <div className="dash-col-right">
           {/* Pengguna Sistem */}
-          <div className="glass dash-card-pad">
-            <span className="section-label" style={{ display: "block", marginBottom: 16 }}>Pengguna Sistem</span>
-            <div className="dash-summary" style={{ gridTemplateColumns: "1fr 1fr" }}>
-              {[
-                { label: "Total User", value: stats?.totalUsers        ?? 0, color: "var(--ds-mist)" },
-                { label: "Pending",    value: stats?.pendingVerifikasi ?? 0, color: "var(--color-warn)" },
-              ].map(item => (
-                <div key={item.label} className="dash-summary-item">
-                  <div className="dash-summary-val" style={{ color: item.color }}>{item.value}</div>
-                  <div className="dash-summary-lbl">{item.label}</div>
-                </div>
-              ))}
+          <div className="glass dash-card-pad" style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <span className="section-label" style={{ marginBottom: 0 }}>Pengguna Sistem</span>
+              <div className="flex-center" style={{ width: 32, height: 32, background: "rgba(255,255,255,0.05)", borderRadius: 8 }}>
+                <i className="ti ti-users" style={{ color: "var(--text-secondary)" }} />
+              </div>
             </div>
+            
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 20 }}>
+              <span style={{ fontSize: 36, fontWeight: 700, lineHeight: 1 }}>{stats?.totalUsers ?? 0}</span>
+              <span style={{ fontSize: 13, color: "var(--text-secondary)", paddingBottom: 4 }}>Total terdaftar</span>
+            </div>
+            
+            {stats && stats.pendingVerifikasi > 0 ? (
+              <Link href="/admin/tim" className="alert alert-danger" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10, padding: "12px 16px" }}>
+                <i className="ti ti-alert-circle" style={{ fontSize: 20 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{stats.pendingVerifikasi} User Pending</div>
+                  <div style={{ fontSize: 11, opacity: 0.8 }}>Perlu diverifikasi</div>
+                </div>
+                <i className="ti ti-chevron-right" />
+              </Link>
+            ) : (
+              <div className="alert alert-success" style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px" }}>
+                <i className="ti ti-circle-check" style={{ fontSize: 20 }} />
+                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>Semua pengguna aktif</div>
+              </div>
+            )}
           </div>
 
           {/* Aksi Cepat */}
@@ -211,13 +227,13 @@ export default function AdminDashboard() {
                 { href: "/admin/ruangan",  icon: "ti-building",         label: "Kelola Ruangan", sub: "Daftar ruangan", color: "var(--ds-mist)" },
                 { href: "/admin/pinjam",   icon: "ti-qrcode",           label: "Scan QR", sub: "Pinjam & Kembali", color: "var(--color-info)" },
               ].map(a => (
-                <Link key={a.href} href={a.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "16px", gap: "16px", textDecoration: "none", margin: 0 }}>
-                  <div className="flex-center" style={{ width: 40, height: 40, background: "rgba(255,255,255,0.05)", borderRadius: 8, flexShrink: 0 }}>
-                    <i className={`ti ${a.icon}`} style={{ fontSize: 20, color: a.color }} />
+                <Link key={a.href} href={a.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "12px 16px", gap: "12px", textDecoration: "none", margin: 0 }}>
+                  <div className="flex-center" style={{ width: 34, height: 34, background: "rgba(255,255,255,0.05)", borderRadius: 6, flexShrink: 0 }}>
+                    <i className={`ti ${a.icon}`} style={{ fontSize: 18, color: a.color }} />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 15, lineHeight: 1.2 }}>{a.label}</span>
-                    <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{a.sub}</span>
+                    <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 14, lineHeight: 1.2 }}>{a.label}</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: 11 }}>{a.sub}</span>
                   </div>
                 </Link>
               ))}

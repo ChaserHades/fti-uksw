@@ -10,7 +10,7 @@ import type { Transaksi } from "@/types";
 
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
-export default function RiwayatAdminPage() {
+export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
   const [list,   setList]   = useState<Transaksi[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("");
 
