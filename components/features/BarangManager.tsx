@@ -42,11 +42,9 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
   }
 
   return (
-    <>
-      <PageHeader title="Manajemen Barang" subtitle="Kelola inventaris aset FTI UKSW" />
-
+    <div className="animate-fade-in">
       {/* Tab switcher */}
-      <div className="mode-switcher">
+      <div className="mode-switcher" style={{ marginBottom: 24 }}>
         {availableTabs.map(t => (
           <button
             key={t.key}
@@ -61,7 +59,7 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
       {tab === "daftar"   && <DaftarTab role={role} />}
       {tab === "add"      && role === "ADMIN" && <AddItemTab />}
       {tab === "kategori" && role === "ADMIN" && <KategoriTab />}
-    </>
+    </div>
   );
 }
 

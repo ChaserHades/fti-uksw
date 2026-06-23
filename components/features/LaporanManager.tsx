@@ -109,15 +109,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   const totalNominal = list.reduce((sum, p) => sum + p.nominal, 0);
 
   return (
-    <>
-      <PageHeader title="Laporan Pengeluaran" subtitle="Catat pembelian aset, maintenance, dan pengeluaran lainnya">
-        {role === "ADMIN" && (
-          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNota(null); setModal(true); }}>
-            <i className="ti ti-plus" /> Input Pengeluaran
-          </button>
-        )}
-      </PageHeader>
-
+    <div className="animate-fade-in">
       {/* Filters & Export */}
       <div className="glass filter-bar mb-16">
         <div style={{ flex: "0 1 180px", minWidth: 150 }}>
@@ -135,6 +127,11 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
         <button className="btn btn-ghost" onClick={exportCSV}>
           <i className="ti ti-file-export" /> Export CSV
         </button>
+        {role === "ADMIN" && (
+          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNota(null); setModal(true); }}>
+            <i className="ti ti-plus" /> Input Pengeluaran
+          </button>
+        )}
       </div>
 
       {/* Summary */}
@@ -257,6 +254,6 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           </button>
         </div>
       </Modal>
-    </>
+    </div>
   );
 }

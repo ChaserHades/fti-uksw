@@ -19,6 +19,7 @@ interface RuanganWithCount extends Ruangan { _count?: { barang: number }; }
 
 export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   const [list, setList]         = useState<RuanganWithCount[]>([]);
+  const [search, setSearch]     = useState("");
   const [modal, setModal]       = useState<"form" | "pindah" | null>(null);
   const [selected, setSelected] = useState<Ruangan | null>(null);
   const [form, setForm]         = useState(EMPTY);
@@ -144,9 +145,23 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     rafRef.current = requestAnimationFrame(scanLoop);
   }
 
+  const filtered = list.filter(r => 
+    r.nama.toLowerCase().includes(search.toLowerCase()) || 
+    r.kode.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <>
-      <PageHeader title="Manajemen Ruangan" subtitle="Lokasi penyimpanan aset FTI">
+    <div className="animate-fade-in">
+      <div className="glass filter-bar mb-16">
+        <div className="search-wrap" style={{ flex: "1 1 200px" }}>
+          <i className="ti ti-search search-icon" />
+          <input 
+            className="input" 
+            placeholder="Cari ruangan..." 
+            value={search} 
+            onChange={e => setSearch(e.target.value)} 
+          />
+        </div>
         <button className="btn btn-ghost" onClick={openPindah}>
           <i className="ti ti-arrows-exchange" /> Pindah Barang
         </button>
@@ -155,7 +170,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
             <i className="ti ti-plus" /> Tambah Ruangan
           </button>
         )}
-      </PageHeader>
+      </div>
 
       <div className="glass">
         <div className="table-wrap">
@@ -168,9 +183,9 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
               </tr>
             </thead>
             <tbody>
-              {list.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr><td colSpan={7}><div className="empty-state"><i className="ti ti-building-off" style={{ fontSize: 28 }} />Belum ada ruangan</div></td></tr>
-              ) : list.map(r => (
+              ) : filtered.map(r => (
                 <tr key={r.id}>
                   <td className="td-mono td-bold">{r.kode}</td>
                   <td className="td-name">{r.nama}</td>
@@ -302,6 +317,6 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
           </>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

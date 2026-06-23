@@ -57,8 +57,8 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
   }
 
   return (
-    <>
-      <PageHeader title="Riwayat Transaksi" subtitle="Riwayat lengkap peminjaman aset">
+    <div className="animate-fade-in">
+      <div className="glass filter-bar mb-16">
         <div style={{ flex: "0 1 160px", minWidth: 140 }}>
           <LiquidSelect
             value={filter}
@@ -74,7 +74,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
         <button className="btn btn-primary" onClick={exportCSV}>
           <i className="ti ti-file-export" /> Export CSV
         </button>
-      </PageHeader>
+      </div>
 
       {/* Summary */}
       <div className="grid-3 mb-16">
@@ -149,6 +149,6 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }

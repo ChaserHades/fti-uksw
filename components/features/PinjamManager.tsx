@@ -180,10 +180,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
 
   return (
     <>
-      <PageHeader title="Pinjam / Kembali Barang" subtitle="Scan QR Code atau kelola peminjaman aktif" />
-
       {/* Mode switcher */}
-      <div className="mode-switcher">
+      <div className="mode-switcher" style={{ marginBottom: 24 }}>
         {([
           { key: "scan" as Mode, icon: "ti-qrcode",  label: "Scan QR" },
           { key: "list" as Mode, icon: "ti-list",     label: "Daftar Aktif" },

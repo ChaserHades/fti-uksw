@@ -29,23 +29,26 @@ function ManajemenContent() {
 
   return (
     <>
-      <div className="dash-heading" style={{ marginBottom: 20 }}>
-        <h1 className="page-title">Manajemen Terpadu</h1>
-        <p className="page-sub">Kelola seluruh aset, ruangan, dan riwayat dalam satu layar kerja</p>
-      </div>
+      {/* Unified Header & Navigation in a single row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap", gap: 16 }}>
+        <div>
+          <h1 className="page-title">Manajemen Terpadu</h1>
+          <p className="page-sub">Kelola seluruh aset, ruangan, dan riwayat dalam satu layar kerja</p>
+        </div>
 
-      {/* Main Unified Navigation */}
-      <div className="mode-switcher" style={{ marginBottom: 24 }}>
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            className={`btn btn-sm ${tab === t.id ? "btn-primary" : "btn-ghost"}`}
-            onClick={() => handleTabChange(t.id)}
-          >
-            <i className={`ti ${t.icon}`} />
-            {t.label}
-          </button>
-        ))}
+        <div className="mode-switcher" style={{ margin: 0, padding: 4, background: "rgba(255,255,255,0.03)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              className={`btn btn-sm ${tab === t.id ? "btn-primary" : "btn-ghost"}`}
+              style={{ border: "none", boxShadow: tab === t.id ? "0 4px 12px rgba(255, 87, 34, 0.3)" : "none", background: tab === t.id ? "var(--ds-mid)" : "transparent" }}
+              onClick={() => handleTabChange(t.id)}
+            >
+              <i className={`ti ${t.icon}`} />
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Render Component based on tab */}
