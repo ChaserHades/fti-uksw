@@ -181,25 +181,34 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   return (
     <>
       {/* Mode switcher */}
-      <div className="mode-switcher" style={{ marginBottom: 24 }}>
+      <div style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         {([
           { key: "scan" as Mode, icon: "ti-qrcode",  label: "Scan QR" },
           { key: "list" as Mode, icon: "ti-list",     label: "Daftar Aktif" },
-        ]).map(t => (
-          <button
-            key={t.key}
-            className={`btn btn-sm ${mode === t.key ? "btn-primary" : "btn-ghost"}`}
-            onClick={() => setMode(t.key)}
-          >
-            <i className={`ti ${t.icon}`} />{t.label}
-            {t.key === "list" && allAktif.length > 0 && (
-              <span className="badge badge-info" style={{ marginLeft: 4, padding: "2px 8px", fontSize: 11 }}>{allAktif.length}</span>
-            )}
-          </button>
-        ))}
-        {role === "ADMIN" && (
-           <div className="badge badge-neutral">Mode Admin</div>
-        )}
+        ]).map(t => {
+          const active = mode === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setMode(t.key)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px", padding: "12px 4px", fontSize: "14px",
+                fontWeight: active ? 600 : 500,
+                color: active ? "#FFF" : "var(--text-secondary)",
+                background: "transparent",
+                border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
+                transition: "all 0.2s", cursor: "pointer",
+                marginBottom: "-1px"
+              }}
+            >
+              <i className={`ti ${t.icon}`} style={{ opacity: active ? 1 : 0.6 }} />{t.label}
+              {t.key === "list" && allAktif.length > 0 && (
+                <span className="badge badge-info" style={{ marginLeft: "4px", padding: "2px 8px", fontSize: 11 }}>{allAktif.length}</span>
+              )}
+            </button>
+          );
+        })}
+
       </div>
 
       {/* MODE: SCAN */}

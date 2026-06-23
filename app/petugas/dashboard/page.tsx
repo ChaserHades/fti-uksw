@@ -9,8 +9,8 @@ import type { Transaksi, Barang } from "@/types";
 interface Me { id: string; name: string; email: string; }
 
 export default function TeknisiDashboard() {
-  const [me,       setMe]       = useState<Me | null>(null);
-  const [myTrx,    setMyTrx]    = useState<Transaksi[]>([]);
+  const [me, setMe] = useState<Me | null>(null);
+  const [myTrx, setMyTrx] = useState<Transaksi[]>([]);
   const [allAktif, setAllAktif] = useState<Transaksi[]>([]);
   const [tersedia, setTersedia] = useState<Barang[]>([]);
 
@@ -29,187 +29,173 @@ export default function TeknisiDashboard() {
     );
   }, []);
 
-  const aktif     = myTrx.filter(t => t.status === "AKTIF").length;
-  const selesai   = myTrx.filter(t => t.status === "SELESAI").length;
+  const aktif = myTrx.filter(t => t.status === "AKTIF").length;
+  const selesai = myTrx.filter(t => t.status === "SELESAI").length;
   const terlambat = myTrx.filter(t => t.status === "AKTIF" && isOverdue(t.deadlineKembali)).length;
 
   const statusBadge: Record<string, string> = { AKTIF: "badge-warn", SELESAI: "badge-ok" };
   const kondisiBadge: Record<string, string> = { BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger" };
 
   return (
-    <>
-      {/* Header */}
-      <div className="dash-heading">
-        <h1 className="page-title">Selamat datang, {me?.name ?? "Teknisi"}</h1>
-        <p className="page-sub">{today}</p>
+    <div className="animate-fade-in">
+      <style dangerouslySetInnerHTML={{ __html: `
+        .bento-dashboard {
+          display: grid;
+          grid-template-columns: repeat(12, 1fr);
+          gap: 24px;
+          margin-bottom: 32px;
+        }
+        .bento-span-8 { grid-column: span 8; }
+        .bento-span-4 { grid-column: span 4; }
+        .bento-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          border-radius: 16px;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          overflow: hidden;
+          text-decoration: none;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          padding: 32px;
+        }
+        .bento-card:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.3);
+          box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+        }
+        .bento-row {
+          display: flex;
+          align-items: center;
+          padding: 16px 32px;
+          border-top: 1px solid rgba(255,255,255,0.1);
+          transition: background 0.2s;
+        }
+        .bento-row:hover {
+          background: rgba(255,255,255,0.06);
+        }
+        @media (max-width: 1024px) {
+          .bento-dashboard { gap: 16px; }
+          .bento-span-8, .bento-span-4 { grid-column: span 12; }
+        }
+        @media (max-width: 640px) {
+          .bento-card { padding: 24px; }
+          .bento-row { padding: 16px; }
+        }
+      `}} />
+
+      {/* 1. HEADING */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
+        <div>
+          <h1 className="page-title">Selamat datang, {me?.name ?? "Teknisi"}</h1>
+          <p className="page-sub">{today}</p>
+        </div>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid-3 mb-16">
-        {[
-          { label: "Di Pinjam",     value: aktif,     icon: "ti-arrow-bar-to-down", color: "var(--color-warn)",  href: "/petugas/riwayat" },
-          { label: "Sudah Kembali", value: selesai,   icon: "ti-circle-check",      color: "var(--color-ok)",    href: "/petugas/riwayat" },
-          { label: "Terlambat",     value: terlambat, icon: "ti-alert-circle",       color: "var(--color-err)",  href: "/petugas/pinjam" },
-        ].map(s => (
-          <Link key={s.label} href={s.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "20px", gap: "16px", textDecoration: "none" }}>
-            <div className="flex-center" style={{ width: 48, height: 48, background: "rgba(255,255,255,0.05)", borderRadius: 12, flexShrink: 0, border: "1px solid rgba(255,255,255,0.05)" }}>
-              <i className={`ti ${s.icon}`} style={{ fontSize: 24, color: s.color }} />
+      {/* 2. BENTO COCKPIT GRID */}
+      <div className="bento-dashboard">
+        
+        {/* STATS PRIBADI (Span 8) */}
+        <div className="bento-card bento-span-8" style={{ padding: 32, display: "flex", flexDirection: "column" }}>
+          <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 24 }}>Aktivitas Peminjaman Anda</span>
+          <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 120 }}>
+              <div style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--color-warn)", marginBottom: 8 }}>{aktif}</div>
+              <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Sedang Dipinjam</span>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: 1 }}>
-              <span className="section-label" style={{ marginBottom: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.label}</span>
-              <div className="stat-value" style={{ fontSize: "clamp(18px, 1.5vw, 24px)", lineHeight: 1.2, marginTop: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.value}</div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Quick actions (dihapus karena redundan dengan Navigasi Cepat) */}
-
-      {/* Body: two columns */}
-      <div className="dash-body">
-        <div className="dash-col-left">
-
-          {/* Semua peminjaman aktif */}
-          <div className="glass">
-            <div className="dash-card-title">
-              <div className="section-header">
-                <span className="section-label">Peminjaman Aktif</span>
-                <Link href="/petugas/pinjam" className="see-all">Proses</Link>
-              </div>
-            </div>
-            <div className="dash-card-list">
-              {allAktif.length === 0 ? (
-                <div className="empty-state" style={{ padding: "20px 0" }}>
-                  <i className="ti ti-circle-check" style={{ fontSize: 24, color: "var(--color-ok)" }} />
-                  Tidak ada peminjaman aktif
-                </div>
-              ) : allAktif.map(t => {
-                const late = isOverdue(t.deadlineKembali);
-                const soon = !late && isDueSoon(t.deadlineKembali);
-                return (
-                  <div key={t.id} className="list-item">
-                    <div className="list-icon"><i className="ti ti-box" /></div>
-                    <div className="list-item-info">
-                      <div className="list-item-name">{t.barang.nama}</div>
-                      <div className="list-item-sub">{t.namaPeminjam} · {fDateShort(t.deadlineKembali)}</div>
-                    </div>
-                    <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
-                      {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Riwayat saya */}
-          <div className="glass">
-            <div className="dash-card-title">
-              <div className="section-header">
-                <span className="section-label">Riwayat Saya</span>
-                <Link href="/petugas/riwayat" className="see-all">Lihat semua</Link>
-              </div>
-            </div>
-            <div className="table-wrap">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th style={{ width: "38%" }}>Barang</th>
-                    <th style={{ width: "22%" }}>Deadline</th>
-                    <th style={{ width: "22%" }}>Tgl Kembali</th>
-                    <th style={{ width: "18%" }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {myTrx.length === 0 ? (
-                    <tr><td colSpan={4}><div className="empty-state" style={{ padding: "20px 0" }}>Belum ada transaksi</div></td></tr>
-                  ) : myTrx.slice(0, 5).map(t => (
-                    <tr key={t.id}>
-                      <td>
-                        <div className="td-name">{t.barang.nama}</div>
-                        <div className="td-code">{t.barang.kodeBarang}</div>
-                      </td>
-                      <td style={{ fontSize: 12 }}>{fDateShort(t.deadlineKembali)}</td>
-                      <td style={{ fontSize: 12 }}>
-                        {t.tanggalKembali
-                          ? fDateShort(t.tanggalKembali)
-                          : <span style={{ color: "var(--text-muted)" }}>—</span>
-                        }
-                      </td>
-                      <td>
-                        {t.status === "AKTIF" && isOverdue(t.deadlineKembali)
-                          ? <span className="badge badge-danger">Terlambat</span>
-                          : <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
-                        }
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {[
+              { label: "Sedang Dipinjam", value: aktif, color: "var(--color-warn)", href: "/petugas/manajemen?tab=riwayat" },
+              { label: "Sudah Kembali", value: selesai, color: "var(--color-ok)", href: "/petugas/manajemen?tab=riwayat" },
+              { label: "Terlambat", value: terlambat, color: "var(--color-err)", href: "/petugas/manajemen?tab=pinjam" },
+            ].map(s => (
+              <Link key={s.label} href={s.href} style={{ flex: 1, minWidth: 120, textDecoration: "none" }}>
+                <div style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: s.color, marginBottom: 8 }}>{s.value}</div>
+                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
 
-        {/* Right column */}
-        <div className="dash-col-right">
-
-          {/* Barang tersedia */}
-          <div className="glass">
-            <div className="dash-card-title">
-              <div className="section-header">
-                <span className="section-label">Barang Tersedia</span>
-                <Link href="/petugas/listbarang" className="see-all">Semua</Link>
-              </div>
-            </div>
-            <div className="dash-card-list">
-              {tersedia.length === 0 ? (
-                <div className="empty-state" style={{ padding: "20px 0" }}>
-                  <i className="ti ti-box-off" style={{ fontSize: 24 }} />Tidak ada
-                </div>
-              ) : tersedia.map(b => (
-                <div key={b.id} className="list-item">
-                  <div className="list-icon"><i className="ti ti-box" /></div>
-                  <div className="list-item-info">
-                    <div className="list-item-name">{b.nama}</div>
-                    <div className="list-item-sub">{b.kategori?.nama} · {b.kodeBarang}</div>
+        {/* PEMINJAMAN AKTIF SISTEM (Span 4) */}
+        <div className="bento-card bento-span-4" style={{ padding: "32px 0 0 0" }}>
+          <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-info)" }}>Peminjaman Sistem</span>
+            <Link href="/petugas/manajemen?tab=pinjam" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Proses &rarr;</Link>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {allAktif.length === 0 ? (
+              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Kosong</div>
+            ) : allAktif.map((t, idx) => {
+              const late = isOverdue(t.deadlineKembali);
+              const soon = !late && isDueSoon(t.deadlineKembali);
+              return (
+                <div key={t.id} className="bento-row" style={{ padding: "12px 32px", borderTop: idx === 0 ? "none" : "" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{t.namaPeminjam}</div>
                   </div>
-                  <span className={`badge ${kondisiBadge[b.kondisi]}`}>
-                    {b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak Ringan" : "Rusak Berat"}
+                  <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`} style={{ padding: "2px 8px", fontSize: 10, borderRadius: 12 }}>
+                    {late ? "Terlambat" : soon ? "Segera" : "Aktif"}
                   </span>
                 </div>
-              ))}
-            </div>
-            <div style={{ padding: "0 20px 14px" }}>
-              <Link href="/petugas/listbarang" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
-                <i className="ti ti-list-search" /> Lihat Semua Barang
-              </Link>
-            </div>
-          </div>
-
-          {/* Navigasi Cepat */}
-          <div className="glass dash-card-pad" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <span className="section-label" style={{ display: "block" }}>Navigasi Cepat</span>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                { key: "scan",       href: "/petugas/pinjam",     icon: "ti-qrcode",          label: "Scan QR", sub: "Pinjam & Kembali", color: "var(--color-ok)" },
-                { key: "ruangan",    href: "/petugas/ruangan",    icon: "ti-arrows-exchange",  label: "Pindah Barang", sub: "Ubah lokasi", color: "var(--color-warn)" },
-                { key: "listbarang", href: "/petugas/listbarang", icon: "ti-list-search",      label: "Cek Ketersediaan", sub: "Stok barang", color: "var(--color-info)" },
-                { key: "riwayat",    href: "/petugas/riwayat",    icon: "ti-history",          label: "Riwayat Lengkap", sub: "Data log", color: "var(--text-secondary)" },
-              ].map(a => (
-                <Link key={a.key} href={a.href} className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "12px 16px", gap: "12px", textDecoration: "none", margin: 0 }}>
-                  <div className="flex-center" style={{ width: 34, height: 34, background: "rgba(255,255,255,0.05)", borderRadius: 6, flexShrink: 0 }}>
-                    <i className={`ti ${a.icon}`} style={{ fontSize: 18, color: a.color }} />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 14, lineHeight: 1.2 }}>{a.label}</span>
-                    <span style={{ color: "var(--text-muted)", fontSize: 11 }}>{a.sub}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
+
+        {/* RIWAYAT SAYA (Span 8) */}
+        <div className="bento-card bento-span-8" style={{ padding: "32px 0 0 0" }}>
+          <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Riwayat Transaksi Pribadi</span>
+            <Link href="/petugas/manajemen?tab=riwayat" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua &rarr;</Link>
+          </div>
+          
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {myTrx.length === 0 ? (
+              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Belum ada riwayat transaksi.</div>
+            ) : myTrx.slice(0, 4).map((t, idx) => (
+              <div key={t.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{t.barang.kodeBarang} · Deadline: {fDateShort(t.deadlineKembali)}</div>
+                </div>
+                <div>
+                  {t.status === "AKTIF" && isOverdue(t.deadlineKembali)
+                    ? <span className="badge badge-danger">Terlambat</span>
+                    : <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
+                  }
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* BARANG TERSEDIA (Span 4) */}
+        <div className="bento-card bento-span-4" style={{ padding: "32px 0 0 0" }}>
+          <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-ok)" }}>Barang Tersedia</span>
+            <Link href="/petugas/manajemen?tab=barang" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Semua &rarr;</Link>
+          </div>
+          
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {tersedia.length === 0 ? (
+              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Tidak ada barang</div>
+            ) : tersedia.map((b, idx) => (
+              <div key={b.id} className="bento-row" style={{ padding: "12px 32px", borderTop: idx === 0 ? "none" : "" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{b.nama}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama}</div>
+                </div>
+                <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "2px 8px", fontSize: 10, borderRadius: 12 }}>
+                  {b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak" : "Rusak Berat"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
-    </>
+    </div>
   );
 }

@@ -56,132 +56,147 @@ export default function UniversitasDashboard() {
   const totalNominal = pengeluaran.reduce((sum, p) => sum + p.nominal, 0);
 
   return (
-    <>
-      <div className="dash-heading">
-        <h1 className="page-title">Overview Aset FTI UKSW</h1>
-        <p className="page-sub">{today}</p>
+    <div className="animate-fade-in">
+      <style dangerouslySetInnerHTML={{ __html: `
+        .bento-dashboard {
+          display: grid;
+          grid-template-columns: repeat(12, 1fr);
+          gap: 24px;
+          margin-bottom: 32px;
+        }
+        .bento-span-8 { grid-column: span 8; }
+        .bento-span-4 { grid-column: span 4; }
+        .bento-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          border-radius: 16px;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          overflow: hidden;
+          text-decoration: none;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          padding: 32px;
+        }
+        .bento-card:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.3);
+          box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+        }
+        .bento-row {
+          display: flex;
+          align-items: center;
+          padding: 16px 32px;
+          border-top: 1px solid rgba(255,255,255,0.1);
+          transition: background 0.2s;
+        }
+        .bento-row:hover {
+          background: rgba(255,255,255,0.06);
+        }
+        @media (max-width: 1024px) {
+          .bento-dashboard { gap: 16px; }
+          .bento-span-8, .bento-span-4 { grid-column: span 12; }
+        }
+        @media (max-width: 640px) {
+          .bento-card { padding: 24px; }
+          .bento-row { padding: 16px; }
+        }
+      `}} />
+
+      {/* 1. HEADING */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
+        <div>
+          <h1 className="page-title">Overview Aset FTI UKSW</h1>
+          <p className="page-sub">{today} · Eksekutif Dashboard</p>
+        </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid-4 mb-16">
-        {[
-          { label: "Total Aset", value: stats?.totalBarang ?? "—", icon: "ti-box", color: "var(--ds-mist)" },
-          { label: "Data Pengeluaran", value: pengeluaran.length, icon: "ti-receipt", color: "var(--color-warn)" },
-          { label: "Total Nominal", value: `Rp ${totalNominal.toLocaleString("id-ID")}`, icon: "ti-wallet", color: "var(--color-ok)" },
-          { label: "Kategori Barang", value: kategoriStat.length, icon: "ti-category", color: "var(--color-info)" },
-        ].map(s => (
-          <StatCard
-            key={s.label}
-            label={s.label}
-            value={s.value}
-            icon={s.icon}
-            iconColor={s.color}
-            valueStyle={{ fontSize: s.label === "Total Nominal" ? 20 : undefined }}
-          />
-        ))}
-      </div>
-
-      {/* Kondisi + Kategori — side by side */}
-      <div className="dash-half mb-16">
-        {/* Kondisi Barang */}
-        <div className="glass dash-card-pad">
-          <div className="section-header">
-            <span className="section-label">Kondisi Barang</span>
-            <Link href="/universitas/barang" className="see-all">Detail</Link>
+      {/* 2. BENTO COCKPIT GRID */}
+      <div className="bento-dashboard">
+        
+        {/* TOTAL ASET & KONDISI (Span 8) */}
+        <Link href="/universitas/manajemen?tab=barang" className="bento-card bento-span-8">
+          <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 16 }}>Total Inventaris FTI</span>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+            <span style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)" }}>{stats?.totalBarang ?? 0}</span>
+            <span style={{ color: "var(--text-secondary)" }}>Items</span>
           </div>
-          <ProgressList items={[
-            { label: "Baik", val: kondisiCount.BAIK, color: "var(--color-ok)", pct: totalBarangSample ? Math.round((kondisiCount.BAIK / totalBarangSample) * 100) : 0 },
-            { label: "Rusak Ringan", val: kondisiCount.RUSAK_RINGAN, color: "var(--color-warn)", pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_RINGAN / totalBarangSample) * 100) : 0 },
-            { label: "Rusak Berat", val: kondisiCount.RUSAK_BERAT, color: "var(--color-err)", pct: totalBarangSample ? Math.round((kondisiCount.RUSAK_BERAT / totalBarangSample) * 100) : 0 },
-          ]} />
-        </div>
+          
+          <div style={{ marginTop: "auto", paddingTop: 32 }}>
+            <div style={{ display: "flex", gap: 24, marginBottom: 12, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-ok)", marginRight: 6 }}>●</span> {kondisiCount.BAIK} Baik</span>
+              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-warn)", marginRight: 6 }}>●</span> {kondisiCount.RUSAK_RINGAN} Rusak Ringan</span>
+              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-err)", marginRight: 6 }}>●</span> {kondisiCount.RUSAK_BERAT} Rusak Berat</span>
+            </div>
+            <div style={{ display: "flex", height: 4, borderRadius: 2, overflow: "hidden", background: "rgba(255,255,255,0.05)" }}>
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.BAIK/totalBarangSample)*100 : 0}%`, background: "var(--color-ok)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.RUSAK_RINGAN/totalBarangSample)*100 : 0}%`, background: "var(--color-warn)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.RUSAK_BERAT/totalBarangSample)*100 : 0}%`, background: "var(--color-err)" }} />
+            </div>
+          </div>
+        </Link>
 
-        {/* Distribusi Kategori */}
-        <div className="glass dash-card-pad">
-          <span className="section-label" style={{ display: "block", marginBottom: 14 }}>Distribusi per Kategori</span>
-          {kategoriStat.length === 0 ? (
-            <div className="empty-state" style={{ padding: "16px 0" }}>Tidak ada data</div>
-          ) : (() => {
-            const maxVal = Math.max(...kategoriStat.map(k => k.total), 1);
-            return (
-              <ProgressList items={kategoriStat.map(k => ({
-                label: k.nama,
-                val: k.total,
-                color: "var(--color-info)",
-                pct: Math.round((k.total / maxVal) * 100)
-              }))} />
-            );
-          })()}
-        </div>
-      </div>
+        {/* FINANCIAL PENGELUARAN (Span 4) */}
+        <Link href="/universitas/manajemen?tab=laporan" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
+          <span style={{ color: "var(--color-warn)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Total Pengeluaran</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
+            <div style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--color-ok)" }}>
+              Rp {(totalNominal / 1000000).toFixed(1)}M
+            </div>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dari {pengeluaran.length} transaksi pembelian</span>
+          </div>
+        </Link>
 
-      {/* Body: Tables + sidebar */}
-      <div className="dash-body">
-        <div className="dash-col-left">
-          {/* Aset Terbaru */}
-          <div className="glass" style={{ padding: 0 }}>
-            <div style={{ padding: "16px 20px 0" }}>
-              <div className="section-header">
-                <span className="section-label">Aset Terbaru FTI</span>
-                <Link href="/universitas/barang" className="see-all">Lihat semua</Link>
+        {/* ASET TERBARU (Span 8) */}
+        <div className="bento-card bento-span-8" style={{ padding: "32px 0 0 0" }}>
+          <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-info)" }}>Aset Terbaru FTI</span>
+            <Link href="/universitas/manajemen?tab=barang" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua &rarr;</Link>
+          </div>
+          
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {barang.length === 0 ? (
+              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Kosong</div>
+            ) : barang.slice(0, 5).map((b, idx) => (
+              <div key={b.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{b.nama}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama} · {b.kodeBarang}</div>
+                </div>
+                <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "4px 10px", fontSize: 11, borderRadius: 20 }}>
+                  {b.kondisi.replace(/_/g, " ")}
+                </span>
               </div>
-            </div>
-            <div className="table-wrap">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th style={{ width: "45%" }}>Nama</th>
-                    <th style={{ width: "25%" }}>Kategori</th>
-                    <th style={{ width: "30%" }}>Kondisi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {barang.length === 0 ? (
-                    <tr><td colSpan={3}><div className="empty-state" style={{ padding: "20px 0" }}>Tidak ada data</div></td></tr>
-                  ) : barang.map(b => (
-                    <tr key={b.id}>
-                      <td>
-                        <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.nama}</div>
-                        <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" }}>{b.kodeBarang}</div>
-                      </td>
-                      <td style={{ fontSize: 12 }}>{b.kategori.nama}</td>
-                      <td><span className={`badge ${kondisiBadge[b.kondisi]}`}>{b.kondisi.replace(/_/g, " ")}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Right sidebar */}
-        <div className="dash-col-right">
-          {/* Quick Links Compact */}
-          <div className="glass dash-card-pad" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <span className="section-label" style={{ display: "block" }}>Navigasi Cepat</span>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <Link href="/universitas/barang" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "12px 16px", gap: "12px", textDecoration: "none", margin: 0 }}>
-                <div className="flex-center" style={{ width: 34, height: 34, background: "rgba(255,255,255,0.05)", borderRadius: 6, flexShrink: 0 }}>
-                  <i className="ti ti-box" style={{ fontSize: 18, color: "var(--color-info)" }} />
+        {/* DISTRIBUSI KATEGORI (Span 4) */}
+        <div className="bento-card bento-span-4">
+          <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 24 }}>Top Kategori</span>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {kategoriStat.length === 0 ? (
+              <div style={{ color: "var(--text-muted)" }}>Tidak ada data</div>
+            ) : kategoriStat.map((k, idx) => {
+              const maxKat = Math.max(...kategoriStat.map(x => x.total), 1);
+              return (
+                <div key={k.nama} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                    <span style={{ color: "var(--text-primary)", fontWeight: 500 }}>{k.nama}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{k.total}</span>
+                  </div>
+                  <div style={{ height: 2, background: "rgba(255,255,255,0.05)", borderRadius: 1 }}>
+                    <div style={{ width: `${(k.total / maxKat) * 100}%`, height: "100%", background: "var(--text-primary)", borderRadius: 1 }} />
+                  </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 14, lineHeight: 1.2 }}>Inventaris Aset</span>
-                  <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Data seluruh barang</span>
-                </div>
-              </Link>
-              <Link href="/universitas/pembelian" className="glass stat-card" style={{ flexDirection: "row", alignItems: "center", padding: "12px 16px", gap: "12px", textDecoration: "none", margin: 0 }}>
-                <div className="flex-center" style={{ width: 34, height: 34, background: "rgba(255,255,255,0.05)", borderRadius: 6, flexShrink: 0 }}>
-                  <i className="ti ti-receipt" style={{ fontSize: 18, color: "var(--color-warn)" }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ color: "var(--text-primary)", fontWeight: 500, fontSize: 14, lineHeight: 1.2 }}>Laporan Cashflow</span>
-                  <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Catatan pengeluaran</span>
-                </div>
-              </Link>
-            </div>
+              );
+            })}
           </div>
         </div>
+
       </div>
-    </>
+    </div>
   );
 }

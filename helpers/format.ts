@@ -25,12 +25,18 @@ export function fCurrency(amount: number): string {
 }
 
 export function isOverdue(deadline: string | Date): boolean {
-  return new Date(deadline) < new Date();
+  const str = deadline instanceof Date ? deadline.toISOString() : deadline;
+  const dateOnly = str.split("T")[0]; 
+  const targetTime = new Date(`${dateOnly}T18:00:00+07:00`);
+  return new Date() > targetTime;
 }
 
 export function isDueSoon(deadline: string | Date): boolean {
-  const diff = new Date(deadline).getTime() - Date.now();
-  return diff > 0 && diff < 86_400_000;
+  const str = deadline instanceof Date ? deadline.toISOString() : deadline;
+  const dateOnly = str.split("T")[0];
+  const targetTime = new Date(`${dateOnly}T18:00:00+07:00`);
+  const diff = targetTime.getTime() - Date.now();
+  return diff > 0 && diff <= 86_400_000;
 }
 
 export function initials(name?: string | null): string {

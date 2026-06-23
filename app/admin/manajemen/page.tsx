@@ -36,18 +36,27 @@ function ManajemenContent() {
           <p className="page-sub">Kelola seluruh aset, ruangan, dan riwayat dalam satu layar kerja</p>
         </div>
 
-        <div className="mode-switcher" style={{ margin: 0, padding: 4, background: "rgba(255,255,255,0.03)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              className={`btn btn-sm ${tab === t.id ? "btn-primary" : "btn-ghost"}`}
-              style={{ border: "none", boxShadow: tab === t.id ? "0 4px 12px rgba(255, 87, 34, 0.3)" : "none", background: tab === t.id ? "var(--ds-mid)" : "transparent" }}
-              onClick={() => handleTabChange(t.id)}
-            >
-              <i className={`ti ${t.icon}`} />
-              {t.label}
-            </button>
-          ))}
+        <div className="mode-switcher" style={{ display: "flex", gap: "4px", margin: 0, padding: "6px", background: "rgba(0,0,0,0.2)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)", boxShadow: "inset 0 2px 8px rgba(0,0,0,0.2)" }}>
+          {tabs.map((t) => {
+            const active = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => handleTabChange(t.id)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px", borderRadius: "8px", fontSize: "13px", fontWeight: active ? 600 : 500,
+                  color: active ? "#FFF" : "var(--text-secondary)",
+                  background: active ? "rgba(255,255,255,0.1)" : "transparent",
+                  border: "1px solid", borderColor: active ? "rgba(255,255,255,0.1)" : "transparent",
+                  boxShadow: active ? "0 4px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)" : "none",
+                  transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)", cursor: "pointer"
+                }}
+              >
+                <i className={`ti ${t.icon}`} style={{ fontSize: "16px", opacity: active ? 1 : 0.7 }} />
+                {t.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

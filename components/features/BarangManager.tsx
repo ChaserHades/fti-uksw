@@ -44,16 +44,27 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
   return (
     <div className="animate-fade-in">
       {/* Tab switcher */}
-      <div className="mode-switcher" style={{ marginBottom: 24 }}>
-        {availableTabs.map(t => (
-          <button
-            key={t.key}
-            className={`btn btn-sm ${tab === t.key ? "btn-primary" : "btn-ghost"}`}
-            onClick={() => setTab(t.key)}
-          >
-            <i className={`ti ${t.icon}`} />{t.label}
-          </button>
-        ))}
+      <div style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        {availableTabs.map(t => {
+          const active = tab === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px", padding: "12px 4px", fontSize: "14px",
+                fontWeight: active ? 600 : 500,
+                color: active ? "#FFF" : "var(--text-secondary)",
+                background: "transparent",
+                border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
+                transition: "all 0.2s", cursor: "pointer",
+                marginBottom: "-1px"
+              }}
+            >
+              <i className={`ti ${t.icon}`} style={{ opacity: active ? 1 : 0.6 }} />{t.label}
+            </button>
+          );
+        })}
       </div>
 
       {tab === "daftar"   && <DaftarTab role={role} />}
@@ -396,16 +407,31 @@ function AddItemTab() {
 
   return (
     <>
-      <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+      <div style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         {([
           { key: "scan" as AddMode,   icon: "ti-qrcode",      label: "Scan QR" },
           { key: "manual" as AddMode, icon: "ti-forms",        label: "Manual Input" },
           { key: "import" as AddMode, icon: "ti-file-upload",  label: "Import CSV" },
-        ]).map(m => (
-          <button key={m.key} className={`btn btn-sm ${addMode === m.key ? "btn-primary" : "btn-ghost"}`} onClick={() => setAddMode(m.key)}>
-            <i className={`ti ${m.icon}`} />{m.label}
-          </button>
-        ))}
+        ]).map(m => {
+          const active = addMode === m.key;
+          return (
+            <button 
+              key={m.key} 
+              onClick={() => setAddMode(m.key)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px", padding: "12px 4px", fontSize: "14px",
+                fontWeight: active ? 600 : 500,
+                color: active ? "#FFF" : "var(--text-secondary)",
+                background: "transparent",
+                border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
+                transition: "all 0.2s", cursor: "pointer",
+                marginBottom: "-1px"
+              }}
+            >
+              <i className={`ti ${m.icon}`} style={{ opacity: active ? 1 : 0.6 }} />{m.label}
+            </button>
+          );
+        })}
       </div>
 
       {addMode === "scan"   && <ScanRegisterSection />}
@@ -710,24 +736,30 @@ function ManualAddSection() {
         </div>
       </div>
 
-      {/* QR Result — print directly */}
-      {qrResult && (
-        <div className="glass" style={{ padding: 24, marginTop: 16, textAlign: "center" }}>
-          <div style={{ fontWeight: 600, marginBottom: 4, color: "var(--text-primary)" }}>{qrResult.nama}</div>
-          <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16, fontFamily: "monospace" }}>{qrResult.kode}</div>
-          <div style={{ display: "inline-block", background: "#fff", padding: 10, borderRadius: 12, marginBottom: 16 }}>
-            <img src={qrResult.qrCode} alt="QR" style={{ width: 200, height: 200, display: "block" }} />
+      {/* QR Result Modal */}
+      <Modal open={!!qrResult} onClose={() => setQrResult(null)} title="QR Code Berhasil Dibuat">
+        {qrResult && (
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontWeight: 600, marginBottom: 4, color: "var(--text-primary)" }}>{qrResult.nama}</div>
+            
+            <div id="print-qr-area" style={{ background: "#fff", padding: "24px", borderRadius: "12px", display: "inline-block", margin: "16px auto 20px" }}>
+              <img src={qrResult.qrCode} alt="QR" style={{ width: 200, height: 200, display: "block", marginBottom: 16 }} />
+              <div style={{ fontSize: 18, color: "#000", fontWeight: "bold", fontFamily: "monospace", letterSpacing: "2px" }}>
+                {qrResult.kode}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }} className="no-print">
+              <button className="btn btn-primary" onClick={() => window.print()}>
+                <i className="ti ti-printer" /> Print Langsung
+              </button>
+              <a href={qrResult.qrCode} download={`${qrResult.kode}-qr.png`} className="btn btn-ghost" style={{ display: "inline-flex" }}>
+                <i className="ti ti-download" /> Download PNG
+              </a>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-            <button className="btn btn-primary btn-sm" onClick={() => window.print()}>
-              <i className="ti ti-printer" /> Print Langsung
-            </button>
-            <a href={qrResult.qrCode} download={`${qrResult.kode}-qr.png`} className="btn btn-ghost btn-sm" style={{ display: "inline-flex" }}>
-              <i className="ti ti-download" /> Download PNG
-            </a>
-          </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }
