@@ -579,10 +579,6 @@ export type TransaksiUncheckedUpdateManyWithoutBarangNestedInput = {
   deleteMany?: Prisma.TransaksiScalarWhereInput | Prisma.TransaksiScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type EnumStatusTransaksiFieldUpdateOperationsInput = {
   set?: $Enums.StatusTransaksi
 }

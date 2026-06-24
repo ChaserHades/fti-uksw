@@ -30,8 +30,8 @@ export default function AdminDashboard() {
       api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF"),
       api.get<{ data: Barang[] }>("/api/barang?limit=1000"),
     ]).then(([s, tRes, bRes]) => {
-      const t = tRes.data;
-      const b = bRes.data;
+      const t = (Array.isArray(tRes) ? tRes : (tRes as any).data || []) as Transaksi[];
+      const b = (Array.isArray(bRes) ? bRes : (bRes as any).data || []) as Barang[];
       setStats(s);
       setTransaksi(t.slice(0, 6));
 

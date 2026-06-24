@@ -76,9 +76,7 @@ model Ruangan {
   id        String   @id @default(cuid())
   kode      String   @unique
   nama      String
-  gedung    String?
   lantai    String?
-  kapasitas Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   barang    Barang[]
@@ -87,20 +85,24 @@ model Ruangan {
 }
 
 model Barang {
-  id          String         @id @default(cuid())
-  kodeBarang  String         @unique
-  nama        String
-  deskripsi   String?
-  kondisi     KondisiBarang  @default(BAIK)
-  status      StatusBarang   @default(TERSEDIA)
-  jumlah      Int            @default(1)
-  tahunBeli   Int?
-  harga       Float?
+  id           String         @id @default(cuid())
+  kodeBarang   String         @unique
+  nama         String
+  serialNumber String?
+  merek        String?
+  tipe         String?
+  vendor       String?
+  deskripsi    String?
+  kondisi      KondisiBarang  @default(BAIK)
+  status       StatusBarang   @default(TERSEDIA)
+  jumlah       Int            @default(1)
+  tanggalBeli  DateTime?
+  harga        Float?
   /// true = barang punya sticker/barcode fisik (diregister via scan)
-  hasSticker  Boolean        @default(false)
+  hasSticker   Boolean        @default(false)
   /// QR image data URL — hanya ada jika di-generate dari sistem
-  qrCode      String?
-  foto        String?
+  qrCode       String?
+  foto         String?
   kategoriId  String
   ruanganId   String?
   createdAt   DateTime       @default(now())

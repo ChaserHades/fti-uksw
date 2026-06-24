@@ -38,11 +38,11 @@ async function main() {
   }
 
   const ruanganData = [
-    { kode: "R101", nama: "Ruang Kuliah 101", gedung: "A", lantai: "1", kapasitas: 40 },
-    { kode: "R102", nama: "Ruang Kuliah 102", gedung: "A", lantai: "1", kapasitas: 40 },
-    { kode: "LAB1", nama: "Lab Komputer 1",   gedung: "B", lantai: "1", kapasitas: 30 },
-    { kode: "LAB2", nama: "Lab Komputer 2",   gedung: "B", lantai: "2", kapasitas: 30 },
-    { kode: "SEM",  nama: "Ruang Seminar",    gedung: "A", lantai: "3", kapasitas: 100 },
+    { kode: "R101", nama: "Ruang Kuliah 101", lantai: "1" },
+    { kode: "R102", nama: "Ruang Kuliah 102", lantai: "1" },
+    { kode: "LAB1", nama: "Lab Komputer 1",   lantai: "1" },
+    { kode: "LAB2", nama: "Lab Komputer 2",   lantai: "2" },
+    { kode: "SEM",  nama: "Ruang Seminar",    lantai: "3" },
   ];
   for (const r of ruanganData) {
     await prisma.ruangan.upsert({ where: { kode: r.kode }, update: {}, create: r });

@@ -12,11 +12,15 @@ export interface Barang {
   id: string;
   kodeBarang: string;
   nama: string;
+  serialNumber?: string | null;
+  merek?: string | null;
+  tipe?: string | null;
+  vendor?: string | null;
   deskripsi?: string | null;
   kondisi: "BAIK" | "RUSAK_RINGAN" | "RUSAK_BERAT";
   status: "TERSEDIA" | "DIPINJAM" | "MAINTENANCE";
   jumlah: number;
-  tahunBeli?: number | null;
+  tanggalBeli?: string | null;
   harga?: number | null;
   hasSticker: boolean;
   qrCode?: string | null;
@@ -40,9 +44,7 @@ export interface Ruangan {
   id: string;
   kode: string;
   nama: string;
-  gedung?: string | null;
   lantai?: string | null;
-  kapasitas?: number | null;
 }
 
 export interface User {

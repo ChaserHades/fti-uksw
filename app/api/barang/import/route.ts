@@ -6,40 +6,102 @@ import { getSession } from "@/lib/session";
 interface RowData {
   kodeBarang: string;
   nama: string;
+  serialNumber?: string;
+  merek?: string;
+  tipe?: string;
   kategori: string;
   ruangan?: string;
-  kondisi?: string;
-  jumlah?: string;
-  tahunBeli?: string;
-  harga?: string;
+  kondisi: string;
+  jumlah: number;
+  tanggalBeli?: Date;
+  harga?: number;
+  vendor?: string;
   deskripsi?: string;
 }
 
 function parseCSV(text: string): RowData[] {
+  // Dukung delimiter titik koma atau koma
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/['"]/g, ""));
+  // Ambil header dan ubah jadi lowercase tanpa spasi berlebih
+  const delimiter = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase().replace(/['"]/g, ""));
+  
   const rows: RowData[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(",").map(v => v.trim().replace(/^["']|["']$/g, ""));
+    const values = lines[i].split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ""));
     const row: Record<string, string> = {};
     headers.forEach((h, j) => { row[h] = values[j] ?? ""; });
 
-    if (!row.kodebarang && !row.kode) continue;
-    if (!row.nama) continue;
+    // Lewati baris kosong
+    if (!row["jenis barang"] && !row["label"] && !row.kodebarang && !row.nama) continue;
+
+    // --- Pemetaan Kolom Riil ---
+    const kode = row.label || row.kodebarang || row.kode || "";
+    const kategoriRaw = row["jenis barang"] || row.kategori || "Lainnya";
+    const merek = row.merek || row.merk || "";
+    const modelRaw = row.model || "";
+    const typeRaw = row.type || row.tipe || "";
+    const tipe = [modelRaw, typeRaw].filter(Boolean).join(" - ");
+    
+    // Fallback nama: jika tidak ada 'nama', susun dari Kategori, Merek, Tipe
+    let nama = row.nama || "";
+    if (!nama) {
+      nama = [kategoriRaw, merek, tipe].filter(Boolean).join(" ");
+    }
+    if (!nama) nama = "Aset Tidak Bernama";
+
+    // Keterangan / Deskripsi / Kondisi
+    const ket = (row.keterangan || row.deskripsi || "").toLowerCase();
+    let kondisi = "BAIK";
+    if (ket.includes("rusak berat")) kondisi = "RUSAK_BERAT";
+    else if (ket.includes("rusak")) kondisi = "RUSAK_RINGAN";
+    else if (row.kondisi) {
+      const k = row.kondisi.toLowerCase();
+      if (k.includes("berat")) kondisi = "RUSAK_BERAT";
+      else if (k.includes("rusak")) kondisi = "RUSAK_RINGAN";
+    }
+
+    // Harga
+    let hargaVal: number | undefined = undefined;
+    const hargaStr = row.harga;
+    if (hargaStr) {
+      const clean = hargaStr.replace(/rp/ig, "").replace(/\./g, "").replace(/,00/g, "").replace(/\s/g, "");
+      const num = parseFloat(clean);
+      if (!isNaN(num)) hargaVal = num;
+    }
+
+    // Tanggal
+    let tanggalVal: Date | undefined = undefined;
+    const tglStr = row.tanggal || row.tahunbeli;
+    if (tglStr) {
+      // Parse DD/MM/YYYY atau DD-MM-YYYY
+      const parts = tglStr.split(/[-/]/);
+      if (parts.length === 3) {
+        // DD/MM/YYYY
+        tanggalVal = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00.000Z`);
+      } else if (tglStr.length === 4) {
+        // Just Year
+        tanggalVal = new Date(`${tglStr}-01-01T00:00:00.000Z`);
+      }
+    }
 
     rows.push({
-      kodeBarang: row.kodebarang || row.kode || "",
-      nama:       row.nama,
-      kategori:   row.kategori || "Lainnya",
-      ruangan:    row.ruangan || row.ruanganid || undefined,
-      kondisi:    row.kondisi || "BAIK",
-      jumlah:     row.jumlah || "1",
-      tahunBeli:  row.tahunbeli || row.tahun || undefined,
-      harga:      row.harga || undefined,
-      deskripsi:  row.deskripsi || row.keterangan || undefined,
+      kodeBarang: kode,
+      nama: nama,
+      serialNumber: row.sn || row.serialnumber || undefined,
+      merek: merek || undefined,
+      tipe: tipe || undefined,
+      kategori: kategoriRaw,
+      ruangan: row.letak || row.ruangan || undefined,
+      kondisi: kondisi,
+      jumlah: parseInt(row.jumlah ?? "1") || 1,
+      tanggalBeli: tanggalVal,
+      harga: hargaVal,
+      vendor: row.vendor || undefined,
+      deskripsi: row.keterangan || row.deskripsi || undefined,
     });
   }
   return rows;
@@ -77,11 +139,16 @@ export async function POST(req: Request) {
         create: { nama: row.kategori },
       });
 
-      // Resolve ruangan if provided
+      // Resolve ruangan - case insensitive check
       let ruanganId: string | null = null;
       if (row.ruangan) {
         let rn = await prisma.ruangan.findFirst({
-          where: { OR: [{ kode: row.ruangan }, { nama: row.ruangan }] },
+          where: { 
+            OR: [
+              { kode: { equals: row.ruangan, mode: "insensitive" } }, 
+              { nama: { equals: row.ruangan, mode: "insensitive" } }
+            ] 
+          },
         });
         
         // Sesuai revisi: jika ruangan tidak ditemukan, biarkan null dan JANGAN auto-create
@@ -90,21 +157,19 @@ export async function POST(req: Request) {
         }
       }
 
-      const kondisiMap: Record<string, string> = {
-        baik: "BAIK", rusak_ringan: "RUSAK_RINGAN", rusak_berat: "RUSAK_BERAT",
-        "rusak ringan": "RUSAK_RINGAN", "rusak berat": "RUSAK_BERAT",
-      };
-      const kondisi = kondisiMap[row.kondisi?.toLowerCase() ?? "baik"] ?? "BAIK";
-
       await prisma.barang.create({
         data: {
           kodeBarang: row.kodeBarang,
           nama: row.nama,
+          serialNumber: row.serialNumber,
+          merek: row.merek,
+          tipe: row.tipe,
+          vendor: row.vendor,
           deskripsi: row.deskripsi || null,
-          kondisi: kondisi as "BAIK" | "RUSAK_RINGAN" | "RUSAK_BERAT",
-          jumlah: parseInt(row.jumlah ?? "1") || 1,
-          tahunBeli: row.tahunBeli ? parseInt(row.tahunBeli) : null,
-          harga: row.harga ? parseFloat(row.harga) : null,
+          kondisi: row.kondisi as "BAIK" | "RUSAK_RINGAN" | "RUSAK_BERAT",
+          jumlah: row.jumlah,
+          tanggalBeli: row.tanggalBeli,
+          harga: row.harga,
           kategoriId: kat.id,
           ruanganId,
         },

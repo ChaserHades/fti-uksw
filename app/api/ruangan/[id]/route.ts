@@ -13,7 +13,7 @@ export async function PUT(req: Request, { params }: Params) {
   const body = await req.json();
   const item = await prisma.ruangan.update({
     where: { id },
-    data: { kode: body.kode, nama: body.nama, gedung: body.gedung ?? null, lantai: body.lantai ?? null, kapasitas: body.kapasitas ? Number(body.kapasitas) : null },
+    data: { kode: body.kode, nama: body.nama, lantai: body.lantai ?? null },
   });
   return NextResponse.json(item);
 }

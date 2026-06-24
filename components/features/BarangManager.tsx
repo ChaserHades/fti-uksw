@@ -19,8 +19,8 @@ type Tab = "daftar" | "add" | "kategori";
 type AddMode = "scan" | "manual" | "import";
 
 const EMPTY = {
-  kodeBarang: "", nama: "", deskripsi: "", kondisi: "BAIK",
-  jumlah: 1, tahunBeli: "", harga: "", kategoriId: "", ruanganId: "",
+  kodeBarang: "", nama: "", serialNumber: "", merek: "", tipe: "", vendor: "", deskripsi: "", kondisi: "BAIK",
+  jumlah: 1, tanggalBeli: "", harga: "", kategoriId: "", ruanganId: "",
 };
 
 export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
@@ -128,9 +128,11 @@ function DaftarTab({ role }: { role: string }) {
   function openEdit(b: Barang) {
     setSelected(b);
     setForm({
-      kodeBarang: b.kodeBarang, nama: b.nama, deskripsi: b.deskripsi ?? "",
+      kodeBarang: b.kodeBarang, nama: b.nama, serialNumber: b.serialNumber ?? "",
+      merek: b.merek ?? "", tipe: b.tipe ?? "", vendor: b.vendor ?? "",
+      deskripsi: b.deskripsi ?? "",
       kondisi: b.kondisi, jumlah: b.jumlah,
-      tahunBeli: b.tahunBeli?.toString() ?? "", harga: b.harga?.toString() ?? "",
+      tanggalBeli: b.tanggalBeli ? new Date(b.tanggalBeli).toISOString().split('T')[0] : "", harga: b.harga?.toString() ?? "",
       kategoriId: b.kategoriId, ruanganId: b.ruanganId ?? "",
     });
     setModal("form");
@@ -173,7 +175,7 @@ function DaftarTab({ role }: { role: string }) {
     const body = {
       ...form,
       jumlah:    Number(form.jumlah),
-      tahunBeli: form.tahunBeli ? Number(form.tahunBeli) : null,
+      tanggalBeli: form.tanggalBeli || null,
       harga:     form.harga     ? Number(form.harga)     : null,
       ruanganId: form.ruanganId || null,
     };
@@ -336,6 +338,26 @@ function DaftarTab({ role }: { role: string }) {
         </div>
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Merek</label>
+            <input className="input" placeholder="Merek barang" value={form.merek} onChange={e => setF("merek", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Tipe</label>
+            <input className="input" placeholder="Model / Tipe" value={form.tipe} onChange={e => setF("tipe", e.target.value)} />
+          </div>
+        </div>
+        <div className="form-grid-2">
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Serial Number (SN)</label>
+            <input className="input" placeholder="S/N" value={form.serialNumber} onChange={e => setF("serialNumber", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Vendor / Supplier</label>
+            <input className="input" placeholder="Nama vendor" value={form.vendor} onChange={e => setF("vendor", e.target.value)} />
+          </div>
+        </div>
+        <div className="form-grid-2">
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kategori *</label>
             <LiquidSelect
               value={form.kategoriId}
@@ -364,8 +386,8 @@ function DaftarTab({ role }: { role: string }) {
             <input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Tahun Beli</label>
-            <input type="number" className="input" placeholder="2024" value={form.tahunBeli} onChange={e => setF("tahunBeli", e.target.value)} />
+            <label className="form-label">Tanggal Beli</label>
+            <input type="date" className="input" value={form.tanggalBeli} onChange={e => setF("tanggalBeli", e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Harga (Rp)</label>
@@ -573,7 +595,7 @@ function ScanRegisterSection() {
     try {
       await api.post("/api/barang", {
         ...form, jumlah: Number(form.jumlah) || 1,
-        tahunBeli: form.tahunBeli ? Number(form.tahunBeli) : null,
+        tanggalBeli: form.tanggalBeli || null,
         harga: form.harga ? Number(form.harga) : null,
         ruanganId: form.ruanganId || null, hasSticker: true,
       });
@@ -647,6 +669,26 @@ function ScanRegisterSection() {
         <div className="form-group"><label className="form-label">Nama Barang *</label><input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} autoFocus /></div>
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Merek</label>
+            <input className="input" placeholder="Merek barang" value={form.merek} onChange={e => setF("merek", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Tipe</label>
+            <input className="input" placeholder="Model / Tipe" value={form.tipe} onChange={e => setF("tipe", e.target.value)} />
+          </div>
+        </div>
+        <div className="form-grid-2">
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Serial Number (SN)</label>
+            <input className="input" placeholder="S/N" value={form.serialNumber} onChange={e => setF("serialNumber", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Vendor / Supplier</label>
+            <input className="input" placeholder="Nama vendor" value={form.vendor} onChange={e => setF("vendor", e.target.value)} />
+          </div>
+        </div>
+        <div className="form-grid-2">
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kategori *</label>
             <LiquidSelect
               value={form.kategoriId}
@@ -671,7 +713,7 @@ function ScanRegisterSection() {
         </div>
         <div className="form-grid-3">
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Jumlah</label><input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} /></div>
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tahun Beli</label><input type="number" className="input" placeholder="2024" value={form.tahunBeli} onChange={e => setF("tahunBeli", e.target.value)} /></div>
+          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tanggal Beli</label><input type="date" className="input" value={form.tanggalBeli} onChange={e => setF("tanggalBeli", e.target.value)} /></div>
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Harga (Rp)</label><input type="number" className="input" placeholder="0" value={form.harga} onChange={e => setF("harga", e.target.value)} /></div>
         </div>
         <div className="modal-footer">
@@ -708,7 +750,7 @@ function ManualAddSection() {
     try {
       const created = await api.post<Barang>("/api/barang", {
         ...form, jumlah: Number(form.jumlah) || 1,
-        tahunBeli: form.tahunBeli ? Number(form.tahunBeli) : null,
+        tanggalBeli: form.tanggalBeli || null,
         harga: form.harga ? Number(form.harga) : null,
         ruanganId: form.ruanganId || null,
       });
@@ -774,7 +816,7 @@ function ManualAddSection() {
         </div>
         <div className="form-grid-3">
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Jumlah</label><input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} /></div>
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tahun Beli</label><input type="number" className="input" placeholder="2024" value={form.tahunBeli} onChange={e => setF("tahunBeli", e.target.value)} /></div>
+          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tanggal Beli</label><input type="date" className="input" value={form.tanggalBeli} onChange={e => setF("tanggalBeli", e.target.value)} /></div>
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Harga (Rp)</label><input type="number" className="input" placeholder="0" value={form.harga} onChange={e => setF("harga", e.target.value)} /></div>
         </div>
         <div className="form-group"><label className="form-label">Deskripsi</label><input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setF("deskripsi", e.target.value)} /></div>
@@ -840,7 +882,7 @@ function ImportSection() {
       <div className="glass" style={{ padding: 24 }}>
         <div className="scan-heading" style={{ marginBottom: 16 }}>
           <div className="scan-title">Import CSV / Excel</div>
-          <div className="scan-sub">Bulk add barang. Kolom wajib: kodeBarang, nama. Opsional: kategori, ruangan, kondisi, jumlah, tahunBeli, harga</div>
+          <div className="scan-sub">Bulk add barang. Kolom wajib: kodeBarang, nama. Opsional: kategori, ruangan, kondisi, jumlah, tanggalBeli, harga</div>
         </div>
 
         <div className="form-group">

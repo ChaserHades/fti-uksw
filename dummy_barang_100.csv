@@ -1,0 +1,101 @@
+kodeBarang,nama,kategori,ruangan,kondisi,jumlah,tahunBeli,harga,deskripsi
+DUMMY-001,Item Kendaraan 001,Kendaraan,AULA,BAIK,1,2022,2100000,Dummy data ke-1 untuk testing paginasi dan performa.
+DUMMY-002,Item Furniture 002,Furniture,R-DOSEN,RUSAK_RINGAN,1,2023,1000000,Dummy data ke-2 untuk testing paginasi dan performa.
+DUMMY-003,Item Furniture 003,Furniture,AULA,BAIK,1,2023,3100000,Dummy data ke-3 untuk testing paginasi dan performa.
+DUMMY-004,Item Furniture 004,Furniture,GUDANG,RUSAK_RINGAN,3,2016,3800000,Dummy data ke-4 untuk testing paginasi dan performa.
+DUMMY-005,Item Kendaraan 005,Kendaraan,,BAIK,3,2021,2000000,Dummy data ke-5 untuk testing paginasi dan performa.
+DUMMY-006,Item ATK 006,ATK,LAB-102,BAIK,5,2022,3200000,Dummy data ke-6 untuk testing paginasi dan performa.
+DUMMY-007,Item Elektronik 007,Elektronik,LAB-102,BAIK,2,2019,500000,Dummy data ke-7 untuk testing paginasi dan performa.
+DUMMY-008,Item Kendaraan 008,Kendaraan,LAB-102,BAIK,3,2019,2400000,Dummy data ke-8 untuk testing paginasi dan performa.
+DUMMY-009,Item Kendaraan 009,Kendaraan,R-DOSEN,BAIK,4,2024,1000000,Dummy data ke-9 untuk testing paginasi dan performa.
+DUMMY-010,Item Kendaraan 010,Kendaraan,R-DOSEN,BAIK,3,2022,1800000,Dummy data ke-10 untuk testing paginasi dan performa.
+DUMMY-011,Item Kendaraan 011,Kendaraan,AULA,BAIK,1,2018,800000,Dummy data ke-11 untuk testing paginasi dan performa.
+DUMMY-012,Item ATK 012,ATK,LAB-101,RUSAK_RINGAN,5,2016,2000000,Dummy data ke-12 untuk testing paginasi dan performa.
+DUMMY-013,Item Alat Lab 013,Alat Lab,GUDANG,BAIK,1,2023,2200000,Dummy data ke-13 untuk testing paginasi dan performa.
+DUMMY-014,Item Kendaraan 014,Kendaraan,LAB-101,BAIK,4,2021,700000,Dummy data ke-14 untuk testing paginasi dan performa.
+DUMMY-015,Item Alat Lab 015,Alat Lab,LAB-101,RUSAK_BERAT,5,2016,2400000,Dummy data ke-15 untuk testing paginasi dan performa.
+DUMMY-016,Item Alat Lab 016,Alat Lab,AULA,RUSAK_RINGAN,5,2023,4600000,Dummy data ke-16 untuk testing paginasi dan performa.
+DUMMY-017,Item ATK 017,ATK,R-DOSEN,BAIK,2,2022,3900000,Dummy data ke-17 untuk testing paginasi dan performa.
+DUMMY-018,Item Kendaraan 018,Kendaraan,AULA,BAIK,4,2019,2100000,Dummy data ke-18 untuk testing paginasi dan performa.
+DUMMY-019,Item Furniture 019,Furniture,LAB-101,RUSAK_RINGAN,4,2020,400000,Dummy data ke-19 untuk testing paginasi dan performa.
+DUMMY-020,Item Alat Lab 020,Alat Lab,LAB-101,BAIK,5,2017,1800000,Dummy data ke-20 untuk testing paginasi dan performa.
+DUMMY-021,Item Kendaraan 021,Kendaraan,LAB-101,BAIK,2,2020,3800000,Dummy data ke-21 untuk testing paginasi dan performa.
+DUMMY-022,Item Kendaraan 022,Kendaraan,R-DOSEN,BAIK,5,2022,4000000,Dummy data ke-22 untuk testing paginasi dan performa.
+DUMMY-023,Item ATK 023,ATK,R-DOSEN,BAIK,2,2017,500000,Dummy data ke-23 untuk testing paginasi dan performa.
+DUMMY-024,Item ATK 024,ATK,,RUSAK_BERAT,4,2022,4300000,Dummy data ke-24 untuk testing paginasi dan performa.
+DUMMY-025,Item Elektronik 025,Elektronik,AULA,BAIK,5,2016,2500000,Dummy data ke-25 untuk testing paginasi dan performa.
+DUMMY-026,Item Alat Lab 026,Alat Lab,LAB-101,RUSAK_BERAT,3,2021,1900000,Dummy data ke-26 untuk testing paginasi dan performa.
+DUMMY-027,Item Alat Lab 027,Alat Lab,R-DOSEN,BAIK,1,2020,4700000,Dummy data ke-27 untuk testing paginasi dan performa.
+DUMMY-028,Item ATK 028,ATK,AULA,BAIK,4,2019,400000,Dummy data ke-28 untuk testing paginasi dan performa.
+DUMMY-029,Item Kendaraan 029,Kendaraan,GUDANG,BAIK,5,2022,4400000,Dummy data ke-29 untuk testing paginasi dan performa.
+DUMMY-030,Item Furniture 030,Furniture,,RUSAK_BERAT,5,2022,2400000,Dummy data ke-30 untuk testing paginasi dan performa.
+DUMMY-031,Item ATK 031,ATK,LAB-101,BAIK,2,2024,3400000,Dummy data ke-31 untuk testing paginasi dan performa.
+DUMMY-032,Item Furniture 032,Furniture,GUDANG,BAIK,2,2016,1800000,Dummy data ke-32 untuk testing paginasi dan performa.
+DUMMY-033,Item ATK 033,ATK,AULA,BAIK,3,2024,500000,Dummy data ke-33 untuk testing paginasi dan performa.
+DUMMY-034,Item Kendaraan 034,Kendaraan,GUDANG,BAIK,2,2015,4600000,Dummy data ke-34 untuk testing paginasi dan performa.
+DUMMY-035,Item Kendaraan 035,Kendaraan,LAB-102,BAIK,5,2017,3300000,Dummy data ke-35 untuk testing paginasi dan performa.
+DUMMY-036,Item Alat Lab 036,Alat Lab,R-DOSEN,BAIK,3,2020,3900000,Dummy data ke-36 untuk testing paginasi dan performa.
+DUMMY-037,Item Furniture 037,Furniture,AULA,BAIK,4,2018,600000,Dummy data ke-37 untuk testing paginasi dan performa.
+DUMMY-038,Item Elektronik 038,Elektronik,R-DOSEN,RUSAK_RINGAN,3,2016,1900000,Dummy data ke-38 untuk testing paginasi dan performa.
+DUMMY-039,Item Furniture 039,Furniture,LAB-102,BAIK,1,2018,3600000,Dummy data ke-39 untuk testing paginasi dan performa.
+DUMMY-040,Item Furniture 040,Furniture,R-DOSEN,BAIK,5,2022,3400000,Dummy data ke-40 untuk testing paginasi dan performa.
+DUMMY-041,Item Kendaraan 041,Kendaraan,GUDANG,BAIK,2,2023,1200000,Dummy data ke-41 untuk testing paginasi dan performa.
+DUMMY-042,Item Furniture 042,Furniture,LAB-101,RUSAK_BERAT,1,2016,1900000,Dummy data ke-42 untuk testing paginasi dan performa.
+DUMMY-043,Item ATK 043,ATK,R-DOSEN,BAIK,5,2015,3200000,Dummy data ke-43 untuk testing paginasi dan performa.
+DUMMY-044,Item Elektronik 044,Elektronik,GUDANG,BAIK,4,2017,2400000,Dummy data ke-44 untuk testing paginasi dan performa.
+DUMMY-045,Item Kendaraan 045,Kendaraan,LAB-101,RUSAK_BERAT,2,2021,2100000,Dummy data ke-45 untuk testing paginasi dan performa.
+DUMMY-046,Item Alat Lab 046,Alat Lab,GUDANG,RUSAK_BERAT,4,2017,2400000,Dummy data ke-46 untuk testing paginasi dan performa.
+DUMMY-047,Item Kendaraan 047,Kendaraan,,BAIK,3,2018,700000,Dummy data ke-47 untuk testing paginasi dan performa.
+DUMMY-048,Item Kendaraan 048,Kendaraan,R-DOSEN,BAIK,5,2020,1600000,Dummy data ke-48 untuk testing paginasi dan performa.
+DUMMY-049,Item Elektronik 049,Elektronik,LAB-102,BAIK,2,2019,2400000,Dummy data ke-49 untuk testing paginasi dan performa.
+DUMMY-050,Item Elektronik 050,Elektronik,R-DOSEN,BAIK,5,2021,3500000,Dummy data ke-50 untuk testing paginasi dan performa.
+DUMMY-051,Item Furniture 051,Furniture,GUDANG,BAIK,1,2016,4600000,Dummy data ke-51 untuk testing paginasi dan performa.
+DUMMY-052,Item Alat Lab 052,Alat Lab,AULA,RUSAK_BERAT,4,2016,3800000,Dummy data ke-52 untuk testing paginasi dan performa.
+DUMMY-053,Item Elektronik 053,Elektronik,,BAIK,5,2015,1600000,Dummy data ke-53 untuk testing paginasi dan performa.
+DUMMY-054,Item Kendaraan 054,Kendaraan,GUDANG,RUSAK_BERAT,1,2019,1400000,Dummy data ke-54 untuk testing paginasi dan performa.
+DUMMY-055,Item ATK 055,ATK,LAB-101,BAIK,1,2016,500000,Dummy data ke-55 untuk testing paginasi dan performa.
+DUMMY-056,Item Kendaraan 056,Kendaraan,,BAIK,3,2017,3600000,Dummy data ke-56 untuk testing paginasi dan performa.
+DUMMY-057,Item Kendaraan 057,Kendaraan,,RUSAK_BERAT,4,2016,4100000,Dummy data ke-57 untuk testing paginasi dan performa.
+DUMMY-058,Item Furniture 058,Furniture,R-DOSEN,RUSAK_RINGAN,3,2021,900000,Dummy data ke-58 untuk testing paginasi dan performa.
+DUMMY-059,Item ATK 059,ATK,AULA,BAIK,3,2017,3100000,Dummy data ke-59 untuk testing paginasi dan performa.
+DUMMY-060,Item Kendaraan 060,Kendaraan,LAB-102,RUSAK_BERAT,3,2021,3300000,Dummy data ke-60 untuk testing paginasi dan performa.
+DUMMY-061,Item Kendaraan 061,Kendaraan,LAB-101,BAIK,5,2016,400000,Dummy data ke-61 untuk testing paginasi dan performa.
+DUMMY-062,Item Alat Lab 062,Alat Lab,GUDANG,BAIK,4,2023,800000,Dummy data ke-62 untuk testing paginasi dan performa.
+DUMMY-063,Item Furniture 063,Furniture,LAB-101,RUSAK_RINGAN,5,2015,5000000,Dummy data ke-63 untuk testing paginasi dan performa.
+DUMMY-064,Item Alat Lab 064,Alat Lab,,BAIK,1,2020,3800000,Dummy data ke-64 untuk testing paginasi dan performa.
+DUMMY-065,Item Furniture 065,Furniture,AULA,RUSAK_BERAT,2,2017,1600000,Dummy data ke-65 untuk testing paginasi dan performa.
+DUMMY-066,Item Elektronik 066,Elektronik,,BAIK,5,2016,2300000,Dummy data ke-66 untuk testing paginasi dan performa.
+DUMMY-067,Item Kendaraan 067,Kendaraan,,BAIK,2,2023,1000000,Dummy data ke-67 untuk testing paginasi dan performa.
+DUMMY-068,Item Furniture 068,Furniture,LAB-102,RUSAK_BERAT,5,2023,3700000,Dummy data ke-68 untuk testing paginasi dan performa.
+DUMMY-069,Item Kendaraan 069,Kendaraan,LAB-102,BAIK,5,2020,1100000,Dummy data ke-69 untuk testing paginasi dan performa.
+DUMMY-070,Item Elektronik 070,Elektronik,LAB-102,RUSAK_RINGAN,2,2020,3000000,Dummy data ke-70 untuk testing paginasi dan performa.
+DUMMY-071,Item ATK 071,ATK,,BAIK,1,2024,2700000,Dummy data ke-71 untuk testing paginasi dan performa.
+DUMMY-072,Item Elektronik 072,Elektronik,AULA,RUSAK_BERAT,1,2017,2000000,Dummy data ke-72 untuk testing paginasi dan performa.
+DUMMY-073,Item Furniture 073,Furniture,GUDANG,BAIK,1,2022,4300000,Dummy data ke-73 untuk testing paginasi dan performa.
+DUMMY-074,Item ATK 074,ATK,LAB-101,RUSAK_RINGAN,1,2020,4100000,Dummy data ke-74 untuk testing paginasi dan performa.
+DUMMY-075,Item ATK 075,ATK,,BAIK,1,2021,200000,Dummy data ke-75 untuk testing paginasi dan performa.
+DUMMY-076,Item Kendaraan 076,Kendaraan,AULA,RUSAK_BERAT,2,2021,900000,Dummy data ke-76 untuk testing paginasi dan performa.
+DUMMY-077,Item ATK 077,ATK,GUDANG,BAIK,5,2021,2900000,Dummy data ke-77 untuk testing paginasi dan performa.
+DUMMY-078,Item Elektronik 078,Elektronik,R-DOSEN,RUSAK_BERAT,5,2018,4800000,Dummy data ke-78 untuk testing paginasi dan performa.
+DUMMY-079,Item Alat Lab 079,Alat Lab,,RUSAK_RINGAN,3,2024,2300000,Dummy data ke-79 untuk testing paginasi dan performa.
+DUMMY-080,Item ATK 080,ATK,,BAIK,1,2017,1900000,Dummy data ke-80 untuk testing paginasi dan performa.
+DUMMY-081,Item Kendaraan 081,Kendaraan,AULA,BAIK,5,2024,1100000,Dummy data ke-81 untuk testing paginasi dan performa.
+DUMMY-082,Item Furniture 082,Furniture,LAB-101,BAIK,5,2015,4200000,Dummy data ke-82 untuk testing paginasi dan performa.
+DUMMY-083,Item Alat Lab 083,Alat Lab,LAB-102,BAIK,5,2024,3000000,Dummy data ke-83 untuk testing paginasi dan performa.
+DUMMY-084,Item Alat Lab 084,Alat Lab,AULA,RUSAK_RINGAN,1,2021,4500000,Dummy data ke-84 untuk testing paginasi dan performa.
+DUMMY-085,Item Alat Lab 085,Alat Lab,,BAIK,2,2019,3700000,Dummy data ke-85 untuk testing paginasi dan performa.
+DUMMY-086,Item Furniture 086,Furniture,AULA,BAIK,4,2022,3700000,Dummy data ke-86 untuk testing paginasi dan performa.
+DUMMY-087,Item Furniture 087,Furniture,LAB-101,RUSAK_BERAT,1,2015,3300000,Dummy data ke-87 untuk testing paginasi dan performa.
+DUMMY-088,Item Elektronik 088,Elektronik,AULA,BAIK,4,2017,100000,Dummy data ke-88 untuk testing paginasi dan performa.
+DUMMY-089,Item Alat Lab 089,Alat Lab,AULA,BAIK,4,2019,1500000,Dummy data ke-89 untuk testing paginasi dan performa.
+DUMMY-090,Item Kendaraan 090,Kendaraan,LAB-102,BAIK,4,2021,4200000,Dummy data ke-90 untuk testing paginasi dan performa.
+DUMMY-091,Item ATK 091,ATK,GUDANG,RUSAK_BERAT,2,2015,2500000,Dummy data ke-91 untuk testing paginasi dan performa.
+DUMMY-092,Item Kendaraan 092,Kendaraan,LAB-101,RUSAK_BERAT,5,2020,1200000,Dummy data ke-92 untuk testing paginasi dan performa.
+DUMMY-093,Item ATK 093,ATK,LAB-101,BAIK,3,2016,100000,Dummy data ke-93 untuk testing paginasi dan performa.
+DUMMY-094,Item Furniture 094,Furniture,LAB-101,BAIK,2,2019,3100000,Dummy data ke-94 untuk testing paginasi dan performa.
+DUMMY-095,Item Elektronik 095,Elektronik,R-DOSEN,RUSAK_RINGAN,4,2016,4200000,Dummy data ke-95 untuk testing paginasi dan performa.
+DUMMY-096,Item Furniture 096,Furniture,GUDANG,BAIK,2,2020,2900000,Dummy data ke-96 untuk testing paginasi dan performa.
+DUMMY-097,Item Furniture 097,Furniture,GUDANG,BAIK,1,2020,1000000,Dummy data ke-97 untuk testing paginasi dan performa.
+DUMMY-098,Item Alat Lab 098,Alat Lab,GUDANG,BAIK,2,2018,1900000,Dummy data ke-98 untuk testing paginasi dan performa.
+DUMMY-099,Item Kendaraan 099,Kendaraan,LAB-102,RUSAK_RINGAN,3,2015,3300000,Dummy data ke-99 untuk testing paginasi dan performa.
+DUMMY-100,Item Elektronik 100,Elektronik,R-DOSEN,BAIK,4,2024,2400000,Dummy data ke-100 untuk testing paginasi dan performa.

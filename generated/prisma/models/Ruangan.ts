@@ -20,27 +20,15 @@ export type RuanganModel = runtime.Types.Result.DefaultSelection<Prisma.$Ruangan
 
 export type AggregateRuangan = {
   _count: RuanganCountAggregateOutputType | null
-  _avg: RuanganAvgAggregateOutputType | null
-  _sum: RuanganSumAggregateOutputType | null
   _min: RuanganMinAggregateOutputType | null
   _max: RuanganMaxAggregateOutputType | null
-}
-
-export type RuanganAvgAggregateOutputType = {
-  kapasitas: number | null
-}
-
-export type RuanganSumAggregateOutputType = {
-  kapasitas: number | null
 }
 
 export type RuanganMinAggregateOutputType = {
   id: string | null
   kode: string | null
   nama: string | null
-  gedung: string | null
   lantai: string | null
-  kapasitas: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,9 +37,7 @@ export type RuanganMaxAggregateOutputType = {
   id: string | null
   kode: string | null
   nama: string | null
-  gedung: string | null
   lantai: string | null
-  kapasitas: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,30 +46,18 @@ export type RuanganCountAggregateOutputType = {
   id: number
   kode: number
   nama: number
-  gedung: number
   lantai: number
-  kapasitas: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
-export type RuanganAvgAggregateInputType = {
-  kapasitas?: true
-}
-
-export type RuanganSumAggregateInputType = {
-  kapasitas?: true
-}
-
 export type RuanganMinAggregateInputType = {
   id?: true
   kode?: true
   nama?: true
-  gedung?: true
   lantai?: true
-  kapasitas?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,9 +66,7 @@ export type RuanganMaxAggregateInputType = {
   id?: true
   kode?: true
   nama?: true
-  gedung?: true
   lantai?: true
-  kapasitas?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -103,9 +75,7 @@ export type RuanganCountAggregateInputType = {
   id?: true
   kode?: true
   nama?: true
-  gedung?: true
   lantai?: true
-  kapasitas?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -149,18 +119,6 @@ export type RuanganAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: RuanganAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: RuanganSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: RuanganMinAggregateInputType
@@ -191,8 +149,6 @@ export type RuanganGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: RuanganCountAggregateInputType | true
-  _avg?: RuanganAvgAggregateInputType
-  _sum?: RuanganSumAggregateInputType
   _min?: RuanganMinAggregateInputType
   _max?: RuanganMaxAggregateInputType
 }
@@ -201,14 +157,10 @@ export type RuanganGroupByOutputType = {
   id: string
   kode: string
   nama: string
-  gedung: string | null
   lantai: string | null
-  kapasitas: number | null
   createdAt: Date
   updatedAt: Date
   _count: RuanganCountAggregateOutputType | null
-  _avg: RuanganAvgAggregateOutputType | null
-  _sum: RuanganSumAggregateOutputType | null
   _min: RuanganMinAggregateOutputType | null
   _max: RuanganMaxAggregateOutputType | null
 }
@@ -235,9 +187,7 @@ export type RuanganWhereInput = {
   id?: Prisma.StringFilter<"Ruangan"> | string
   kode?: Prisma.StringFilter<"Ruangan"> | string
   nama?: Prisma.StringFilter<"Ruangan"> | string
-  gedung?: Prisma.StringNullableFilter<"Ruangan"> | string | null
   lantai?: Prisma.StringNullableFilter<"Ruangan"> | string | null
-  kapasitas?: Prisma.IntNullableFilter<"Ruangan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Ruangan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ruangan"> | Date | string
   barang?: Prisma.BarangListRelationFilter
@@ -247,9 +197,7 @@ export type RuanganOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
-  gedung?: Prisma.SortOrderInput | Prisma.SortOrder
   lantai?: Prisma.SortOrderInput | Prisma.SortOrder
-  kapasitas?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   barang?: Prisma.BarangOrderByRelationAggregateInput
@@ -262,9 +210,7 @@ export type RuanganWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.RuanganWhereInput[]
   NOT?: Prisma.RuanganWhereInput | Prisma.RuanganWhereInput[]
   nama?: Prisma.StringFilter<"Ruangan"> | string
-  gedung?: Prisma.StringNullableFilter<"Ruangan"> | string | null
   lantai?: Prisma.StringNullableFilter<"Ruangan"> | string | null
-  kapasitas?: Prisma.IntNullableFilter<"Ruangan"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Ruangan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ruangan"> | Date | string
   barang?: Prisma.BarangListRelationFilter
@@ -274,16 +220,12 @@ export type RuanganOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
-  gedung?: Prisma.SortOrderInput | Prisma.SortOrder
   lantai?: Prisma.SortOrderInput | Prisma.SortOrder
-  kapasitas?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RuanganCountOrderByAggregateInput
-  _avg?: Prisma.RuanganAvgOrderByAggregateInput
   _max?: Prisma.RuanganMaxOrderByAggregateInput
   _min?: Prisma.RuanganMinOrderByAggregateInput
-  _sum?: Prisma.RuanganSumOrderByAggregateInput
 }
 
 export type RuanganScalarWhereWithAggregatesInput = {
@@ -293,9 +235,7 @@ export type RuanganScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Ruangan"> | string
   kode?: Prisma.StringWithAggregatesFilter<"Ruangan"> | string
   nama?: Prisma.StringWithAggregatesFilter<"Ruangan"> | string
-  gedung?: Prisma.StringNullableWithAggregatesFilter<"Ruangan"> | string | null
   lantai?: Prisma.StringNullableWithAggregatesFilter<"Ruangan"> | string | null
-  kapasitas?: Prisma.IntNullableWithAggregatesFilter<"Ruangan"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Ruangan"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Ruangan"> | Date | string
 }
@@ -304,9 +244,7 @@ export type RuanganCreateInput = {
   id?: string
   kode: string
   nama: string
-  gedung?: string | null
   lantai?: string | null
-  kapasitas?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   barang?: Prisma.BarangCreateNestedManyWithoutRuanganInput
@@ -316,9 +254,7 @@ export type RuanganUncheckedCreateInput = {
   id?: string
   kode: string
   nama: string
-  gedung?: string | null
   lantai?: string | null
-  kapasitas?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   barang?: Prisma.BarangUncheckedCreateNestedManyWithoutRuanganInput
@@ -328,9 +264,7 @@ export type RuanganUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  gedung?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lantai?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kapasitas?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   barang?: Prisma.BarangUpdateManyWithoutRuanganNestedInput
@@ -340,9 +274,7 @@ export type RuanganUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  gedung?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lantai?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kapasitas?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   barang?: Prisma.BarangUncheckedUpdateManyWithoutRuanganNestedInput
@@ -352,9 +284,7 @@ export type RuanganCreateManyInput = {
   id?: string
   kode: string
   nama: string
-  gedung?: string | null
   lantai?: string | null
-  kapasitas?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -363,9 +293,7 @@ export type RuanganUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  gedung?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lantai?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kapasitas?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -374,9 +302,7 @@ export type RuanganUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  gedung?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lantai?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kapasitas?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -385,24 +311,16 @@ export type RuanganCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
-  gedung?: Prisma.SortOrder
   lantai?: Prisma.SortOrder
-  kapasitas?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type RuanganAvgOrderByAggregateInput = {
-  kapasitas?: Prisma.SortOrder
 }
 
 export type RuanganMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
-  gedung?: Prisma.SortOrder
   lantai?: Prisma.SortOrder
-  kapasitas?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -411,28 +329,14 @@ export type RuanganMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
-  gedung?: Prisma.SortOrder
   lantai?: Prisma.SortOrder
-  kapasitas?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type RuanganSumOrderByAggregateInput = {
-  kapasitas?: Prisma.SortOrder
 }
 
 export type RuanganNullableScalarRelationFilter = {
   is?: Prisma.RuanganWhereInput | null
   isNot?: Prisma.RuanganWhereInput | null
-}
-
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type RuanganCreateNestedOneWithoutBarangInput = {
@@ -455,9 +359,7 @@ export type RuanganCreateWithoutBarangInput = {
   id?: string
   kode: string
   nama: string
-  gedung?: string | null
   lantai?: string | null
-  kapasitas?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -466,9 +368,7 @@ export type RuanganUncheckedCreateWithoutBarangInput = {
   id?: string
   kode: string
   nama: string
-  gedung?: string | null
   lantai?: string | null
-  kapasitas?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -493,9 +393,7 @@ export type RuanganUpdateWithoutBarangInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  gedung?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lantai?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kapasitas?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -504,9 +402,7 @@ export type RuanganUncheckedUpdateWithoutBarangInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  gedung?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lantai?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kapasitas?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -546,9 +442,7 @@ export type RuanganSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   kode?: boolean
   nama?: boolean
-  gedung?: boolean
   lantai?: boolean
-  kapasitas?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   barang?: boolean | Prisma.Ruangan$barangArgs<ExtArgs>
@@ -559,9 +453,7 @@ export type RuanganSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   kode?: boolean
   nama?: boolean
-  gedung?: boolean
   lantai?: boolean
-  kapasitas?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["ruangan"]>
@@ -570,9 +462,7 @@ export type RuanganSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   kode?: boolean
   nama?: boolean
-  gedung?: boolean
   lantai?: boolean
-  kapasitas?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["ruangan"]>
@@ -581,14 +471,12 @@ export type RuanganSelectScalar = {
   id?: boolean
   kode?: boolean
   nama?: boolean
-  gedung?: boolean
   lantai?: boolean
-  kapasitas?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RuanganOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kode" | "nama" | "gedung" | "lantai" | "kapasitas" | "createdAt" | "updatedAt", ExtArgs["result"]["ruangan"]>
+export type RuanganOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kode" | "nama" | "lantai" | "createdAt" | "updatedAt", ExtArgs["result"]["ruangan"]>
 export type RuanganInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   barang?: boolean | Prisma.Ruangan$barangArgs<ExtArgs>
   _count?: boolean | Prisma.RuanganCountOutputTypeDefaultArgs<ExtArgs>
@@ -605,9 +493,7 @@ export type $RuanganPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: string
     kode: string
     nama: string
-    gedung: string | null
     lantai: string | null
-    kapasitas: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["ruangan"]>
@@ -1037,9 +923,7 @@ export interface RuanganFieldRefs {
   readonly id: Prisma.FieldRef<"Ruangan", 'String'>
   readonly kode: Prisma.FieldRef<"Ruangan", 'String'>
   readonly nama: Prisma.FieldRef<"Ruangan", 'String'>
-  readonly gedung: Prisma.FieldRef<"Ruangan", 'String'>
   readonly lantai: Prisma.FieldRef<"Ruangan", 'String'>
-  readonly kapasitas: Prisma.FieldRef<"Ruangan", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Ruangan", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Ruangan", 'DateTime'>
 }

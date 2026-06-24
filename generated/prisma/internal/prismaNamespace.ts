@@ -923,9 +923,7 @@ export const RuanganScalarFieldEnum = {
   id: 'id',
   kode: 'kode',
   nama: 'nama',
-  gedung: 'gedung',
   lantai: 'lantai',
-  kapasitas: 'kapasitas',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -937,11 +935,15 @@ export const BarangScalarFieldEnum = {
   id: 'id',
   kodeBarang: 'kodeBarang',
   nama: 'nama',
+  serialNumber: 'serialNumber',
+  merek: 'merek',
+  tipe: 'tipe',
+  vendor: 'vendor',
   deskripsi: 'deskripsi',
   kondisi: 'kondisi',
   status: 'status',
   jumlah: 'jumlah',
-  tahunBeli: 'tahunBeli',
+  tanggalBeli: 'tanggalBeli',
   harga: 'harga',
   hasSticker: 'hasSticker',
   qrCode: 'qrCode',
@@ -1084,20 +1086,6 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
  * Reference to a field of type 'KondisiBarang'
  */
 export type EnumKondisiBarangFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KondisiBarang'>
@@ -1122,6 +1110,20 @@ export type EnumStatusBarangFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'StatusBarang[]'
  */
 export type ListEnumStatusBarangFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusBarang[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 

@@ -14,7 +14,7 @@ declare const jsQR: (
   data: Uint8ClampedArray, width: number, height: number
 ) => { data: string } | null;
 
-const EMPTY = { kode: "", nama: "", gedung: "", lantai: "", kapasitas: "" };
+const EMPTY = { kode: "", nama: "", lantai: "" };
 
 interface RuanganWithCount extends Ruangan { _count?: { barang: number }; }
 
@@ -62,14 +62,14 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   function openAdd() { setSelected(null); setForm(EMPTY); setModal("form"); }
   function openEdit(r: Ruangan) {
     setSelected(r);
-    setForm({ kode: r.kode, nama: r.nama, gedung: r.gedung ?? "", lantai: r.lantai ?? "", kapasitas: r.kapasitas?.toString() ?? "" });
+    setForm({ kode: r.kode, nama: r.nama, lantai: r.lantai ?? "" });
     setModal("form");
   }
 
   async function handleSave() {
     if (!form.kode || !form.nama) { toast.error("Kode dan nama wajib diisi"); return; }
     setSaving(true);
-    const body = { ...form, kapasitas: form.kapasitas ? Number(form.kapasitas) : null };
+    const body = { ...form };
     try {
       if (selected) { await api.put(`/api/ruangan/${selected.id}`, body); toast.success("Ruangan diperbarui"); }
       else { await api.post("/api/ruangan", body); toast.success("Ruangan ditambahkan"); }
@@ -187,8 +187,8 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Kode</th><th>Nama</th><th>Gedung</th>
-                <th>Lantai</th><th>Kapasitas</th><th>Jml Barang</th>
+                <th>Kode</th><th>Nama</th>
+                <th>Lantai</th><th>Jml Barang</th>
                 {role === "ADMIN" && <th>Aksi</th>}
               </tr>
             </thead>
@@ -199,9 +199,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                 <tr key={r.id}>
                   <td className="td-mono td-bold">{r.kode}</td>
                   <td className="td-name">{r.nama}</td>
-                  <td>{r.gedung ?? "—"}</td>
                   <td>{r.lantai ?? "—"}</td>
-                  <td>{r.kapasitas ?? "—"}</td>
                   <td>
                     <span className="badge badge-info">{r._count?.barang ?? 0}</span>
                   </td>
@@ -232,29 +230,17 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
 
       {/* Modal CRUD Ruangan */}
       <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Ruangan" : "Tambah Ruangan"}>
-        <div className="form-grid-2-fixed">
-          <div className="form-group">
-            <label className="form-label">Kode Ruangan *</label>
-            <input className="input" placeholder="LAB1" value={form.kode} onChange={e => setF("kode", e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Kapasitas</label>
-            <input type="number" className="input" placeholder="30" value={form.kapasitas} onChange={e => setF("kapasitas", e.target.value)} />
-          </div>
+        <div className="form-group">
+          <label className="form-label">Kode Ruangan *</label>
+          <input className="input" placeholder="LAB1" value={form.kode} onChange={e => setF("kode", e.target.value)} />
         </div>
         <div className="form-group">
           <label className="form-label">Nama Ruangan *</label>
           <input className="input" placeholder="Lab Komputer 1" value={form.nama} onChange={e => setF("nama", e.target.value)} />
         </div>
-        <div className="form-grid-2-fixed">
-          <div className="form-group">
-            <label className="form-label">Gedung</label>
-            <input className="input" placeholder="A" value={form.gedung} onChange={e => setF("gedung", e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Lantai</label>
-            <input className="input" placeholder="1" value={form.lantai} onChange={e => setF("lantai", e.target.value)} />
-          </div>
+        <div className="form-group">
+          <label className="form-label">Lantai</label>
+          <input className="input" placeholder="1" value={form.lantai} onChange={e => setF("lantai", e.target.value)} />
         </div>
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(null)}>Batal</button>

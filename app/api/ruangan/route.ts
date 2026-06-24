@@ -23,9 +23,7 @@ export async function POST(req: Request) {
     data: {
       kode: body.kode,
       nama: body.nama,
-      gedung: body.gedung ?? null,
       lantai: body.lantai ?? null,
-      kapasitas: body.kapasitas ? Number(body.kapasitas) : null,
     },
   });
   return NextResponse.json(item, { status: 201 });

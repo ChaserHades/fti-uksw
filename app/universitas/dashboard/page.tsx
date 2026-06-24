@@ -15,6 +15,7 @@ export default function UniversitasDashboard() {
   const [barang, setBarang] = useState<Barang[]>([]);
   const [pengeluaran, setPengeluaran] = useState<Pengeluaran[]>([]);
   const [kategoriStat, setKategoriStat] = useState<KategoriStat[]>([]);
+  const [kondisiCount, setKondisiCount] = useState({ BAIK: 0, RUSAK_RINGAN: 0, RUSAK_BERAT: 0 });
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
@@ -41,6 +42,11 @@ export default function UniversitasDashboard() {
           .sort((a, b) => b.total - a.total)
           .slice(0, 5)
       );
+      setKondisiCount({
+        BAIK: bData.filter((b: Barang) => b.kondisi === "BAIK").length,
+        RUSAK_RINGAN: bData.filter((b: Barang) => b.kondisi === "RUSAK_RINGAN").length,
+        RUSAK_BERAT: bData.filter((b: Barang) => b.kondisi === "RUSAK_BERAT").length,
+      });
     });
   }, []);
 
@@ -48,11 +54,6 @@ export default function UniversitasDashboard() {
     BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger",
   };
 
-  const kondisiCount = {
-    BAIK: barang.filter(b => b.kondisi === "BAIK").length,
-    RUSAK_RINGAN: barang.filter(b => b.kondisi === "RUSAK_RINGAN").length,
-    RUSAK_BERAT: barang.filter(b => b.kondisi === "RUSAK_BERAT").length,
-  };
   const totalBarangSample = Object.values(kondisiCount).reduce((a, b) => a + b, 0);
   const totalNominal = pengeluaran.reduce((sum, p) => sum + p.nominal, 0);
 

@@ -17,8 +17,12 @@ export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T
     // Next.js 15+ fetch cache — revalidate every 30s for GET
     ...(isGet ? { next: { revalidate: 30 } } : { cache: "no-store" }),
   }).then(async (res) => {
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error ?? "Request gagal");
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : {}; } 
+    catch { data = { error: text }; }
+    
+    if (!res.ok) throw new Error(data.error || "Request gagal");
     return data as T;
   });
 
