@@ -21,11 +21,11 @@ export default function TeknisiDashboard() {
   useEffect(() => {
     fetch("/api/me").then(r => r.json()).then((d: Me) => {
       setMe(d);
-      api.get<Transaksi[]>(`/api/transaksi?userId=${d.id}`).then(setMyTrx);
+      api.get<{ data: Transaksi[] }>(`/api/transaksi?userId=${d.id}`).then(res => setMyTrx(res.data));
     });
-    api.get<Transaksi[]>("/api/transaksi?status=AKTIF").then(d => setAllAktif(d.slice(0, 5)));
-    api.get<Barang[]>("/api/barang").then(d =>
-      setTersedia(d.filter(b => b.status === "TERSEDIA").slice(0, 5))
+    api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF").then(d => setAllAktif(d.data.slice(0, 5)));
+    api.get<{ data: Barang[] }>("/api/barang?limit=1000").then(d =>
+      setTersedia(d.data.filter(b => b.status === "TERSEDIA").slice(0, 5))
     );
   }, []);
 

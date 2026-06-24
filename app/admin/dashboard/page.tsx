@@ -27,9 +27,11 @@ export default function AdminDashboard() {
 
     Promise.all([
       api.get<DashboardStats>("/api/dashboard/stats"),
-      api.get<Transaksi[]>("/api/transaksi?status=AKTIF"),
-      api.get<Barang[]>("/api/barang"),
-    ]).then(([s, t, b]) => {
+      api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF"),
+      api.get<{ data: Barang[] }>("/api/barang?limit=1000"),
+    ]).then(([s, tRes, bRes]) => {
+      const t = tRes.data;
+      const b = bRes.data;
       setStats(s);
       setTransaksi(t.slice(0, 6));
 

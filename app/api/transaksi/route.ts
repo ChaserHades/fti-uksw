@@ -7,9 +7,12 @@ export async function GET(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { searchParams } = new URL(req.url);
+  const searchParams = new URL(req.url).searchParams;
   const status = searchParams.get("status");
   const userId = searchParams.get("userId");
+  
+  const limit  = parseInt(searchParams.get("limit") || "50", 10);
+  const cursor = searchParams.get("cursor");
 
   // Build where clause
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,6 +27,9 @@ export async function GET(req: Request) {
   }
 
   const list = await prisma.transaksi.findMany({
+    take: limit + 1,
+    skip: cursor ? 1 : 0,
+    cursor: cursor ? { id: cursor } : undefined,
     where,
     include: {
       barang: { include: { kategori: true, ruangan: true } },
@@ -32,7 +38,13 @@ export async function GET(req: Request) {
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json(list);
+  let nextCursor: string | null = null;
+  if (list.length > limit) {
+    const nextItem = list.pop();
+    nextCursor = nextItem!.id;
+  }
+
+  return NextResponse.json({ data: list, nextCursor });
 }
 
 export async function POST(req: Request) {

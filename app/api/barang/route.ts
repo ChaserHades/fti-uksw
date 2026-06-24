@@ -7,13 +7,14 @@ export async function GET(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { searchParams } = new URL(req.url);
+  const searchParams = new URL(req.url).searchParams;
   const search     = searchParams.get("search")     ?? "";
   const kategoriId = searchParams.get("kategoriId") ?? "";
   const kode       = searchParams.get("kode")       ?? "";
   const tersedia   = searchParams.get("tersedia");
-
-  // QR lookup: GET /api/barang?kode=xxx
+  
+  const limit      = parseInt(searchParams.get("limit") || "50", 10);
+  const cursor     = searchParams.get("cursor");
   if (kode) {
     // Try exact match first
     let item = await prisma.barang.findUnique({
@@ -42,6 +43,9 @@ export async function GET(req: Request) {
   }
 
   const list = await prisma.barang.findMany({
+    take: limit + 1,
+    skip: cursor ? 1 : 0,
+    cursor: cursor ? { id: cursor } : undefined,
     where: {
       ...(search     ? { nama: { contains: search, mode: "insensitive" } } : {}),
       ...(kategoriId ? { kategoriId }                                       : {}),
@@ -51,7 +55,13 @@ export async function GET(req: Request) {
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json(list);
+  let nextCursor: string | null = null;
+  if (list.length > limit) {
+    const nextItem = list.pop();
+    nextCursor = nextItem!.id;
+  }
+
+  return NextResponse.json({ data: list, nextCursor });
 }
 
 export async function POST(req: Request) {

@@ -43,7 +43,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
 
   // ── Load aktif ──
   const loadAktif = () =>
-    api.get<Transaksi[]>("/api/transaksi?status=AKTIF").then(setAllAktif).catch(console.error);
+    api.get<{ data: Transaksi[]; nextCursor: string | null }>("/api/transaksi?status=AKTIF").then(res => setAllAktif(res.data)).catch(console.error);
 
   useEffect(() => { 
     loadAktif(); 
@@ -103,7 +103,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       setForm({ namaPeminjam: "", ruanganPinjam: "", deadlineKembali: "", catatan: "" });
       setModalPinjam(true);
     } else if (data.status === "DIPINJAM") {
-      const trxList = await api.get<Transaksi[]>("/api/transaksi?status=AKTIF");
+      const res = await api.get<{ data: Transaksi[]; nextCursor: string | null }>("/api/transaksi?status=AKTIF");
+      const trxList = res.data;
       const found = trxList.find(t => t.barangId === data.id);
       if (found) {
         setTransaksiAktif(found);
@@ -124,7 +125,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       await processBarang(data);
     } catch {
       try {
-        const listData = await api.get<Barang[]>(`/api/barang?search=${encodeURIComponent(kode)}`);
+        const res = await api.get<{ data: Barang[]; nextCursor: string | null }>(`/api/barang?search=${encodeURIComponent(kode)}`);
+        const listData = res.data;
         if (listData.length === 1) {
           await processBarang(listData[0]);
         } else if (listData.length > 1) {

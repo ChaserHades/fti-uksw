@@ -12,7 +12,7 @@ import LaporanManager from "@/components/features/LaporanManager";
 function ManajemenContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const tab = searchParams.get("tab") || "barang";
 
   const tabs = [
@@ -30,10 +30,10 @@ function ManajemenContent() {
   return (
     <>
       {/* Unified Header & Navigation in a single row */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap", gap: 16 }}>
+      <div className="page-header" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 16 }}>
         <div>
-          <h1 className="page-title">Manajemen Terpadu</h1>
-          <p className="page-sub">Kelola seluruh aset, ruangan, dan riwayat dalam satu layar kerja</p>
+          <h1 className="page-title">Inventaris</h1>
+          <p className="page-sub">Kelola Inventaris & Aset</p>
         </div>
 
         <div className="mode-switcher mobile-scroll-x" style={{ display: "flex", gap: "4px", margin: 0, padding: "6px", background: "rgba(0,0,0,0.2)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)", boxShadow: "inset 0 2px 8px rgba(0,0,0,0.2)" }}>

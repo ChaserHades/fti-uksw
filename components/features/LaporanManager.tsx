@@ -37,12 +37,27 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   const [confirmDel, setConfirmDel] = useState<{ id: string, judul: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const load = () => {
-    const params = filter ? `?jenis=${filter}` : "";
-    api.get<Pengeluaran[]>(`/api/pengeluaran${params}`).then(setList).catch(console.error);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const load = (reset = true) => {
+    const currentCursor = reset ? null : cursor;
+    let params = filter ? `jenis=${filter}` : "";
+    if (currentCursor) params += `${params ? "&" : ""}cursor=${currentCursor}`;
+    const query = params ? `?${params}` : "";
+
+    if (!reset) setLoadingMore(true);
+    api.get<{ data: Pengeluaran[]; nextCursor: string | null }>(`/api/pengeluaran${query}`)
+      .then(res => {
+        if (reset) setList(res.data);
+        else setList(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+      })
+      .catch(console.error)
+      .finally(() => { if (!reset) setLoadingMore(false); });
   };
 
-  useEffect(() => { load(); }, [filter]);
+  useEffect(() => { load(true); }, [filter]);
 
   useEffect(() => {
     if (searchParams.get("action") === "add" && role === "ADMIN") {
@@ -215,6 +230,17 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
               ))}
             </tbody>
           </table>
+          {cursor && (
+            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <button 
+                className="btn btn-ghost" 
+                onClick={() => load(false)} 
+                disabled={loadingMore}
+              >
+                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

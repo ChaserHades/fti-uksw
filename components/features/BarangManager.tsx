@@ -94,14 +94,29 @@ function DaftarTab({ role }: { role: string }) {
   const [confirmDel, setConfirmDel] = useState<{ id: string, nama: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const load = useCallback(() => {
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const load = useCallback((reset = true) => {
+    const currentCursor = reset ? null : cursor;
     const p = new URLSearchParams();
     if (search)    p.set("search",    search);
     if (filterKat) p.set("kategoriId", filterKat);
-    api.get<Barang[]>(`/api/barang?${p}`).then(setBarang).catch(console.error);
-  }, [search, filterKat]);
+    if (currentCursor) p.set("cursor", currentCursor);
 
-  useEffect(() => { load(); }, [load]);
+    if (!reset) setLoadingMore(true);
+    api.get<{ data: Barang[]; nextCursor: string | null }>(`/api/barang?${p}`)
+      .then(res => {
+        if (reset) setBarang(res.data);
+        else setBarang(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+      })
+      .catch(console.error)
+      .finally(() => { if (!reset) setLoadingMore(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, filterKat, cursor]);
+
+  useEffect(() => { load(true); }, [search, filterKat]);
   useEffect(() => {
     api.get<KategoriBarang[]>("/api/kategori").then(setKategori);
     api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
@@ -271,6 +286,17 @@ function DaftarTab({ role }: { role: string }) {
               ))}
             </tbody>
           </table>
+          {cursor && (
+            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <button 
+                className="btn btn-ghost" 
+                onClick={() => load(false)} 
+                disabled={loadingMore}
+              >
+                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

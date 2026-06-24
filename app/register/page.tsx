@@ -36,7 +36,10 @@ export default function RegisterPage() {
       <div className="auth-wrapper">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-logo">A</div>
+            <div className="auth-logo" style={{ display: "flex", gap: "16px", justifyContent: "center", alignItems: "center" }}>
+              <img src="/logo/UKSW%20NO%20BG.png" alt="Logo UKSW" style={{ height: "64px", width: "auto", objectFit: "contain" }} />
+              <img src="/logo/FTI%20no%20bg.png" alt="Logo FTI" style={{ height: "64px", width: "auto", objectFit: "contain" }} />
+            </div>
             <h1 className="auth-title">Daftar Akun</h1>
             <p className="auth-sub">Akun baru perlu diverifikasi oleh Admin</p>
           </div>

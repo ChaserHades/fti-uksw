@@ -13,10 +13,29 @@ type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
   const [list,   setList]   = useState<Transaksi[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("");
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const load = (reset = true) => {
+    const currentCursor = reset ? null : cursor;
+    let params = filter ? `status=${filter}` : "";
+    if (currentCursor) params += `${params ? "&" : ""}cursor=${currentCursor}`;
+    const query = params ? `?${params}` : "";
+
+    if (!reset) setLoadingMore(true);
+    api.get<{ data: Transaksi[]; nextCursor: string | null }>(`/api/transaksi${query}`)
+      .then(res => {
+        if (reset) setList(res.data);
+        else setList(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+      })
+      .catch(console.error)
+      .finally(() => { if (!reset) setLoadingMore(false); });
+  };
 
   useEffect(() => {
-    const params = filter ? `?status=${filter}` : "";
-    api.get<Transaksi[]>(`/api/transaksi${params}`).then(setList).catch(console.error);
+    load(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   function exportCSV() {
@@ -147,6 +166,17 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
               })}
             </tbody>
           </table>
+          {cursor && (
+            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <button 
+                className="btn btn-ghost" 
+                onClick={() => load(false)} 
+                disabled={loadingMore}
+              >
+                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -23,14 +23,15 @@ export default function UniversitasDashboard() {
   useEffect(() => {
     api.get<DashboardStats>("/api/dashboard/stats").then(setStats);
 
-    api.get<Pengeluaran[]>("/api/pengeluaran").then(d => {
-      setPengeluaran(d);
+    api.get<{ data: Pengeluaran[] }>("/api/pengeluaran?limit=1000").then(d => {
+      setPengeluaran(d.data);
     });
 
-    api.get<Barang[]>("/api/barang").then(d => {
-      setBarang(d.slice(0, 8)); // Get latest 8 items
+    api.get<{ data: Barang[] }>("/api/barang?limit=1000").then(d => {
+      const bData = d.data;
+      setBarang(bData.slice(0, 8)); // Get latest 8 items
       const katMap: Record<string, number> = {};
-      d.forEach(b => {
+      bData.forEach(b => {
         const k = b.kategori?.nama ?? "Lainnya";
         katMap[k] = (katMap[k] ?? 0) + 1;
       });
