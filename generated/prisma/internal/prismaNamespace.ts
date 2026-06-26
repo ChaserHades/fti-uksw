@@ -385,8 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  KategoriBarang: 'KategoriBarang',
-  Ruangan: 'Ruangan',
+  JenisBarang: 'JenisBarang',
+  Letak: 'Letak',
   Barang: 'Barang',
   Transaksi: 'Transaksi',
   Pengeluaran: 'Pengeluaran'
@@ -405,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "kategoriBarang" | "ruangan" | "barang" | "transaksi" | "pengeluaran"
+    modelProps: "user" | "jenisBarang" | "letak" | "barang" | "transaksi" | "pengeluaran"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -483,151 +483,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    KategoriBarang: {
-      payload: Prisma.$KategoriBarangPayload<ExtArgs>
-      fields: Prisma.KategoriBarangFieldRefs
+    JenisBarang: {
+      payload: Prisma.$JenisBarangPayload<ExtArgs>
+      fields: Prisma.JenisBarangFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.KategoriBarangFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload> | null
+          args: Prisma.JenisBarangFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.KategoriBarangFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>
+          args: Prisma.JenisBarangFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>
         }
         findFirst: {
-          args: Prisma.KategoriBarangFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload> | null
+          args: Prisma.JenisBarangFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.KategoriBarangFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>
+          args: Prisma.JenisBarangFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>
         }
         findMany: {
-          args: Prisma.KategoriBarangFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>[]
+          args: Prisma.JenisBarangFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>[]
         }
         create: {
-          args: Prisma.KategoriBarangCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>
+          args: Prisma.JenisBarangCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>
         }
         createMany: {
-          args: Prisma.KategoriBarangCreateManyArgs<ExtArgs>
+          args: Prisma.JenisBarangCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.KategoriBarangCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>[]
+          args: Prisma.JenisBarangCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>[]
         }
         delete: {
-          args: Prisma.KategoriBarangDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>
+          args: Prisma.JenisBarangDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>
         }
         update: {
-          args: Prisma.KategoriBarangUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>
+          args: Prisma.JenisBarangUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>
         }
         deleteMany: {
-          args: Prisma.KategoriBarangDeleteManyArgs<ExtArgs>
+          args: Prisma.JenisBarangDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.KategoriBarangUpdateManyArgs<ExtArgs>
+          args: Prisma.JenisBarangUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.KategoriBarangUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>[]
+          args: Prisma.JenisBarangUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>[]
         }
         upsert: {
-          args: Prisma.KategoriBarangUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$KategoriBarangPayload>
+          args: Prisma.JenisBarangUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JenisBarangPayload>
         }
         aggregate: {
-          args: Prisma.KategoriBarangAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateKategoriBarang>
+          args: Prisma.JenisBarangAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJenisBarang>
         }
         groupBy: {
-          args: Prisma.KategoriBarangGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.KategoriBarangGroupByOutputType>[]
+          args: Prisma.JenisBarangGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JenisBarangGroupByOutputType>[]
         }
         count: {
-          args: Prisma.KategoriBarangCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.KategoriBarangCountAggregateOutputType> | number
+          args: Prisma.JenisBarangCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JenisBarangCountAggregateOutputType> | number
         }
       }
     }
-    Ruangan: {
-      payload: Prisma.$RuanganPayload<ExtArgs>
-      fields: Prisma.RuanganFieldRefs
+    Letak: {
+      payload: Prisma.$LetakPayload<ExtArgs>
+      fields: Prisma.LetakFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.RuanganFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload> | null
+          args: Prisma.LetakFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.RuanganFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>
+          args: Prisma.LetakFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>
         }
         findFirst: {
-          args: Prisma.RuanganFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload> | null
+          args: Prisma.LetakFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.RuanganFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>
+          args: Prisma.LetakFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>
         }
         findMany: {
-          args: Prisma.RuanganFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>[]
+          args: Prisma.LetakFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>[]
         }
         create: {
-          args: Prisma.RuanganCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>
+          args: Prisma.LetakCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>
         }
         createMany: {
-          args: Prisma.RuanganCreateManyArgs<ExtArgs>
+          args: Prisma.LetakCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.RuanganCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>[]
+          args: Prisma.LetakCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>[]
         }
         delete: {
-          args: Prisma.RuanganDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>
+          args: Prisma.LetakDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>
         }
         update: {
-          args: Prisma.RuanganUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>
+          args: Prisma.LetakUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>
         }
         deleteMany: {
-          args: Prisma.RuanganDeleteManyArgs<ExtArgs>
+          args: Prisma.LetakDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.RuanganUpdateManyArgs<ExtArgs>
+          args: Prisma.LetakUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.RuanganUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>[]
+          args: Prisma.LetakUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>[]
         }
         upsert: {
-          args: Prisma.RuanganUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RuanganPayload>
+          args: Prisma.LetakUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LetakPayload>
         }
         aggregate: {
-          args: Prisma.RuanganAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateRuangan>
+          args: Prisma.LetakAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLetak>
         }
         groupBy: {
-          args: Prisma.RuanganGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RuanganGroupByOutputType>[]
+          args: Prisma.LetakGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LetakGroupByOutputType>[]
         }
         count: {
-          args: Prisma.RuanganCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RuanganCountAggregateOutputType> | number
+          args: Prisma.LetakCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LetakCountAggregateOutputType> | number
         }
       }
     }
@@ -908,18 +908,18 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const KategoriBarangScalarFieldEnum = {
+export const JenisBarangScalarFieldEnum = {
   id: 'id',
   nama: 'nama',
-  deskripsi: 'deskripsi',
+  keterangan: 'keterangan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type KategoriBarangScalarFieldEnum = (typeof KategoriBarangScalarFieldEnum)[keyof typeof KategoriBarangScalarFieldEnum]
+export type JenisBarangScalarFieldEnum = (typeof JenisBarangScalarFieldEnum)[keyof typeof JenisBarangScalarFieldEnum]
 
 
-export const RuanganScalarFieldEnum = {
+export const LetakScalarFieldEnum = {
   id: 'id',
   kode: 'kode',
   nama: 'nama',
@@ -928,28 +928,32 @@ export const RuanganScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type RuanganScalarFieldEnum = (typeof RuanganScalarFieldEnum)[keyof typeof RuanganScalarFieldEnum]
+export type LetakScalarFieldEnum = (typeof LetakScalarFieldEnum)[keyof typeof LetakScalarFieldEnum]
 
 
 export const BarangScalarFieldEnum = {
   id: 'id',
-  kodeBarang: 'kodeBarang',
+  label: 'label',
+  labelAset: 'labelAset',
   nama: 'nama',
-  serialNumber: 'serialNumber',
+  sn: 'sn',
   merek: 'merek',
+  model: 'model',
   tipe: 'tipe',
   vendor: 'vendor',
-  deskripsi: 'deskripsi',
+  keterangan: 'keterangan',
   kondisi: 'kondisi',
   status: 'status',
   jumlah: 'jumlah',
-  tanggalBeli: 'tanggalBeli',
+  tanggalDatang: 'tanggalDatang',
+  tanggalPindah: 'tanggalPindah',
   harga: 'harga',
+  sumberTahun: 'sumberTahun',
   hasSticker: 'hasSticker',
   qrCode: 'qrCode',
   foto: 'foto',
-  kategoriId: 'kategoriId',
-  ruanganId: 'ruanganId',
+  jenisBarangId: 'jenisBarangId',
+  letakId: 'letakId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -962,7 +966,7 @@ export const TransaksiScalarFieldEnum = {
   barangId: 'barangId',
   userId: 'userId',
   namaPeminjam: 'namaPeminjam',
-  ruanganPinjam: 'ruanganPinjam',
+  letakPinjam: 'letakPinjam',
   tanggalPinjam: 'tanggalPinjam',
   tanggalKembali: 'tanggalKembali',
   deadlineKembali: 'deadlineKembali',
@@ -1279,8 +1283,8 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
-  kategoriBarang?: Prisma.KategoriBarangOmit
-  ruangan?: Prisma.RuanganOmit
+  jenisBarang?: Prisma.JenisBarangOmit
+  letak?: Prisma.LetakOmit
   barang?: Prisma.BarangOmit
   transaksi?: Prisma.TransaksiOmit
   pengeluaran?: Prisma.PengeluaranOmit

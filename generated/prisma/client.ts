@@ -47,15 +47,15 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
- * Model KategoriBarang
+ * Model JenisBarang
  * 
  */
-export type KategoriBarang = Prisma.KategoriBarangModel
+export type JenisBarang = Prisma.JenisBarangModel
 /**
- * Model Ruangan
+ * Model Letak
  * 
  */
-export type Ruangan = Prisma.RuanganModel
+export type Letak = Prisma.LetakModel
 /**
  * Model Barang
  * 

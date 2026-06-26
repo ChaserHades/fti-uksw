@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import BarangManager from "@/components/features/BarangManager";
 import PinjamManager from "@/components/features/PinjamManager";
-import RuanganManager from "@/components/features/RuanganManager";
 import RiwayatManager from "@/components/features/RiwayatManager";
 
 function ManajemenContent() {
@@ -17,7 +16,6 @@ function ManajemenContent() {
   const tabs = [
     { id: "pinjam", label: "Peminjaman", icon: "ti-arrows-exchange" },
     { id: "barang", label: "Ketersediaan", icon: "ti-list-search" },
-    { id: "ruangan", label: "Ruangan", icon: "ti-building" },
     { id: "riwayat", label: "Riwayat", icon: "ti-history" },
   ];
 
@@ -61,7 +59,6 @@ function ManajemenContent() {
       <div className="workspace-container">
         {tab === "pinjam" && <PinjamManager role="TEKNISI" />}
         {tab === "barang" && <BarangManager role="TEKNISI" />}
-        {tab === "ruangan" && <RuanganManager role="TEKNISI" />}
         {tab === "riwayat" && <RiwayatManager role="TEKNISI" />}
       </div>
     </>

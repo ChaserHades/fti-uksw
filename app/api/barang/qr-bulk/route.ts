@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     const barangs = await prisma.barang.findMany({
       where: { id: { in: ids } },
-      select: { id: true, kodeBarang: true, nama: true }
+      select: { id: true, label: true, nama: true }
     });
 
     // Generate QR code data URLs for all requested items
@@ -24,13 +24,13 @@ export async function POST(req: Request) {
       barangs.map(async (b) => {
         const payload = JSON.stringify({
           id: b.id,
-          kode: b.kodeBarang,
+          kode: b.label,
           nama: b.nama,
         });
         const qrCode = await QRCode.toDataURL(payload, { margin: 1, width: 300 });
         return {
           id: b.id,
-          kode: b.kodeBarang,
+          kode: b.label,
           nama: b.nama,
           qrCode
         };

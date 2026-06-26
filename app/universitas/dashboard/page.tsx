@@ -14,8 +14,6 @@ export default function UniversitasDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [barang, setBarang] = useState<Barang[]>([]);
   const [pengeluaran, setPengeluaran] = useState<Pengeluaran[]>([]);
-  const [kategoriStat, setKategoriStat] = useState<KategoriStat[]>([]);
-  const [kondisiCount, setKondisiCount] = useState({ BAIK: 0, RUSAK_RINGAN: 0, RUSAK_BERAT: 0 });
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
@@ -23,39 +21,18 @@ export default function UniversitasDashboard() {
 
   useEffect(() => {
     api.get<DashboardStats>("/api/dashboard/stats").then(setStats);
-
-    api.get<{ data: Pengeluaran[] }>("/api/pengeluaran?limit=1000").then(d => {
-      setPengeluaran(d.data);
-    });
-
-    api.get<{ data: Barang[] }>("/api/barang?limit=1000").then(d => {
-      const bData = d.data;
-      setBarang(bData.slice(0, 8)); // Get latest 8 items
-      const katMap: Record<string, number> = {};
-      bData.forEach(b => {
-        const k = b.kategori?.nama ?? "Lainnya";
-        katMap[k] = (katMap[k] ?? 0) + 1;
-      });
-      setKategoriStat(
-        Object.entries(katMap)
-          .map(([nama, total]) => ({ nama, total }))
-          .sort((a, b) => b.total - a.total)
-          .slice(0, 5)
-      );
-      setKondisiCount({
-        BAIK: bData.filter((b: Barang) => b.kondisi === "BAIK").length,
-        RUSAK_RINGAN: bData.filter((b: Barang) => b.kondisi === "RUSAK_RINGAN").length,
-        RUSAK_BERAT: bData.filter((b: Barang) => b.kondisi === "RUSAK_BERAT").length,
-      });
-    });
+    api.get<{ data: Pengeluaran[] }>("/api/pengeluaran?limit=8").then(d => setPengeluaran(d.data));
+    api.get<{ data: Barang[] }>("/api/barang?limit=8").then(d => setBarang(d.data));
   }, []);
 
   const kondisiBadge: Record<string, string> = {
     BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger",
   };
 
-  const totalBarangSample = Object.values(kondisiCount).reduce((a, b) => a + b, 0);
-  const totalNominal = pengeluaran.reduce((sum, p) => sum + p.nominal, 0);
+  const kondisiCount = stats?.kondisiStat || { baik: 0, rusakRingan: 0, rusakBerat: 0 };
+  const totalBarangSample = stats?.totalBarang || 0;
+  const totalNominal = stats?.pengeluaranStat?.totalNominal || 0;
+  const kategoriStat = stats?.katStat || [];
 
   return (
     <div className="animate-fade-in">
@@ -127,14 +104,14 @@ export default function UniversitasDashboard() {
           
           <div style={{ marginTop: "auto", paddingTop: 32 }}>
             <div style={{ display: "flex", gap: 24, marginBottom: 12, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-ok)", marginRight: 6 }}>●</span> {kondisiCount.BAIK} Baik</span>
-              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-warn)", marginRight: 6 }}>●</span> {kondisiCount.RUSAK_RINGAN} Rusak Ringan</span>
-              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-err)", marginRight: 6 }}>●</span> {kondisiCount.RUSAK_BERAT} Rusak Berat</span>
+              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-ok)", marginRight: 6 }}>●</span> {kondisiCount.baik} Baik</span>
+              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-warn)", marginRight: 6 }}>●</span> {kondisiCount.rusakRingan} Rusak Ringan</span>
+              <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-err)", marginRight: 6 }}>●</span> {kondisiCount.rusakBerat} Rusak Berat</span>
             </div>
             <div style={{ display: "flex", height: 4, borderRadius: 2, overflow: "hidden", background: "rgba(255,255,255,0.05)" }}>
-              <div style={{ width: `${totalBarangSample ? (kondisiCount.BAIK/totalBarangSample)*100 : 0}%`, background: "var(--color-ok)" }} />
-              <div style={{ width: `${totalBarangSample ? (kondisiCount.RUSAK_RINGAN/totalBarangSample)*100 : 0}%`, background: "var(--color-warn)" }} />
-              <div style={{ width: `${totalBarangSample ? (kondisiCount.RUSAK_BERAT/totalBarangSample)*100 : 0}%`, background: "var(--color-err)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.baik/totalBarangSample)*100 : 0}%`, background: "var(--color-ok)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.rusakRingan/totalBarangSample)*100 : 0}%`, background: "var(--color-warn)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.rusakBerat/totalBarangSample)*100 : 0}%`, background: "var(--color-err)" }} />
             </div>
           </div>
         </Link>
@@ -146,7 +123,7 @@ export default function UniversitasDashboard() {
             <div style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--color-ok)" }}>
               Rp {(totalNominal / 1000000).toFixed(1)}M
             </div>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dari {pengeluaran.length} transaksi pembelian</span>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dari {stats?.pengeluaranStat?.count || 0} transaksi pembelian</span>
           </div>
         </Link>
 
@@ -164,7 +141,7 @@ export default function UniversitasDashboard() {
               <div key={b.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{b.nama}</div>
-                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama} · {b.kodeBarang}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.jenisBarang?.nama} · {b.label}</div>
                 </div>
                 <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "4px 10px", fontSize: 11, borderRadius: 20 }}>
                   {b.kondisi.replace(/_/g, " ")}

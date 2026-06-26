@@ -23,9 +23,9 @@ export default function TeknisiDashboard() {
       setMe(d);
       api.get<{ data: Transaksi[] }>(`/api/transaksi?userId=${d.id}`).then(res => setMyTrx(res.data));
     });
-    api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF").then(d => setAllAktif(d.data.slice(0, 5)));
-    api.get<{ data: Barang[] }>("/api/barang?limit=1000").then(d =>
-      setTersedia(d.data.filter(b => b.status === "TERSEDIA").slice(0, 5))
+    api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF&limit=5").then(d => setAllAktif(d.data));
+    api.get<{ data: Barang[] }>("/api/barang?tersedia=true&limit=5").then(d =>
+      setTersedia(d.data)
     );
   }, []);
 
@@ -158,7 +158,7 @@ export default function TeknisiDashboard() {
               <div key={t.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{t.barang.nama}</div>
-                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{t.barang.kodeBarang} · Deadline: {fDateShort(t.deadlineKembali)}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{t.barang.label} · Deadline: {fDateShort(t.deadlineKembali)}</div>
                 </div>
                 <div>
                   {t.status === "AKTIF" && isOverdue(t.deadlineKembali)
@@ -185,7 +185,7 @@ export default function TeknisiDashboard() {
               <div key={b.id} className="bento-row" style={{ padding: "12px 32px", borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{b.nama}</div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{b.jenisBarang?.nama}</div>
                 </div>
                 <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "2px 8px", fontSize: 10, borderRadius: 12 }}>
                   {b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak" : "Rusak Berat"}

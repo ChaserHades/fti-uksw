@@ -10,37 +10,41 @@ export interface SessionPayload {
 
 export interface Barang {
   id: string;
-  kodeBarang: string;
+  label: string | null;
+  labelAset: string | null;
   nama: string;
-  serialNumber?: string | null;
+  sn?: string | null;
   merek?: string | null;
+  model?: string | null;
   tipe?: string | null;
   vendor?: string | null;
-  deskripsi?: string | null;
+  keterangan?: string | null;
   kondisi: "BAIK" | "RUSAK_RINGAN" | "RUSAK_BERAT";
   status: "TERSEDIA" | "DIPINJAM" | "MAINTENANCE";
   jumlah: number;
-  tanggalBeli?: string | null;
+  tanggalDatang?: string | null;
+  tanggalPindah?: string | null;
   harga?: number | null;
+  sumberTahun?: string | null;
   hasSticker: boolean;
   qrCode?: string | null;
   foto?: string | null;
-  kategoriId: string;
-  ruanganId?: string | null;
+  jenisBarangId: string;
+  letakId?: string | null;
   createdAt: string;
   updatedAt: string;
-  kategori: KategoriBarang;
-  ruangan?: Ruangan | null;
+  jenisBarang: JenisBarang;
+  letak?: Letak | null;
 }
 
-export interface KategoriBarang {
+export interface JenisBarang {
   id: string;
   nama: string;
-  deskripsi?: string | null;
+  keterangan?: string | null;
   createdAt: string;
 }
 
-export interface Ruangan {
+export interface Letak {
   id: string;
   kode: string;
   nama: string;
@@ -64,8 +68,8 @@ export interface Transaksi {
   userId: string;
   /** Peminjam aktual (mahasiswa/dosen/staf) */
   namaPeminjam: string;
-  /** Ruangan tujuan penggunaan */
-  ruanganPinjam: string;
+  /** Ruangan/Letak tujuan penggunaan */
+  letakPinjam: string;
   tanggalPinjam: string;
   tanggalKembali?: string | null;
   deadlineKembali: string;
@@ -79,17 +83,33 @@ export interface Transaksi {
 
 export interface DashboardStats {
   totalBarang: number;
-  totalRuangan: number;
+  totalLetak: number;
   totalUsers: number;
   pendingVerifikasi: number;
   dipinjam: number;
   terlambat: number;
+  statusStat?: {
+    tersedia: number;
+    dipinjam: number;
+    maintenance: number;
+    total: number;
+  };
+  kondisiStat?: {
+    baik: number;
+    rusakRingan: number;
+    rusakBerat: number;
+  };
+  katStat?: { nama: string; total: number }[];
+  pengeluaranStat?: {
+    totalNominal: number;
+    count: number;
+  };
 }
 
 export interface Pengeluaran {
   id: string;
   judul: string;
-  deskripsi?: string | null;
+  keterangan?: string | null;
   nominal: number;
   tanggal: string;
   jenis: "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";

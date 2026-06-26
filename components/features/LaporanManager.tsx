@@ -13,7 +13,7 @@ import type { Pengeluaran } from "@/types";
 
 type JenisFilter = "" | "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
 
-const EMPTY = { judul: "", deskripsi: "", nominal: "", tanggal: "", jenis: "PEMBELIAN_ASET" };
+const EMPTY = { judul: "", keterangan: "", nominal: "", tanggal: "", jenis: "PEMBELIAN_ASET" };
 const jenisLabel: Record<string, string> = {
   PEMBELIAN_ASET: "Pembelian Aset",
   MAINTENANCE: "Maintenance",
@@ -76,7 +76,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
     try {
       const fd = new FormData();
       fd.append("judul", form.judul);
-      fd.append("deskripsi", form.deskripsi);
+      fd.append("keterangan", form.keterangan);
       fd.append("nominal", form.nominal);
       fd.append("tanggal", form.tanggal);
       fd.append("jenis", form.jenis);
@@ -119,7 +119,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       jenisLabel[p.jenis] ?? p.jenis,
       p.nominal.toString(),
       fDateShort(p.tanggal),
-      p.deskripsi ?? "",
+      p.keterangan ?? "",
       p.user.name ?? p.user.email,
     ]);
     const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
@@ -202,7 +202,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                 <tr key={p.id}>
                   <td>
                     <div className="td-name">{p.judul}</div>
-                    {p.deskripsi && <div className="td-code">{p.deskripsi}</div>}
+                    {p.keterangan && <div className="td-code">{p.keterangan}</div>}
                   </td>
                   <td><span className={`badge ${jenisBadge[p.jenis]}`}>{jenisLabel[p.jenis]}</span></td>
                   <td style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 13 }}>
@@ -286,7 +286,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
         </div>
         <div className="form-group">
           <label className="form-label">Deskripsi</label>
-          <input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setF("deskripsi", e.target.value)} />
+          <input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => setF("keterangan", e.target.value)} />
         </div>
         <div className="form-group">
           <label className="form-label">Upload Nota / Receipt <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>

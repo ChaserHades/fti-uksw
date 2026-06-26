@@ -61,18 +61,18 @@ model User {
   @@map("users")
 }
 
-model KategoriBarang {
+model JenisBarang {
   id        String   @id @default(cuid())
   nama      String   @unique
-  deskripsi String?
+  keterangan String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   barang    Barang[]
 
-  @@map("kategori_barang")
+  @@map("jenis_barang")
 }
 
-model Ruangan {
+model Letak {
   id        String   @id @default(cuid())
   kode      String   @unique
   nama      String
@@ -81,34 +81,38 @@ model Ruangan {
   updatedAt DateTime @updatedAt
   barang    Barang[]
 
-  @@map("ruangan")
+  @@map("letak")
 }
 
 model Barang {
   id           String         @id @default(cuid())
-  kodeBarang   String         @unique
+  label        String?        @unique
+  labelAset    String?        @unique
   nama         String
-  serialNumber String?
+  sn           String?
   merek        String?
+  model        String?
   tipe         String?
   vendor       String?
-  deskripsi    String?
+  keterangan   String?
   kondisi      KondisiBarang  @default(BAIK)
   status       StatusBarang   @default(TERSEDIA)
   jumlah       Int            @default(1)
-  tanggalBeli  DateTime?
+  tanggalDatang DateTime?
+  tanggalPindah DateTime?
   harga        Float?
+  sumberTahun  String?
   /// true = barang punya sticker/barcode fisik (diregister via scan)
   hasSticker   Boolean        @default(false)
   /// QR image data URL — hanya ada jika di-generate dari sistem
   qrCode       String?
   foto         String?
-  kategoriId  String
-  ruanganId   String?
+  jenisBarangId String
+  letakId      String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  kategori    KategoriBarang @relation(fields: [kategoriId], references: [id])
-  ruangan     Ruangan?       @relation(fields: [ruanganId], references: [id])
+  jenisBarang JenisBarang    @relation(fields: [jenisBarangId], references: [id])
+  letak       Letak?         @relation(fields: [letakId], references: [id])
   transaksi   Transaksi[]
 
   @@map("barang")
@@ -120,8 +124,8 @@ model Transaksi {
   userId          String
   /// Peminjam aktual (mahasiswa/dosen/staf) — diisi petugas via modal
   namaPeminjam    String
-  /// Ruangan tujuan penggunaan — free-text
-  ruanganPinjam   String
+  /// Ruangan/Letak tujuan penggunaan — free-text
+  letakPinjam   String
   tanggalPinjam   DateTime        @default(now())
   tanggalKembali  DateTime?
   deadlineKembali DateTime

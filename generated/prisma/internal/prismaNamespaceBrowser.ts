@@ -52,8 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  KategoriBarang: 'KategoriBarang',
-  Ruangan: 'Ruangan',
+  JenisBarang: 'JenisBarang',
+  Letak: 'Letak',
   Barang: 'Barang',
   Transaksi: 'Transaksi',
   Pengeluaran: 'Pengeluaran'
@@ -91,18 +91,18 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const KategoriBarangScalarFieldEnum = {
+export const JenisBarangScalarFieldEnum = {
   id: 'id',
   nama: 'nama',
-  deskripsi: 'deskripsi',
+  keterangan: 'keterangan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type KategoriBarangScalarFieldEnum = (typeof KategoriBarangScalarFieldEnum)[keyof typeof KategoriBarangScalarFieldEnum]
+export type JenisBarangScalarFieldEnum = (typeof JenisBarangScalarFieldEnum)[keyof typeof JenisBarangScalarFieldEnum]
 
 
-export const RuanganScalarFieldEnum = {
+export const LetakScalarFieldEnum = {
   id: 'id',
   kode: 'kode',
   nama: 'nama',
@@ -111,28 +111,32 @@ export const RuanganScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type RuanganScalarFieldEnum = (typeof RuanganScalarFieldEnum)[keyof typeof RuanganScalarFieldEnum]
+export type LetakScalarFieldEnum = (typeof LetakScalarFieldEnum)[keyof typeof LetakScalarFieldEnum]
 
 
 export const BarangScalarFieldEnum = {
   id: 'id',
-  kodeBarang: 'kodeBarang',
+  label: 'label',
+  labelAset: 'labelAset',
   nama: 'nama',
-  serialNumber: 'serialNumber',
+  sn: 'sn',
   merek: 'merek',
+  model: 'model',
   tipe: 'tipe',
   vendor: 'vendor',
-  deskripsi: 'deskripsi',
+  keterangan: 'keterangan',
   kondisi: 'kondisi',
   status: 'status',
   jumlah: 'jumlah',
-  tanggalBeli: 'tanggalBeli',
+  tanggalDatang: 'tanggalDatang',
+  tanggalPindah: 'tanggalPindah',
   harga: 'harga',
+  sumberTahun: 'sumberTahun',
   hasSticker: 'hasSticker',
   qrCode: 'qrCode',
   foto: 'foto',
-  kategoriId: 'kategoriId',
-  ruanganId: 'ruanganId',
+  jenisBarangId: 'jenisBarangId',
+  letakId: 'letakId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -145,7 +149,7 @@ export const TransaksiScalarFieldEnum = {
   barangId: 'barangId',
   userId: 'userId',
   namaPeminjam: 'namaPeminjam',
-  ruanganPinjam: 'ruanganPinjam',
+  letakPinjam: 'letakPinjam',
   tanggalPinjam: 'tanggalPinjam',
   tanggalKembali: 'tanggalKembali',
   deadlineKembali: 'deadlineKembali',

@@ -37,7 +37,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   // Modal state
   const [modalPinjam,  setModalPinjam]  = useState(false);
   const [modalKembali, setModalKembali] = useState(false);
-  const [form, setForm] = useState({ namaPeminjam: "", ruanganPinjam: "", deadlineKembali: "", catatan: "" });
+  const [form, setForm] = useState({ namaPeminjam: "", letakPinjam: "", deadlineKembali: "", catatan: "" });
   const [saving, setSaving]       = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -100,7 +100,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   async function processBarang(data: Barang) {
     setBarang(data);
     if (data.status === "TERSEDIA") {
-      setForm({ namaPeminjam: "", ruanganPinjam: "", deadlineKembali: "", catatan: "" });
+      setForm({ namaPeminjam: "", letakPinjam: "", deadlineKembali: "", catatan: "" });
       setModalPinjam(true);
     } else if (data.status === "DIPINJAM") {
       const res = await api.get<{ data: Transaksi[]; nextCursor: string | null }>("/api/transaksi?status=AKTIF");
@@ -146,7 +146,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   async function handlePinjam() {
     if (!barang) return;
     if (!form.namaPeminjam.trim()) { toast.error("Nama peminjam wajib diisi"); return; }
-    if (!form.ruanganPinjam.trim()) { toast.error("Ruangan wajib diisi"); return; }
+    if (!form.letakPinjam.trim()) { toast.error("Letak wajib diisi"); return; }
     if (!form.deadlineKembali) { toast.error("Deadline kembali wajib diisi"); return; }
 
     setSaving(true);
@@ -154,7 +154,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       await api.post("/api/transaksi", {
         barangId: barang.id,
         namaPeminjam: form.namaPeminjam,
-        ruanganPinjam: form.ruanganPinjam,
+        letakPinjam: form.letakPinjam,
         deadlineKembali: form.deadlineKembali,
         catatan: form.catatan || null,
       });
@@ -294,7 +294,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Barang</th><th>Peminjam</th><th>Ruangan</th>
+                    <th>Barang</th><th>Peminjam</th><th>Letak</th>
                     <th>Deadline</th><th>Status</th><th>Aksi</th>
                   </tr>
                 </thead>
@@ -313,10 +313,10 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                       <tr key={t.id}>
                         <td>
                           <div className="td-name">{t.barang.nama}</div>
-                          <div className="td-code">{t.barang.kodeBarang}</div>
+                          <div className="td-code">{t.barang.label}</div>
                         </td>
                         <td className="td-sm">{t.namaPeminjam}</td>
-                        <td className="td-sm">{t.ruanganPinjam}</td>
+                        <td className="td-sm">{t.letakPinjam}</td>
                         <td className="td-sm">{fDateShort(t.deadlineKembali)}</td>
                         <td>
                           <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
@@ -355,7 +355,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="modal-preview-title">{barang.nama}</div>
-                <div className="td-code">{barang.kodeBarang}</div>
+                <div className="td-code">{barang.label}</div>
               </div>
               <span className="badge badge-ok" style={{ flexShrink: 0 }}>Tersedia</span>
             </div>
@@ -366,8 +366,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
             </div>
             <div className="form-grid-2">
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Ruangan Penggunaan *</label>
-                <input className="input" placeholder="Lab 1 / R.101" value={form.ruanganPinjam} onChange={e => setF("ruanganPinjam", e.target.value)} />
+                <label className="form-label">Letak Penggunaan *</label>
+                <input className="input" placeholder="Lab 1 / R.101" value={form.letakPinjam} onChange={e => setF("letakPinjam", e.target.value)} />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">Deadline Kembali *</label>
@@ -397,7 +397,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               <div className="modal-preview-title" style={{ marginBottom: 8 }}>{barang.nama}</div>
               <div className="flex-col" style={{ gap: 5 }}>
                 {[
-                  { label: "Kode",     value: barang.kodeBarang },
+                  { label: "Kode",     value: barang.label },
                   { label: "Peminjam", value: transaksiAktif.namaPeminjam },
                   { label: "Dipinjam", value: fDateShort(transaksiAktif.tanggalPinjam) },
                   { label: "Deadline", value: fDateShort(transaksiAktif.deadlineKembali) },

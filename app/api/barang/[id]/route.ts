@@ -9,7 +9,7 @@ export async function GET(_: Request, { params }: Params) {
   const { id } = await params;
   const item = await prisma.barang.findUnique({
     where: { id },
-    include: { kategori: true, ruangan: true },
+    include: { jenisBarang: true, letak: true },
   });
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(item);
@@ -25,21 +25,24 @@ export async function PUT(req: Request, { params }: Params) {
   const item = await prisma.barang.update({
     where: { id },
     data: {
-      kodeBarang: body.kodeBarang,
+      label: body.label,
+      labelAset: body.labelAset || null,
       nama: body.nama,
-      serialNumber: body.serialNumber || null,
+      sn: body.sn || null,
       merek: body.merek || null,
+      model: body.model || null,
       tipe: body.tipe || null,
       vendor: body.vendor || null,
-      deskripsi: body.deskripsi ?? null,
+      keterangan: body.keterangan ?? null,
       kondisi: body.kondisi,
       jumlah: Number(body.jumlah),
-      tanggalBeli: body.tanggalBeli ? new Date(body.tanggalBeli) : null,
+      tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
+      tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
       harga: body.harga ? Number(body.harga) : null,
-      kategoriId: body.kategoriId,
-      ruanganId: body.ruanganId ?? null,
+      jenisBarangId: body.jenisBarangId,
+      letakId: body.letakId ?? null,
     },
-    include: { kategori: true, ruangan: true },
+    include: { jenisBarang: true, letak: true },
   });
   return NextResponse.json(item);
 }

@@ -38,7 +38,7 @@ export default function CashflowUniversitasPage() {
       jenisLabel[p.jenis] ?? p.jenis,
       p.nominal.toString(),
       fDateShort(p.tanggal),
-      p.deskripsi ?? "",
+      p.keterangan ?? "",
       p.user.name ?? p.user.email,
     ]);
     const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
@@ -115,7 +115,7 @@ export default function CashflowUniversitasPage() {
                 <tr key={p.id}>
                   <td>
                     <div className="td-name">{p.judul}</div>
-                    {p.deskripsi && <div className="td-code">{p.deskripsi}</div>}
+                    {p.keterangan && <div className="td-code">{p.keterangan}</div>}
                   </td>
                   <td><span className={`badge ${jenisBadge[p.jenis]}`}>{jenisLabel[p.jenis]}</span></td>
                   <td style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 13 }}>

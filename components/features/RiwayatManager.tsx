@@ -40,15 +40,15 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
 
   function exportCSV() {
     const headers = [
-      "ID", "Barang", "Kode", "Nama Peminjam", "Ruangan Pinjam",
+      "ID", "Barang", "Kode", "Nama Peminjam", "Letak Pinjam",
       "Petugas", "Email Petugas", "Tgl Pinjam", "Deadline", "Tgl Kembali", "Status", "Terlambat",
     ];
     const rows = list.map(t => [
       t.id,
       t.barang.nama,
-      t.barang.kodeBarang,
+      t.barang.label,
       t.namaPeminjam,
-      t.ruanganPinjam,
+      t.letakPinjam,
       t.user.name ?? "",
       t.user.email,
       fDateShort(t.tanggalPinjam),
@@ -116,7 +116,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
               <tr>
                 <th style={{ width: "18%" }}>Barang</th>
                 <th style={{ width: "14%" }}>Peminjam</th>
-                <th style={{ width: "12%" }}>Ruangan</th>
+                <th style={{ width: "12%" }}>Letak</th>
                 <th style={{ width: "12%" }}>Petugas</th>
                 <th style={{ width: "11%" }}>Tgl Pinjam</th>
                 <th style={{ width: "11%" }}>Deadline</th>
@@ -140,12 +140,12 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
                   <tr key={t.id}>
                     <td>
                       <div className="td-name">{t.barang.nama}</div>
-                      <div className="td-code">{t.barang.kodeBarang}</div>
+                      <div className="td-code">{t.barang.label}</div>
                     </td>
                     <td>
                       <div className="td-sm" style={{ color: "var(--text-primary)" }}>{t.namaPeminjam}</div>
                     </td>
-                    <td className="td-sm">{t.ruanganPinjam}</td>
+                    <td className="td-sm">{t.letakPinjam}</td>
                     <td>
                       <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
                       <div className="td-code">{t.user.email}</div>

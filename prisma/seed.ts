@@ -26,27 +26,7 @@ async function main() {
     });
   }
 
-  const kategoriData = [
-    { nama: "Komputer",     deskripsi: "Laptop, PC, dan perangkat komputer" },
-    { nama: "Proyektor",    deskripsi: "Proyektor dan layar presentasi" },
-    { nama: "Furnitur",     deskripsi: "Meja, kursi, dan perabot ruangan" },
-    { nama: "Jaringan",     deskripsi: "Router, switch, dan kabel jaringan" },
-    { nama: "Audio Visual", deskripsi: "Speaker, mikrofon, dan kamera" },
-  ];
-  for (const k of kategoriData) {
-    await prisma.kategoriBarang.upsert({ where: { nama: k.nama }, update: {}, create: k });
-  }
-
-  const ruanganData = [
-    { kode: "R101", nama: "Ruang Kuliah 101", lantai: "1" },
-    { kode: "R102", nama: "Ruang Kuliah 102", lantai: "1" },
-    { kode: "LAB1", nama: "Lab Komputer 1",   lantai: "1" },
-    { kode: "LAB2", nama: "Lab Komputer 2",   lantai: "2" },
-    { kode: "SEM",  nama: "Ruang Seminar",    lantai: "3" },
-  ];
-  for (const r of ruanganData) {
-    await prisma.ruangan.upsert({ where: { kode: r.kode }, update: {}, create: r });
-  }
+  // Dummy data dihapus sesuai request, mulai dari sini data akan murni dari input pengguna.
 
   console.log("Seed selesai!");
   console.log("  admin@fti.local       / admin123");

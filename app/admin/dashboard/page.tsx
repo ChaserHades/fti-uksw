@@ -12,8 +12,6 @@ interface KategoriStat { nama: string; total: number; }
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
-  const [katStat, setKatStat] = useState<KategoriStat[]>([]);
-  const [statusStat, setStatusStat] = useState({ tersedia: 0, dipinjam: 0, maintenance: 0, total: 0 });
   const [loaded, setLoaded] = useState(false);
   const hasFetched = useRef(false);
 
@@ -27,34 +25,17 @@ export default function AdminDashboard() {
 
     Promise.all([
       api.get<DashboardStats>("/api/dashboard/stats"),
-      api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF"),
-      api.get<{ data: Barang[] }>("/api/barang?limit=1000"),
-    ]).then(([s, tRes, bRes]) => {
+      api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF&limit=6"),
+    ]).then(([s, tRes]) => {
       const t = (Array.isArray(tRes) ? tRes : (tRes as any).data || []) as Transaksi[];
-      const b = (Array.isArray(bRes) ? bRes : (bRes as any).data || []) as Barang[];
       setStats(s);
       setTransaksi(t.slice(0, 6));
-
-      const map: Record<string, number> = {};
-      b.forEach(br => { const k = br.kategori?.nama ?? "Lainnya"; map[k] = (map[k] ?? 0) + 1; });
-      setKatStat(
-        Object.entries(map)
-          .map(([nama, total]) => ({ nama, total }))
-          .sort((a, b) => b.total - a.total)
-          .slice(0, 5)
-      );
-
-      setStatusStat({
-        tersedia: b.filter(x => x.status === "TERSEDIA").length,
-        dipinjam: b.filter(x => x.status === "DIPINJAM").length,
-        maintenance: b.filter(x => x.status === "MAINTENANCE").length,
-        total: b.length,
-      });
-
       setLoaded(true);
     }).catch(console.error);
   }, []);
 
+  const katStat = stats?.katStat || [];
+  const statusStat = stats?.statusStat || { tersedia: 0, dipinjam: 0, maintenance: 0, total: 0 };
   const maxKat = Math.max(...katStat.map(k => k.total), 1);
 
   if (!loaded) {
@@ -161,10 +142,10 @@ export default function AdminDashboard() {
           </div>
         </Link>
 
-        {/* Total Ruangan (Span 4) */}
-        <Link href="/admin/manajemen?tab=ruangan" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
-          <span style={{ color: "var(--color-info)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Ruangan Fasilitas</span>
-          <div style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)", marginTop: 16 }}>{stats?.totalRuangan ?? 0}</div>
+        {/* Total Letak (Span 4) */}
+        <Link href="/admin/manajemen?tab=letak" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
+          <span style={{ color: "var(--color-info)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Letak Fasilitas</span>
+          <div style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)", marginTop: 16 }}>{stats?.totalLetak ?? 0}</div>
         </Link>
 
         {/* Peminjaman Aktif (Span 8) */}

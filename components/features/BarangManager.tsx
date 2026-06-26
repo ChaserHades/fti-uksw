@@ -1,7 +1,6 @@
 // app/admin/barang/page.tsx
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useSearchParams } from "next/navigation";
 import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
 import LiquidSelect from "@/components/LiquidSelect";
@@ -9,37 +8,34 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
 import ConfirmModal from "@/components/ConfirmModal";
-import type { Barang, KategoriBarang, Ruangan } from "@/types";
+import type { Barang, JenisBarang, Letak } from "@/types";
+import ExportModal from "./ExportModal";
+import FullTablePreview from "./FullTablePreview";
+import LetakManager from "./LetakManager";
+import ImportDraftView from "./ImportDraftView";
 
 declare const jsQR: (
   data: Uint8ClampedArray, width: number, height: number
 ) => { data: string } | null;
 
-type Tab = "daftar" | "add" | "kategori";
+type Tab = "daftar" | "add" | "jenis-barang" | "letak";
 type AddMode = "scan" | "manual" | "import";
 
 const EMPTY = {
-  kodeBarang: "", nama: "", serialNumber: "", merek: "", tipe: "", vendor: "", deskripsi: "", kondisi: "BAIK",
-  jumlah: 1, tanggalBeli: "", harga: "", kategoriId: "", ruanganId: "",
+  label: "", labelAset: "", nama: "", sn: "", merek: "", model: "", tipe: "", vendor: "", keterangan: "", kondisi: "BAIK",
+  jumlah: 1, tanggalDatang: "", tanggalPindah: "", harga: "", jenisBarangId: "", letakId: "",
 };
 
 export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
-  const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("daftar");
-
-  useEffect(() => {
-    const action = searchParams.get("action");
-    if (action === "add" && role === "ADMIN") {
-      setTab("add");
-    }
-  }, [searchParams, role]);
 
   const availableTabs = [
     { key: "daftar" as Tab, icon: "ti-list", label: "Daftar Barang" },
   ];
   if (role === "ADMIN") {
     availableTabs.push({ key: "add" as Tab, icon: "ti-plus", label: "Add Item" });
-    availableTabs.push({ key: "kategori" as Tab, icon: "ti-category", label: "Kategori" });
+    availableTabs.push({ key: "jenis-barang" as Tab, icon: "ti-category", label: "Jenis Barang" });
+    availableTabs.push({ key: "letak" as Tab, icon: "ti-building", label: "Letak / Ruangan" });
   }
 
   return (
@@ -70,7 +66,8 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
 
       {tab === "daftar"   && <DaftarTab role={role} />}
       {tab === "add"      && role === "ADMIN" && <AddItemTab />}
-      {tab === "kategori" && role === "ADMIN" && <KategoriTab />}
+      {tab === "jenis-barang" && role === "ADMIN" && <KategoriTab />}
+      {tab === "letak"    && role === "ADMIN" && <LetakManager role={role} />}
     </div>
   );
 }
@@ -80,8 +77,8 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
 // ══════════════════════════════════════════════════════════════════════════════
 function DaftarTab({ role }: { role: string }) {
   const [barang,    setBarang]    = useState<Barang[]>([]);
-  const [kategori,  setKategori]  = useState<KategoriBarang[]>([]);
-  const [ruangan,   setRuangan]   = useState<Ruangan[]>([]);
+  const [jenisBarang,  setJenisBarang]  = useState<JenisBarang[]>([]);
+  const [letak,   setLetak]   = useState<Letak[]>([]);
   const [search,    setSearch]    = useState("");
   const [filterKat, setFilterKat] = useState("");
   const [modal,     setModal]     = useState<"form" | "qr" | "bulk-qr" | null>(null);
@@ -96,12 +93,18 @@ function DaftarTab({ role }: { role: string }) {
 
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [sortBy, setSortBy] = useState("tanggalDatang");
+  const [sortDir, setSortDir] = useState("desc");
+  const [fullPreview, setFullPreview] = useState(false);
 
   const load = useCallback((reset = true) => {
     const currentCursor = reset ? null : cursor;
     const p = new URLSearchParams();
     if (search)    p.set("search",    search);
-    if (filterKat) p.set("kategoriId", filterKat);
+    if (filterKat) p.set("jenisBarangId", filterKat);
+    if (sortBy)    p.set("sortBy", sortBy);
+    if (sortDir)   p.set("sortDir", sortDir);
     if (currentCursor) p.set("cursor", currentCursor);
 
     if (!reset) setLoadingMore(true);
@@ -114,12 +117,12 @@ function DaftarTab({ role }: { role: string }) {
       .catch(console.error)
       .finally(() => { if (!reset) setLoadingMore(false); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, filterKat, cursor]);
+  }, [search, filterKat, cursor, sortBy, sortDir]);
 
-  useEffect(() => { load(true); }, [search, filterKat]);
+  useEffect(() => { load(true); }, [search, filterKat, sortBy, sortDir]);
   useEffect(() => {
-    api.get<KategoriBarang[]>("/api/kategori").then(setKategori);
-    api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
+    api.get<JenisBarang[]>("/api/jenis-barang").then(setJenisBarang);
+    api.get<Letak[]>("/api/letak").then(setLetak);
   }, []);
 
   const setF = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
@@ -128,12 +131,14 @@ function DaftarTab({ role }: { role: string }) {
   function openEdit(b: Barang) {
     setSelected(b);
     setForm({
-      kodeBarang: b.kodeBarang, nama: b.nama, serialNumber: b.serialNumber ?? "",
-      merek: b.merek ?? "", tipe: b.tipe ?? "", vendor: b.vendor ?? "",
-      deskripsi: b.deskripsi ?? "",
+      label: b.label || "", labelAset: b.labelAset || "", nama: b.nama, sn: b.sn || "",
+      merek: b.merek || "", model: b.model || "", tipe: b.tipe || "", vendor: b.vendor || "",
+      keterangan: b.keterangan || "",
       kondisi: b.kondisi, jumlah: b.jumlah,
-      tanggalBeli: b.tanggalBeli ? new Date(b.tanggalBeli).toISOString().split('T')[0] : "", harga: b.harga?.toString() ?? "",
-      kategoriId: b.kategoriId, ruanganId: b.ruanganId ?? "",
+      tanggalDatang: b.tanggalDatang ? new Date(b.tanggalDatang).toISOString().split('T')[0] : "",
+      tanggalPindah: b.tanggalPindah ? new Date(b.tanggalPindah).toISOString().split('T')[0] : "",
+      harga: b.harga?.toString() || "",
+      jenisBarangId: b.jenisBarangId, letakId: b.letakId || "",
     });
     setModal("form");
   }
@@ -168,16 +173,17 @@ function DaftarTab({ role }: { role: string }) {
   }
 
   async function handleSave() {
-    if (!form.kodeBarang || !form.nama || !form.kategoriId) {
-      toast.error("Kode, nama, dan kategori wajib diisi"); return;
+    if (!form.label || !form.nama || !form.jenisBarangId) {
+      toast.error("Label, nama, dan kategori wajib diisi"); return;
     }
     setSaving(true);
     const body = {
       ...form,
       jumlah:    Number(form.jumlah),
-      tanggalBeli: form.tanggalBeli || null,
+      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang).toISOString() : null,
+      tanggalPindah: form.tanggalPindah ? new Date(form.tanggalPindah).toISOString() : null,
       harga:     form.harga     ? Number(form.harga)     : null,
-      ruanganId: form.ruanganId || null,
+      letakId: form.letakId || null,
     };
     try {
       if (selected) {
@@ -227,11 +233,36 @@ function DaftarTab({ role }: { role: string }) {
             value={filterKat}
             onChange={setFilterKat}
             options={[
-              { value: "", label: "Semua Kategori" },
-              ...kategori.map(k => ({ value: k.id, label: k.nama }))
+              { value: "", label: "Semua Jenis Barang" },
+              ...jenisBarang.map(k => ({ value: k.id, label: k.nama }))
             ]}
           />
         </div>
+        <div style={{ flex: "0 1 180px", minWidth: 150 }}>
+          <LiquidSelect
+            value={sortBy}
+            onChange={setSortBy}
+            options={[
+              { value: "tanggalDatang", label: "Sort: Tanggal" },
+              { value: "merek", label: "Sort: Merek" },
+              { value: "jenisBarangId", label: "Sort: Jenis" },
+              { value: "letakId", label: "Sort: Letak" },
+            ]}
+          />
+        </div>
+        <div style={{ flex: "0 1 120px", minWidth: 100 }}>
+          <LiquidSelect
+            value={sortDir}
+            onChange={setSortDir}
+            options={[
+              { value: "desc", label: "Terbaru/Z-A" },
+              { value: "asc", label: "Terlama/A-Z" },
+            ]}
+          />
+        </div>
+        <button className="btn btn-ghost" onClick={() => setFullPreview(true)}>
+          <i className="ti ti-table" /> Full Preview
+        </button>
         {role === "ADMIN" && (
           <>
             <button className="btn btn-primary" onClick={openAdd}>
@@ -240,6 +271,9 @@ function DaftarTab({ role }: { role: string }) {
             <button className="btn btn-ghost" onClick={handleBulkPrint} title="Print QR Semua Barang (Bulk)">
               <i className="ti ti-printer" /> Bulk Print
             </button>
+            <button className="btn btn-primary" onClick={() => setShowExport(true)}>
+              <i className="ti ti-download" /> Export
+            </button>
           </>
         )}
       </div>
@@ -247,34 +281,27 @@ function DaftarTab({ role }: { role: string }) {
       {/* Table */}
       <div className="glass">
         <div className="table-wrap">
-          <table className="table">
+          <table className="table" style={{ minWidth: 600 }}>
             <thead>
               <tr>
-                <th style={{ width: "13%" }}>Kode</th>
-                <th style={{ width: "25%" }}>Nama</th>
-                <th style={{ width: "15%" }}>Kategori</th>
-                <th style={{ width: "12%" }}>Kondisi</th>
-                <th style={{ width: "12%" }}>Status</th>
-                <th style={{ width: "6%" }}>Jml</th>
-                <th style={{ width: "17%" }}>Aksi</th>
+                <th style={{ width: "6%" }}>No</th>
+                <th>Jenis Barang</th>
+                <th style={{ width: "20%" }}>Label</th>
+                <th style={{ width: "20%" }}>Label Aset</th>
+                <th style={{ width: "15%" }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {barang.length === 0 ? (
-                <tr><td colSpan={7}><div className="empty-state"><i className="ti ti-box-off" style={{ fontSize: 30 }} />Tidak ada data barang</div></td></tr>
-              ) : barang.map(b => (
+                <tr><td colSpan={5}><div className="empty-state"><i className="ti ti-box-off" style={{ fontSize: 30 }} />Tidak ada data barang</div></td></tr>
+              ) : barang.map((b, i) => (
                 <tr key={b.id}>
-                  <td className="td-code">{b.kodeBarang}</td>
+                  <td className="td-sm text-muted">{i + 1}</td>
+                  <td className="td-sm font-medium">{b.jenisBarang.nama}</td>
+                  <td className="td-code">{b.label || "-"}</td>
+                  <td className="td-code">{b.labelAset || "-"}</td>
                   <td>
-                    <div className="td-name">{b.nama}</div>
-                    {b.ruangan && <div className="td-code"><i className="ti ti-map-pin" style={{ fontSize: 10 }} /> {b.ruangan.kode}</div>}
-                  </td>
-                  <td className="td-sm">{b.kategori.nama}</td>
-                  <td><span className={`badge ${kondisiBadge[b.kondisi] ?? "badge-muted"}`}>{b.kondisi.replace(/_/g, " ")}</span></td>
-                  <td><span className={`badge ${statusBadge[b.status] ?? "badge-muted"}`}>{b.status}</span></td>
-                  <td style={{ fontSize: 13 }}>{b.jumlah}</td>
-                  <td>
-                    <div className="action-row" style={{ flexWrap: "wrap" }}>
+                    <div className="action-row">
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openQR(b)} title="QR Code"><i className="ti ti-qrcode" /></button>
                       {role === "ADMIN" && (
                         <>
@@ -312,12 +339,49 @@ function DaftarTab({ role }: { role: string }) {
         onCancel={() => setConfirmDel(null)}
       />
 
-      {/* Form Modal */}
+      <FullTablePreview 
+        isOpen={fullPreview} 
+        onClose={() => setFullPreview(false)} 
+      />
+
+      {/* Modal Form */}
       <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Barang" : "Tambah Barang"}>
+        <div className="form-grid-3">
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Kode Barang (Label)</label>
+            <input className="input" placeholder="BRG-001" value={form.label} onChange={e => setF("label", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Label Aset</label>
+            <input className="input" placeholder="LBL-AST-01" value={form.labelAset} onChange={e => setF("labelAset", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Serial Number (SN)</label>
+            <input className="input" placeholder="S/N" value={form.sn} onChange={e => setF("sn", e.target.value)} />
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Nama Barang *</label>
+          <input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} />
+        </div>
+        <div className="form-grid-3">
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Merek</label>
+            <input className="input" placeholder="Merek barang" value={form.merek} onChange={e => setF("merek", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Model</label>
+            <input className="input" placeholder="Model barang" value={form.model} onChange={e => setF("model", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Tipe</label>
+            <input className="input" placeholder="Tipe barang" value={form.tipe} onChange={e => setF("tipe", e.target.value)} />
+          </div>
+        </div>
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Kode Barang *</label>
-            <input className="input" placeholder="BRG-001" value={form.kodeBarang} onChange={e => setF("kodeBarang", e.target.value)} />
+            <label className="form-label">Vendor / Supplier</label>
+            <input className="input" placeholder="Nama vendor" value={form.vendor} onChange={e => setF("vendor", e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kondisi</label>
@@ -332,50 +396,26 @@ function DaftarTab({ role }: { role: string }) {
             />
           </div>
         </div>
-        <div className="form-group">
-          <label className="form-label">Nama Barang *</label>
-          <input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} />
-        </div>
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Merek</label>
-            <input className="input" placeholder="Merek barang" value={form.merek} onChange={e => setF("merek", e.target.value)} />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Tipe</label>
-            <input className="input" placeholder="Model / Tipe" value={form.tipe} onChange={e => setF("tipe", e.target.value)} />
-          </div>
-        </div>
-        <div className="form-grid-2">
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Serial Number (SN)</label>
-            <input className="input" placeholder="S/N" value={form.serialNumber} onChange={e => setF("serialNumber", e.target.value)} />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Vendor / Supplier</label>
-            <input className="input" placeholder="Nama vendor" value={form.vendor} onChange={e => setF("vendor", e.target.value)} />
-          </div>
-        </div>
-        <div className="form-grid-2">
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Kategori *</label>
+            <label className="form-label">Jenis Barang *</label>
             <LiquidSelect
-              value={form.kategoriId}
-              onChange={val => setF("kategoriId", val)}
+              value={form.jenisBarangId}
+              onChange={val => setF("jenisBarangId", val)}
               options={[
-                { value: "", label: "— Pilih kategori —" },
-                ...kategori.map(k => ({ value: k.id, label: k.nama }))
+                { value: "", label: "— Pilih jenis barang —" },
+                ...jenisBarang.map(k => ({ value: k.id, label: k.nama }))
               ]}
             />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Ruangan</label>
+            <label className="form-label">Letak</label>
             <LiquidSelect
-              value={form.ruanganId}
-              onChange={val => setF("ruanganId", val)}
+              value={form.letakId}
+              onChange={val => setF("letakId", val)}
               options={[
                 { value: "", label: "Tidak ada" },
-                ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
+                ...letak.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
               ]}
             />
           </div>
@@ -386,17 +426,21 @@ function DaftarTab({ role }: { role: string }) {
             <input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Tanggal Beli</label>
-            <input type="date" className="input" value={form.tanggalBeli} onChange={e => setF("tanggalBeli", e.target.value)} />
+            <label className="form-label">Tgl Datang</label>
+            <input type="date" className="input" value={form.tanggalDatang} onChange={e => setF("tanggalDatang", e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Harga (Rp)</label>
-            <input type="number" className="input" placeholder="0" value={form.harga} onChange={e => setF("harga", e.target.value)} />
+            <label className="form-label">Tgl Pindah</label>
+            <input type="date" className="input" value={form.tanggalPindah} onChange={e => setF("tanggalPindah", e.target.value)} />
           </div>
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Harga (Rp)</label>
+          <input type="number" className="input" placeholder="0" value={form.harga} onChange={e => setF("harga", e.target.value)} />
         </div>
         <div className="form-group">
           <label className="form-label">Deskripsi</label>
-          <input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setF("deskripsi", e.target.value)} />
+          <input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => setF("keterangan", e.target.value)} />
         </div>
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(null)}>Batal</button>
@@ -465,6 +509,24 @@ function DaftarTab({ role }: { role: string }) {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmDel}
+        title="Hapus Barang"
+        message={`Yakin ingin menghapus ${confirmDel?.nama}?`}
+        onConfirm={performDelete}
+        onCancel={() => setConfirmDel(null)}
+        isLoading={isDeleting}
+        danger
+      />
+
+      {showExport && (
+        <ExportModal 
+          open={showExport} 
+          onClose={() => setShowExport(false)} 
+          jenisBarangList={jenisBarang} 
+        />
+      )}
     </>
   );
 }
@@ -525,13 +587,13 @@ function ScanRegisterSection() {
 
   const [registerModal, setRegisterModal] = useState(false);
   const [form, setForm]   = useState<typeof EMPTY>(EMPTY);
-  const [kategori, setKategori] = useState<KategoriBarang[]>([]);
-  const [ruangan, setRuangan]   = useState<Ruangan[]>([]);
+  const [jenisBarang, setJenisBarang] = useState<JenisBarang[]>([]);
+  const [letak, setLetak]   = useState<Letak[]>([]);
   const [saving, setSaving]     = useState(false);
 
   useEffect(() => {
-    api.get<KategoriBarang[]>("/api/kategori").then(setKategori);
-    api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
+    api.get<JenisBarang[]>("/api/jenis-barang").then(setJenisBarang);
+    api.get<Letak[]>("/api/letak").then(setLetak);
   }, []);
 
   useEffect(() => {
@@ -581,7 +643,7 @@ function ScanRegisterSection() {
       setFoundBarang(data);
       toast.success(`Barang "${data.nama}" sudah terdaftar di database`);
     } catch {
-      setForm({ ...EMPTY, kodeBarang: kode });
+      setForm({ ...EMPTY, label: kode });
       setRegisterModal(true);
     }
   }
@@ -590,14 +652,15 @@ function ScanRegisterSection() {
 
   async function handleRegister() {
     if (!form.nama.trim()) { toast.error("Nama wajib diisi"); return; }
-    if (!form.kategoriId) { toast.error("Kategori wajib dipilih"); return; }
+    if (!form.jenisBarangId) { toast.error("Jenis barang wajib dipilih"); return; }
     setSaving(true);
     try {
       await api.post("/api/barang", {
         ...form, jumlah: Number(form.jumlah) || 1,
-        tanggalBeli: form.tanggalBeli || null,
+        tanggalDatang: form.tanggalDatang || null,
+        tanggalPindah: form.tanggalPindah || null,
         harga: form.harga ? Number(form.harga) : null,
-        ruanganId: form.ruanganId || null, hasSticker: true,
+        letakId: form.letakId || null, hasSticker: true,
       });
       toast.success(`Barang "${form.nama}" berhasil diregistrasi!`);
       setRegisterModal(false); setScannedKode(""); setForm(EMPTY);
@@ -638,7 +701,7 @@ function ScanRegisterSection() {
         </div>
         {scannedKode && !scanning && foundBarang && (
           <div className="alert alert-warn" style={{ marginTop: 14 }}>
-            <i className="ti ti-check" /> Barang <strong>{foundBarang.nama}</strong> ({foundBarang.kodeBarang}) sudah terdaftar.
+            <i className="ti ti-check" /> Barang <strong>{foundBarang.nama}</strong> ({foundBarang.label}) sudah terdaftar.
           </div>
         )}
       </div>
@@ -651,7 +714,7 @@ function ScanRegisterSection() {
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kode Barang <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(dari sticker)</span></label>
-            <input className="input" value={form.kodeBarang} readOnly style={{ opacity: 0.7, cursor: "not-allowed" }} />
+            <input className="input" value={form.label} readOnly style={{ opacity: 0.7, cursor: "not-allowed" }} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kondisi</label>
@@ -680,7 +743,7 @@ function ScanRegisterSection() {
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Serial Number (SN)</label>
-            <input className="input" placeholder="S/N" value={form.serialNumber} onChange={e => setF("serialNumber", e.target.value)} />
+            <input className="input" placeholder="S/N" value={form.sn} onChange={e => setF("sn", e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Vendor / Supplier</label>
@@ -689,31 +752,32 @@ function ScanRegisterSection() {
         </div>
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Kategori *</label>
+            <label className="form-label">Jenis Barang *</label>
             <LiquidSelect
-              value={form.kategoriId}
-              onChange={val => setF("kategoriId", val)}
+              value={form.jenisBarangId}
+              onChange={val => setF("jenisBarangId", val)}
               options={[
                 { value: "", label: "— Pilih —" },
-                ...kategori.map(k => ({ value: k.id, label: k.nama }))
+                ...jenisBarang.map(k => ({ value: k.id, label: k.nama }))
               ]}
             />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Ruangan</label>
+            <label className="form-label">Letak</label>
             <LiquidSelect
-              value={form.ruanganId}
-              onChange={val => setF("ruanganId", val)}
+              value={form.letakId}
+              onChange={val => setF("letakId", val)}
               options={[
                 { value: "", label: "Tidak ada" },
-                ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
+                ...letak.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
               ]}
             />
           </div>
         </div>
         <div className="form-grid-3">
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Jumlah</label><input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} /></div>
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tanggal Beli</label><input type="date" className="input" value={form.tanggalBeli} onChange={e => setF("tanggalBeli", e.target.value)} /></div>
+          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tgl Datang</label><input type="date" className="input" value={form.tanggalDatang} onChange={e => setF("tanggalDatang", e.target.value)} /></div>
+          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tgl Pindah</label><input type="date" className="input" value={form.tanggalPindah} onChange={e => setF("tanggalPindah", e.target.value)} /></div>
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Harga (Rp)</label><input type="number" className="input" placeholder="0" value={form.harga} onChange={e => setF("harga", e.target.value)} /></div>
         </div>
         <div className="modal-footer">
@@ -729,30 +793,31 @@ function ScanRegisterSection() {
 
 // ── Manual Add (auto-generate QR → print) ──
 function ManualAddSection() {
-  const [kategori, setKategori] = useState<KategoriBarang[]>([]);
-  const [ruangan, setRuangan]   = useState<Ruangan[]>([]);
+  const [jenisBarang, setJenisBarang] = useState<JenisBarang[]>([]);
+  const [letak, setLetak]   = useState<Letak[]>([]);
   const [form, setForm] = useState<typeof EMPTY>(EMPTY);
   const [saving, setSaving]     = useState(false);
   const [qrResult, setQrResult] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
 
   useEffect(() => {
-    api.get<KategoriBarang[]>("/api/kategori").then(setKategori);
-    api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
+    api.get<JenisBarang[]>("/api/jenis-barang").then(setJenisBarang);
+    api.get<Letak[]>("/api/letak").then(setLetak);
   }, []);
 
   const setF = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
 
   async function handleSave() {
-    if (!form.kodeBarang || !form.nama || !form.kategoriId) {
-      toast.error("Kode, nama, dan kategori wajib diisi"); return;
+    if (!form.label || !form.nama || !form.jenisBarangId) {
+      toast.error("Label, nama, dan kategori wajib diisi"); return;
     }
     setSaving(true);
     try {
       const created = await api.post<Barang>("/api/barang", {
         ...form, jumlah: Number(form.jumlah) || 1,
-        tanggalBeli: form.tanggalBeli || null,
+        tanggalDatang: form.tanggalDatang || null,
+        tanggalPindah: form.tanggalPindah || null,
         harga: form.harga ? Number(form.harga) : null,
-        ruanganId: form.ruanganId || null,
+        letakId: form.letakId || null,
       });
       // Auto-generate QR
       const qr = await api.get<{ qrCode: string; kode: string; nama: string }>(`/api/barang/${created.id}/qr`);
@@ -774,7 +839,7 @@ function ManualAddSection() {
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kode Barang *</label>
-            <input className="input" placeholder="BRG-001" value={form.kodeBarang} onChange={e => setF("kodeBarang", e.target.value)} />
+            <input className="input" placeholder="BRG-001" value={form.label} onChange={e => setF("label", e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Kondisi</label>
@@ -792,34 +857,35 @@ function ManualAddSection() {
         <div className="form-group"><label className="form-label">Nama Barang *</label><input className="input" placeholder="Nama barang" value={form.nama} onChange={e => setF("nama", e.target.value)} /></div>
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Kategori *</label>
+            <label className="form-label">Jenis Barang *</label>
             <LiquidSelect
-              value={form.kategoriId}
-              onChange={val => setF("kategoriId", val)}
+              value={form.jenisBarangId}
+              onChange={val => setF("jenisBarangId", val)}
               options={[
                 { value: "", label: "— Pilih —" },
-                ...kategori.map(k => ({ value: k.id, label: k.nama }))
+                ...jenisBarang.map(k => ({ value: k.id, label: k.nama }))
               ]}
             />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Ruangan</label>
+            <label className="form-label">Letak</label>
             <LiquidSelect
-              value={form.ruanganId}
-              onChange={val => setF("ruanganId", val)}
+              value={form.letakId}
+              onChange={val => setF("letakId", val)}
               options={[
                 { value: "", label: "Tidak ada" },
-                ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
+                ...letak.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` }))
               ]}
             />
           </div>
         </div>
         <div className="form-grid-3">
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Jumlah</label><input type="number" className="input" min={1} value={form.jumlah} onChange={e => setF("jumlah", e.target.value)} /></div>
-          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tanggal Beli</label><input type="date" className="input" value={form.tanggalBeli} onChange={e => setF("tanggalBeli", e.target.value)} /></div>
+          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tgl Datang</label><input type="date" className="input" value={form.tanggalDatang} onChange={e => setF("tanggalDatang", e.target.value)} /></div>
+          <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Tgl Pindah</label><input type="date" className="input" value={form.tanggalPindah} onChange={e => setF("tanggalPindah", e.target.value)} /></div>
           <div className="form-group" style={{ marginBottom: 0 }}><label className="form-label">Harga (Rp)</label><input type="number" className="input" placeholder="0" value={form.harga} onChange={e => setF("harga", e.target.value)} /></div>
         </div>
-        <div className="form-group"><label className="form-label">Deskripsi</label><input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setF("deskripsi", e.target.value)} /></div>
+        <div className="form-group"><label className="form-label">Deskripsi</label><input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => setF("keterangan", e.target.value)} /></div>
         <div className="modal-footer">
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? <><div className="spinner" style={{ width: 14, height: 14 }} />Menyimpan…</> : <><i className="ti ti-plus" />Tambah & Generate QR</>}
@@ -857,98 +923,110 @@ function ManualAddSection() {
 
 // ── Import CSV/Excel ──
 function ImportSection() {
-  const [file, setFile]       = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
-  const [result, setResult]   = useState<{ imported: number; skipped: number; errors: string[]; total: number } | null>(null);
+  const [draftData, setDraftData] = useState<{ valid: any[]; error: any[]; sumberTahun: string; total: number } | null>(null);
+  const [pushing, setPushing] = useState(false);
 
-  async function handleImport() {
+  async function handlePreview() {
     if (!file) { toast.error("Pilih file terlebih dahulu"); return; }
-    setImporting(true); setResult(null);
+    setImporting(true); setDraftData(null);
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/barang/import", { method: "POST", body: fd });
+      const res = await fetch("/api/barang/import/preview", { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Gagal import");
-      setResult(data);
-      toast.success(`${data.imported} barang berhasil diimport`);
+      if (!res.ok) throw new Error(data.error ?? "Gagal preview data");
+      setDraftData(data);
+      toast.success("Draft siap direview");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal import");
+      toast.error(e instanceof Error ? e.message : "Gagal memproses file");
     } finally { setImporting(false); }
   }
 
+  async function handlePush(validData: any[]) {
+    setPushing(true);
+    try {
+      const res = await fetch("/api/barang/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: validData })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Gagal push ke database");
+      toast.success(`${data.stats?.inserted + data.stats?.updated} barang berhasil dipush ke database`);
+      setDraftData(null);
+      setFile(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal push");
+    } finally { setPushing(false); }
+  }
+
   return (
-    <div style={{ maxWidth: 600 }}>
-      <div className="glass" style={{ padding: 24 }}>
-        <div className="scan-heading" style={{ marginBottom: 16 }}>
-          <div className="scan-title">Import CSV / Excel</div>
-          <div className="scan-sub">Bulk add barang. Kolom wajib: kodeBarang, nama. Opsional: kategori, ruangan, kondisi, jumlah, tanggalBeli, harga</div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Pilih File CSV</label>
-          <input type="file" className="input" accept=".csv,.xlsx,.xls" onChange={e => { setFile(e.target.files?.[0] ?? null); setResult(null); }} />
-        </div>
-
-        {file && (
-          <div className="alert alert-warn mb-16">
-            <i className="ti ti-file" style={{ flexShrink: 0 }} />
-            File: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(1)} KB)
+    <div style={{ maxWidth: 800 }}>
+      {!draftData ? (
+        <div className="glass" style={{ padding: 24 }}>
+          <div className="scan-heading" style={{ marginBottom: 16 }}>
+            <div className="scan-title">Import CSV / Excel</div>
+            <div className="scan-sub">Unggah file aset. Data akan masuk ke draf (Pre-flight Check) sebelum disimpan permanen.</div>
           </div>
-        )}
 
-        <button className="btn btn-primary" onClick={handleImport} disabled={importing || !file}>
-          {importing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Mengimport…</> : <><i className="ti ti-upload" />Import Sekarang</>}
-        </button>
+          <div className="form-group">
+            <label className="form-label">Pilih File CSV / Excel</label>
+            <input type="file" className="input" accept=".csv,.xlsx,.xls" onChange={e => { setFile(e.target.files?.[0] ?? null); setDraftData(null); }} />
+          </div>
 
-        {result && (
-          <div style={{ marginTop: 16 }}>
-            <div className="grid-3" style={{ marginBottom: 12 }}>
-              <div className="glass summary-badge-row"><span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Total Baris</span><span className="badge badge-info">{result.total}</span></div>
-              <div className="glass summary-badge-row"><span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Berhasil</span><span className="badge badge-ok">{result.imported}</span></div>
-              <div className="glass summary-badge-row"><span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Skipped</span><span className="badge badge-warn">{result.skipped}</span></div>
-            </div>
-            {result.errors.length > 0 && (
-              <div className="alert alert-danger">
-                <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
-                <div>
-                  <strong>{result.errors.length} error:</strong>
-                  {result.errors.slice(0, 5).map((e, i) => <div key={i} style={{ fontSize: 11, marginTop: 2 }}>{e}</div>)}
-                </div>
+          {file && (
+            <div className="alert alert-info mb-16" style={{ alignItems: "center" }}>
+              <i className="ti ti-file" style={{ flexShrink: 0 }} />
+              <div>
+                File: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(1)} KB)
+                <div className="text-xs opacity-70 mt-1">Sistem akan mengekstrak tahun otomatis dari nama file.</div>
               </div>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+
+          <button className="btn btn-primary" onClick={handlePreview} disabled={importing || !file}>
+            {importing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-file-search" />Review Draft</>}
+          </button>
+        </div>
+      ) : (
+        <ImportDraftView 
+          draftValid={draftData.valid} 
+          draftError={draftData.error} 
+          pushing={pushing}
+          onCancel={() => { setDraftData(null); setFile(null); }}
+          onPush={handlePush}
+        />
+      )}
     </div>
   );
 }
-
 // ══════════════════════════════════════════════════════════════════════════════
 // Tab: Kategori CRUD
 // ══════════════════════════════════════════════════════════════════════════════
 function KategoriTab() {
-  const [list, setList]         = useState<KategoriBarang[]>([]);
+  const [list, setList]         = useState<JenisBarang[]>([]);
   const [modal, setModal]       = useState(false);
-  const [selected, setSelected] = useState<KategoriBarang | null>(null);
-  const [form, setForm]         = useState({ nama: "", deskripsi: "" });
+  const [selected, setSelected] = useState<JenisBarang | null>(null);
+  const [form, setForm]         = useState({ nama: "", keterangan: "" });
   const [saving, setSaving]     = useState(false);
 
   const [confirmDel, setConfirmDel] = useState<{ id: string, nama: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const load = () => api.get<KategoriBarang[]>("/api/kategori").then(setList).catch(console.error);
+  const load = () => api.get<JenisBarang[]>("/api/jenis-barang").then(setList).catch(console.error);
   useEffect(() => { load(); }, []);
 
-  function openAdd()  { setSelected(null); setForm({ nama: "", deskripsi: "" }); setModal(true); }
-  function openEdit(k: KategoriBarang) { setSelected(k); setForm({ nama: k.nama, deskripsi: k.deskripsi ?? "" }); setModal(true); }
+  function openAdd()  { setSelected(null); setForm({ nama: "", keterangan: "" }); setModal(true); }
+  function openEdit(k: JenisBarang) { setSelected(k); setForm({ nama: k.nama, keterangan: k.keterangan ?? "" }); setModal(true); }
 
   async function handleSave() {
     if (!form.nama) { toast.error("Nama wajib diisi"); return; }
     setSaving(true);
     try {
-      if (selected) { await api.put(`/api/kategori/${selected.id}`, form); toast.success("Kategori diperbarui"); }
-      else { await api.post("/api/kategori", form); toast.success("Kategori ditambahkan"); }
+      if (selected) { await api.put(`/api/jenis-barang/${selected.id}`, form); toast.success("Kategori diperbarui"); }
+      else { await api.post("/api/jenis-barang", form); toast.success("Kategori ditambahkan"); }
       setModal(false); load();
     } catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Gagal menyimpan"); }
     finally { setSaving(false); }
@@ -961,7 +1039,7 @@ function KategoriTab() {
   async function performDelete() {
     if (!confirmDel) return;
     setIsDeleting(true);
-    try { await api.delete(`/api/kategori/${confirmDel.id}`); toast.success("Dihapus"); load(); }
+    try { await api.delete(`/api/jenis-barang/${confirmDel.id}`); toast.success("Dihapus"); load(); }
     catch { toast.error("Gagal — mungkin masih ada barang di kategori ini"); }
     finally { setIsDeleting(false); setConfirmDel(null); }
   }
@@ -969,19 +1047,19 @@ function KategoriTab() {
   return (
     <>
       <div style={{ marginBottom: 16 }}>
-        <button className="btn btn-primary" onClick={openAdd}><i className="ti ti-plus" /> Tambah Kategori</button>
+        <button className="btn btn-primary" onClick={openAdd}><i className="ti ti-plus" /> Tambah Jenis Barang</button>
       </div>
       <div className="glass">
         <table className="table">
-          <thead><tr><th>#</th><th>Nama Kategori</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
+          <thead><tr><th>#</th><th>Nama Jenis Barang</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
           <tbody>
             {list.length === 0 ? (
-              <tr><td colSpan={4}><div className="empty-state"><i className="ti ti-category-minus" style={{ fontSize: 28 }} />Belum ada kategori</div></td></tr>
+              <tr><td colSpan={4}><div className="empty-state"><i className="ti ti-category-minus" style={{ fontSize: 28 }} />Belum ada jenis barang</div></td></tr>
             ) : list.map((k, i) => (
               <tr key={k.id}>
                 <td className="td-sm" style={{ color: "var(--text-muted)" }}>{i + 1}</td>
                 <td className="td-name">{k.nama}</td>
-                <td>{k.deskripsi ?? "—"}</td>
+                <td>{k.keterangan ?? "—"}</td>
                 <td>
                   <div className="action-row">
                     <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(k)}><i className="ti ti-edit" /></button>
@@ -995,7 +1073,7 @@ function KategoriTab() {
       </div>
       <ConfirmModal
         isOpen={!!confirmDel}
-        title="Hapus Kategori"
+        title="Hapus Jenis Barang"
         message={`Apakah Anda yakin ingin menghapus kategori "${confirmDel?.nama}"?`}
         danger
         isLoading={isDeleting}
@@ -1003,9 +1081,9 @@ function KategoriTab() {
         onCancel={() => setConfirmDel(null)}
       />
 
-      <Modal open={modal} onClose={() => setModal(false)} title={selected ? "Edit Kategori" : "Tambah Kategori"}>
-        <div className="form-group"><label className="form-label">Nama Kategori *</label><input className="input" placeholder="Komputer…" value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} /></div>
-        <div className="form-group"><label className="form-label">Deskripsi</label><input className="input" placeholder="Keterangan opsional" value={form.deskripsi} onChange={e => setForm({ ...form, deskripsi: e.target.value })} /></div>
+      <Modal open={modal} onClose={() => setModal(false)} title={selected ? "Edit Jenis Barang" : "Tambah Jenis Barang"}>
+        <div className="form-group"><label className="form-label">Nama Jenis Barang *</label><input className="input" placeholder="Komputer…" value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} /></div>
+        <div className="form-group"><label className="form-label">Deskripsi</label><input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => setForm({ ...form, keterangan: e.target.value })} /></div>
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(false)}>Batal</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? <><div className="spinner" />Menyimpan…</> : "Simpan"}</button>

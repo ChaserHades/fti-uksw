@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     cursor: cursor ? { id: cursor } : undefined,
     where,
     include: {
-      barang: { include: { kategori: true, ruangan: true } },
+      barang: { include: { jenisBarang: true, letak: true } },
       user: true,
     },
     orderBy: { createdAt: "desc" },
@@ -51,11 +51,11 @@ export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { barangId, namaPeminjam, ruanganPinjam, deadlineKembali, catatan } = await req.json();
+  const { barangId, namaPeminjam, letakPinjam, deadlineKembali, catatan } = await req.json();
 
   if (!namaPeminjam?.trim())
     return NextResponse.json({ error: "Nama peminjam wajib diisi" }, { status: 400 });
-  if (!ruanganPinjam?.trim())
+  if (!letakPinjam?.trim())
     return NextResponse.json({ error: "Ruangan wajib diisi" }, { status: 400 });
   if (!deadlineKembali)
     return NextResponse.json({ error: "Deadline kembali wajib diisi" }, { status: 400 });
@@ -70,14 +70,14 @@ export async function POST(req: Request) {
         barangId,
         userId:          session.id,
         namaPeminjam:    namaPeminjam.trim(),
-        ruanganPinjam:   ruanganPinjam.trim(),
+        letakPinjam:     letakPinjam.trim(),
         deadlineKembali: new Date(deadlineKembali),
         catatan:         catatan ?? null,
         status:          "AKTIF",
         terlambat:       false,
       },
       include: {
-        barang: { include: { kategori: true, ruangan: true } },
+        barang: { include: { jenisBarang: true, letak: true } },
         user: true,
       },
     }),

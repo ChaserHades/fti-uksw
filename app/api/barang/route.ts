@@ -9,24 +9,25 @@ export async function GET(req: Request) {
 
   const searchParams = new URL(req.url).searchParams;
   const search     = searchParams.get("search")     ?? "";
-  const kategoriId = searchParams.get("kategoriId") ?? "";
+  const jenisBarangId = searchParams.get("jenisBarangId") ?? "";
   const kode       = searchParams.get("kode")       ?? "";
   const tersedia   = searchParams.get("tersedia");
   
-  const limit      = parseInt(searchParams.get("limit") || "50", 10);
+  const limitParam = searchParams.get("limit");
+  const limit      = limitParam === "all" ? undefined : parseInt(limitParam || "50", 10);
   const cursor     = searchParams.get("cursor");
   if (kode) {
     // Try exact match first
     let item = await prisma.barang.findUnique({
-      where: { kodeBarang: kode },
-      include: { kategori: true, ruangan: true },
+      where: { label: kode },
+      include: { jenisBarang: true, letak: true },
     });
 
     // Fallback: case-insensitive search (handles slight differences)
     if (!item) {
       item = await prisma.barang.findFirst({
-        where: { kodeBarang: { equals: kode, mode: "insensitive" } },
-        include: { kategori: true, ruangan: true },
+        where: { label: { equals: kode, mode: "insensitive" } },
+        include: { jenisBarang: true, letak: true },
       });
     }
 
@@ -34,7 +35,7 @@ export async function GET(req: Request) {
     if (!item) {
       item = await prisma.barang.findUnique({
         where: { id: kode },
-        include: { kategori: true, ruangan: true },
+        include: { jenisBarang: true, letak: true },
       });
     }
 
@@ -43,20 +44,27 @@ export async function GET(req: Request) {
   }
 
   const list = await prisma.barang.findMany({
-    take: limit + 1,
+    take: limit !== undefined ? limit + 1 : undefined,
     skip: cursor ? 1 : 0,
     cursor: cursor ? { id: cursor } : undefined,
     where: {
       ...(search     ? { nama: { contains: search, mode: "insensitive" } } : {}),
-      ...(kategoriId ? { kategoriId }                                       : {}),
+      ...(jenisBarangId ? { jenisBarangId }                                 : {}),
       ...(tersedia === "true" ? { status: "TERSEDIA" }                     : {}),
     },
-    include: { kategori: true, ruangan: true },
-    orderBy: { createdAt: "desc" },
+    include: { jenisBarang: true, letak: true },
+    orderBy: (() => {
+      const sortBy = searchParams.get("sortBy");
+      const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
+      if (sortBy === "jenisBarangId") return { jenisBarang: { nama: sortDir } };
+      if (sortBy === "letakId") return { letak: { kode: sortDir } };
+      if (sortBy === "merek" || sortBy === "tanggalDatang" || sortBy === "harga") return { [sortBy]: sortDir };
+      return { createdAt: "desc" };
+    })(),
   });
 
   let nextCursor: string | null = null;
-  if (list.length > limit) {
+  if (limit !== undefined && list.length > limit) {
     const nextItem = list.pop();
     nextCursor = nextItem!.id;
   }
@@ -72,23 +80,26 @@ export async function POST(req: Request) {
   const body = await req.json();
   const item = await prisma.barang.create({
     data: {
-      kodeBarang: body.kodeBarang,
+      label:      body.label,
+      labelAset:  body.labelAset || null,
       nama:       body.nama,
-      serialNumber: body.serialNumber || null,
+      sn:         body.sn || null,
       merek:      body.merek || null,
+      model:      body.model || null,
       tipe:       body.tipe || null,
       vendor:     body.vendor || null,
-      deskripsi:  body.deskripsi || null,
+      keterangan: body.keterangan || null,
       kondisi:    body.kondisi || "BAIK",
       status:     body.status || "TERSEDIA",
       jumlah:     body.jumlah ? Number(body.jumlah) : 1,
-      tanggalBeli: body.tanggalBeli ? new Date(body.tanggalBeli) : null,
+      tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
+      tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
       harga:      body.harga ? Number(body.harga) : null,
       hasSticker: body.hasSticker ?? false,
-      ruanganId:  body.ruanganId  ?? null,
-      kategoriId: body.kategoriId,
+      letakId:    body.letakId  ?? null,
+      jenisBarangId: body.jenisBarangId,
     },
-    include: { kategori: true, ruangan: true },
+    include: { jenisBarang: true, letak: true },
   });
 
   return NextResponse.json(item, { status: 201 });

@@ -112,15 +112,57 @@
 
 ---
 
-## CATATAN TEKNIS
+## FLOW IMPORT, EXPORT & SMART UPSERT (V3.1)
+
+- **Import Format Flexiblity**: Sistem mendukung file berformat CSV dan Excel (.xlsx) secara utuh, menggunakan library `exceljs` untuk melakukan _parsing_ data secara akurat termasuk sel yang terkena *Merge & Center*.
+- **Hirarki Unique ID**: Dalam mendeteksi duplikasi, sistem berpatokan pada 3 kolom utama: `Label` (QR), `Label Aset`, dan `SN`. Salah satu dari 3 nilai ini wajib ada untuk dijadikan patokan (Primary Key).
+- **Smart Upsert (Anti-Duplikasi)**:
+  - Jika barang/aset sudah ada (ID cocok) namun ada perubahan data di file Excel yang baru, sistem akan melakukan **Update**.
+  - Jika barang/aset sudah ada dan tidak ada perubahan sama sekali, sistem akan **Skip** (menghemat waktu proses dan mencegah *overwrite* mubazir).
+  - Jika barang/aset belum ada, sistem akan melakukan **Create**.
+- **Auto-Fill & Fallback**:
+  - Jika kolom `Nama` (Jenis Barang) di Excel kosong/Lainnya, sistem akan membuat *fallback* nama otomatis dari gabungan `Merek + Model + Tipe`.
+  - Jika kolom `Keterangan` memuat kata "rusak" atau "baik", sistem otomatis memetakan ke enumerasi `KondisiBarang`.
+- **Export Data**: Pengguna diberi opsi untuk mendownload/mengekspor data yang ada ke format `.xlsx` atau `.csv` dengan rapi.
+
+---
+
+## CATATAN TEKNIS & EVOLUSI SCHEMA (Update v3.1)
 
 - Semua dashboard responsive (mobile-first)
 - QR Scan menggunakan device camera (browser-based, tanpa app terpisah)
 - Print QR langsung dari browser, tidak perlu download terpisah
 - SSO Google dibatasi hanya domain @student.uksw.edu dan @uksw.edu via NextAuth.js v5
-- Import CSV/Excel: jika kolom 'ruangan' ada -> auto-sync ke Dashboard Ruangan tanpa input manual
 - Dashboard Barcode dihapus, semua fungsi QR pindah ke Dashboard Barang dan Dashboard Ruangan
 - Dashboard Verifikasi + Dashboard Petugas digabung menjadi 1 dashboard
 - Badge "Terlambat" persisten meskipun barang sudah dikembalikan
 - Nota/receipt pada laporan bersifat opsional
 - Pengembangan dimulai Mei 2026, saat ini fase revisi penambahan fitur
+- **Database Refinements (v3.1)**:
+  - Barang memiliki 3 ID pelacakan: `label` (sistem QR), `labelAset` (nomor urut FTI), `sn` (serial number pabrik). `label` dan `labelAset` bersifat nullable dan unik.
+  - Skema barang diperluas untuk data riil: penambahan `merek`, `model`, `tipe`, `vendor`.
+  - Waktu dipecah menjadi `tanggalDatang` dan `tanggalPindah` untuk keakuratan tracking historis aset.
+  - Optimasi *dashboard stats* (Admin, Universitas, Petugas) dihitung di server-side secara *aggregated* alih-alih me-load `limit=1000` di client.
+
+---
+
+## CLEAN CODE & DESIGN GUIDELINES (REFACTORING BENCHMARK)
+
+Untuk memastikan codebase tetap terstruktur rapi, elegan, dan *maintainable*, setiap refactoring wajib mematuhi aturan baku berikut:
+
+1. **Sentralisasi Styling (Strict CSS Rule):**
+   - **TIDAK BOLEH** ada penulisan inline CSS (`style={{ ... }}`) secara serampangan atau ad-hoc di komponen (kecuali mutlak dibutuhkan untuk kalkulasi dinamis via JS).
+   - **TIDAK BOLEH** membuat file `.css` atau `.module.css` baru yang terfragmentasi.
+   - **WAJIB** menempatkan semua deklarasi *styling* (Vanilla CSS), token warna, grid, animasi, utilitas class, dan komponen desain ke dalam satu file tunggal: `app/globals.css`.
+
+2. **Design Standard (Taste Skill):**
+   - Semua perancangan dan refaktor UI/UX mutlak menggunakan *skill/agent* estetika premium (contoh: `bunx skills add Leonxlnx/taste-skill` atau memanfaatkan agen *taste-skill* lokal di direktori `fti-uksw/.agents`).
+   - Hindari desain MVP murahan (contoh: *Tailwind defaults* tanpa modifikasi, warna dasar RGB yang mencolok). Gunakan skema warna tersaturasi halus (*glassmorphism*, *dark mode* bertekstur, tipografi modern, dan mikromotion/animasi yang dinamis).
+
+3. **Komponen Reusable & Modular:**
+   - Ekstrak *logic* yang redundan (seperti *fetching* statistik) ke dalam bentuk _custom hooks_ atau fungsi modular (jika di client) atau *helper* Prisma (jika di server).
+   - Jangan menumpuk 1.000 baris kode dalam satu file `.tsx`. Jika ada *modal* besar (seperti form Import), pisahkan menjadi sub-komponen fungsional.
+
+4. **Optimasi Performa API:**
+   - Semua *endpoint API* berbasis list/tabel WAJIB mengimplementasikan *Cursor-Based Pagination* dan tidak me-load data mentah utuh (*lazy loading*).
+   - Aggregasi hitungan (*dashboard count/stats*) wajib diproses di *database* (`prisma.count`, `prisma.groupBy`) dan BUKAN di frontend JS.
