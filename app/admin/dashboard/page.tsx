@@ -46,7 +46,7 @@ export default function AdminDashboard() {
           <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{today}</div>
         </div>
         <div className="grid-4 mb-20">
-          {[0,1,2,3].map(i => <SkeletonCard key={i} />)}
+          {[0, 1, 2, 3].map(i => <SkeletonCard key={i} />)}
         </div>
         <SkeletonTable rows={5} cols={4} />
       </div>
@@ -55,7 +55,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="animate-fade-in">
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .bento-dashboard {
           display: grid;
           grid-template-columns: repeat(12, 1fr);
@@ -118,7 +119,7 @@ export default function AdminDashboard() {
 
       {/* 2. BENTO COCKPIT GRID */}
       <div className="bento-dashboard">
-        
+
         {/* Total Aset (Span 8) */}
         <Link href="/admin/manajemen?tab=barang" className="bento-card bento-span-8">
           <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 16 }}>Total Inventaris Aset</span>
@@ -126,7 +127,7 @@ export default function AdminDashboard() {
             <span style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)" }}>{stats?.totalBarang ?? 0}</span>
             <span style={{ color: "var(--text-secondary)" }}>Items</span>
           </div>
-          
+
           {/* Sleek Line Bar for Status */}
           <div style={{ marginTop: "auto", paddingTop: 32 }}>
             <div style={{ display: "flex", gap: 24, marginBottom: 12, flexWrap: "wrap" }}>
@@ -135,9 +136,9 @@ export default function AdminDashboard() {
               <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--text-muted)", marginRight: 6 }}>●</span> {statusStat.maintenance} Maintenance</span>
             </div>
             <div style={{ display: "flex", height: 4, borderRadius: 2, overflow: "hidden", background: "rgba(255,255,255,0.05)" }}>
-              <div style={{ width: `${statusStat.total ? (statusStat.tersedia/statusStat.total)*100 : 0}%`, background: "var(--color-ok)" }} />
-              <div style={{ width: `${statusStat.total ? (statusStat.dipinjam/statusStat.total)*100 : 0}%`, background: "var(--color-warn)" }} />
-              <div style={{ width: `${statusStat.total ? (statusStat.maintenance/statusStat.total)*100 : 0}%`, background: "var(--text-muted)" }} />
+              <div style={{ width: `${statusStat.total ? (statusStat.tersedia / statusStat.total) * 100 : 0}%`, background: "var(--color-ok)" }} />
+              <div style={{ width: `${statusStat.total ? (statusStat.dipinjam / statusStat.total) * 100 : 0}%`, background: "var(--color-warn)" }} />
+              <div style={{ width: `${statusStat.total ? (statusStat.maintenance / statusStat.total) * 100 : 0}%`, background: "var(--text-muted)" }} />
             </div>
           </div>
         </Link>
@@ -154,7 +155,7 @@ export default function AdminDashboard() {
             <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-warn)" }}>Peminjaman Aktif ({stats?.dipinjam ?? 0})</span>
             <Link href="/admin/manajemen?tab=pinjam" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua &rarr;</Link>
           </div>
-          
+
           <div style={{ display: "flex", flexDirection: "column" }}>
             {transaksi.length === 0 ? (
               <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Tidak ada peminjaman aktif saat ini.</div>
@@ -181,7 +182,7 @@ export default function AdminDashboard() {
         {/* Distribusi Kategori (Span 4) */}
         <div className="bento-card bento-span-4">
           <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 24 }}>Top Kategori</span>
-          
+
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {katStat.map(k => {
               const maxKat = Math.max(...katStat.map(x => x.total), 1);

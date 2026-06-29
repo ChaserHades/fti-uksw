@@ -2,6 +2,26 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { parseBarangExcel } from "@/lib/excel-parser";
 
+/**
+ * Detects values that are anomalous — purely symbols, single non-alpha chars,
+ * invisible characters, or otherwise not a meaningful "Jenis Barang" name.
+ */
+function isAnomalousValue(str: string): boolean {
+  if (!str) return true;
+  const trimmed = str.trim();
+  if (trimmed.length === 0) return true;
+
+  // Strip all non-alphanumeric characters; if nothing remains, it's anomalous
+  const alphanumericOnly = trimmed.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, "");
+  if (alphanumericOnly.length < 2) return true;
+
+  // Detect strings that are just repeated punctuation/symbols
+  const symbolRatio = (trimmed.length - alphanumericOnly.length) / trimmed.length;
+  if (symbolRatio > 0.8 && trimmed.length > 2) return true;
+
+  return false;
+}
+
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN")
@@ -38,9 +58,13 @@ export async function POST(req: Request) {
     rawData.forEach((row, index) => {
       const draftRow = { ...row, sumberTahun, _rowNumber: index + 3 }; // +3 is an estimate of excel row
 
-      // Validasi: wajib ada label / sn / labelAset, ATAU wajib ada Jenis Barang
       if (!draftRow.jenisBarang || draftRow.jenisBarang === "Lainnya") {
         error.push({ ...draftRow, _errorReason: "Jenis Barang kosong atau tidak terdeteksi" });
+      } else if (isAnomalousValue(draftRow.jenisBarang)) {
+        error.push({
+          ...draftRow,
+          _errorReason: `Jenis Barang tidak valid: "${draftRow.jenisBarang}" — hanya berisi simbol atau karakter aneh`,
+        });
       } else {
         valid.push(draftRow);
       }

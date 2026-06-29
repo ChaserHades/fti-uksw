@@ -51,6 +51,13 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
   
   // We assume the header is in row 2 (due to merged headers in row 1 possibly)
   // Let's start reading from row 3 or the first row with a number in NO column
+  // Helper: check if a value has real substance (not just symbols/punctuation)
+  const isSubstantive = (v: string | null): boolean => {
+    if (!v) return false;
+    // Must have at least 2 alphanumeric characters
+    return (v.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, "").length >= 2);
+  };
+
   worksheet.eachRow((row, rowNumber) => {
     // Skip header rows (we assume data starts when NO column has a value or row > 2)
     if (rowNumber < 3) return;
@@ -65,6 +72,12 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
     if (!jenisValue && !labelValue && !labelAsetValue && !snValue) {
       return;
     }
+
+    // Skip rows where ALL columns are just anomalous symbols (no substantive data)
+    if (!isSubstantive(jenisValue) && !isSubstantive(labelValue) && !isSubstantive(labelAsetValue) && !isSubstantive(snValue)) {
+      return;
+    }
+
     
     const nama = jenisValue || "Tanpa Nama";
     const jenisBarang = jenisValue || "Lainnya";

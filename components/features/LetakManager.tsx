@@ -1,6 +1,6 @@
-// app/admin/ruangan/page.tsx
+// components/features/LetakManager.tsx
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
 import LiquidSelect from "@/components/LiquidSelect";
@@ -8,11 +8,8 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useQrScanner } from "@/hooks/useQrScanner";
 import type { Letak, Barang } from "@/types";
-
-declare const jsQR: (
-  data: Uint8ClampedArray, width: number, height: number
-) => { data: string } | null;
 
 const EMPTY = { kode: "", nama: "", lantai: "" };
 
@@ -35,28 +32,20 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   const [pindahSaving, setPindahSaving]   = useState(false);
   const [kodeInput,    setKodeInput]      = useState("");
 
-  // Camera state
-  const videoRef  = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const rafRef    = useRef<number>(0);
-  const jsqrReady = useRef(false);
-  const [scanning, setScanning] = useState(false);
+  // QR Scanner hook for pindah barang
+  function handleQrScanResult(raw: string) {
+    const kode = parseQrPayload(raw);
+    setKodeInput(kode);
+    lookupBarang(kode);
+  }
+  const { videoRef, canvasRef, scanning, startCamera: rawStartCamera, stopCamera } = useQrScanner(handleQrScanResult);
 
   const load = () =>
     api.get<RuanganWithCount[]>("/api/letak?include=count").then(setList).catch(console.error);
 
   useEffect(() => { load(); }, []);
 
-  // jsQR script
-  useEffect(() => {
-    if (document.getElementById("jsqr-script")) { jsqrReady.current = true; return; }
-    const s = document.createElement("script");
-    s.id = "jsqr-script"; s.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js";
-    s.onload = () => { jsqrReady.current = true; };
-    document.head.appendChild(s);
-  }, []);
-  useEffect(() => () => stopCamera(), []);
+
 
   // ── CRUD Letak ──
   function openAdd() { setSelected(null); setForm(EMPTY); setModal("form"); }
@@ -125,34 +114,10 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     } finally { setPindahSaving(false); }
   }
 
-  // Camera for pindah
+  // Camera wrapper for pindah
   async function startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } });
-      streamRef.current = stream;
-      const v = videoRef.current!; v.srcObject = stream; await v.play();
-      setScanning(true); scanLoop();
-    } catch { toast.error("Tidak dapat mengakses kamera"); }
-  }
-
-  function stopCamera() {
-    cancelAnimationFrame(rafRef.current);
-    streamRef.current?.getTracks().forEach(t => t.stop());
-    streamRef.current = null;
-    if (videoRef.current) videoRef.current.srcObject = null;
-    setScanning(false);
-  }
-
-  function scanLoop() {
-    const video = videoRef.current, canvas = canvasRef.current;
-    if (!video || !canvas) return;
-    if (!jsqrReady.current || video.readyState < video.HAVE_ENOUGH_DATA) { rafRef.current = requestAnimationFrame(scanLoop); return; }
-    const ctx = canvas.getContext("2d")!;
-    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
-    const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
-    if (code?.data) { stopCamera(); const kode = parseQrPayload(code.data); setKodeInput(kode); lookupBarang(kode); return; }
-    rafRef.current = requestAnimationFrame(scanLoop);
+    try { await rawStartCamera(); }
+    catch { toast.error("Tidak dapat mengakses kamera"); }
   }
 
   const filtered = list.filter(r => 
