@@ -11,7 +11,7 @@ const navItems: NavItem[] = [
 const adminIslandActions: IslandAction[] = [
   { id: "add-barang", href: "/admin/manajemen?tab=barang&action=add", icon: "ti-plus", label: "Tambah Barang", color: "var(--color-ok)" },
   { id: "scan-qr", href: "/admin/manajemen?tab=pinjam&action=scan", icon: "ti-qrcode", label: "Scan QR Peminjaman", color: "var(--color-info)" },
-  { id: "kelola-ruangan", href: "/admin/manajemen?tab=ruangan", icon: "ti-building", label: "Kelola Letak", color: "var(--ds-mist)" },
+  { id: "kelola-ruangan", href: "/admin/manajemen?tab=barang&action=letak", icon: "ti-building", label: "Kelola Letak", color: "var(--ds-mist)" },
   { id: "pengeluaran", href: "/admin/manajemen?tab=laporan&action=add", icon: "ti-file-description", label: "Input Pengeluaran", color: "var(--color-err)" },
   { id: "verifikasi", href: "/admin/tim", icon: "ti-user-check", label: "Verifikasi User", color: "var(--color-warn)" },
 ];

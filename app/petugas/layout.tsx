@@ -9,7 +9,7 @@ const navItems: NavItem[] = [
 
 const petugasIslandActions: IslandAction[] = [
   { id: "scan-qr", href: "/petugas/manajemen?tab=pinjam&action=scan", icon: "ti-qrcode", label: "Scan QR Peminjaman", color: "var(--color-ok)" },
-  { id: "pindah-barang", href: "/petugas/manajemen?tab=ruangan", icon: "ti-arrows-exchange", label: "Pindah Barang", color: "var(--color-warn)" },
+  { id: "pindah-barang", href: "/petugas/manajemen?tab=barang&action=letak", icon: "ti-arrows-exchange", label: "Pindah Barang", color: "var(--color-warn)" },
   { id: "cek-barang", href: "/petugas/manajemen?tab=barang", icon: "ti-list-search", label: "Cek Ketersediaan", color: "var(--color-info)" },
   { id: "riwayat", href: "/petugas/manajemen?tab=riwayat", icon: "ti-history", label: "Riwayat Lengkap", color: "var(--text-secondary)" },
 ];

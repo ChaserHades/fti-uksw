@@ -29,7 +29,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [sortDir, setSortDir] = useState("desc");
 
   // Modal state
-  const [modal, setModal] = useState<"form" | "qr" | null>(null);
+  const [modal, setModal] = useState<"form" | "qr" | "print_options" | null>(null);
   const [selected, setSelected] = useState<Barang | null>(null);
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
   const [qrData, setQrData] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
@@ -111,17 +111,28 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     }
   }
 
-  async function handleBulkPrint() {
-    if (barang.length === 0) { toast.error("Tidak ada barang untuk di-print"); return; }
+  async function handleBulkPrint(mode: "ALL" | "TODAY" | "NOT_PRINTED" | "SELECTED") {
+    let payload: any = { mode };
+    
+    // For "SELECTED", we use current loaded barang (current page)
+    if (mode === "SELECTED") {
+      if (barang.length === 0) { toast.error("Tidak ada barang di halaman ini"); return; }
+      payload.ids = barang.map(b => b.id);
+    }
+    
+    setModal(null);
     const toastId = toast.loading("Mempersiapkan dokumen cetak...");
+    
     try {
-      const ids = barang.map(b => b.id);
-      const res = await api.post<{ qrCode: string; kode: string; nama: string }[]>("/api/barang/qr-bulk", { ids });
+      const res = await api.post<{ qrCode: string; kode: string; nama: string }[]>("/api/barang/qr-bulk", payload);
       setBulkQrData(res);
       toast.success("Siap dicetak!", { id: toastId });
       setTimeout(() => window.print(), 500);
-    } catch {
-      toast.error("Gagal menyiapkan dokumen cetak", { id: toastId });
+      
+      // Refresh list if NOT_PRINTED was selected since we might have updated hasSticker
+      if (mode === "NOT_PRINTED") load(true);
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || "Gagal menyiapkan dokumen cetak", { id: toastId });
     }
   }
 
@@ -244,7 +255,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
             <button className="btn btn-primary" onClick={openAdd}>
               <i className="ti ti-plus" /> Tambah
             </button>
-            <button className="btn btn-ghost" onClick={handleBulkPrint} title="Print QR Semua Barang (Bulk)">
+            <button className="btn btn-ghost" onClick={() => setModal("print_options")} title="Print QR Semua Barang (Bulk)">
               <i className="ti ti-printer" /> Bulk Print
             </button>
             <button className="btn btn-primary" onClick={() => setShowExport(true)}>
@@ -365,11 +376,29 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         )}
       </Modal>
 
+      {/* Print Options Modal */}
+      <Modal open={modal === "print_options"} onClose={() => setModal(null)} title="Pilih Opsi Cetak QR">
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "12px" }}>
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("NOT_PRINTED")}>
+            <i className="ti ti-check" style={{ color: "var(--color-ok)" }} /> Print Belum Pernah Dicetak
+          </button>
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("TODAY")}>
+            <i className="ti ti-calendar" style={{ color: "var(--color-info)" }} /> Print Data Hari Ini
+          </button>
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("SELECTED")}>
+            <i className="ti ti-file" style={{ color: "var(--ds-mist)" }} /> Print Halaman Ini Saja
+          </button>
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("ALL")}>
+            <i className="ti ti-database" style={{ color: "var(--color-warn)" }} /> Print Seluruh Database
+          </button>
+        </div>
+      </Modal>
+
       {/* Hidden Bulk Print Area */}
       {bulkQrData && bulkQrData.length > 0 && (
         <div id="bulk-print-area">
-          {bulkQrData.map((qr) => (
-            <div key={qr.kode} className="bulk-qr-item">
+          {bulkQrData.map((qr, idx) => (
+            <div key={qr.kode || `qr-${idx}`} className="bulk-qr-item">
               <img src={qr.qrCode} alt="QR" />
               <div>{qr.kode}</div>
             </div>

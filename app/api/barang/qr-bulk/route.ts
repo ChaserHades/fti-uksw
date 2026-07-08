@@ -8,16 +8,37 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { ids } = await req.json();
+    const body = await req.json();
+    const mode = body.mode || "SELECTED";
+    const ids = body.ids || [];
 
-    if (!Array.isArray(ids) || ids.length === 0) {
-      return NextResponse.json({ error: "No ids provided" }, { status: 400 });
+    let whereClause = {};
+
+    if (mode === "ALL") {
+      // No filter needed, fetch all
+    } else if (mode === "TODAY") {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      whereClause = { createdAt: { gte: startOfToday } };
+    } else if (mode === "NOT_PRINTED") {
+      whereClause = { hasSticker: false };
+    } else if (mode === "SELECTED") {
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return NextResponse.json({ error: "No ids provided" }, { status: 400 });
+      }
+      whereClause = { id: { in: ids } };
+    } else {
+      return NextResponse.json({ error: "Invalid mode" }, { status: 400 });
     }
 
     const barangs = await prisma.barang.findMany({
-      where: { id: { in: ids } },
+      where: whereClause,
       select: { id: true, label: true, nama: true }
     });
+
+    if (barangs.length === 0) {
+      return NextResponse.json({ error: "No data found for the selected option" }, { status: 404 });
+    }
 
     // Generate QR code data URLs for all requested items
     const results = await Promise.all(
@@ -36,6 +57,15 @@ export async function POST(req: Request) {
         };
       })
     );
+
+    // If NOT_PRINTED was selected, update their status so they aren't printed again
+    if (mode === "NOT_PRINTED") {
+      const generatedIds = barangs.map(b => b.id);
+      await prisma.barang.updateMany({
+        where: { id: { in: generatedIds } },
+        data: { hasSticker: true }
+      });
+    }
 
     return NextResponse.json(results);
   } catch (error: any) {

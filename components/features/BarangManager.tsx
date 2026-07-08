@@ -1,6 +1,7 @@
 // components/features/BarangManager.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import DaftarBarangTab from "./barang/DaftarBarangTab";
 import AddItemTab from "./barang/AddItemTab";
 import KategoriTab from "./barang/KategoriTab";
@@ -13,7 +14,13 @@ type Tab = "daftar" | "add" | "jenis-barang" | "letak";
  * Renders tab navigation and delegates to focused sub-components.
  */
 export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
-  const [tab, setTab] = useState<Tab>("daftar");
+  const searchParams = useSearchParams();
+  const action = searchParams.get("action") as Tab | null;
+  const [tab, setTab] = useState<Tab>(action || "daftar");
+
+  useEffect(() => {
+    if (action) setTab(action);
+  }, [action]);
 
   const availableTabs: { key: Tab; icon: string; label: string }[] = [
     { key: "daftar", icon: "ti-list", label: "Daftar Barang" },
@@ -21,6 +28,8 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
   if (role === "ADMIN") {
     availableTabs.push({ key: "add", icon: "ti-plus", label: "Add Item" });
     availableTabs.push({ key: "jenis-barang", icon: "ti-category", label: "Jenis Barang" });
+  }
+  if (role === "ADMIN" || role === "TEKNISI") {
     availableTabs.push({ key: "letak", icon: "ti-building", label: "Letak / Ruangan" });
   }
 
@@ -54,7 +63,7 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
       {tab === "daftar" && <DaftarBarangTab role={role} />}
       {tab === "add" && role === "ADMIN" && <AddItemTab />}
       {tab === "jenis-barang" && role === "ADMIN" && <KategoriTab />}
-      {tab === "letak" && role === "ADMIN" && <LetakManager role={role} />}
+      {tab === "letak" && (role === "ADMIN" || role === "TEKNISI") && <LetakManager role={role} />}
     </div>
   );
 }

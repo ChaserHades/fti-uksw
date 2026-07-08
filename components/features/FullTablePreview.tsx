@@ -110,28 +110,24 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
         style={{ paddingTop: 28, paddingBottom: 20, paddingLeft: 16, paddingRight: 16 }}
       >
         <div
-          className="flex items-center justify-center w-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
-          style={{ maxWidth: 440, gap: 0 }}
-          onMouseEnter={e => (e.currentTarget.style.gap = "12px")}
-          onMouseLeave={e => (e.currentTarget.style.gap = "0px")}
+          className="flex items-center justify-center w-full"
+          style={{ maxWidth: 440 }}
         >
-          {/* Back Button — hidden, pops out on hover */}
+          {/* Back Button */}
           <button
-            className="flex items-center justify-center rounded-full shrink-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+            className="btn btn-ghost btn-icon shrink-0"
             style={{
-              width: 0, height: 40, opacity: 0, overflow: "hidden",
-              color: "rgba(255,255,255,0.6)",
+              marginRight: 12,
+              background: "rgba(255, 255, 255, 0.05)",
+              color: "#fff",
+              borderRadius: "50%",
+              width: 44,
+              height: 44,
             }}
             onClick={onClose}
             title="Kembali"
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#fff"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}
-            ref={el => {
-              // Expand on parent group hover via CSS group class
-              // Using inline: parent hover handled by onMouseEnter/Leave above
-            }}
           >
-            <i className="ti ti-arrow-left" style={{ fontSize: 18, flexShrink: 0 }} />
+            <i className="ti ti-arrow-left" style={{ fontSize: 22 }} />
           </button>
 
           {/* Search Pill */}

@@ -144,7 +144,7 @@ export default function AdminDashboard() {
         </Link>
 
         {/* Total Letak (Span 4) */}
-        <Link href="/admin/manajemen?tab=letak" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
+        <Link href="/admin/manajemen?tab=barang&action=letak" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
           <span style={{ color: "var(--color-info)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Letak Fasilitas</span>
           <div style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)", marginTop: 16 }}>{stats?.totalLetak ?? 0}</div>
         </Link>
