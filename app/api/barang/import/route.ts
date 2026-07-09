@@ -36,12 +36,18 @@ export async function POST(req: Request) {
         // 2. Resolve Letak
         let letakId: string | null = null;
         if (row.letak) {
+          const letakStr = String(row.letak).trim();
           let letak = await prisma.letak.findUnique({
-            where: { kode: row.letak }
+            where: { kode: letakStr }
           });
+          
           if (!letak) {
+            // Extract Lantai (First digit)
+            const match = letakStr.match(/^(\d)/);
+            const lantaiStr = match ? `Lantai ${match[1]}` : null;
+            
             letak = await prisma.letak.create({
-              data: { kode: row.letak, nama: row.letak }
+              data: { kode: letakStr, nama: letakStr, lantai: lantaiStr }
             });
           }
           letakId = letak.id;

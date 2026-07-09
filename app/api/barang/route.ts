@@ -10,6 +10,7 @@ export async function GET(req: Request) {
   const searchParams = new URL(req.url).searchParams;
   const search     = searchParams.get("search")     ?? "";
   const jenisBarangId = searchParams.get("jenisBarangId") ?? "";
+  const letakId    = searchParams.get("letakId")    ?? "";
   const kode       = searchParams.get("kode")       ?? "";
   const tersedia   = searchParams.get("tersedia");
   
@@ -50,6 +51,7 @@ export async function GET(req: Request) {
     where: {
       ...(search     ? { nama: { contains: search, mode: "insensitive" } } : {}),
       ...(jenisBarangId ? { jenisBarangId }                                 : {}),
+      ...(letakId    ? { letakId }                                         : {}),
       ...(tersedia === "true" ? { status: "TERSEDIA" }                     : {}),
     },
     include: { jenisBarang: true, letak: true },

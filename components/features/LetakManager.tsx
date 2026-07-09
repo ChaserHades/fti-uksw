@@ -16,21 +16,25 @@ const EMPTY = { kode: "", nama: "", lantai: "" };
 interface RuanganWithCount extends Letak { _count?: { barang: number }; }
 
 export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
-  const [list, setList]         = useState<RuanganWithCount[]>([]);
-  const [search, setSearch]     = useState("");
-  const [modal, setModal]       = useState<"form" | "pindah" | null>(null);
+  const [list, setList] = useState<RuanganWithCount[]>([]);
+  const [search, setSearch] = useState("");
+  const [modal, setModal] = useState<"form" | "pindah" | "detail" | null>(null);
   const [selected, setSelected] = useState<Letak | null>(null);
-  const [form, setForm]         = useState(EMPTY);
-  const [saving, setSaving]     = useState(false);
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
 
   const [confirmDel, setConfirmDel] = useState<{ id: string, nama: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Detail state
+  const [detailList, setDetailList] = useState<Barang[]>([]);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
   // Pindah barang state
-  const [pindahBarang, setPindahBarang]   = useState<Barang | null>(null);
-  const [pindahTarget, setPindahTarget]   = useState("");
-  const [pindahSaving, setPindahSaving]   = useState(false);
-  const [kodeInput,    setKodeInput]      = useState("");
+  const [pindahBarang, setPindahBarang] = useState<Barang | null>(null);
+  const [pindahTarget, setPindahTarget] = useState("");
+  const [pindahSaving, setPindahSaving] = useState(false);
+  const [kodeInput, setKodeInput] = useState("");
 
   // QR Scanner hook for pindah barang
   function handleQrScanResult(raw: string) {
@@ -81,6 +85,22 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
 
   const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
+  async function openDetail(r: Letak) {
+    setSelected(r);
+    setModal("detail");
+    setLoadingDetail(true);
+    setDetailList([]);
+    try {
+      // API /api/barang returns { data: Barang[], nextCursor: ... }
+      const res = await api.get<{ data: Barang[] }>(`/api/barang?letakId=${r.id}&limit=all`);
+      setDetailList(res.data || []);
+    } catch {
+      toast.error("Gagal mengambil detail barang");
+    } finally {
+      setLoadingDetail(false);
+    }
+  }
+
   // ── Pindah Barang ──
   function openPindah() {
     setPindahBarang(null); setPindahTarget(""); setKodeInput("");
@@ -120,8 +140,8 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     catch { toast.error("Tidak dapat mengakses kamera"); }
   }
 
-  const filtered = list.filter(r => 
-    r.nama.toLowerCase().includes(search.toLowerCase()) || 
+  const filtered = list.filter(r =>
+    r.nama.toLowerCase().includes(search.toLowerCase()) ||
     r.kode.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -130,11 +150,11 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
       <div className="glass filter-bar mb-16">
         <div className="search-wrap" style={{ flex: "1 1 200px" }}>
           <i className="ti ti-search search-icon" />
-          <input 
-            className="input" 
-            placeholder="Cari ruangan..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
+          <input
+            className="input"
+            placeholder="Cari ruangan..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
         <button className="btn btn-ghost" onClick={openPindah}>
@@ -152,30 +172,37 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Label</th><th>Nama</th>
+                <th>Letak</th>
                 <th>Lantai</th><th>Jml Barang</th>
-                {role === "ADMIN" && <th>Aksi</th>}
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={7}><div className="empty-state"><i className="ti ti-building-off" style={{ fontSize: 28 }} />Belum ada ruangan</div></td></tr>
+                <tr><td colSpan={4}><div className="empty-state"><i className="ti ti-building-off" style={{ fontSize: 28 }} />Belum ada ruangan</div></td></tr>
               ) : filtered.map(r => (
                 <tr key={r.id}>
-                  <td className="td-mono td-bold">{r.kode}</td>
-                  <td className="td-name">{r.nama}</td>
+                  <td>
+                    <div className="td-name">{r.nama}</div>
+                    {r.kode !== r.nama && <div className="text-meta">{r.kode}</div>}
+                  </td>
                   <td>{r.lantai ?? "—"}</td>
                   <td>
                     <span className="badge badge-info">{r._count?.barang ?? 0}</span>
                   </td>
-                  {role === "ADMIN" && (
-                    <td>
-                      <div className="action-row">
-                        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(r)}><i className="ti ti-edit" /></button>
-                        <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(r.id, r.nama)}><i className="ti ti-trash" /></button>
-                      </div>
-                    </td>
-                  )}
+                  <td>
+                    <div className="action-row">
+                      <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openDetail(r)} title="Detail Barang">
+                        <i className="ti ti-eye" />
+                      </button>
+                      {role === "ADMIN" && (
+                        <>
+                          <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(r)}><i className="ti ti-edit" /></button>
+                          <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(r.id, r.nama)}><i className="ti ti-trash" /></button>
+                        </>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -286,6 +313,50 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
               </button>
             </div>
           </>
+        )}
+      </Modal>
+
+      {/* Detail Letak Modal */}
+      <Modal open={modal === "detail"} onClose={() => setModal(null)} title={selected ? `Detail Barang — ${selected.nama}` : "Detail Barang"}>
+        {loadingDetail ? (
+          <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-muted)" }}>
+            <div className="spinner" style={{ margin: "0 auto 12px", width: 24, height: 24 }} />
+            <div>Memuat data barang...</div>
+          </div>
+        ) : (
+          <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
+            {detailList.length === 0 ? (
+              <div className="empty-state">
+                <i className="ti ti-box-off" style={{ fontSize: 28 }} />
+                Tidak ada barang di ruangan ini
+              </div>
+            ) : (
+              <div className="table-wrap">
+                <table className="table" style={{ margin: 0 }}>
+                  <thead>
+                    <tr>
+                      <th>Kode</th>
+                      <th>Nama Barang</th>
+                      <th>Kondisi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detailList.map(b => (
+                      <tr key={b.id}>
+                        <td className="td-mono">{b.label ?? b.sn ?? "—"}</td>
+                        <td className="td-name">{b.nama}</td>
+                        <td>
+                          {b.kondisi === "BAIK" && <span className="badge badge-success">Baik</span>}
+                          {b.kondisi === "RUSAK_RINGAN" && <span className="badge badge-warn">Rusak Ringan</span>}
+                          {b.kondisi === "RUSAK_BERAT" && <span className="badge badge-danger">Rusak Berat</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         )}
       </Modal>
     </div>
