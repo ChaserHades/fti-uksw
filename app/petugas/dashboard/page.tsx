@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/helpers/api";
 import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
-import type { Transaksi, Barang } from "@/types";
+import type { Peminjaman, Barang } from "@/types";
 
 interface Me { id: string; name: string; email: string; }
 
 export default function TeknisiDashboard() {
   const [me, setMe] = useState<Me | null>(null);
-  const [myTrx, setMyTrx] = useState<Transaksi[]>([]);
-  const [allAktif, setAllAktif] = useState<Transaksi[]>([]);
+  const [myTrx, setMyTrx] = useState<Peminjaman[]>([]);
+  const [allAktif, setAllAktif] = useState<Peminjaman[]>([]);
   const [tersedia, setTersedia] = useState<Barang[]>([]);
 
   const today = new Date().toLocaleDateString("id-ID", {
@@ -21,9 +21,9 @@ export default function TeknisiDashboard() {
   useEffect(() => {
     fetch("/api/me").then(r => r.json()).then((d: Me) => {
       setMe(d);
-      api.get<{ data: Transaksi[] }>(`/api/transaksi?userId=${d.id}`).then(res => setMyTrx(res.data));
+      api.get<{ data: Peminjaman[] }>(`/api/peminjaman?userId=${d.id}`).then(res => setMyTrx(res.data));
     });
-    api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF&limit=5").then(d => setAllAktif(d.data));
+    api.get<{ data: Peminjaman[] }>("/api/peminjaman?status=AKTIF&limit=5").then(d => setAllAktif(d.data));
     api.get<{ data: Barang[] }>("/api/barang?tersedia=true&limit=5").then(d =>
       setTersedia(d.data)
     );
@@ -147,13 +147,13 @@ export default function TeknisiDashboard() {
         {/* RIWAYAT SAYA (Span 8) */}
         <div className="bento-card bento-span-8" style={{ padding: "32px 0 0 0" }}>
           <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-            <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Riwayat Transaksi Pribadi</span>
+            <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Riwayat Peminjaman Pribadi</span>
             <Link href="/petugas/manajemen?tab=riwayat" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua &rarr;</Link>
           </div>
           
           <div style={{ display: "flex", flexDirection: "column" }}>
             {myTrx.length === 0 ? (
-              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Belum ada riwayat transaksi.</div>
+              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Belum ada riwayat peminjaman.</div>
             ) : myTrx.slice(0, 4).map((t, idx) => (
               <div key={t.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
@@ -185,7 +185,7 @@ export default function TeknisiDashboard() {
               <div key={b.id} className="bento-row" style={{ padding: "12px 32px", borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{b.nama}</div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{b.jenisBarang?.nama}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama}</div>
                 </div>
                 <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "2px 8px", fontSize: 10, borderRadius: 12 }}>
                   {b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak" : "Rusak Berat"}

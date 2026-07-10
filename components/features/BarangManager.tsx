@@ -5,9 +5,9 @@ import { useSearchParams } from "next/navigation";
 import DaftarBarangTab from "./barang/DaftarBarangTab";
 import AddItemTab from "./barang/AddItemTab";
 import KategoriTab from "./barang/KategoriTab";
-import LetakManager from "./LetakManager";
+import RuanganManager from "./RuanganManager";
 
-type Tab = "daftar" | "add" | "jenis-barang" | "letak";
+type Tab = "daftar" | "add" | "kategori" | "ruangan";
 
 /**
  * Root orchestrator for the Barang management section.
@@ -27,10 +27,10 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
   ];
   if (role === "ADMIN") {
     availableTabs.push({ key: "add", icon: "ti-plus", label: "Add Item" });
-    availableTabs.push({ key: "jenis-barang", icon: "ti-category", label: "Jenis Barang" });
+    availableTabs.push({ key: "kategori", icon: "ti-category", label: "Kategori" });
   }
   if (role === "ADMIN" || role === "TEKNISI") {
-    availableTabs.push({ key: "letak", icon: "ti-building", label: "Letak / Ruangan" });
+    availableTabs.push({ key: "ruangan", icon: "ti-building", label: "Ruangan / Ruangan" });
   }
 
   return (
@@ -62,8 +62,8 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
 
       {tab === "daftar" && <DaftarBarangTab role={role} />}
       {tab === "add" && role === "ADMIN" && <AddItemTab />}
-      {tab === "jenis-barang" && role === "ADMIN" && <KategoriTab />}
-      {tab === "letak" && (role === "ADMIN" || role === "TEKNISI") && <LetakManager role={role} />}
+      {tab === "kategori" && role === "ADMIN" && <KategoriTab />}
+      {tab === "ruangan" && (role === "ADMIN" || role === "TEKNISI") && <RuanganManager role={role} />}
     </div>
   );
 }

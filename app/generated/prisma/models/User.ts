@@ -222,7 +222,7 @@ export type UserWhereInput = {
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFilter<"User"> | $Enums.StatusVerifikasi
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  transaksi?: Prisma.TransaksiListRelationFilter
+  peminjaman?: Prisma.PeminjamanListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -236,7 +236,7 @@ export type UserOrderByWithRelationInput = {
   statusVerifikasi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  transaksi?: Prisma.TransaksiOrderByRelationAggregateInput
+  peminjaman?: Prisma.PeminjamanOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -253,7 +253,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFilter<"User"> | $Enums.StatusVerifikasi
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  transaksi?: Prisma.TransaksiListRelationFilter
+  peminjaman?: Prisma.PeminjamanListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -299,7 +299,7 @@ export type UserCreateInput = {
   statusVerifikasi?: $Enums.StatusVerifikasi
   createdAt?: Date | string
   updatedAt?: Date | string
-  transaksi?: Prisma.TransaksiCreateNestedManyWithoutUserInput
+  peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -313,7 +313,7 @@ export type UserUncheckedCreateInput = {
   statusVerifikasi?: $Enums.StatusVerifikasi
   createdAt?: Date | string
   updatedAt?: Date | string
-  transaksi?: Prisma.TransaksiUncheckedCreateNestedManyWithoutUserInput
+  peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -327,7 +327,7 @@ export type UserUpdateInput = {
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  transaksi?: Prisma.TransaksiUpdateManyWithoutUserNestedInput
+  peminjaman?: Prisma.PeminjamanUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -341,7 +341,7 @@ export type UserUncheckedUpdateInput = {
   statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  transaksi?: Prisma.TransaksiUncheckedUpdateManyWithoutUserNestedInput
+  peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -447,21 +447,21 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
-export type UserCreateNestedOneWithoutTransaksiInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTransaksiInput, Prisma.UserUncheckedCreateWithoutTransaksiInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTransaksiInput
+export type UserCreateNestedOneWithoutPeminjamanInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPeminjamanInput, Prisma.UserUncheckedCreateWithoutPeminjamanInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPeminjamanInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutTransaksiNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTransaksiInput, Prisma.UserUncheckedCreateWithoutTransaksiInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTransaksiInput
-  upsert?: Prisma.UserUpsertWithoutTransaksiInput
+export type UserUpdateOneRequiredWithoutPeminjamanNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPeminjamanInput, Prisma.UserUncheckedCreateWithoutPeminjamanInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPeminjamanInput
+  upsert?: Prisma.UserUpsertWithoutPeminjamanInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTransaksiInput, Prisma.UserUpdateWithoutTransaksiInput>, Prisma.UserUncheckedUpdateWithoutTransaksiInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPeminjamanInput, Prisma.UserUpdateWithoutPeminjamanInput>, Prisma.UserUncheckedUpdateWithoutPeminjamanInput>
 }
 
-export type UserCreateWithoutTransaksiInput = {
+export type UserCreateWithoutPeminjamanInput = {
   id?: string
   name?: string | null
   email: string
@@ -474,7 +474,7 @@ export type UserCreateWithoutTransaksiInput = {
   updatedAt?: Date | string
 }
 
-export type UserUncheckedCreateWithoutTransaksiInput = {
+export type UserUncheckedCreateWithoutPeminjamanInput = {
   id?: string
   name?: string | null
   email: string
@@ -487,23 +487,23 @@ export type UserUncheckedCreateWithoutTransaksiInput = {
   updatedAt?: Date | string
 }
 
-export type UserCreateOrConnectWithoutTransaksiInput = {
+export type UserCreateOrConnectWithoutPeminjamanInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutTransaksiInput, Prisma.UserUncheckedCreateWithoutTransaksiInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPeminjamanInput, Prisma.UserUncheckedCreateWithoutPeminjamanInput>
 }
 
-export type UserUpsertWithoutTransaksiInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutTransaksiInput, Prisma.UserUncheckedUpdateWithoutTransaksiInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutTransaksiInput, Prisma.UserUncheckedCreateWithoutTransaksiInput>
+export type UserUpsertWithoutPeminjamanInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPeminjamanInput, Prisma.UserUncheckedUpdateWithoutPeminjamanInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPeminjamanInput, Prisma.UserUncheckedCreateWithoutPeminjamanInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutTransaksiInput = {
+export type UserUpdateToOneWithWhereWithoutPeminjamanInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutTransaksiInput, Prisma.UserUncheckedUpdateWithoutTransaksiInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPeminjamanInput, Prisma.UserUncheckedUpdateWithoutPeminjamanInput>
 }
 
-export type UserUpdateWithoutTransaksiInput = {
+export type UserUpdateWithoutPeminjamanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -516,7 +516,7 @@ export type UserUpdateWithoutTransaksiInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type UserUncheckedUpdateWithoutTransaksiInput = {
+export type UserUncheckedUpdateWithoutPeminjamanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -535,11 +535,11 @@ export type UserUncheckedUpdateWithoutTransaksiInput = {
  */
 
 export type UserCountOutputType = {
-  transaksi: number
+  peminjaman: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  transaksi?: boolean | UserCountOutputTypeCountTransaksiArgs
+  peminjaman?: boolean | UserCountOutputTypeCountPeminjamanArgs
 }
 
 /**
@@ -555,8 +555,8 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountTransaksiArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TransaksiWhereInput
+export type UserCountOutputTypeCountPeminjamanArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PeminjamanWhereInput
 }
 
 
@@ -571,7 +571,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   statusVerifikasi?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  transaksi?: boolean | Prisma.User$transaksiArgs<ExtArgs>
+  peminjaman?: boolean | Prisma.User$peminjamanArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -616,7 +616,7 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "image" | "provider" | "role" | "statusVerifikasi" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  transaksi?: boolean | Prisma.User$transaksiArgs<ExtArgs>
+  peminjaman?: boolean | Prisma.User$peminjamanArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -625,7 +625,7 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    transaksi: Prisma.$TransaksiPayload<ExtArgs>[]
+    peminjaman: Prisma.$PeminjamanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1032,7 +1032,7 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  transaksi<T extends Prisma.User$transaksiArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$transaksiArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  peminjaman<T extends Prisma.User$peminjamanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$peminjamanArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1465,27 +1465,27 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.transaksi
+ * User.peminjaman
  */
-export type User$transaksiArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$peminjamanArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
-  where?: Prisma.TransaksiWhereInput
-  orderBy?: Prisma.TransaksiOrderByWithRelationInput | Prisma.TransaksiOrderByWithRelationInput[]
-  cursor?: Prisma.TransaksiWhereUniqueInput
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
+  where?: Prisma.PeminjamanWhereInput
+  orderBy?: Prisma.PeminjamanOrderByWithRelationInput | Prisma.PeminjamanOrderByWithRelationInput[]
+  cursor?: Prisma.PeminjamanWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.TransaksiScalarFieldEnum | Prisma.TransaksiScalarFieldEnum[]
+  distinct?: Prisma.PeminjamanScalarFieldEnum | Prisma.PeminjamanScalarFieldEnum[]
 }
 
 /**

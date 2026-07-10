@@ -30,26 +30,26 @@ export async function GET(req: Request) {
       ];
     }
     
-    const jenisBarangId = searchParams.get("jenisBarangId");
-    if (jenisBarangId) where.jenisBarangId = jenisBarangId;
+    const kategoriId = searchParams.get("kategoriId");
+    if (kategoriId) where.kategoriId = kategoriId;
     
     const vendor = searchParams.get("vendor");
     if (vendor) where.vendor = { contains: vendor, mode: "insensitive" };
 
-    const letak = searchParams.get("letak");
-    if (letak) {
-      where.letak = {
-        kode: { contains: letak, mode: "insensitive" }
+    const ruangan = searchParams.get("ruangan");
+    if (ruangan) {
+      where.ruangan = {
+        kode: { contains: ruangan, mode: "insensitive" }
       };
     }
   }
 
   // Handle Sort Order relation
   let orderBy: any = {};
-  if (sortBy === "jenisBarang") {
-    orderBy = { jenisBarang: { nama: sortDir } };
-  } else if (sortBy === "letak") {
-    orderBy = { letak: { kode: sortDir } };
+  if (sortBy === "kategori") {
+    orderBy = { kategori: { nama: sortDir } };
+  } else if (sortBy === "ruangan") {
+    orderBy = { ruangan: { kode: sortDir } };
   } else {
     orderBy = { [sortBy]: sortDir };
   }
@@ -59,8 +59,8 @@ export async function GET(req: Request) {
       where,
       orderBy,
       include: {
-        jenisBarang: true,
-        letak: true
+        kategori: true,
+        ruangan: true
       }
     });
 
@@ -83,14 +83,14 @@ export async function GET(req: Request) {
     for (const [year, items] of Object.entries(groupedData)) {
       const rows = items.map((b, i) => ({
         NO: i + 1,
-        "JENIS BARANG": b.jenisBarang.nama,
+        "KATEGORI": b.kategori.nama,
         LABEL: b.label || "",
         SN: b.sn || "",
         "LABEL ASET": b.labelAset || "",
         MERK: b.merek || "",
         MODEL: b.model || "",
         TYPE: b.tipe || "",
-        LETAK: b.letak?.kode || "",
+        RUANGAN: b.ruangan?.kode || "",
         KETERANGAN: b.keterangan || "",
         VENDOR: b.vendor || "",
         HARGA: b.harga || "",
@@ -108,14 +108,14 @@ export async function GET(req: Request) {
       // Easiest is to combine all for CSV.
       const allRows = data.map((b, i) => ({
         NO: i + 1,
-        "JENIS BARANG": b.jenisBarang.nama,
+        "KATEGORI": b.kategori.nama,
         LABEL: b.label || "",
         SN: b.sn || "",
         "LABEL ASET": b.labelAset || "",
         MERK: b.merek || "",
         MODEL: b.model || "",
         TYPE: b.tipe || "",
-        LETAK: b.letak?.kode || "",
+        RUANGAN: b.ruangan?.kode || "",
         KETERANGAN: b.keterangan || "",
         VENDOR: b.vendor || "",
         HARGA: b.harga || "",

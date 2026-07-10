@@ -9,8 +9,8 @@ export async function GET(req: Request) {
 
   const searchParams = new URL(req.url).searchParams;
   const search     = searchParams.get("search")     ?? "";
-  const jenisBarangId = searchParams.get("jenisBarangId") ?? "";
-  const letakId    = searchParams.get("letakId")    ?? "";
+  const kategoriId = searchParams.get("kategoriId") ?? "";
+  const ruanganId    = searchParams.get("ruanganId")    ?? "";
   const kode       = searchParams.get("kode")       ?? "";
   const tersedia   = searchParams.get("tersedia");
   
@@ -21,14 +21,14 @@ export async function GET(req: Request) {
     // Try exact match first
     let item = await prisma.barang.findUnique({
       where: { label: kode },
-      include: { jenisBarang: true, letak: true },
+      include: { kategori: true, ruangan: true },
     });
 
     // Fallback: case-insensitive search (handles slight differences)
     if (!item) {
       item = await prisma.barang.findFirst({
         where: { label: { equals: kode, mode: "insensitive" } },
-        include: { jenisBarang: true, letak: true },
+        include: { kategori: true, ruangan: true },
       });
     }
 
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     if (!item) {
       item = await prisma.barang.findUnique({
         where: { id: kode },
-        include: { jenisBarang: true, letak: true },
+        include: { kategori: true, ruangan: true },
       });
     }
 
@@ -50,16 +50,16 @@ export async function GET(req: Request) {
     cursor: cursor ? { id: cursor } : undefined,
     where: {
       ...(search     ? { nama: { contains: search, mode: "insensitive" } } : {}),
-      ...(jenisBarangId ? { jenisBarangId }                                 : {}),
-      ...(letakId    ? { letakId }                                         : {}),
+      ...(kategoriId ? { kategoriId }                                 : {}),
+      ...(ruanganId    ? { ruanganId }                                         : {}),
       ...(tersedia === "true" ? { status: "TERSEDIA" }                     : {}),
     },
-    include: { jenisBarang: true, letak: true },
+    include: { kategori: true, ruangan: true },
     orderBy: (() => {
       const sortBy = searchParams.get("sortBy");
       const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
-      if (sortBy === "jenisBarangId") return { jenisBarang: { nama: sortDir } };
-      if (sortBy === "letakId") return { letak: { kode: sortDir } };
+      if (sortBy === "kategoriId") return { kategori: { nama: sortDir } };
+      if (sortBy === "ruanganId") return { ruangan: { kode: sortDir } };
       if (sortBy === "merek" || sortBy === "tanggalDatang" || sortBy === "harga") return { [sortBy]: sortDir };
       return { createdAt: "desc" };
     })(),
@@ -98,10 +98,10 @@ export async function POST(req: Request) {
       tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
       harga:      body.harga ? Number(body.harga) : null,
       hasSticker: body.hasSticker ?? false,
-      letakId:    body.letakId  ?? null,
-      jenisBarangId: body.jenisBarangId,
+      ruanganId:    body.ruanganId  ?? null,
+      kategoriId: body.kategoriId,
     },
-    include: { jenisBarang: true, letak: true },
+    include: { kategori: true, ruangan: true },
   });
 
   return NextResponse.json(item, { status: 201 });

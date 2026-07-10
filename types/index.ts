@@ -29,22 +29,22 @@ export interface Barang {
   hasSticker: boolean;
   qrCode?: string | null;
   foto?: string | null;
-  jenisBarangId: string;
-  letakId?: string | null;
+  kategoriId: string;
+  ruanganId?: string | null;
   createdAt: string;
   updatedAt: string;
-  jenisBarang: JenisBarang;
-  letak?: Letak | null;
+  kategori: Kategori;
+  ruangan?: Ruangan | null;
 }
 
-export interface JenisBarang {
+export interface Kategori {
   id: string;
   nama: string;
   keterangan?: string | null;
   createdAt: string;
 }
 
-export interface Letak {
+export interface Ruangan {
   id: string;
   kode: string;
   nama: string;
@@ -61,15 +61,15 @@ export interface User {
   createdAt: string;
 }
 
-export interface Transaksi {
+export interface Peminjaman {
   id: string;
   barangId: string;
   /** Petugas/Teknisi yang melakukan scan/pencatatan */
   userId: string;
   /** Peminjam aktual (mahasiswa/dosen/staf) */
   namaPeminjam: string;
-  /** Ruangan/Letak tujuan penggunaan */
-  letakPinjam: string;
+  /** Ruangan/Ruangan tujuan penggunaan */
+  ruanganTujuan: string;
   tanggalPinjam: string;
   tanggalKembali?: string | null;
   deadlineKembali: string;
@@ -83,7 +83,7 @@ export interface Transaksi {
 
 export interface DashboardStats {
   totalBarang: number;
-  totalLetak: number;
+  totalRuangan: number;
   totalUsers: number;
   pendingVerifikasi: number;
   dipinjam: number;

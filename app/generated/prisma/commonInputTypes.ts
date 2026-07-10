@@ -270,11 +270,11 @@ export type DateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
-export type EnumStatusTransaksiFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusTransaksi | Prisma.EnumStatusTransaksiFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusTransaksiFilter<$PrismaModel> | $Enums.StatusTransaksi
+export type EnumStatusPeminjamanFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPeminjaman | Prisma.EnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPeminjamanFilter<$PrismaModel> | $Enums.StatusPeminjaman
 }
 
 export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -291,14 +291,14 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
-export type EnumStatusTransaksiWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusTransaksi | Prisma.EnumStatusTransaksiFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusTransaksiWithAggregatesFilter<$PrismaModel> | $Enums.StatusTransaksi
+export type EnumStatusPeminjamanWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPeminjaman | Prisma.EnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPeminjamanWithAggregatesFilter<$PrismaModel> | $Enums.StatusPeminjaman
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumStatusTransaksiFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumStatusTransaksiFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPeminjamanFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPeminjamanFilter<$PrismaModel>
 }
 
 export type NestedStringFilter<$PrismaModel = never> = {
@@ -559,11 +559,11 @@ export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
-export type NestedEnumStatusTransaksiFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusTransaksi | Prisma.EnumStatusTransaksiFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusTransaksiFilter<$PrismaModel> | $Enums.StatusTransaksi
+export type NestedEnumStatusPeminjamanFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPeminjaman | Prisma.EnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPeminjamanFilter<$PrismaModel> | $Enums.StatusPeminjaman
 }
 
 export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -580,14 +580,14 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
-export type NestedEnumStatusTransaksiWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusTransaksi | Prisma.EnumStatusTransaksiFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusTransaksi[] | Prisma.ListEnumStatusTransaksiFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusTransaksiWithAggregatesFilter<$PrismaModel> | $Enums.StatusTransaksi
+export type NestedEnumStatusPeminjamanWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPeminjaman | Prisma.EnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPeminjaman[] | Prisma.ListEnumStatusPeminjamanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPeminjamanWithAggregatesFilter<$PrismaModel> | $Enums.StatusPeminjaman
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumStatusTransaksiFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumStatusTransaksiFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPeminjamanFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPeminjamanFilter<$PrismaModel>
 }
 
 

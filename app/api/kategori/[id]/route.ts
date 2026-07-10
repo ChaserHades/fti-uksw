@@ -1,4 +1,4 @@
-// app/api/jenis-barang/[id]/route.ts
+// app/api/kategori/[id]/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
@@ -11,7 +11,7 @@ export async function PUT(req: Request, { params }: Params) {
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json();
-  const item = await prisma.jenisBarang.update({ where: { id }, data: body });
+  const item = await prisma.kategori.update({ where: { id }, data: body });
   return NextResponse.json(item);
 }
 
@@ -20,6 +20,6 @@ export async function DELETE(_: Request, { params }: Params) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  await prisma.jenisBarang.delete({ where: { id } });
+  await prisma.kategori.delete({ where: { id } });
   return NextResponse.json({ message: "Deleted" });
 }

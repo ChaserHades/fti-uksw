@@ -4,7 +4,7 @@
 // biome-ignore-all lint: generated file
 // @ts-nocheck 
 /*
- * This file exports the `Transaksi` model and its related types.
+ * This file exports the `Peminjaman` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -13,44 +13,44 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model Transaksi
+ * Model Peminjaman
  * 
  */
-export type TransaksiModel = runtime.Types.Result.DefaultSelection<Prisma.$TransaksiPayload>
+export type PeminjamanModel = runtime.Types.Result.DefaultSelection<Prisma.$PeminjamanPayload>
 
-export type AggregateTransaksi = {
-  _count: TransaksiCountAggregateOutputType | null
-  _min: TransaksiMinAggregateOutputType | null
-  _max: TransaksiMaxAggregateOutputType | null
+export type AggregatePeminjaman = {
+  _count: PeminjamanCountAggregateOutputType | null
+  _min: PeminjamanMinAggregateOutputType | null
+  _max: PeminjamanMaxAggregateOutputType | null
 }
 
-export type TransaksiMinAggregateOutputType = {
+export type PeminjamanMinAggregateOutputType = {
   id: string | null
   barangId: string | null
   userId: string | null
   tanggalPinjam: Date | null
   tanggalKembali: Date | null
   deadlineKembali: Date | null
-  status: $Enums.StatusTransaksi | null
+  status: $Enums.StatusPeminjaman | null
   catatan: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
-export type TransaksiMaxAggregateOutputType = {
+export type PeminjamanMaxAggregateOutputType = {
   id: string | null
   barangId: string | null
   userId: string | null
   tanggalPinjam: Date | null
   tanggalKembali: Date | null
   deadlineKembali: Date | null
-  status: $Enums.StatusTransaksi | null
+  status: $Enums.StatusPeminjaman | null
   catatan: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
-export type TransaksiCountAggregateOutputType = {
+export type PeminjamanCountAggregateOutputType = {
   id: number
   barangId: number
   userId: number
@@ -65,7 +65,7 @@ export type TransaksiCountAggregateOutputType = {
 }
 
 
-export type TransaksiMinAggregateInputType = {
+export type PeminjamanMinAggregateInputType = {
   id?: true
   barangId?: true
   userId?: true
@@ -78,7 +78,7 @@ export type TransaksiMinAggregateInputType = {
   updatedAt?: true
 }
 
-export type TransaksiMaxAggregateInputType = {
+export type PeminjamanMaxAggregateInputType = {
   id?: true
   barangId?: true
   userId?: true
@@ -91,7 +91,7 @@ export type TransaksiMaxAggregateInputType = {
   updatedAt?: true
 }
 
-export type TransaksiCountAggregateInputType = {
+export type PeminjamanCountAggregateInputType = {
   id?: true
   barangId?: true
   userId?: true
@@ -105,128 +105,128 @@ export type TransaksiCountAggregateInputType = {
   _all?: true
 }
 
-export type TransaksiAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which Transaksi to aggregate.
+   * Filter which Peminjaman to aggregate.
    */
-  where?: Prisma.TransaksiWhereInput
+  where?: Prisma.PeminjamanWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Transaksis to fetch.
+   * Determine the order of Peminjamans to fetch.
    */
-  orderBy?: Prisma.TransaksiOrderByWithRelationInput | Prisma.TransaksiOrderByWithRelationInput[]
+  orderBy?: Prisma.PeminjamanOrderByWithRelationInput | Prisma.PeminjamanOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.TransaksiWhereUniqueInput
+  cursor?: Prisma.PeminjamanWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Transaksis from the position of the cursor.
+   * Take `±n` Peminjamans from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Transaksis.
+   * Skip the first `n` Peminjamans.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned Transaksis
+   * Count returned Peminjamans
   **/
-  _count?: true | TransaksiCountAggregateInputType
+  _count?: true | PeminjamanCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: TransaksiMinAggregateInputType
+  _min?: PeminjamanMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: TransaksiMaxAggregateInputType
+  _max?: PeminjamanMaxAggregateInputType
 }
 
-export type GetTransaksiAggregateType<T extends TransaksiAggregateArgs> = {
-      [P in keyof T & keyof AggregateTransaksi]: P extends '_count' | 'count'
+export type GetPeminjamanAggregateType<T extends PeminjamanAggregateArgs> = {
+      [P in keyof T & keyof AggregatePeminjaman]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateTransaksi[P]>
-    : Prisma.GetScalarType<T[P], AggregateTransaksi[P]>
+      : Prisma.GetScalarType<T[P], AggregatePeminjaman[P]>
+    : Prisma.GetScalarType<T[P], AggregatePeminjaman[P]>
 }
 
 
 
 
-export type TransaksiGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TransaksiWhereInput
-  orderBy?: Prisma.TransaksiOrderByWithAggregationInput | Prisma.TransaksiOrderByWithAggregationInput[]
-  by: Prisma.TransaksiScalarFieldEnum[] | Prisma.TransaksiScalarFieldEnum
-  having?: Prisma.TransaksiScalarWhereWithAggregatesInput
+export type PeminjamanGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PeminjamanWhereInput
+  orderBy?: Prisma.PeminjamanOrderByWithAggregationInput | Prisma.PeminjamanOrderByWithAggregationInput[]
+  by: Prisma.PeminjamanScalarFieldEnum[] | Prisma.PeminjamanScalarFieldEnum
+  having?: Prisma.PeminjamanScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: TransaksiCountAggregateInputType | true
-  _min?: TransaksiMinAggregateInputType
-  _max?: TransaksiMaxAggregateInputType
+  _count?: PeminjamanCountAggregateInputType | true
+  _min?: PeminjamanMinAggregateInputType
+  _max?: PeminjamanMaxAggregateInputType
 }
 
-export type TransaksiGroupByOutputType = {
+export type PeminjamanGroupByOutputType = {
   id: string
   barangId: string
   userId: string
   tanggalPinjam: Date
   tanggalKembali: Date | null
   deadlineKembali: Date
-  status: $Enums.StatusTransaksi
+  status: $Enums.StatusPeminjaman
   catatan: string | null
   createdAt: Date
   updatedAt: Date
-  _count: TransaksiCountAggregateOutputType | null
-  _min: TransaksiMinAggregateOutputType | null
-  _max: TransaksiMaxAggregateOutputType | null
+  _count: PeminjamanCountAggregateOutputType | null
+  _min: PeminjamanMinAggregateOutputType | null
+  _max: PeminjamanMaxAggregateOutputType | null
 }
 
-export type GetTransaksiGroupByPayload<T extends TransaksiGroupByArgs> = Prisma.PrismaPromise<
+export type GetPeminjamanGroupByPayload<T extends PeminjamanGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<TransaksiGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<PeminjamanGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof TransaksiGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof PeminjamanGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], TransaksiGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], TransaksiGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], PeminjamanGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], PeminjamanGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type TransaksiWhereInput = {
-  AND?: Prisma.TransaksiWhereInput | Prisma.TransaksiWhereInput[]
-  OR?: Prisma.TransaksiWhereInput[]
-  NOT?: Prisma.TransaksiWhereInput | Prisma.TransaksiWhereInput[]
-  id?: Prisma.StringFilter<"Transaksi"> | string
-  barangId?: Prisma.StringFilter<"Transaksi"> | string
-  userId?: Prisma.StringFilter<"Transaksi"> | string
-  tanggalPinjam?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  status?: Prisma.EnumStatusTransaksiFilter<"Transaksi"> | $Enums.StatusTransaksi
-  catatan?: Prisma.StringNullableFilter<"Transaksi"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
+export type PeminjamanWhereInput = {
+  AND?: Prisma.PeminjamanWhereInput | Prisma.PeminjamanWhereInput[]
+  OR?: Prisma.PeminjamanWhereInput[]
+  NOT?: Prisma.PeminjamanWhereInput | Prisma.PeminjamanWhereInput[]
+  id?: Prisma.StringFilter<"Peminjaman"> | string
+  barangId?: Prisma.StringFilter<"Peminjaman"> | string
+  userId?: Prisma.StringFilter<"Peminjaman"> | string
+  tanggalPinjam?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  tanggalKembali?: Prisma.DateTimeNullableFilter<"Peminjaman"> | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  status?: Prisma.EnumStatusPeminjamanFilter<"Peminjaman"> | $Enums.StatusPeminjaman
+  catatan?: Prisma.StringNullableFilter<"Peminjaman"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
   barang?: Prisma.XOR<Prisma.BarangScalarRelationFilter, Prisma.BarangWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
-export type TransaksiOrderByWithRelationInput = {
+export type PeminjamanOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -241,25 +241,25 @@ export type TransaksiOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
 }
 
-export type TransaksiWhereUniqueInput = Prisma.AtLeast<{
+export type PeminjamanWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  AND?: Prisma.TransaksiWhereInput | Prisma.TransaksiWhereInput[]
-  OR?: Prisma.TransaksiWhereInput[]
-  NOT?: Prisma.TransaksiWhereInput | Prisma.TransaksiWhereInput[]
-  barangId?: Prisma.StringFilter<"Transaksi"> | string
-  userId?: Prisma.StringFilter<"Transaksi"> | string
-  tanggalPinjam?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  status?: Prisma.EnumStatusTransaksiFilter<"Transaksi"> | $Enums.StatusTransaksi
-  catatan?: Prisma.StringNullableFilter<"Transaksi"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
+  AND?: Prisma.PeminjamanWhereInput | Prisma.PeminjamanWhereInput[]
+  OR?: Prisma.PeminjamanWhereInput[]
+  NOT?: Prisma.PeminjamanWhereInput | Prisma.PeminjamanWhereInput[]
+  barangId?: Prisma.StringFilter<"Peminjaman"> | string
+  userId?: Prisma.StringFilter<"Peminjaman"> | string
+  tanggalPinjam?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  tanggalKembali?: Prisma.DateTimeNullableFilter<"Peminjaman"> | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  status?: Prisma.EnumStatusPeminjamanFilter<"Peminjaman"> | $Enums.StatusPeminjaman
+  catatan?: Prisma.StringNullableFilter<"Peminjaman"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
   barang?: Prisma.XOR<Prisma.BarangScalarRelationFilter, Prisma.BarangWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
-export type TransaksiOrderByWithAggregationInput = {
+export type PeminjamanOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -270,127 +270,127 @@ export type TransaksiOrderByWithAggregationInput = {
   catatan?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  _count?: Prisma.TransaksiCountOrderByAggregateInput
-  _max?: Prisma.TransaksiMaxOrderByAggregateInput
-  _min?: Prisma.TransaksiMinOrderByAggregateInput
+  _count?: Prisma.PeminjamanCountOrderByAggregateInput
+  _max?: Prisma.PeminjamanMaxOrderByAggregateInput
+  _min?: Prisma.PeminjamanMinOrderByAggregateInput
 }
 
-export type TransaksiScalarWhereWithAggregatesInput = {
-  AND?: Prisma.TransaksiScalarWhereWithAggregatesInput | Prisma.TransaksiScalarWhereWithAggregatesInput[]
-  OR?: Prisma.TransaksiScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.TransaksiScalarWhereWithAggregatesInput | Prisma.TransaksiScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
-  barangId?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"Transaksi"> | string
-  tanggalPinjam?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
-  tanggalKembali?: Prisma.DateTimeNullableWithAggregatesFilter<"Transaksi"> | Date | string | null
-  deadlineKembali?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
-  status?: Prisma.EnumStatusTransaksiWithAggregatesFilter<"Transaksi"> | $Enums.StatusTransaksi
-  catatan?: Prisma.StringNullableWithAggregatesFilter<"Transaksi"> | string | null
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaksi"> | Date | string
+export type PeminjamanScalarWhereWithAggregatesInput = {
+  AND?: Prisma.PeminjamanScalarWhereWithAggregatesInput | Prisma.PeminjamanScalarWhereWithAggregatesInput[]
+  OR?: Prisma.PeminjamanScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.PeminjamanScalarWhereWithAggregatesInput | Prisma.PeminjamanScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"Peminjaman"> | string
+  barangId?: Prisma.StringWithAggregatesFilter<"Peminjaman"> | string
+  userId?: Prisma.StringWithAggregatesFilter<"Peminjaman"> | string
+  tanggalPinjam?: Prisma.DateTimeWithAggregatesFilter<"Peminjaman"> | Date | string
+  tanggalKembali?: Prisma.DateTimeNullableWithAggregatesFilter<"Peminjaman"> | Date | string | null
+  deadlineKembali?: Prisma.DateTimeWithAggregatesFilter<"Peminjaman"> | Date | string
+  status?: Prisma.EnumStatusPeminjamanWithAggregatesFilter<"Peminjaman"> | $Enums.StatusPeminjaman
+  catatan?: Prisma.StringNullableWithAggregatesFilter<"Peminjaman"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Peminjaman"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Peminjaman"> | Date | string
 }
 
-export type TransaksiCreateInput = {
+export type PeminjamanCreateInput = {
   id?: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
+  status?: $Enums.StatusPeminjaman
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  barang: Prisma.BarangCreateNestedOneWithoutTransaksiInput
-  user: Prisma.UserCreateNestedOneWithoutTransaksiInput
+  barang: Prisma.BarangCreateNestedOneWithoutPeminjamanInput
+  user: Prisma.UserCreateNestedOneWithoutPeminjamanInput
 }
 
-export type TransaksiUncheckedCreateInput = {
-  id?: string
-  barangId: string
-  userId: string
-  tanggalPinjam?: Date | string
-  tanggalKembali?: Date | string | null
-  deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
-  catatan?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type TransaksiUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
-  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  barang?: Prisma.BarangUpdateOneRequiredWithoutTransaksiNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutTransaksiNestedInput
-}
-
-export type TransaksiUncheckedUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  barangId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
-  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type TransaksiCreateManyInput = {
+export type PeminjamanUncheckedCreateInput = {
   id?: string
   barangId: string
   userId: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
+  status?: $Enums.StatusPeminjaman
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type TransaksiUpdateManyMutationInput = {
+export type PeminjamanUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  barang?: Prisma.BarangUpdateOneRequiredWithoutPeminjamanNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutPeminjamanNestedInput
 }
 
-export type TransaksiUncheckedUpdateManyInput = {
+export type PeminjamanUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   barangId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type TransaksiListRelationFilter = {
-  every?: Prisma.TransaksiWhereInput
-  some?: Prisma.TransaksiWhereInput
-  none?: Prisma.TransaksiWhereInput
+export type PeminjamanCreateManyInput = {
+  id?: string
+  barangId: string
+  userId: string
+  tanggalPinjam?: Date | string
+  tanggalKembali?: Date | string | null
+  deadlineKembali: Date | string
+  status?: $Enums.StatusPeminjaman
+  catatan?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type TransaksiOrderByRelationAggregateInput = {
+export type PeminjamanUpdateManyMutationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
+  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PeminjamanUncheckedUpdateManyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  barangId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
+  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PeminjamanListRelationFilter = {
+  every?: Prisma.PeminjamanWhereInput
+  some?: Prisma.PeminjamanWhereInput
+  none?: Prisma.PeminjamanWhereInput
+}
+
+export type PeminjamanOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type TransaksiCountOrderByAggregateInput = {
+export type PeminjamanCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -403,7 +403,7 @@ export type TransaksiCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type TransaksiMaxOrderByAggregateInput = {
+export type PeminjamanMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -416,7 +416,7 @@ export type TransaksiMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type TransaksiMinOrderByAggregateInput = {
+export type PeminjamanMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   barangId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -429,305 +429,305 @@ export type TransaksiMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type TransaksiCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutUserInput, Prisma.TransaksiUncheckedCreateWithoutUserInput> | Prisma.TransaksiCreateWithoutUserInput[] | Prisma.TransaksiUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutUserInput | Prisma.TransaksiCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.TransaksiCreateManyUserInputEnvelope
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
+export type PeminjamanCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutUserInput, Prisma.PeminjamanUncheckedCreateWithoutUserInput> | Prisma.PeminjamanCreateWithoutUserInput[] | Prisma.PeminjamanUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutUserInput | Prisma.PeminjamanCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.PeminjamanCreateManyUserInputEnvelope
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
 }
 
-export type TransaksiUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutUserInput, Prisma.TransaksiUncheckedCreateWithoutUserInput> | Prisma.TransaksiCreateWithoutUserInput[] | Prisma.TransaksiUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutUserInput | Prisma.TransaksiCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.TransaksiCreateManyUserInputEnvelope
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
+export type PeminjamanUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutUserInput, Prisma.PeminjamanUncheckedCreateWithoutUserInput> | Prisma.PeminjamanCreateWithoutUserInput[] | Prisma.PeminjamanUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutUserInput | Prisma.PeminjamanCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.PeminjamanCreateManyUserInputEnvelope
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
 }
 
-export type TransaksiUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutUserInput, Prisma.TransaksiUncheckedCreateWithoutUserInput> | Prisma.TransaksiCreateWithoutUserInput[] | Prisma.TransaksiUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutUserInput | Prisma.TransaksiCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.TransaksiUpsertWithWhereUniqueWithoutUserInput | Prisma.TransaksiUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.TransaksiCreateManyUserInputEnvelope
-  set?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  disconnect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  delete?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  update?: Prisma.TransaksiUpdateWithWhereUniqueWithoutUserInput | Prisma.TransaksiUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.TransaksiUpdateManyWithWhereWithoutUserInput | Prisma.TransaksiUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.TransaksiScalarWhereInput | Prisma.TransaksiScalarWhereInput[]
+export type PeminjamanUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutUserInput, Prisma.PeminjamanUncheckedCreateWithoutUserInput> | Prisma.PeminjamanCreateWithoutUserInput[] | Prisma.PeminjamanUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutUserInput | Prisma.PeminjamanCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.PeminjamanUpsertWithWhereUniqueWithoutUserInput | Prisma.PeminjamanUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.PeminjamanCreateManyUserInputEnvelope
+  set?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  disconnect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  delete?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  update?: Prisma.PeminjamanUpdateWithWhereUniqueWithoutUserInput | Prisma.PeminjamanUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.PeminjamanUpdateManyWithWhereWithoutUserInput | Prisma.PeminjamanUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.PeminjamanScalarWhereInput | Prisma.PeminjamanScalarWhereInput[]
 }
 
-export type TransaksiUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutUserInput, Prisma.TransaksiUncheckedCreateWithoutUserInput> | Prisma.TransaksiCreateWithoutUserInput[] | Prisma.TransaksiUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutUserInput | Prisma.TransaksiCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.TransaksiUpsertWithWhereUniqueWithoutUserInput | Prisma.TransaksiUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.TransaksiCreateManyUserInputEnvelope
-  set?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  disconnect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  delete?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  update?: Prisma.TransaksiUpdateWithWhereUniqueWithoutUserInput | Prisma.TransaksiUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.TransaksiUpdateManyWithWhereWithoutUserInput | Prisma.TransaksiUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.TransaksiScalarWhereInput | Prisma.TransaksiScalarWhereInput[]
+export type PeminjamanUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutUserInput, Prisma.PeminjamanUncheckedCreateWithoutUserInput> | Prisma.PeminjamanCreateWithoutUserInput[] | Prisma.PeminjamanUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutUserInput | Prisma.PeminjamanCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.PeminjamanUpsertWithWhereUniqueWithoutUserInput | Prisma.PeminjamanUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.PeminjamanCreateManyUserInputEnvelope
+  set?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  disconnect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  delete?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  update?: Prisma.PeminjamanUpdateWithWhereUniqueWithoutUserInput | Prisma.PeminjamanUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.PeminjamanUpdateManyWithWhereWithoutUserInput | Prisma.PeminjamanUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.PeminjamanScalarWhereInput | Prisma.PeminjamanScalarWhereInput[]
 }
 
-export type TransaksiCreateNestedManyWithoutBarangInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutBarangInput, Prisma.TransaksiUncheckedCreateWithoutBarangInput> | Prisma.TransaksiCreateWithoutBarangInput[] | Prisma.TransaksiUncheckedCreateWithoutBarangInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutBarangInput | Prisma.TransaksiCreateOrConnectWithoutBarangInput[]
-  createMany?: Prisma.TransaksiCreateManyBarangInputEnvelope
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
+export type PeminjamanCreateNestedManyWithoutBarangInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutBarangInput, Prisma.PeminjamanUncheckedCreateWithoutBarangInput> | Prisma.PeminjamanCreateWithoutBarangInput[] | Prisma.PeminjamanUncheckedCreateWithoutBarangInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutBarangInput | Prisma.PeminjamanCreateOrConnectWithoutBarangInput[]
+  createMany?: Prisma.PeminjamanCreateManyBarangInputEnvelope
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
 }
 
-export type TransaksiUncheckedCreateNestedManyWithoutBarangInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutBarangInput, Prisma.TransaksiUncheckedCreateWithoutBarangInput> | Prisma.TransaksiCreateWithoutBarangInput[] | Prisma.TransaksiUncheckedCreateWithoutBarangInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutBarangInput | Prisma.TransaksiCreateOrConnectWithoutBarangInput[]
-  createMany?: Prisma.TransaksiCreateManyBarangInputEnvelope
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
+export type PeminjamanUncheckedCreateNestedManyWithoutBarangInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutBarangInput, Prisma.PeminjamanUncheckedCreateWithoutBarangInput> | Prisma.PeminjamanCreateWithoutBarangInput[] | Prisma.PeminjamanUncheckedCreateWithoutBarangInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutBarangInput | Prisma.PeminjamanCreateOrConnectWithoutBarangInput[]
+  createMany?: Prisma.PeminjamanCreateManyBarangInputEnvelope
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
 }
 
-export type TransaksiUpdateManyWithoutBarangNestedInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutBarangInput, Prisma.TransaksiUncheckedCreateWithoutBarangInput> | Prisma.TransaksiCreateWithoutBarangInput[] | Prisma.TransaksiUncheckedCreateWithoutBarangInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutBarangInput | Prisma.TransaksiCreateOrConnectWithoutBarangInput[]
-  upsert?: Prisma.TransaksiUpsertWithWhereUniqueWithoutBarangInput | Prisma.TransaksiUpsertWithWhereUniqueWithoutBarangInput[]
-  createMany?: Prisma.TransaksiCreateManyBarangInputEnvelope
-  set?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  disconnect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  delete?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  update?: Prisma.TransaksiUpdateWithWhereUniqueWithoutBarangInput | Prisma.TransaksiUpdateWithWhereUniqueWithoutBarangInput[]
-  updateMany?: Prisma.TransaksiUpdateManyWithWhereWithoutBarangInput | Prisma.TransaksiUpdateManyWithWhereWithoutBarangInput[]
-  deleteMany?: Prisma.TransaksiScalarWhereInput | Prisma.TransaksiScalarWhereInput[]
+export type PeminjamanUpdateManyWithoutBarangNestedInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutBarangInput, Prisma.PeminjamanUncheckedCreateWithoutBarangInput> | Prisma.PeminjamanCreateWithoutBarangInput[] | Prisma.PeminjamanUncheckedCreateWithoutBarangInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutBarangInput | Prisma.PeminjamanCreateOrConnectWithoutBarangInput[]
+  upsert?: Prisma.PeminjamanUpsertWithWhereUniqueWithoutBarangInput | Prisma.PeminjamanUpsertWithWhereUniqueWithoutBarangInput[]
+  createMany?: Prisma.PeminjamanCreateManyBarangInputEnvelope
+  set?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  disconnect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  delete?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  update?: Prisma.PeminjamanUpdateWithWhereUniqueWithoutBarangInput | Prisma.PeminjamanUpdateWithWhereUniqueWithoutBarangInput[]
+  updateMany?: Prisma.PeminjamanUpdateManyWithWhereWithoutBarangInput | Prisma.PeminjamanUpdateManyWithWhereWithoutBarangInput[]
+  deleteMany?: Prisma.PeminjamanScalarWhereInput | Prisma.PeminjamanScalarWhereInput[]
 }
 
-export type TransaksiUncheckedUpdateManyWithoutBarangNestedInput = {
-  create?: Prisma.XOR<Prisma.TransaksiCreateWithoutBarangInput, Prisma.TransaksiUncheckedCreateWithoutBarangInput> | Prisma.TransaksiCreateWithoutBarangInput[] | Prisma.TransaksiUncheckedCreateWithoutBarangInput[]
-  connectOrCreate?: Prisma.TransaksiCreateOrConnectWithoutBarangInput | Prisma.TransaksiCreateOrConnectWithoutBarangInput[]
-  upsert?: Prisma.TransaksiUpsertWithWhereUniqueWithoutBarangInput | Prisma.TransaksiUpsertWithWhereUniqueWithoutBarangInput[]
-  createMany?: Prisma.TransaksiCreateManyBarangInputEnvelope
-  set?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  disconnect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  delete?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  connect?: Prisma.TransaksiWhereUniqueInput | Prisma.TransaksiWhereUniqueInput[]
-  update?: Prisma.TransaksiUpdateWithWhereUniqueWithoutBarangInput | Prisma.TransaksiUpdateWithWhereUniqueWithoutBarangInput[]
-  updateMany?: Prisma.TransaksiUpdateManyWithWhereWithoutBarangInput | Prisma.TransaksiUpdateManyWithWhereWithoutBarangInput[]
-  deleteMany?: Prisma.TransaksiScalarWhereInput | Prisma.TransaksiScalarWhereInput[]
+export type PeminjamanUncheckedUpdateManyWithoutBarangNestedInput = {
+  create?: Prisma.XOR<Prisma.PeminjamanCreateWithoutBarangInput, Prisma.PeminjamanUncheckedCreateWithoutBarangInput> | Prisma.PeminjamanCreateWithoutBarangInput[] | Prisma.PeminjamanUncheckedCreateWithoutBarangInput[]
+  connectOrCreate?: Prisma.PeminjamanCreateOrConnectWithoutBarangInput | Prisma.PeminjamanCreateOrConnectWithoutBarangInput[]
+  upsert?: Prisma.PeminjamanUpsertWithWhereUniqueWithoutBarangInput | Prisma.PeminjamanUpsertWithWhereUniqueWithoutBarangInput[]
+  createMany?: Prisma.PeminjamanCreateManyBarangInputEnvelope
+  set?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  disconnect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  delete?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  connect?: Prisma.PeminjamanWhereUniqueInput | Prisma.PeminjamanWhereUniqueInput[]
+  update?: Prisma.PeminjamanUpdateWithWhereUniqueWithoutBarangInput | Prisma.PeminjamanUpdateWithWhereUniqueWithoutBarangInput[]
+  updateMany?: Prisma.PeminjamanUpdateManyWithWhereWithoutBarangInput | Prisma.PeminjamanUpdateManyWithWhereWithoutBarangInput[]
+  deleteMany?: Prisma.PeminjamanScalarWhereInput | Prisma.PeminjamanScalarWhereInput[]
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
-export type EnumStatusTransaksiFieldUpdateOperationsInput = {
-  set?: $Enums.StatusTransaksi
+export type EnumStatusPeminjamanFieldUpdateOperationsInput = {
+  set?: $Enums.StatusPeminjaman
 }
 
-export type TransaksiCreateWithoutUserInput = {
+export type PeminjamanCreateWithoutUserInput = {
   id?: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
+  status?: $Enums.StatusPeminjaman
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  barang: Prisma.BarangCreateNestedOneWithoutTransaksiInput
+  barang: Prisma.BarangCreateNestedOneWithoutPeminjamanInput
 }
 
-export type TransaksiUncheckedCreateWithoutUserInput = {
-  id?: string
-  barangId: string
-  tanggalPinjam?: Date | string
-  tanggalKembali?: Date | string | null
-  deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
-  catatan?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type TransaksiCreateOrConnectWithoutUserInput = {
-  where: Prisma.TransaksiWhereUniqueInput
-  create: Prisma.XOR<Prisma.TransaksiCreateWithoutUserInput, Prisma.TransaksiUncheckedCreateWithoutUserInput>
-}
-
-export type TransaksiCreateManyUserInputEnvelope = {
-  data: Prisma.TransaksiCreateManyUserInput | Prisma.TransaksiCreateManyUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type TransaksiUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.TransaksiWhereUniqueInput
-  update: Prisma.XOR<Prisma.TransaksiUpdateWithoutUserInput, Prisma.TransaksiUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.TransaksiCreateWithoutUserInput, Prisma.TransaksiUncheckedCreateWithoutUserInput>
-}
-
-export type TransaksiUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.TransaksiWhereUniqueInput
-  data: Prisma.XOR<Prisma.TransaksiUpdateWithoutUserInput, Prisma.TransaksiUncheckedUpdateWithoutUserInput>
-}
-
-export type TransaksiUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.TransaksiScalarWhereInput
-  data: Prisma.XOR<Prisma.TransaksiUpdateManyMutationInput, Prisma.TransaksiUncheckedUpdateManyWithoutUserInput>
-}
-
-export type TransaksiScalarWhereInput = {
-  AND?: Prisma.TransaksiScalarWhereInput | Prisma.TransaksiScalarWhereInput[]
-  OR?: Prisma.TransaksiScalarWhereInput[]
-  NOT?: Prisma.TransaksiScalarWhereInput | Prisma.TransaksiScalarWhereInput[]
-  id?: Prisma.StringFilter<"Transaksi"> | string
-  barangId?: Prisma.StringFilter<"Transaksi"> | string
-  userId?: Prisma.StringFilter<"Transaksi"> | string
-  tanggalPinjam?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  tanggalKembali?: Prisma.DateTimeNullableFilter<"Transaksi"> | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  status?: Prisma.EnumStatusTransaksiFilter<"Transaksi"> | $Enums.StatusTransaksi
-  catatan?: Prisma.StringNullableFilter<"Transaksi"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Transaksi"> | Date | string
-}
-
-export type TransaksiCreateWithoutBarangInput = {
-  id?: string
-  tanggalPinjam?: Date | string
-  tanggalKembali?: Date | string | null
-  deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
-  catatan?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutTransaksiInput
-}
-
-export type TransaksiUncheckedCreateWithoutBarangInput = {
-  id?: string
-  userId: string
-  tanggalPinjam?: Date | string
-  tanggalKembali?: Date | string | null
-  deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
-  catatan?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type TransaksiCreateOrConnectWithoutBarangInput = {
-  where: Prisma.TransaksiWhereUniqueInput
-  create: Prisma.XOR<Prisma.TransaksiCreateWithoutBarangInput, Prisma.TransaksiUncheckedCreateWithoutBarangInput>
-}
-
-export type TransaksiCreateManyBarangInputEnvelope = {
-  data: Prisma.TransaksiCreateManyBarangInput | Prisma.TransaksiCreateManyBarangInput[]
-  skipDuplicates?: boolean
-}
-
-export type TransaksiUpsertWithWhereUniqueWithoutBarangInput = {
-  where: Prisma.TransaksiWhereUniqueInput
-  update: Prisma.XOR<Prisma.TransaksiUpdateWithoutBarangInput, Prisma.TransaksiUncheckedUpdateWithoutBarangInput>
-  create: Prisma.XOR<Prisma.TransaksiCreateWithoutBarangInput, Prisma.TransaksiUncheckedCreateWithoutBarangInput>
-}
-
-export type TransaksiUpdateWithWhereUniqueWithoutBarangInput = {
-  where: Prisma.TransaksiWhereUniqueInput
-  data: Prisma.XOR<Prisma.TransaksiUpdateWithoutBarangInput, Prisma.TransaksiUncheckedUpdateWithoutBarangInput>
-}
-
-export type TransaksiUpdateManyWithWhereWithoutBarangInput = {
-  where: Prisma.TransaksiScalarWhereInput
-  data: Prisma.XOR<Prisma.TransaksiUpdateManyMutationInput, Prisma.TransaksiUncheckedUpdateManyWithoutBarangInput>
-}
-
-export type TransaksiCreateManyUserInput = {
+export type PeminjamanUncheckedCreateWithoutUserInput = {
   id?: string
   barangId: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
+  status?: $Enums.StatusPeminjaman
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type TransaksiUpdateWithoutUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
-  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  barang?: Prisma.BarangUpdateOneRequiredWithoutTransaksiNestedInput
+export type PeminjamanCreateOrConnectWithoutUserInput = {
+  where: Prisma.PeminjamanWhereUniqueInput
+  create: Prisma.XOR<Prisma.PeminjamanCreateWithoutUserInput, Prisma.PeminjamanUncheckedCreateWithoutUserInput>
 }
 
-export type TransaksiUncheckedUpdateWithoutUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  barangId?: Prisma.StringFieldUpdateOperationsInput | string
-  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
-  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type PeminjamanCreateManyUserInputEnvelope = {
+  data: Prisma.PeminjamanCreateManyUserInput | Prisma.PeminjamanCreateManyUserInput[]
+  skipDuplicates?: boolean
 }
 
-export type TransaksiUncheckedUpdateManyWithoutUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  barangId?: Prisma.StringFieldUpdateOperationsInput | string
-  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
-  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type PeminjamanUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.PeminjamanWhereUniqueInput
+  update: Prisma.XOR<Prisma.PeminjamanUpdateWithoutUserInput, Prisma.PeminjamanUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.PeminjamanCreateWithoutUserInput, Prisma.PeminjamanUncheckedCreateWithoutUserInput>
 }
 
-export type TransaksiCreateManyBarangInput = {
+export type PeminjamanUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.PeminjamanWhereUniqueInput
+  data: Prisma.XOR<Prisma.PeminjamanUpdateWithoutUserInput, Prisma.PeminjamanUncheckedUpdateWithoutUserInput>
+}
+
+export type PeminjamanUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.PeminjamanScalarWhereInput
+  data: Prisma.XOR<Prisma.PeminjamanUpdateManyMutationInput, Prisma.PeminjamanUncheckedUpdateManyWithoutUserInput>
+}
+
+export type PeminjamanScalarWhereInput = {
+  AND?: Prisma.PeminjamanScalarWhereInput | Prisma.PeminjamanScalarWhereInput[]
+  OR?: Prisma.PeminjamanScalarWhereInput[]
+  NOT?: Prisma.PeminjamanScalarWhereInput | Prisma.PeminjamanScalarWhereInput[]
+  id?: Prisma.StringFilter<"Peminjaman"> | string
+  barangId?: Prisma.StringFilter<"Peminjaman"> | string
+  userId?: Prisma.StringFilter<"Peminjaman"> | string
+  tanggalPinjam?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  tanggalKembali?: Prisma.DateTimeNullableFilter<"Peminjaman"> | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  status?: Prisma.EnumStatusPeminjamanFilter<"Peminjaman"> | $Enums.StatusPeminjaman
+  catatan?: Prisma.StringNullableFilter<"Peminjaman"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Peminjaman"> | Date | string
+}
+
+export type PeminjamanCreateWithoutBarangInput = {
+  id?: string
+  tanggalPinjam?: Date | string
+  tanggalKembali?: Date | string | null
+  deadlineKembali: Date | string
+  status?: $Enums.StatusPeminjaman
+  catatan?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPeminjamanInput
+}
+
+export type PeminjamanUncheckedCreateWithoutBarangInput = {
   id?: string
   userId: string
   tanggalPinjam?: Date | string
   tanggalKembali?: Date | string | null
   deadlineKembali: Date | string
-  status?: $Enums.StatusTransaksi
+  status?: $Enums.StatusPeminjaman
   catatan?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type TransaksiUpdateWithoutBarangInput = {
+export type PeminjamanCreateOrConnectWithoutBarangInput = {
+  where: Prisma.PeminjamanWhereUniqueInput
+  create: Prisma.XOR<Prisma.PeminjamanCreateWithoutBarangInput, Prisma.PeminjamanUncheckedCreateWithoutBarangInput>
+}
+
+export type PeminjamanCreateManyBarangInputEnvelope = {
+  data: Prisma.PeminjamanCreateManyBarangInput | Prisma.PeminjamanCreateManyBarangInput[]
+  skipDuplicates?: boolean
+}
+
+export type PeminjamanUpsertWithWhereUniqueWithoutBarangInput = {
+  where: Prisma.PeminjamanWhereUniqueInput
+  update: Prisma.XOR<Prisma.PeminjamanUpdateWithoutBarangInput, Prisma.PeminjamanUncheckedUpdateWithoutBarangInput>
+  create: Prisma.XOR<Prisma.PeminjamanCreateWithoutBarangInput, Prisma.PeminjamanUncheckedCreateWithoutBarangInput>
+}
+
+export type PeminjamanUpdateWithWhereUniqueWithoutBarangInput = {
+  where: Prisma.PeminjamanWhereUniqueInput
+  data: Prisma.XOR<Prisma.PeminjamanUpdateWithoutBarangInput, Prisma.PeminjamanUncheckedUpdateWithoutBarangInput>
+}
+
+export type PeminjamanUpdateManyWithWhereWithoutBarangInput = {
+  where: Prisma.PeminjamanScalarWhereInput
+  data: Prisma.XOR<Prisma.PeminjamanUpdateManyMutationInput, Prisma.PeminjamanUncheckedUpdateManyWithoutBarangInput>
+}
+
+export type PeminjamanCreateManyUserInput = {
+  id?: string
+  barangId: string
+  tanggalPinjam?: Date | string
+  tanggalKembali?: Date | string | null
+  deadlineKembali: Date | string
+  status?: $Enums.StatusPeminjaman
+  catatan?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PeminjamanUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutTransaksiNestedInput
+  barang?: Prisma.BarangUpdateOneRequiredWithoutPeminjamanNestedInput
 }
 
-export type TransaksiUncheckedUpdateWithoutBarangInput = {
+export type PeminjamanUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  barangId?: Prisma.StringFieldUpdateOperationsInput | string
+  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
+  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PeminjamanUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  barangId?: Prisma.StringFieldUpdateOperationsInput | string
+  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
+  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PeminjamanCreateManyBarangInput = {
+  id?: string
+  userId: string
+  tanggalPinjam?: Date | string
+  tanggalKembali?: Date | string | null
+  deadlineKembali: Date | string
+  status?: $Enums.StatusPeminjaman
+  catatan?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PeminjamanUpdateWithoutBarangInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
+  catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPeminjamanNestedInput
+}
+
+export type PeminjamanUncheckedUpdateWithoutBarangInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type TransaksiUncheckedUpdateManyWithoutBarangInput = {
+export type PeminjamanUncheckedUpdateManyWithoutBarangInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   tanggalPinjam?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tanggalKembali?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deadlineKembali?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumStatusTransaksiFieldUpdateOperationsInput | $Enums.StatusTransaksi
+  status?: Prisma.EnumStatusPeminjamanFieldUpdateOperationsInput | $Enums.StatusPeminjaman
   catatan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -735,7 +735,7 @@ export type TransaksiUncheckedUpdateManyWithoutBarangInput = {
 
 
 
-export type TransaksiSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type PeminjamanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   barangId?: boolean
   userId?: boolean
@@ -748,9 +748,9 @@ export type TransaksiSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedAt?: boolean
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["transaksi"]>
+}, ExtArgs["result"]["peminjaman"]>
 
-export type TransaksiSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type PeminjamanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   barangId?: boolean
   userId?: boolean
@@ -763,9 +763,9 @@ export type TransaksiSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   updatedAt?: boolean
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["transaksi"]>
+}, ExtArgs["result"]["peminjaman"]>
 
-export type TransaksiSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type PeminjamanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   barangId?: boolean
   userId?: boolean
@@ -778,9 +778,9 @@ export type TransaksiSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   updatedAt?: boolean
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["transaksi"]>
+}, ExtArgs["result"]["peminjaman"]>
 
-export type TransaksiSelectScalar = {
+export type PeminjamanSelectScalar = {
   id?: boolean
   barangId?: boolean
   userId?: boolean
@@ -793,22 +793,22 @@ export type TransaksiSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TransaksiOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barangId" | "userId" | "tanggalPinjam" | "tanggalKembali" | "deadlineKembali" | "status" | "catatan" | "createdAt" | "updatedAt", ExtArgs["result"]["transaksi"]>
-export type TransaksiInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "barangId" | "userId" | "tanggalPinjam" | "tanggalKembali" | "deadlineKembali" | "status" | "catatan" | "createdAt" | "updatedAt", ExtArgs["result"]["peminjaman"]>
+export type PeminjamanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
-export type TransaksiIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
-export type TransaksiIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   barang?: boolean | Prisma.BarangDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
-export type $TransaksiPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "Transaksi"
+export type $PeminjamanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "Peminjaman"
   objects: {
     barang: Prisma.$BarangPayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs>
@@ -820,140 +820,140 @@ export type $TransaksiPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     tanggalPinjam: Date
     tanggalKembali: Date | null
     deadlineKembali: Date
-    status: $Enums.StatusTransaksi
+    status: $Enums.StatusPeminjaman
     catatan: string | null
     createdAt: Date
     updatedAt: Date
-  }, ExtArgs["result"]["transaksi"]>
+  }, ExtArgs["result"]["peminjaman"]>
   composites: {}
 }
 
-export type TransaksiGetPayload<S extends boolean | null | undefined | TransaksiDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$TransaksiPayload, S>
+export type PeminjamanGetPayload<S extends boolean | null | undefined | PeminjamanDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload, S>
 
-export type TransaksiCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<TransaksiFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: TransaksiCountAggregateInputType | true
+export type PeminjamanCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<PeminjamanFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: PeminjamanCountAggregateInputType | true
   }
 
-export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Transaksi'], meta: { name: 'Transaksi' } }
+export interface PeminjamanDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Peminjaman'], meta: { name: 'Peminjaman' } }
   /**
-   * Find zero or one Transaksi that matches the filter.
-   * @param {TransaksiFindUniqueArgs} args - Arguments to find a Transaksi
+   * Find zero or one Peminjaman that matches the filter.
+   * @param {PeminjamanFindUniqueArgs} args - Arguments to find a Peminjaman
    * @example
-   * // Get one Transaksi
-   * const transaksi = await prisma.transaksi.findUnique({
+   * // Get one Peminjaman
+   * const peminjaman = await prisma.peminjaman.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends TransaksiFindUniqueArgs>(args: Prisma.SelectSubset<T, TransaksiFindUniqueArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends PeminjamanFindUniqueArgs>(args: Prisma.SelectSubset<T, PeminjamanFindUniqueArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one Transaksi that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Peminjaman that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {TransaksiFindUniqueOrThrowArgs} args - Arguments to find a Transaksi
+   * @param {PeminjamanFindUniqueOrThrowArgs} args - Arguments to find a Peminjaman
    * @example
-   * // Get one Transaksi
-   * const transaksi = await prisma.transaksi.findUniqueOrThrow({
+   * // Get one Peminjaman
+   * const peminjaman = await prisma.peminjaman.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends TransaksiFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, TransaksiFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends PeminjamanFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, PeminjamanFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first Transaksi that matches the filter.
+   * Find the first Peminjaman that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {TransaksiFindFirstArgs} args - Arguments to find a Transaksi
+   * @param {PeminjamanFindFirstArgs} args - Arguments to find a Peminjaman
    * @example
-   * // Get one Transaksi
-   * const transaksi = await prisma.transaksi.findFirst({
+   * // Get one Peminjaman
+   * const peminjaman = await prisma.peminjaman.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends TransaksiFindFirstArgs>(args?: Prisma.SelectSubset<T, TransaksiFindFirstArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends PeminjamanFindFirstArgs>(args?: Prisma.SelectSubset<T, PeminjamanFindFirstArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first Transaksi that matches the filter or
+   * Find the first Peminjaman that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {TransaksiFindFirstOrThrowArgs} args - Arguments to find a Transaksi
+   * @param {PeminjamanFindFirstOrThrowArgs} args - Arguments to find a Peminjaman
    * @example
-   * // Get one Transaksi
-   * const transaksi = await prisma.transaksi.findFirstOrThrow({
+   * // Get one Peminjaman
+   * const peminjaman = await prisma.peminjaman.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends TransaksiFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, TransaksiFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends PeminjamanFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, PeminjamanFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more Transaksis that matches the filter.
+   * Find zero or more Peminjamans that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {TransaksiFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {PeminjamanFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all Transaksis
-   * const transaksis = await prisma.transaksi.findMany()
+   * // Get all Peminjamans
+   * const peminjamans = await prisma.peminjaman.findMany()
    * 
-   * // Get first 10 Transaksis
-   * const transaksis = await prisma.transaksi.findMany({ take: 10 })
+   * // Get first 10 Peminjamans
+   * const peminjamans = await prisma.peminjaman.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const transaksiWithIdOnly = await prisma.transaksi.findMany({ select: { id: true } })
+   * const peminjamanWithIdOnly = await prisma.peminjaman.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends TransaksiFindManyArgs>(args?: Prisma.SelectSubset<T, TransaksiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends PeminjamanFindManyArgs>(args?: Prisma.SelectSubset<T, PeminjamanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a Transaksi.
-   * @param {TransaksiCreateArgs} args - Arguments to create a Transaksi.
+   * Create a Peminjaman.
+   * @param {PeminjamanCreateArgs} args - Arguments to create a Peminjaman.
    * @example
-   * // Create one Transaksi
-   * const Transaksi = await prisma.transaksi.create({
+   * // Create one Peminjaman
+   * const Peminjaman = await prisma.peminjaman.create({
    *   data: {
-   *     // ... data to create a Transaksi
+   *     // ... data to create a Peminjaman
    *   }
    * })
    * 
    */
-  create<T extends TransaksiCreateArgs>(args: Prisma.SelectSubset<T, TransaksiCreateArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends PeminjamanCreateArgs>(args: Prisma.SelectSubset<T, PeminjamanCreateArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many Transaksis.
-   * @param {TransaksiCreateManyArgs} args - Arguments to create many Transaksis.
+   * Create many Peminjamans.
+   * @param {PeminjamanCreateManyArgs} args - Arguments to create many Peminjamans.
    * @example
-   * // Create many Transaksis
-   * const transaksi = await prisma.transaksi.createMany({
+   * // Create many Peminjamans
+   * const peminjaman = await prisma.peminjaman.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends TransaksiCreateManyArgs>(args?: Prisma.SelectSubset<T, TransaksiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends PeminjamanCreateManyArgs>(args?: Prisma.SelectSubset<T, PeminjamanCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create many Transaksis and returns the data saved in the database.
-   * @param {TransaksiCreateManyAndReturnArgs} args - Arguments to create many Transaksis.
+   * Create many Peminjamans and returns the data saved in the database.
+   * @param {PeminjamanCreateManyAndReturnArgs} args - Arguments to create many Peminjamans.
    * @example
-   * // Create many Transaksis
-   * const transaksi = await prisma.transaksi.createManyAndReturn({
+   * // Create many Peminjamans
+   * const peminjaman = await prisma.peminjaman.createManyAndReturn({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    * 
-   * // Create many Transaksis and only return the `id`
-   * const transaksiWithIdOnly = await prisma.transaksi.createManyAndReturn({
+   * // Create many Peminjamans and only return the `id`
+   * const peminjamanWithIdOnly = await prisma.peminjaman.createManyAndReturn({
    *   select: { id: true },
    *   data: [
    *     // ... provide data here
@@ -963,28 +963,28 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    * Read more here: https://pris.ly/d/null-undefined
    * 
    */
-  createManyAndReturn<T extends TransaksiCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, TransaksiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+  createManyAndReturn<T extends PeminjamanCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, PeminjamanCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
   /**
-   * Delete a Transaksi.
-   * @param {TransaksiDeleteArgs} args - Arguments to delete one Transaksi.
+   * Delete a Peminjaman.
+   * @param {PeminjamanDeleteArgs} args - Arguments to delete one Peminjaman.
    * @example
-   * // Delete one Transaksi
-   * const Transaksi = await prisma.transaksi.delete({
+   * // Delete one Peminjaman
+   * const Peminjaman = await prisma.peminjaman.delete({
    *   where: {
-   *     // ... filter to delete one Transaksi
+   *     // ... filter to delete one Peminjaman
    *   }
    * })
    * 
    */
-  delete<T extends TransaksiDeleteArgs>(args: Prisma.SelectSubset<T, TransaksiDeleteArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends PeminjamanDeleteArgs>(args: Prisma.SelectSubset<T, PeminjamanDeleteArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one Transaksi.
-   * @param {TransaksiUpdateArgs} args - Arguments to update one Transaksi.
+   * Update one Peminjaman.
+   * @param {PeminjamanUpdateArgs} args - Arguments to update one Peminjaman.
    * @example
-   * // Update one Transaksi
-   * const transaksi = await prisma.transaksi.update({
+   * // Update one Peminjaman
+   * const peminjaman = await prisma.peminjaman.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -994,30 +994,30 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    * })
    * 
    */
-  update<T extends TransaksiUpdateArgs>(args: Prisma.SelectSubset<T, TransaksiUpdateArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends PeminjamanUpdateArgs>(args: Prisma.SelectSubset<T, PeminjamanUpdateArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more Transaksis.
-   * @param {TransaksiDeleteManyArgs} args - Arguments to filter Transaksis to delete.
+   * Delete zero or more Peminjamans.
+   * @param {PeminjamanDeleteManyArgs} args - Arguments to filter Peminjamans to delete.
    * @example
-   * // Delete a few Transaksis
-   * const { count } = await prisma.transaksi.deleteMany({
+   * // Delete a few Peminjamans
+   * const { count } = await prisma.peminjaman.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends TransaksiDeleteManyArgs>(args?: Prisma.SelectSubset<T, TransaksiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends PeminjamanDeleteManyArgs>(args?: Prisma.SelectSubset<T, PeminjamanDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more Transaksis.
+   * Update zero or more Peminjamans.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {TransaksiUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {PeminjamanUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many Transaksis
-   * const transaksi = await prisma.transaksi.updateMany({
+   * // Update many Peminjamans
+   * const peminjaman = await prisma.peminjaman.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1027,14 +1027,14 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    * })
    * 
    */
-  updateMany<T extends TransaksiUpdateManyArgs>(args: Prisma.SelectSubset<T, TransaksiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends PeminjamanUpdateManyArgs>(args: Prisma.SelectSubset<T, PeminjamanUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more Transaksis and returns the data updated in the database.
-   * @param {TransaksiUpdateManyAndReturnArgs} args - Arguments to update many Transaksis.
+   * Update zero or more Peminjamans and returns the data updated in the database.
+   * @param {PeminjamanUpdateManyAndReturnArgs} args - Arguments to update many Peminjamans.
    * @example
-   * // Update many Transaksis
-   * const transaksi = await prisma.transaksi.updateManyAndReturn({
+   * // Update many Peminjamans
+   * const peminjaman = await prisma.peminjaman.updateManyAndReturn({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1043,8 +1043,8 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    *   ]
    * })
    * 
-   * // Update zero or more Transaksis and only return the `id`
-   * const transaksiWithIdOnly = await prisma.transaksi.updateManyAndReturn({
+   * // Update zero or more Peminjamans and only return the `id`
+   * const peminjamanWithIdOnly = await prisma.peminjaman.updateManyAndReturn({
    *   select: { id: true },
    *   where: {
    *     // ... provide filter here
@@ -1057,56 +1057,56 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    * Read more here: https://pris.ly/d/null-undefined
    * 
    */
-  updateManyAndReturn<T extends TransaksiUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, TransaksiUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+  updateManyAndReturn<T extends PeminjamanUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, PeminjamanUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
-   * Create or update one Transaksi.
-   * @param {TransaksiUpsertArgs} args - Arguments to update or create a Transaksi.
+   * Create or update one Peminjaman.
+   * @param {PeminjamanUpsertArgs} args - Arguments to update or create a Peminjaman.
    * @example
-   * // Update or create a Transaksi
-   * const transaksi = await prisma.transaksi.upsert({
+   * // Update or create a Peminjaman
+   * const peminjaman = await prisma.peminjaman.upsert({
    *   create: {
-   *     // ... data to create a Transaksi
+   *     // ... data to create a Peminjaman
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the Transaksi we want to update
+   *     // ... the filter for the Peminjaman we want to update
    *   }
    * })
    */
-  upsert<T extends TransaksiUpsertArgs>(args: Prisma.SelectSubset<T, TransaksiUpsertArgs<ExtArgs>>): Prisma.Prisma__TransaksiClient<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends PeminjamanUpsertArgs>(args: Prisma.SelectSubset<T, PeminjamanUpsertArgs<ExtArgs>>): Prisma.Prisma__PeminjamanClient<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of Transaksis.
+   * Count the number of Peminjamans.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {TransaksiCountArgs} args - Arguments to filter Transaksis to count.
+   * @param {PeminjamanCountArgs} args - Arguments to filter Peminjamans to count.
    * @example
-   * // Count the number of Transaksis
-   * const count = await prisma.transaksi.count({
+   * // Count the number of Peminjamans
+   * const count = await prisma.peminjaman.count({
    *   where: {
-   *     // ... the filter for the Transaksis we want to count
+   *     // ... the filter for the Peminjamans we want to count
    *   }
    * })
   **/
-  count<T extends TransaksiCountArgs>(
-    args?: Prisma.Subset<T, TransaksiCountArgs>,
+  count<T extends PeminjamanCountArgs>(
+    args?: Prisma.Subset<T, PeminjamanCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], TransaksiCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], PeminjamanCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a Transaksi.
+   * Allows you to perform aggregations operations on a Peminjaman.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {TransaksiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {PeminjamanAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -1126,13 +1126,13 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    *   take: 10,
    * })
   **/
-  aggregate<T extends TransaksiAggregateArgs>(args: Prisma.Subset<T, TransaksiAggregateArgs>): Prisma.PrismaPromise<GetTransaksiAggregateType<T>>
+  aggregate<T extends PeminjamanAggregateArgs>(args: Prisma.Subset<T, PeminjamanAggregateArgs>): Prisma.PrismaPromise<GetPeminjamanAggregateType<T>>
 
   /**
-   * Group by Transaksi.
+   * Group by Peminjaman.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {TransaksiGroupByArgs} args - Group by arguments.
+   * @param {PeminjamanGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -1147,14 +1147,14 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    * 
   **/
   groupBy<
-    T extends TransaksiGroupByArgs,
+    T extends PeminjamanGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: TransaksiGroupByArgs['orderBy'] }
-      : { orderBy?: TransaksiGroupByArgs['orderBy'] },
+      ? { orderBy: PeminjamanGroupByArgs['orderBy'] }
+      : { orderBy?: PeminjamanGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -1203,20 +1203,20 @@ export interface TransaksiDelegate<ExtArgs extends runtime.Types.Extensions.Inte
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, TransaksiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTransaksiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, PeminjamanGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPeminjamanGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the Transaksi model
+ * Fields of the Peminjaman model
  */
-readonly fields: TransaksiFieldRefs;
+readonly fields: PeminjamanFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for Transaksi.
+ * The delegate class that acts as a "Promise-like" for Peminjaman.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__TransaksiClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__PeminjamanClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   barang<T extends Prisma.BarangDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BarangDefaultArgs<ExtArgs>>): Prisma.Prisma__BarangClient<runtime.Types.Result.GetResult<Prisma.$BarangPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
@@ -1246,433 +1246,433 @@ export interface Prisma__TransaksiClient<T, Null = never, ExtArgs extends runtim
 
 
 /**
- * Fields of the Transaksi model
+ * Fields of the Peminjaman model
  */
-export interface TransaksiFieldRefs {
-  readonly id: Prisma.FieldRef<"Transaksi", 'String'>
-  readonly barangId: Prisma.FieldRef<"Transaksi", 'String'>
-  readonly userId: Prisma.FieldRef<"Transaksi", 'String'>
-  readonly tanggalPinjam: Prisma.FieldRef<"Transaksi", 'DateTime'>
-  readonly tanggalKembali: Prisma.FieldRef<"Transaksi", 'DateTime'>
-  readonly deadlineKembali: Prisma.FieldRef<"Transaksi", 'DateTime'>
-  readonly status: Prisma.FieldRef<"Transaksi", 'StatusTransaksi'>
-  readonly catatan: Prisma.FieldRef<"Transaksi", 'String'>
-  readonly createdAt: Prisma.FieldRef<"Transaksi", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"Transaksi", 'DateTime'>
+export interface PeminjamanFieldRefs {
+  readonly id: Prisma.FieldRef<"Peminjaman", 'String'>
+  readonly barangId: Prisma.FieldRef<"Peminjaman", 'String'>
+  readonly userId: Prisma.FieldRef<"Peminjaman", 'String'>
+  readonly tanggalPinjam: Prisma.FieldRef<"Peminjaman", 'DateTime'>
+  readonly tanggalKembali: Prisma.FieldRef<"Peminjaman", 'DateTime'>
+  readonly deadlineKembali: Prisma.FieldRef<"Peminjaman", 'DateTime'>
+  readonly status: Prisma.FieldRef<"Peminjaman", 'StatusPeminjaman'>
+  readonly catatan: Prisma.FieldRef<"Peminjaman", 'String'>
+  readonly createdAt: Prisma.FieldRef<"Peminjaman", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Peminjaman", 'DateTime'>
 }
     
 
 // Custom InputTypes
 /**
- * Transaksi findUnique
+ * Peminjaman findUnique
  */
-export type TransaksiFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * Filter, which Transaksi to fetch.
+   * Filter, which Peminjaman to fetch.
    */
-  where: Prisma.TransaksiWhereUniqueInput
+  where: Prisma.PeminjamanWhereUniqueInput
 }
 
 /**
- * Transaksi findUniqueOrThrow
+ * Peminjaman findUniqueOrThrow
  */
-export type TransaksiFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * Filter, which Transaksi to fetch.
+   * Filter, which Peminjaman to fetch.
    */
-  where: Prisma.TransaksiWhereUniqueInput
+  where: Prisma.PeminjamanWhereUniqueInput
 }
 
 /**
- * Transaksi findFirst
+ * Peminjaman findFirst
  */
-export type TransaksiFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * Filter, which Transaksi to fetch.
+   * Filter, which Peminjaman to fetch.
    */
-  where?: Prisma.TransaksiWhereInput
+  where?: Prisma.PeminjamanWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Transaksis to fetch.
+   * Determine the order of Peminjamans to fetch.
    */
-  orderBy?: Prisma.TransaksiOrderByWithRelationInput | Prisma.TransaksiOrderByWithRelationInput[]
+  orderBy?: Prisma.PeminjamanOrderByWithRelationInput | Prisma.PeminjamanOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for Transaksis.
+   * Sets the position for searching for Peminjamans.
    */
-  cursor?: Prisma.TransaksiWhereUniqueInput
+  cursor?: Prisma.PeminjamanWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Transaksis from the position of the cursor.
+   * Take `±n` Peminjamans from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Transaksis.
+   * Skip the first `n` Peminjamans.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Transaksis.
+   * Filter by unique combinations of Peminjamans.
    */
-  distinct?: Prisma.TransaksiScalarFieldEnum | Prisma.TransaksiScalarFieldEnum[]
+  distinct?: Prisma.PeminjamanScalarFieldEnum | Prisma.PeminjamanScalarFieldEnum[]
 }
 
 /**
- * Transaksi findFirstOrThrow
+ * Peminjaman findFirstOrThrow
  */
-export type TransaksiFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * Filter, which Transaksi to fetch.
+   * Filter, which Peminjaman to fetch.
    */
-  where?: Prisma.TransaksiWhereInput
+  where?: Prisma.PeminjamanWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Transaksis to fetch.
+   * Determine the order of Peminjamans to fetch.
    */
-  orderBy?: Prisma.TransaksiOrderByWithRelationInput | Prisma.TransaksiOrderByWithRelationInput[]
+  orderBy?: Prisma.PeminjamanOrderByWithRelationInput | Prisma.PeminjamanOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for Transaksis.
+   * Sets the position for searching for Peminjamans.
    */
-  cursor?: Prisma.TransaksiWhereUniqueInput
+  cursor?: Prisma.PeminjamanWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Transaksis from the position of the cursor.
+   * Take `±n` Peminjamans from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Transaksis.
+   * Skip the first `n` Peminjamans.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Transaksis.
+   * Filter by unique combinations of Peminjamans.
    */
-  distinct?: Prisma.TransaksiScalarFieldEnum | Prisma.TransaksiScalarFieldEnum[]
+  distinct?: Prisma.PeminjamanScalarFieldEnum | Prisma.PeminjamanScalarFieldEnum[]
 }
 
 /**
- * Transaksi findMany
+ * Peminjaman findMany
  */
-export type TransaksiFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * Filter, which Transaksis to fetch.
+   * Filter, which Peminjamans to fetch.
    */
-  where?: Prisma.TransaksiWhereInput
+  where?: Prisma.PeminjamanWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Transaksis to fetch.
+   * Determine the order of Peminjamans to fetch.
    */
-  orderBy?: Prisma.TransaksiOrderByWithRelationInput | Prisma.TransaksiOrderByWithRelationInput[]
+  orderBy?: Prisma.PeminjamanOrderByWithRelationInput | Prisma.PeminjamanOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing Transaksis.
+   * Sets the position for listing Peminjamans.
    */
-  cursor?: Prisma.TransaksiWhereUniqueInput
+  cursor?: Prisma.PeminjamanWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Transaksis from the position of the cursor.
+   * Take `±n` Peminjamans from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Transaksis.
+   * Skip the first `n` Peminjamans.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Transaksis.
+   * Filter by unique combinations of Peminjamans.
    */
-  distinct?: Prisma.TransaksiScalarFieldEnum | Prisma.TransaksiScalarFieldEnum[]
+  distinct?: Prisma.PeminjamanScalarFieldEnum | Prisma.PeminjamanScalarFieldEnum[]
 }
 
 /**
- * Transaksi create
+ * Peminjaman create
  */
-export type TransaksiCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * The data needed to create a Transaksi.
+   * The data needed to create a Peminjaman.
    */
-  data: Prisma.XOR<Prisma.TransaksiCreateInput, Prisma.TransaksiUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.PeminjamanCreateInput, Prisma.PeminjamanUncheckedCreateInput>
 }
 
 /**
- * Transaksi createMany
+ * Peminjaman createMany
  */
-export type TransaksiCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many Transaksis.
+   * The data used to create many Peminjamans.
    */
-  data: Prisma.TransaksiCreateManyInput | Prisma.TransaksiCreateManyInput[]
+  data: Prisma.PeminjamanCreateManyInput | Prisma.PeminjamanCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * Transaksi createManyAndReturn
+ * Peminjaman createManyAndReturn
  */
-export type TransaksiCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelectCreateManyAndReturn<ExtArgs> | null
+  select?: Prisma.PeminjamanSelectCreateManyAndReturn<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
-   * The data used to create many Transaksis.
+   * The data used to create many Peminjamans.
    */
-  data: Prisma.TransaksiCreateManyInput | Prisma.TransaksiCreateManyInput[]
+  data: Prisma.PeminjamanCreateManyInput | Prisma.PeminjamanCreateManyInput[]
   skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiIncludeCreateManyAndReturn<ExtArgs> | null
+  include?: Prisma.PeminjamanIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
- * Transaksi update
+ * Peminjaman update
  */
-export type TransaksiUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * The data needed to update a Transaksi.
+   * The data needed to update a Peminjaman.
    */
-  data: Prisma.XOR<Prisma.TransaksiUpdateInput, Prisma.TransaksiUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.PeminjamanUpdateInput, Prisma.PeminjamanUncheckedUpdateInput>
   /**
-   * Choose, which Transaksi to update.
+   * Choose, which Peminjaman to update.
    */
-  where: Prisma.TransaksiWhereUniqueInput
+  where: Prisma.PeminjamanWhereUniqueInput
 }
 
 /**
- * Transaksi updateMany
+ * Peminjaman updateMany
  */
-export type TransaksiUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update Transaksis.
+   * The data used to update Peminjamans.
    */
-  data: Prisma.XOR<Prisma.TransaksiUpdateManyMutationInput, Prisma.TransaksiUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.PeminjamanUpdateManyMutationInput, Prisma.PeminjamanUncheckedUpdateManyInput>
   /**
-   * Filter which Transaksis to update
+   * Filter which Peminjamans to update
    */
-  where?: Prisma.TransaksiWhereInput
+  where?: Prisma.PeminjamanWhereInput
   /**
-   * Limit how many Transaksis to update.
+   * Limit how many Peminjamans to update.
    */
   limit?: number
 }
 
 /**
- * Transaksi updateManyAndReturn
+ * Peminjaman updateManyAndReturn
  */
-export type TransaksiUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelectUpdateManyAndReturn<ExtArgs> | null
+  select?: Prisma.PeminjamanSelectUpdateManyAndReturn<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
-   * The data used to update Transaksis.
+   * The data used to update Peminjamans.
    */
-  data: Prisma.XOR<Prisma.TransaksiUpdateManyMutationInput, Prisma.TransaksiUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.PeminjamanUpdateManyMutationInput, Prisma.PeminjamanUncheckedUpdateManyInput>
   /**
-   * Filter which Transaksis to update
+   * Filter which Peminjamans to update
    */
-  where?: Prisma.TransaksiWhereInput
+  where?: Prisma.PeminjamanWhereInput
   /**
-   * Limit how many Transaksis to update.
+   * Limit how many Peminjamans to update.
    */
   limit?: number
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiIncludeUpdateManyAndReturn<ExtArgs> | null
+  include?: Prisma.PeminjamanIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
- * Transaksi upsert
+ * Peminjaman upsert
  */
-export type TransaksiUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * The filter to search for the Transaksi to update in case it exists.
+   * The filter to search for the Peminjaman to update in case it exists.
    */
-  where: Prisma.TransaksiWhereUniqueInput
+  where: Prisma.PeminjamanWhereUniqueInput
   /**
-   * In case the Transaksi found by the `where` argument doesn't exist, create a new Transaksi with this data.
+   * In case the Peminjaman found by the `where` argument doesn't exist, create a new Peminjaman with this data.
    */
-  create: Prisma.XOR<Prisma.TransaksiCreateInput, Prisma.TransaksiUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.PeminjamanCreateInput, Prisma.PeminjamanUncheckedCreateInput>
   /**
-   * In case the Transaksi was found with the provided `where` argument, update it with this data.
+   * In case the Peminjaman was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.TransaksiUpdateInput, Prisma.TransaksiUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.PeminjamanUpdateInput, Prisma.PeminjamanUncheckedUpdateInput>
 }
 
 /**
- * Transaksi delete
+ * Peminjaman delete
  */
-export type TransaksiDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
   /**
-   * Filter which Transaksi to delete.
+   * Filter which Peminjaman to delete.
    */
-  where: Prisma.TransaksiWhereUniqueInput
+  where: Prisma.PeminjamanWhereUniqueInput
 }
 
 /**
- * Transaksi deleteMany
+ * Peminjaman deleteMany
  */
-export type TransaksiDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which Transaksis to delete
+   * Filter which Peminjamans to delete
    */
-  where?: Prisma.TransaksiWhereInput
+  where?: Prisma.PeminjamanWhereInput
   /**
-   * Limit how many Transaksis to delete.
+   * Limit how many Peminjamans to delete.
    */
   limit?: number
 }
 
 /**
- * Transaksi without action
+ * Peminjaman without action
  */
-export type TransaksiDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PeminjamanDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
 }

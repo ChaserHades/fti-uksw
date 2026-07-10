@@ -45,10 +45,10 @@ export const StatusBarang = {
 export type StatusBarang = (typeof StatusBarang)[keyof typeof StatusBarang]
 
 
-export const StatusTransaksi = {
+export const StatusPeminjaman = {
   AKTIF: 'AKTIF',
   SELESAI: 'SELESAI',
   TERLAMBAT: 'TERLAMBAT'
 } as const
 
-export type StatusTransaksi = (typeof StatusTransaksi)[keyof typeof StatusTransaksi]
+export type StatusPeminjaman = (typeof StatusPeminjaman)[keyof typeof StatusPeminjaman]

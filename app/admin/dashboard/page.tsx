@@ -5,13 +5,13 @@ import Link from "next/link";
 import { api } from "@/helpers/api";
 import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
 import { SkeletonCard, SkeletonTable } from "@/components/LoadingSkeleton";
-import type { DashboardStats, Transaksi, Barang } from "@/types";
+import type { DashboardStats, Peminjaman, Barang } from "@/types";
 
 interface KategoriStat { nama: string; total: number; }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
+  const [peminjaman, setPeminjaman] = useState<Peminjaman[]>([]);
   const [loaded, setLoaded] = useState(false);
   const hasFetched = useRef(false);
 
@@ -25,11 +25,11 @@ export default function AdminDashboard() {
 
     Promise.all([
       api.get<DashboardStats>("/api/dashboard/stats"),
-      api.get<{ data: Transaksi[] }>("/api/transaksi?status=AKTIF&limit=6"),
+      api.get<{ data: Peminjaman[] }>("/api/peminjaman?status=AKTIF&limit=6"),
     ]).then(([s, tRes]) => {
-      const t = (Array.isArray(tRes) ? tRes : (tRes as any).data || []) as Transaksi[];
+      const t = (Array.isArray(tRes) ? tRes : (tRes as any).data || []) as Peminjaman[];
       setStats(s);
-      setTransaksi(t.slice(0, 6));
+      setPeminjaman(t.slice(0, 6));
       setLoaded(true);
     }).catch(console.error);
   }, []);
@@ -143,10 +143,10 @@ export default function AdminDashboard() {
           </div>
         </Link>
 
-        {/* Total Letak (Span 4) */}
-        <Link href="/admin/manajemen?tab=barang&action=letak" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
-          <span style={{ color: "var(--color-info)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Letak Fasilitas</span>
-          <div style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)", marginTop: 16 }}>{stats?.totalLetak ?? 0}</div>
+        {/* Total Ruangan (Span 4) */}
+        <Link href="/admin/manajemen?tab=barang&action=ruangan" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
+          <span style={{ color: "var(--color-info)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Ruangan Fasilitas</span>
+          <div style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)", marginTop: 16 }}>{stats?.totalRuangan ?? 0}</div>
         </Link>
 
         {/* Peminjaman Aktif (Span 8) */}
@@ -157,10 +157,10 @@ export default function AdminDashboard() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {transaksi.length === 0 ? (
+            {peminjaman.length === 0 ? (
               <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Tidak ada peminjaman aktif saat ini.</div>
             ) : (
-              transaksi.map((t, idx) => {
+              peminjaman.map((t, idx) => {
                 const late = isOverdue(t.deadlineKembali);
                 const soon = !late && isDueSoon(t.deadlineKembali);
                 return (

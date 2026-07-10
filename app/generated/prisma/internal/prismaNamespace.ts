@@ -388,7 +388,7 @@ export const ModelName = {
   KategoriBarang: 'KategoriBarang',
   Ruangan: 'Ruangan',
   Barang: 'Barang',
-  Transaksi: 'Transaksi'
+  Peminjaman: 'Peminjaman'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "kategoriBarang" | "ruangan" | "barang" | "transaksi"
+    modelProps: "user" | "kategoriBarang" | "ruangan" | "barang" | "peminjaman"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -704,77 +704,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Transaksi: {
-      payload: Prisma.$TransaksiPayload<ExtArgs>
-      fields: Prisma.TransaksiFieldRefs
+    Peminjaman: {
+      payload: Prisma.$PeminjamanPayload<ExtArgs>
+      fields: Prisma.PeminjamanFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.TransaksiFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload> | null
+          args: Prisma.PeminjamanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.TransaksiFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>
+          args: Prisma.PeminjamanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>
         }
         findFirst: {
-          args: Prisma.TransaksiFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload> | null
+          args: Prisma.PeminjamanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.TransaksiFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>
+          args: Prisma.PeminjamanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>
         }
         findMany: {
-          args: Prisma.TransaksiFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>[]
+          args: Prisma.PeminjamanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>[]
         }
         create: {
-          args: Prisma.TransaksiCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>
+          args: Prisma.PeminjamanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>
         }
         createMany: {
-          args: Prisma.TransaksiCreateManyArgs<ExtArgs>
+          args: Prisma.PeminjamanCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.TransaksiCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>[]
+          args: Prisma.PeminjamanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>[]
         }
         delete: {
-          args: Prisma.TransaksiDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>
+          args: Prisma.PeminjamanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>
         }
         update: {
-          args: Prisma.TransaksiUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>
+          args: Prisma.PeminjamanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>
         }
         deleteMany: {
-          args: Prisma.TransaksiDeleteManyArgs<ExtArgs>
+          args: Prisma.PeminjamanDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.TransaksiUpdateManyArgs<ExtArgs>
+          args: Prisma.PeminjamanUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.TransaksiUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>[]
+          args: Prisma.PeminjamanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>[]
         }
         upsert: {
-          args: Prisma.TransaksiUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransaksiPayload>
+          args: Prisma.PeminjamanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PeminjamanPayload>
         }
         aggregate: {
-          args: Prisma.TransaksiAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTransaksi>
+          args: Prisma.PeminjamanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePeminjaman>
         }
         groupBy: {
-          args: Prisma.TransaksiGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TransaksiGroupByOutputType>[]
+          args: Prisma.PeminjamanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PeminjamanGroupByOutputType>[]
         }
         count: {
-          args: Prisma.TransaksiCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TransaksiCountAggregateOutputType> | number
+          args: Prisma.PeminjamanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PeminjamanCountAggregateOutputType> | number
         }
       }
     }
@@ -879,7 +879,7 @@ export const BarangScalarFieldEnum = {
 export type BarangScalarFieldEnum = (typeof BarangScalarFieldEnum)[keyof typeof BarangScalarFieldEnum]
 
 
-export const TransaksiScalarFieldEnum = {
+export const PeminjamanScalarFieldEnum = {
   id: 'id',
   barangId: 'barangId',
   userId: 'userId',
@@ -892,7 +892,7 @@ export const TransaksiScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TransaksiScalarFieldEnum = (typeof TransaksiScalarFieldEnum)[keyof typeof TransaksiScalarFieldEnum]
+export type PeminjamanScalarFieldEnum = (typeof PeminjamanScalarFieldEnum)[keyof typeof PeminjamanScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1038,16 +1038,16 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
- * Reference to a field of type 'StatusTransaksi'
+ * Reference to a field of type 'StatusPeminjaman'
  */
-export type EnumStatusTransaksiFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusTransaksi'>
+export type EnumStatusPeminjamanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusPeminjaman'>
     
 
 
 /**
- * Reference to a field of type 'StatusTransaksi[]'
+ * Reference to a field of type 'StatusPeminjaman[]'
  */
-export type ListEnumStatusTransaksiFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusTransaksi[]'>
+export type ListEnumStatusPeminjamanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusPeminjaman[]'>
     
 
 /**
@@ -1164,7 +1164,7 @@ export type GlobalOmitConfig = {
   kategoriBarang?: Prisma.KategoriBarangOmit
   ruangan?: Prisma.RuanganOmit
   barang?: Prisma.BarangOmit
-  transaksi?: Prisma.TransaksiOmit
+  peminjaman?: Prisma.PeminjamanOmit
 }
 
 /* Types for Logging */

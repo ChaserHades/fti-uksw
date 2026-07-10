@@ -8,7 +8,7 @@ import { parseQrPayload } from "@/helpers/format";
 import { useQrScanner } from "@/hooks/useQrScanner";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
-import type { Barang, JenisBarang, Letak } from "@/types";
+import type { Barang, Kategori, Ruangan } from "@/types";
 import BarangFormFields from "./BarangFormFields";
 
 /** Scan QR → lookup DB → register if not found */
@@ -17,13 +17,13 @@ export default function ScanRegisterSection() {
   const [foundBarang, setFoundBarang] = useState<Barang | null>(null);
   const [registerModal, setRegisterModal] = useState(false);
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
-  const [jenisBarang, setJenisBarang] = useState<JenisBarang[]>([]);
-  const [letak, setLetak] = useState<Letak[]>([]);
+  const [kategori, setKategori] = useState<Kategori[]>([]);
+  const [ruangan, setRuangan] = useState<Ruangan[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.get<JenisBarang[]>("/api/jenis-barang").then(setJenisBarang);
-    api.get<Letak[]>("/api/letak").then(setLetak);
+    api.get<Kategori[]>("/api/kategori").then(setKategori);
+    api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
   }, []);
 
   async function handleScanResult(raw: string) {
@@ -45,7 +45,7 @@ export default function ScanRegisterSection() {
 
   async function handleRegister() {
     if (!form.nama.trim()) { toast.error("Nama wajib diisi"); return; }
-    if (!form.jenisBarangId) { toast.error("Jenis barang wajib dipilih"); return; }
+    if (!form.kategoriId) { toast.error("Jenis barang wajib dipilih"); return; }
     setSaving(true);
     try {
       await api.post("/api/barang", {
@@ -54,7 +54,7 @@ export default function ScanRegisterSection() {
         tanggalDatang: form.tanggalDatang || null,
         tanggalPindah: form.tanggalPindah || null,
         harga: form.harga ? Number(form.harga) : null,
-        letakId: form.letakId || null,
+        ruanganId: form.ruanganId || null,
         hasSticker: true,
       });
       toast.success(`Barang "${form.nama}" berhasil diregistrasi!`);
@@ -138,8 +138,8 @@ export default function ScanRegisterSection() {
         <BarangFormFields
           form={form}
           onChange={handleFieldChange}
-          jenisBarang={jenisBarang}
-          letak={letak}
+          kategori={kategori}
+          ruangan={ruangan}
           readOnlyLabel
           compact
         />

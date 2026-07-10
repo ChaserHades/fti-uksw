@@ -9,7 +9,7 @@ export async function GET(_: Request, { params }: Params) {
   const { id } = await params;
   const item = await prisma.barang.findUnique({
     where: { id },
-    include: { jenisBarang: true, letak: true },
+    include: { kategori: true, ruangan: true },
   });
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(item);
@@ -39,10 +39,10 @@ export async function PUT(req: Request, { params }: Params) {
       tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
       tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
       harga: body.harga ? Number(body.harga) : null,
-      jenisBarangId: body.jenisBarangId,
-      letakId: body.letakId ?? null,
+      kategoriId: body.kategoriId,
+      ruanganId: body.ruanganId ?? null,
     },
-    include: { jenisBarang: true, letak: true },
+    include: { kategori: true, ruangan: true },
   });
   return NextResponse.json(item);
 }

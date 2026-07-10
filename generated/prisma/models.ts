@@ -9,9 +9,9 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
-export type * from './models/JenisBarang'
-export type * from './models/Letak'
+export type * from './models/Kategori'
+export type * from './models/Ruangan'
 export type * from './models/Barang'
-export type * from './models/Transaksi'
+export type * from './models/Peminjaman'
 export type * from './models/Pengeluaran'
 export type * from './commonInputTypes'

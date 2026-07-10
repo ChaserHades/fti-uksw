@@ -47,25 +47,25 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
- * Model JenisBarang
+ * Model Kategori
  * 
  */
-export type JenisBarang = Prisma.JenisBarangModel
+export type Kategori = Prisma.KategoriModel
 /**
- * Model Letak
+ * Model Ruangan
  * 
  */
-export type Letak = Prisma.LetakModel
+export type Ruangan = Prisma.RuanganModel
 /**
  * Model Barang
  * 
  */
 export type Barang = Prisma.BarangModel
 /**
- * Model Transaksi
+ * Model Peminjaman
  * 
  */
-export type Transaksi = Prisma.TransaksiModel
+export type Peminjaman = Prisma.PeminjamanModel
 /**
  * Model Pengeluaran
  * 

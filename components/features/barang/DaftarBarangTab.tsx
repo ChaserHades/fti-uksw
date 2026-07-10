@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
-import type { Barang, JenisBarang, Letak } from "@/types";
+import type { Barang, Kategori, Ruangan } from "@/types";
 import BarangFormFields from "./BarangFormFields";
 
 /* ═══════════════════════════════════════════════════════════
@@ -19,8 +19,8 @@ import BarangFormFields from "./BarangFormFields";
 export default function DaftarBarangTab({ role }: { role: string }) {
   // Data
   const [barang, setBarang] = useState<Barang[]>([]);
-  const [jenisBarang, setJenisBarang] = useState<JenisBarang[]>([]);
-  const [letak, setLetak] = useState<Letak[]>([]);
+  const [kategori, setKategori] = useState<Kategori[]>([]);
+  const [ruangan, setRuangan] = useState<Ruangan[]>([]);
 
   // Filters & sort
   const [search, setSearch] = useState("");
@@ -53,7 +53,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     const currentCursor = reset ? null : cursor;
     const p = new URLSearchParams();
     if (search) p.set("search", search);
-    if (filterKat) p.set("jenisBarangId", filterKat);
+    if (filterKat) p.set("kategoriId", filterKat);
     if (sortBy) p.set("sortBy", sortBy);
     if (sortDir) p.set("sortDir", sortDir);
     if (currentCursor) p.set("cursor", currentCursor);
@@ -72,8 +72,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
   useEffect(() => { load(true); }, [search, filterKat, sortBy, sortDir]);
   useEffect(() => {
-    api.get<JenisBarang[]>("/api/jenis-barang").then(setJenisBarang);
-    api.get<Letak[]>("/api/letak").then(setLetak);
+    api.get<Kategori[]>("/api/kategori").then(setKategori);
+    api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
   }, []);
 
   /* ── Form helpers ── */
@@ -95,7 +95,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       tanggalDatang: b.tanggalDatang ? new Date(b.tanggalDatang).toISOString().split("T")[0] : "",
       tanggalPindah: b.tanggalPindah ? new Date(b.tanggalPindah).toISOString().split("T")[0] : "",
       harga: b.harga?.toString() || "",
-      jenisBarangId: b.jenisBarangId, letakId: b.letakId || "",
+      kategoriId: b.kategoriId, ruanganId: b.ruanganId || "",
     });
     setModal("form");
   }
@@ -137,7 +137,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }
 
   async function handleSave() {
-    if (!form.label || !form.nama || !form.jenisBarangId) {
+    if (!form.label || !form.nama || !form.kategoriId) {
       toast.error("Label, nama, dan kategori wajib diisi");
       return;
     }
@@ -148,7 +148,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang).toISOString() : null,
       tanggalPindah: form.tanggalPindah ? new Date(form.tanggalPindah).toISOString() : null,
       harga: form.harga ? Number(form.harga) : null,
-      letakId: form.letakId || null,
+      ruanganId: form.ruanganId || null,
     };
     try {
       if (selected) {
@@ -220,8 +220,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
             value={filterKat}
             onChange={setFilterKat}
             options={[
-              { value: "", label: "Semua Jenis Barang" },
-              ...jenisBarang.map(k => ({ value: k.id, label: k.nama })),
+              { value: "", label: "Semua Kategori" },
+              ...kategori.map(k => ({ value: k.id, label: k.nama })),
             ]}
           />
         </div>
@@ -232,8 +232,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
             options={[
               { value: "tanggalDatang", label: "Sort: Tanggal" },
               { value: "merek", label: "Sort: Merek" },
-              { value: "jenisBarangId", label: "Sort: Jenis" },
-              { value: "letakId", label: "Sort: Letak" },
+              { value: "kategoriId", label: "Sort: Jenis" },
+              { value: "ruanganId", label: "Sort: Ruangan" },
             ]}
           />
         </div>
@@ -272,7 +272,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
             <thead>
               <tr>
                 <th style={{ width: "6%" }}>No</th>
-                <th>Jenis Barang</th>
+                <th>Kategori</th>
                 <th style={{ width: "20%" }}>Label</th>
                 <th style={{ width: "20%" }}>Label Aset</th>
                 <th style={{ width: "15%" }}>Aksi</th>
@@ -291,7 +291,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               ) : barang.map((b, i) => (
                 <tr key={b.id}>
                   <td className="td-sm text-muted">{i + 1}</td>
-                  <td className="td-sm font-medium">{b.jenisBarang.nama}</td>
+                  <td className="td-sm font-medium">{b.kategori.nama}</td>
                   <td className="td-code">{b.label || "-"}</td>
                   <td className="td-code">{b.labelAset || "-"}</td>
                   <td>
@@ -343,8 +343,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         <BarangFormFields
           form={form}
           onChange={handleFieldChange}
-          jenisBarang={jenisBarang}
-          letak={letak}
+          kategori={kategori}
+          ruangan={ruangan}
         />
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(null)}>Batal</button>
@@ -410,7 +410,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         <ExportModal
           open={showExport}
           onClose={() => setShowExport(false)}
-          jenisBarangList={jenisBarang}
+          kategoriList={kategori}
         />
       )}
     </>

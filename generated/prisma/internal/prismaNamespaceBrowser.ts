@@ -52,10 +52,10 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  JenisBarang: 'JenisBarang',
-  Letak: 'Letak',
+  Kategori: 'Kategori',
+  Ruangan: 'Ruangan',
   Barang: 'Barang',
-  Transaksi: 'Transaksi',
+  Peminjaman: 'Peminjaman',
   Pengeluaran: 'Pengeluaran'
 } as const
 
@@ -91,7 +91,7 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const JenisBarangScalarFieldEnum = {
+export const KategoriScalarFieldEnum = {
   id: 'id',
   nama: 'nama',
   keterangan: 'keterangan',
@@ -99,10 +99,10 @@ export const JenisBarangScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type JenisBarangScalarFieldEnum = (typeof JenisBarangScalarFieldEnum)[keyof typeof JenisBarangScalarFieldEnum]
+export type KategoriScalarFieldEnum = (typeof KategoriScalarFieldEnum)[keyof typeof KategoriScalarFieldEnum]
 
 
-export const LetakScalarFieldEnum = {
+export const RuanganScalarFieldEnum = {
   id: 'id',
   kode: 'kode',
   nama: 'nama',
@@ -111,7 +111,7 @@ export const LetakScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type LetakScalarFieldEnum = (typeof LetakScalarFieldEnum)[keyof typeof LetakScalarFieldEnum]
+export type RuanganScalarFieldEnum = (typeof RuanganScalarFieldEnum)[keyof typeof RuanganScalarFieldEnum]
 
 
 export const BarangScalarFieldEnum = {
@@ -135,8 +135,8 @@ export const BarangScalarFieldEnum = {
   hasSticker: 'hasSticker',
   qrCode: 'qrCode',
   foto: 'foto',
-  jenisBarangId: 'jenisBarangId',
-  letakId: 'letakId',
+  kategoriId: 'kategoriId',
+  ruanganId: 'ruanganId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -144,12 +144,12 @@ export const BarangScalarFieldEnum = {
 export type BarangScalarFieldEnum = (typeof BarangScalarFieldEnum)[keyof typeof BarangScalarFieldEnum]
 
 
-export const TransaksiScalarFieldEnum = {
+export const PeminjamanScalarFieldEnum = {
   id: 'id',
   barangId: 'barangId',
   userId: 'userId',
   namaPeminjam: 'namaPeminjam',
-  letakPinjam: 'letakPinjam',
+  ruanganTujuan: 'ruanganTujuan',
   tanggalPinjam: 'tanggalPinjam',
   tanggalKembali: 'tanggalKembali',
   deadlineKembali: 'deadlineKembali',
@@ -160,7 +160,7 @@ export const TransaksiScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TransaksiScalarFieldEnum = (typeof TransaksiScalarFieldEnum)[keyof typeof TransaksiScalarFieldEnum]
+export type PeminjamanScalarFieldEnum = (typeof PeminjamanScalarFieldEnum)[keyof typeof PeminjamanScalarFieldEnum]
 
 
 export const PengeluaranScalarFieldEnum = {

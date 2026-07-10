@@ -1,4 +1,4 @@
-// components/features/LetakManager.tsx
+// components/features/RuanganManager.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Modal from "@/components/Modal";
@@ -9,17 +9,17 @@ import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useQrScanner } from "@/hooks/useQrScanner";
-import type { Letak, Barang } from "@/types";
+import type { Ruangan, Barang } from "@/types";
 
 const EMPTY = { kode: "", nama: "", lantai: "" };
 
-interface RuanganWithCount extends Letak { _count?: { barang: number }; }
+interface RuanganWithCount extends Ruangan { _count?: { barang: number }; }
 
 export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   const [list, setList] = useState<RuanganWithCount[]>([]);
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState<"form" | "pindah" | "detail" | null>(null);
-  const [selected, setSelected] = useState<Letak | null>(null);
+  const [selected, setSelected] = useState<Ruangan | null>(null);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
 
@@ -45,15 +45,15 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   const { videoRef, canvasRef, scanning, startCamera: rawStartCamera, stopCamera } = useQrScanner(handleQrScanResult);
 
   const load = () =>
-    api.get<RuanganWithCount[]>("/api/letak?include=count").then(setList).catch(console.error);
+    api.get<RuanganWithCount[]>("/api/ruangan?include=count").then(setList).catch(console.error);
 
   useEffect(() => { load(); }, []);
 
 
 
-  // ── CRUD Letak ──
+  // ── CRUD Ruangan ──
   function openAdd() { setSelected(null); setForm(EMPTY); setModal("form"); }
-  function openEdit(r: Letak) {
+  function openEdit(r: Ruangan) {
     setSelected(r);
     setForm({ kode: r.kode, nama: r.nama, lantai: r.lantai ?? "" });
     setModal("form");
@@ -64,8 +64,8 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     setSaving(true);
     const body = { ...form };
     try {
-      if (selected) { await api.put(`/api/letak/${selected.id}`, body); toast.success("Letak diperbarui"); }
-      else { await api.post("/api/letak", body); toast.success("Letak ditambahkan"); }
+      if (selected) { await api.put(`/api/ruangan/${selected.id}`, body); toast.success("Ruangan diperbarui"); }
+      else { await api.post("/api/ruangan", body); toast.success("Ruangan ditambahkan"); }
       setModal(null); load();
     } catch (e: unknown) { toast.error(e instanceof Error ? e.message : "Gagal menyimpan"); }
     finally { setSaving(false); }
@@ -78,21 +78,21 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   async function performDelete() {
     if (!confirmDel) return;
     setIsDeleting(true);
-    try { await api.delete(`/api/letak/${confirmDel.id}`); toast.success("Letak dihapus"); load(); }
+    try { await api.delete(`/api/ruangan/${confirmDel.id}`); toast.success("Ruangan dihapus"); load(); }
     catch { toast.error("Gagal — mungkin masih ada barang di ruangan ini"); }
     finally { setIsDeleting(false); setConfirmDel(null); }
   }
 
   const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  async function openDetail(r: Letak) {
+  async function openDetail(r: Ruangan) {
     setSelected(r);
     setModal("detail");
     setLoadingDetail(true);
     setDetailList([]);
     try {
       // API /api/barang returns { data: Barang[], nextCursor: ... }
-      const res = await api.get<{ data: Barang[] }>(`/api/barang?letakId=${r.id}&limit=all`);
+      const res = await api.get<{ data: Barang[] }>(`/api/barang?ruanganId=${r.id}&limit=all`);
       setDetailList(res.data || []);
     } catch {
       toast.error("Gagal mengambil detail barang");
@@ -112,7 +112,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     try {
       const b = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode.trim())}`);
       setPindahBarang(b);
-      setPindahTarget(b.letakId ?? "");
+      setPindahTarget(b.ruanganId ?? "");
       toast.success(`Ditemukan: ${b.nama}`);
     } catch {
       toast.error(`Barang dengan kode "${kode}" tidak ditemukan`);
@@ -122,10 +122,10 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   async function handlePindah() {
     if (!pindahBarang) return;
     if (!pindahTarget) { toast.error("Pilih ruangan tujuan"); return; }
-    if (pindahTarget === pindahBarang.letakId) { toast.error("Letak sama — tidak ada perubahan"); return; }
+    if (pindahTarget === pindahBarang.ruanganId) { toast.error("Ruangan sama — tidak ada perubahan"); return; }
     setPindahSaving(true);
     try {
-      await api.put(`/api/barang/${pindahBarang.id}`, { letakId: pindahTarget });
+      await api.put(`/api/barang/${pindahBarang.id}`, { ruanganId: pindahTarget });
       toast.success(`"${pindahBarang.nama}" dipindahkan ke ruangan baru`);
       setModal(null); setPindahBarang(null);
       load();
@@ -162,7 +162,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
         </button>
         {role === "ADMIN" && (
           <button className="btn btn-primary" onClick={openAdd}>
-            <i className="ti ti-plus" /> Tambah Letak
+            <i className="ti ti-plus" /> Tambah Ruangan
           </button>
         )}
       </div>
@@ -172,7 +172,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Letak</th>
+                <th>Ruangan</th>
                 <th>Lantai</th><th>Jml Barang</th>
                 <th>Aksi</th>
               </tr>
@@ -212,7 +212,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
 
       <ConfirmModal
         isOpen={!!confirmDel}
-        title="Hapus Letak"
+        title="Hapus Ruangan"
         message={`Apakah Anda yakin ingin menghapus ruangan "${confirmDel?.nama}"?`}
         danger
         isLoading={isDeleting}
@@ -220,14 +220,14 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
         onCancel={() => setConfirmDel(null)}
       />
 
-      {/* Modal CRUD Letak */}
-      <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Letak" : "Tambah Letak"}>
+      {/* Modal CRUD Ruangan */}
+      <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Ruangan" : "Tambah Ruangan"}>
         <div className="form-group">
-          <label className="form-label">Kode Letak *</label>
+          <label className="form-label">Kode Ruangan *</label>
           <input className="input" placeholder="LAB1" value={form.kode} onChange={e => setF("kode", e.target.value)} />
         </div>
         <div className="form-group">
-          <label className="form-label">Nama Letak *</label>
+          <label className="form-label">Nama Ruangan *</label>
           <input className="input" placeholder="Lab Komputer 1" value={form.nama} onChange={e => setF("nama", e.target.value)} />
         </div>
         <div className="form-group">
@@ -243,7 +243,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
       </Modal>
 
       {/* Modal Pindah Barang */}
-      <Modal open={modal === "pindah"} onClose={() => { setModal(null); stopCamera(); }} title="Pindah Barang ke Letak Lain">
+      <Modal open={modal === "pindah"} onClose={() => { setModal(null); stopCamera(); }} title="Pindah Barang ke Ruangan Lain">
         <div className="scan-heading" style={{ marginBottom: 14 }}>
           <div className="scan-sub">Scan QR atau input kode barang manual, lalu pilih ruangan tujuan.</div>
         </div>
@@ -287,12 +287,12 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="modal-preview-title">{pindahBarang.nama}</div>
-                <div className="td-code">{pindahBarang.label} · Letak saat ini: <strong>{pindahBarang.letak?.kode ?? "Tidak ada"}</strong></div>
+                <div className="td-code">{pindahBarang.label} · Ruangan saat ini: <strong>{pindahBarang.ruangan?.kode ?? "Tidak ada"}</strong></div>
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Letak Tujuan *</label>
+              <label className="form-label">Ruangan Tujuan *</label>
               <LiquidSelect
                 value={pindahTarget}
                 onChange={setPindahTarget}
@@ -300,7 +300,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                   { value: "", label: "— Pilih ruangan —" },
                   ...list.map(r => ({
                     value: r.id,
-                    label: `${r.kode} — ${r.nama} ${r.id === pindahBarang.letakId ? "(saat ini)" : ""}`
+                    label: `${r.kode} — ${r.nama} ${r.id === pindahBarang.ruanganId ? "(saat ini)" : ""}`
                   }))
                 ]}
               />
@@ -316,7 +316,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
         )}
       </Modal>
 
-      {/* Detail Letak Modal */}
+      {/* Detail Ruangan Modal */}
       <Modal open={modal === "detail"} onClose={() => setModal(null)} title={selected ? `Detail Barang — ${selected.nama}` : "Detail Barang"}>
         {loadingDetail ? (
           <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-muted)" }}>

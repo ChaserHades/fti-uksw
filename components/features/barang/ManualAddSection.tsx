@@ -6,26 +6,26 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
-import type { Barang, JenisBarang, Letak } from "@/types";
+import type { Barang, Kategori, Ruangan } from "@/types";
 import BarangFormFields from "./BarangFormFields";
 
 /** Manual add section — fill form, auto-generate QR, print */
 export default function ManualAddSection() {
-  const [jenisBarang, setJenisBarang] = useState<JenisBarang[]>([]);
-  const [letak, setLetak] = useState<Letak[]>([]);
+  const [kategori, setKategori] = useState<Kategori[]>([]);
+  const [ruangan, setRuangan] = useState<Ruangan[]>([]);
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
   const [saving, setSaving] = useState(false);
   const [qrResult, setQrResult] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
 
   useEffect(() => {
-    api.get<JenisBarang[]>("/api/jenis-barang").then(setJenisBarang);
-    api.get<Letak[]>("/api/letak").then(setLetak);
+    api.get<Kategori[]>("/api/kategori").then(setKategori);
+    api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
   }, []);
 
   const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
 
   async function handleSave() {
-    if (!form.label || !form.nama || !form.jenisBarangId) {
+    if (!form.label || !form.nama || !form.kategoriId) {
       toast.error("Label, nama, dan kategori wajib diisi");
       return;
     }
@@ -37,7 +37,7 @@ export default function ManualAddSection() {
         tanggalDatang: form.tanggalDatang || null,
         tanggalPindah: form.tanggalPindah || null,
         harga: form.harga ? Number(form.harga) : null,
-        letakId: form.letakId || null,
+        ruanganId: form.ruanganId || null,
       });
       const qr = await api.get<{ qrCode: string; kode: string; nama: string }>(`/api/barang/${created.id}/qr`);
       setQrResult(qr);
@@ -61,8 +61,8 @@ export default function ManualAddSection() {
         <BarangFormFields
           form={form}
           onChange={handleFieldChange}
-          jenisBarang={jenisBarang}
-          letak={letak}
+          kategori={kategori}
+          ruangan={ruangan}
         />
 
         <div className="modal-footer">

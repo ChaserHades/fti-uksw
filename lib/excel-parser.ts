@@ -12,8 +12,8 @@ export type ParsedBarang = {
   keterangan: string | null;
   kondisi: string;
   status: string;
-  jenisBarang: string;
-  letak: string | null;
+  kategori: string;
+  ruangan: string | null;
   tanggalDatang: Date | null;
   tanggalPindah: Date | null;
   harga: number | null;
@@ -30,7 +30,7 @@ const COL = {
   MERK: 6,
   MODEL: 7,
   TYPE: 8,
-  LETAK: 9,
+  RUANGAN: 9,
   KETERANGAN: 10,
   VENDOR: 11,
   HARGA: 12,
@@ -62,7 +62,7 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
     // Skip header rows (we assume data starts when NO column has a value or row > 2)
     if (rowNumber < 3) return;
     
-    // Check if the row has a "jenis barang" or "nama" (they might be merged but we get value)
+    // Check if the row has a "kategori" or "nama" (they might be merged but we get value)
     const jenisValue = getCellValue(worksheet, rowNumber, COL.JENIS_BARANG);
     const labelValue = getCellValue(worksheet, rowNumber, COL.LABEL);
     const labelAsetValue = getCellValue(worksheet, rowNumber, COL.LABEL_ASET);
@@ -80,7 +80,7 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
 
     
     const nama = jenisValue || "Tanpa Nama";
-    const jenisBarang = jenisValue || "Lainnya";
+    const kategori = jenisValue || "Lainnya";
 
     results.push({
       label: labelValue || "",
@@ -94,8 +94,8 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
       keterangan: getCellValue(worksheet, rowNumber, COL.KETERANGAN) || null,
       kondisi: "BAIK",
       status: "TERSEDIA",
-      jenisBarang: jenisBarang,
-      letak: getCellValue(worksheet, rowNumber, COL.LETAK) || null,
+      kategori: kategori,
+      ruangan: getCellValue(worksheet, rowNumber, COL.RUANGAN) || null,
       tanggalDatang: parseDateValue(worksheet.getCell(rowNumber, COL.TGL_DATANG).value),
       tanggalPindah: parseDateValue(worksheet.getCell(rowNumber, COL.TGL_PINDAH).value),
       harga: parseNumberValue(worksheet.getCell(rowNumber, COL.HARGA).value),

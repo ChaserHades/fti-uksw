@@ -62,7 +62,7 @@ export type Ruangan = Prisma.RuanganModel
  */
 export type Barang = Prisma.BarangModel
 /**
- * Model Transaksi
+ * Model Peminjaman
  * 
  */
-export type Transaksi = Prisma.TransaksiModel
+export type Peminjaman = Prisma.PeminjamanModel

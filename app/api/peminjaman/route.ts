@@ -1,4 +1,4 @@
-// app/api/transaksi/route.ts
+// app/api/peminjaman/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
@@ -26,13 +26,13 @@ export async function GET(req: Request) {
     where.status = status;
   }
 
-  const list = await prisma.transaksi.findMany({
+  const list = await prisma.peminjaman.findMany({
     take: limit + 1,
     skip: cursor ? 1 : 0,
     cursor: cursor ? { id: cursor } : undefined,
     where,
     include: {
-      barang: { include: { jenisBarang: true, letak: true } },
+      barang: { include: { kategori: true, ruangan: true } },
       user: true,
     },
     orderBy: { createdAt: "desc" },
@@ -51,11 +51,11 @@ export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { barangId, namaPeminjam, letakPinjam, deadlineKembali, catatan } = await req.json();
+  const { barangId, namaPeminjam, ruanganTujuan, deadlineKembali, catatan } = await req.json();
 
   if (!namaPeminjam?.trim())
     return NextResponse.json({ error: "Nama peminjam wajib diisi" }, { status: 400 });
-  if (!letakPinjam?.trim())
+  if (!ruanganTujuan?.trim())
     return NextResponse.json({ error: "Ruangan wajib diisi" }, { status: 400 });
   if (!deadlineKembali)
     return NextResponse.json({ error: "Deadline kembali wajib diisi" }, { status: 400 });
@@ -64,25 +64,25 @@ export async function POST(req: Request) {
   if (!barang || barang.status !== "TERSEDIA")
     return NextResponse.json({ error: "Barang tidak tersedia" }, { status: 400 });
 
-  const [transaksi] = await prisma.$transaction([
-    prisma.transaksi.create({
+  const [peminjaman] = await prisma.$transaction([
+    prisma.peminjaman.create({
       data: {
         barangId,
         userId:          session.id,
         namaPeminjam:    namaPeminjam.trim(),
-        letakPinjam:     letakPinjam.trim(),
+        ruanganTujuan:     ruanganTujuan.trim(),
         deadlineKembali: new Date(deadlineKembali),
         catatan:         catatan ?? null,
         status:          "AKTIF",
         terlambat:       false,
       },
       include: {
-        barang: { include: { jenisBarang: true, letak: true } },
+        barang: { include: { kategori: true, ruangan: true } },
         user: true,
       },
     }),
     prisma.barang.update({ where: { id: barangId }, data: { status: "DIPINJAM" } }),
   ]);
 
-  return NextResponse.json(transaksi, { status: 201 });
+  return NextResponse.json(peminjaman, { status: 201 });
 }

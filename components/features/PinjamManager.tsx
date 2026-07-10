@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort, isOverdue, isDueSoon, parseQrPayload } from "@/helpers/format";
 import { useQrScanner } from "@/hooks/useQrScanner";
-import type { Barang, Transaksi } from "@/types";
+import type { Barang, Peminjaman } from "@/types";
 
 type Mode = "scan" | "list";
 
@@ -17,9 +17,9 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   
   // ── State ──
   const [mode, setMode]             = useState<Mode>("scan");
-  const [allAktif, setAllAktif]     = useState<Transaksi[]>([]);
+  const [allAktif, setAllAktif]     = useState<Peminjaman[]>([]);
   const [barang, setBarang]         = useState<Barang | null>(null);
-  const [transaksiAktif, setTransaksiAktif] = useState<Transaksi | null>(null);
+  const [peminjamanAktif, setPeminjamanAktif] = useState<Peminjaman | null>(null);
   const [lookErr,   setLookErr]   = useState("");
   const [manualInput, setManualInput] = useState("");
 
@@ -29,13 +29,13 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   // Modal state
   const [modalPinjam,  setModalPinjam]  = useState(false);
   const [modalKembali, setModalKembali] = useState(false);
-  const [form, setForm] = useState({ namaPeminjam: "", letakPinjam: "", deadlineKembali: "", catatan: "" });
+  const [form, setForm] = useState({ namaPeminjam: "", ruanganTujuan: "", deadlineKembali: "", catatan: "" });
   const [saving, setSaving]       = useState(false);
   const [processing, setProcessing] = useState(false);
 
   // ── Load aktif ──
   const loadAktif = () =>
-    api.get<{ data: Transaksi[]; nextCursor: string | null }>("/api/transaksi?status=AKTIF").then(res => setAllAktif(res.data)).catch(console.error);
+    api.get<{ data: Peminjaman[]; nextCursor: string | null }>("/api/peminjaman?status=AKTIF").then(res => setAllAktif(res.data)).catch(console.error);
 
   useEffect(() => { 
     loadAktif(); 
@@ -46,7 +46,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
 
   // ── Camera wrapper ──
   async function startCamera() {
-    setBarang(null); setTransaksiAktif(null);
+    setBarang(null); setPeminjamanAktif(null);
     try { await rawStartCamera(); }
     catch { toast.error("Tidak dapat mengakses kamera"); }
   }
@@ -54,17 +54,17 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   async function processBarang(data: Barang) {
     setBarang(data);
     if (data.status === "TERSEDIA") {
-      setForm({ namaPeminjam: "", letakPinjam: "", deadlineKembali: "", catatan: "" });
+      setForm({ namaPeminjam: "", ruanganTujuan: "", deadlineKembali: "", catatan: "" });
       setModalPinjam(true);
     } else if (data.status === "DIPINJAM") {
-      const res = await api.get<{ data: Transaksi[]; nextCursor: string | null }>("/api/transaksi?status=AKTIF");
+      const res = await api.get<{ data: Peminjaman[]; nextCursor: string | null }>("/api/peminjaman?status=AKTIF");
       const trxList = res.data;
       const found = trxList.find(t => t.barangId === data.id);
       if (found) {
-        setTransaksiAktif(found);
+        setPeminjamanAktif(found);
         setModalKembali(true);
       } else {
-        setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi transaksi tidak ditemukan`);
+        setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi peminjaman tidak ditemukan`);
       }
     } else {
       setLookErr(`Barang "${data.nama}" berstatus ${data.status} — tidak dapat diproses.`);
@@ -100,15 +100,15 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   async function handlePinjam() {
     if (!barang) return;
     if (!form.namaPeminjam.trim()) { toast.error("Nama peminjam wajib diisi"); return; }
-    if (!form.letakPinjam.trim()) { toast.error("Letak wajib diisi"); return; }
+    if (!form.ruanganTujuan.trim()) { toast.error("Ruangan wajib diisi"); return; }
     if (!form.deadlineKembali) { toast.error("Deadline kembali wajib diisi"); return; }
 
     setSaving(true);
     try {
-      await api.post("/api/transaksi", {
+      await api.post("/api/peminjaman", {
         barangId: barang.id,
         namaPeminjam: form.namaPeminjam,
-        letakPinjam: form.letakPinjam,
+        ruanganTujuan: form.ruanganTujuan,
         deadlineKembali: form.deadlineKembali,
         catatan: form.catatan || null,
       });
@@ -123,9 +123,9 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   async function handleKembali(trxId: string) {
     setProcessing(true);
     try {
-      await api.post(`/api/transaksi/${trxId}/kembali`, {});
+      await api.post(`/api/peminjaman/${trxId}/kembali`, {});
       toast.success("Barang berhasil dikembalikan!");
-      setModalKembali(false); setTransaksiAktif(null); setBarang(null);
+      setModalKembali(false); setPeminjamanAktif(null); setBarang(null);
       loadAktif();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal memproses pengembalian");
@@ -248,7 +248,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Barang</th><th>Peminjam</th><th>Letak</th>
+                    <th>Barang</th><th>Peminjam</th><th>Ruangan</th>
                     <th>Deadline</th><th>Status</th><th>Aksi</th>
                   </tr>
                 </thead>
@@ -270,7 +270,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                           <div className="td-code">{t.barang.label}</div>
                         </td>
                         <td className="td-sm">{t.namaPeminjam}</td>
-                        <td className="td-sm">{t.letakPinjam}</td>
+                        <td className="td-sm">{t.ruanganTujuan}</td>
                         <td className="td-sm">{fDateShort(t.deadlineKembali)}</td>
                         <td>
                           <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`}>
@@ -282,7 +282,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                             className="btn btn-success btn-sm"
                             onClick={() => {
                               setBarang(t.barang);
-                              setTransaksiAktif(t);
+                              setPeminjamanAktif(t);
                               setModalKembali(true);
                             }}
                           >
@@ -320,8 +320,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
             </div>
             <div className="form-grid-2">
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Letak Penggunaan *</label>
-                <input className="input" placeholder="Lab 1 / R.101" value={form.letakPinjam} onChange={e => setF("letakPinjam", e.target.value)} />
+                <label className="form-label">Ruangan Penggunaan *</label>
+                <input className="input" placeholder="Lab 1 / R.101" value={form.ruanganTujuan} onChange={e => setF("ruanganTujuan", e.target.value)} />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">Deadline Kembali *</label>
@@ -344,17 +344,17 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       </Modal>
 
       {/* Modal Kembali */}
-      <Modal open={modalKembali} onClose={() => { setModalKembali(false); setTransaksiAktif(null); setBarang(null); }} title="Konfirmasi Pengembalian">
-        {barang && transaksiAktif && (
+      <Modal open={modalKembali} onClose={() => { setModalKembali(false); setPeminjamanAktif(null); setBarang(null); }} title="Konfirmasi Pengembalian">
+        {barang && peminjamanAktif && (
           <>
             <div className="modal-preview">
               <div className="modal-preview-title" style={{ marginBottom: 8 }}>{barang.nama}</div>
               <div className="flex-col" style={{ gap: 5 }}>
                 {[
                   { label: "Kode",     value: barang.label },
-                  { label: "Peminjam", value: transaksiAktif.namaPeminjam },
-                  { label: "Dipinjam", value: fDateShort(transaksiAktif.tanggalPinjam) },
-                  { label: "Deadline", value: fDateShort(transaksiAktif.deadlineKembali) },
+                  { label: "Peminjam", value: peminjamanAktif.namaPeminjam },
+                  { label: "Dipinjam", value: fDateShort(peminjamanAktif.tanggalPinjam) },
+                  { label: "Deadline", value: fDateShort(peminjamanAktif.deadlineKembali) },
                 ].map(row => (
                   <div key={row.label} className="modal-preview-row">
                     <span className="modal-preview-label">{row.label}</span>
@@ -364,7 +364,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               </div>
             </div>
 
-            {isOverdue(transaksiAktif.deadlineKembali) && (
+            {isOverdue(peminjamanAktif.deadlineKembali) && (
               <div className="alert alert-danger mb-16">
                 <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
                 Barang ini sudah melewati deadline pengembalian!
@@ -376,8 +376,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-ghost" onClick={() => { setModalKembali(false); setTransaksiAktif(null); setBarang(null); }}>Batal</button>
-              <button className="btn btn-success" onClick={() => handleKembali(transaksiAktif.id)} disabled={processing}>
+              <button className="btn btn-ghost" onClick={() => { setModalKembali(false); setPeminjamanAktif(null); setBarang(null); }}>Batal</button>
+              <button className="btn btn-success" onClick={() => handleKembali(peminjamanAktif.id)} disabled={processing}>
                 {processing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-circle-check" />Konfirmasi Kembali</>}
               </button>
             </div>

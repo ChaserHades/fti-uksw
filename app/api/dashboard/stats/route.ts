@@ -8,18 +8,18 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const [
-    totalBarang, totalLetak, totalUsers, pendingVerifikasi, dipinjam, terlambat,
+    totalBarang, totalRuangan, totalUsers, pendingVerifikasi, dipinjam, terlambat,
     tersediaBarang, dipinjamBarang, maintenanceBarang,
     baikBarang, rusakRinganBarang, rusakBeratBarang,
     katGroupBy,
     pengeluaranAgg
   ] = await Promise.all([
     prisma.barang.count(),
-    prisma.letak.count(),
+    prisma.ruangan.count(),
     prisma.user.count(),
     prisma.user.count({ where: { statusVerifikasi: "PENDING" } }),
-    prisma.transaksi.count({ where: { status: "AKTIF" } }),
-    prisma.transaksi.count({ where: { status: "AKTIF", deadlineKembali: { lt: new Date() } } }),
+    prisma.peminjaman.count({ where: { status: "AKTIF" } }),
+    prisma.peminjaman.count({ where: { status: "AKTIF", deadlineKembali: { lt: new Date() } } }),
     prisma.barang.count({ where: { status: "TERSEDIA" } }),
     prisma.barang.count({ where: { status: "DIPINJAM" } }),
     prisma.barang.count({ where: { status: "MAINTENANCE" } }),
@@ -27,7 +27,7 @@ export async function GET() {
     prisma.barang.count({ where: { kondisi: "RUSAK_RINGAN" } }),
     prisma.barang.count({ where: { kondisi: "RUSAK_BERAT" } }),
     prisma.barang.groupBy({
-      by: ['jenisBarangId'],
+      by: ['kategoriId'],
       _count: { id: true }
     }),
     prisma.pengeluaran.aggregate({
@@ -39,12 +39,12 @@ export async function GET() {
   // Fetch Kat Names
   const katStat = [];
   if (katGroupBy && katGroupBy.length > 0) {
-    const jenisBarang = await prisma.jenisBarang.findMany({
-      where: { id: { in: katGroupBy.map(k => k.jenisBarangId) } }
+    const kategori = await prisma.kategori.findMany({
+      where: { id: { in: katGroupBy.map(k => k.kategoriId) } }
     });
     
     for (const g of katGroupBy) {
-      const jb = jenisBarang.find(j => j.id === g.jenisBarangId);
+      const jb = kategori.find(j => j.id === g.kategoriId);
       katStat.push({
         nama: jb?.nama || "Lainnya",
         total: g._count.id
@@ -55,7 +55,7 @@ export async function GET() {
 
   return NextResponse.json({
     totalBarang,
-    totalLetak,
+    totalRuangan,
     totalUsers,
     pendingVerifikasi,
     dipinjam,

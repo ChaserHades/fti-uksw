@@ -4,7 +4,7 @@ import { parseBarangExcel } from "@/lib/excel-parser";
 
 /**
  * Detects values that are anomalous — purely symbols, single non-alpha chars,
- * invisible characters, or otherwise not a meaningful "Jenis Barang" name.
+ * invisible characters, or otherwise not a meaningful "Kategori" name.
  */
 function isAnomalousValue(str: string): boolean {
   if (!str) return true;
@@ -58,12 +58,12 @@ export async function POST(req: Request) {
     rawData.forEach((row, index) => {
       const draftRow = { ...row, sumberTahun, _rowNumber: index + 3 }; // +3 is an estimate of excel row
 
-      if (!draftRow.jenisBarang || draftRow.jenisBarang === "Lainnya") {
-        error.push({ ...draftRow, _errorReason: "Jenis Barang kosong atau tidak terdeteksi" });
-      } else if (isAnomalousValue(draftRow.jenisBarang)) {
+      if (!draftRow.kategori || draftRow.kategori === "Lainnya") {
+        error.push({ ...draftRow, _errorReason: "Kategori kosong atau tidak terdeteksi" });
+      } else if (isAnomalousValue(draftRow.kategori)) {
         error.push({
           ...draftRow,
-          _errorReason: `Jenis Barang tidak valid: "${draftRow.jenisBarang}" — hanya berisi simbol atau karakter aneh`,
+          _errorReason: `Kategori tidak valid: "${draftRow.kategori}" — hanya berisi simbol atau karakter aneh`,
         });
       } else {
         valid.push(draftRow);

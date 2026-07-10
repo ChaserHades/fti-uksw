@@ -7,10 +7,10 @@ import LiquidSelect from "@/components/LiquidSelect";
 interface ExportModalProps {
   open: boolean;
   onClose: () => void;
-  jenisBarangList: { id: string; nama: string }[];
+  kategoriList: { id: string; nama: string }[];
 }
 
-export default function ExportModal({ open, onClose, jenisBarangList }: ExportModalProps) {
+export default function ExportModal({ open, onClose, kategoriList }: ExportModalProps) {
   const [exportType, setExportType] = useState<"all" | "filter">("all");
   const [format, setFormat] = useState<"xlsx" | "csv">("xlsx");
   const [sortBy, setSortBy] = useState("createdAt");
@@ -20,7 +20,7 @@ export default function ExportModal({ open, onClose, jenisBarangList }: ExportMo
   const [filterKat, setFilterKat] = useState("");
   const [filterSearch, setFilterSearch] = useState("");
   const [filterVendor, setFilterVendor] = useState("");
-  const [filterLetak, setFilterLetak] = useState("");
+  const [filterRuangan, setFilterRuangan] = useState("");
   
   const [loading, setLoading] = useState(false);
 
@@ -32,10 +32,10 @@ export default function ExportModal({ open, onClose, jenisBarangList }: ExportMo
       q.set("type", exportType);
       
       if (exportType === "filter") {
-        if (filterKat) q.set("jenisBarangId", filterKat);
+        if (filterKat) q.set("kategoriId", filterKat);
         if (filterSearch) q.set("search", filterSearch);
         if (filterVendor) q.set("vendor", filterVendor);
-        if (filterLetak) q.set("letak", filterLetak);
+        if (filterRuangan) q.set("ruangan", filterRuangan);
         q.set("sortBy", sortBy);
         q.set("sortDir", sortDir);
       } else {
@@ -75,9 +75,9 @@ export default function ExportModal({ open, onClose, jenisBarangList }: ExportMo
     { value: "tanggalDatang", label: "Tanggal Datang" },
     { value: "tanggalPindah", label: "Tanggal Pindah" },
     { value: "nama", label: "Nama Barang" },
-    { value: "jenisBarang", label: "Jenis Barang" },
+    { value: "kategori", label: "Kategori" },
     { value: "vendor", label: "Vendor" },
-    { value: "letak", label: "Letak/Ruangan" },
+    { value: "ruangan", label: "Ruangan/Ruangan" },
   ];
 
   const isDateSort = ["createdAt", "tanggalDatang", "tanggalPindah"].includes(sortBy);
@@ -106,13 +106,13 @@ export default function ExportModal({ open, onClose, jenisBarangList }: ExportMo
               <input className="input" placeholder="Cari Label, SN, Nama..." value={filterSearch} onChange={e => setFilterSearch(e.target.value)} />
             </div>
             <div className="form-group">
-              <label className="form-label">Filter Jenis Barang</label>
+              <label className="form-label">Filter Kategori</label>
               <LiquidSelect
                 value={filterKat}
                 onChange={setFilterKat}
                 options={[
                   { value: "", label: "Semua Jenis" },
-                  ...jenisBarangList.map(k => ({ value: k.id, label: k.nama }))
+                  ...kategoriList.map(k => ({ value: k.id, label: k.nama }))
                 ]}
               />
             </div>
@@ -123,8 +123,8 @@ export default function ExportModal({ open, onClose, jenisBarangList }: ExportMo
               <input className="input" placeholder="Nama vendor..." value={filterVendor} onChange={e => setFilterVendor(e.target.value)} />
             </div>
             <div className="form-group">
-              <label className="form-label">Filter Letak</label>
-              <input className="input" placeholder="Kode Ruangan..." value={filterLetak} onChange={e => setFilterLetak(e.target.value)} />
+              <label className="form-label">Filter Ruangan</label>
+              <input className="input" placeholder="Kode Ruangan..." value={filterRuangan} onChange={e => setFilterRuangan(e.target.value)} />
             </div>
           </div>
         </div>

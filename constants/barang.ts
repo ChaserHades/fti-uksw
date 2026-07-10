@@ -4,7 +4,7 @@
 /** Empty form state for creating/editing a Barang */
 export const BARANG_FORM_EMPTY = {
   label: "", labelAset: "", nama: "", sn: "", merek: "", model: "", tipe: "", vendor: "", keterangan: "",
-  kondisi: "BAIK", jumlah: 1, tanggalDatang: "", tanggalPindah: "", harga: "", jenisBarangId: "", letakId: "",
+  kondisi: "BAIK", jumlah: 1, tanggalDatang: "", tanggalPindah: "", harga: "", kategoriId: "", ruanganId: "",
 };
 
 export type BarangFormData = typeof BARANG_FORM_EMPTY;

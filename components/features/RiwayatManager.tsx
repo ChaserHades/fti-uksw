@@ -6,12 +6,12 @@ import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
-import type { Transaksi } from "@/types";
+import type { Peminjaman } from "@/types";
 
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
 export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
-  const [list,   setList]   = useState<Transaksi[]>([]);
+  const [list,   setList]   = useState<Peminjaman[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("");
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -23,7 +23,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
     const query = params ? `?${params}` : "";
 
     if (!reset) setLoadingMore(true);
-    api.get<{ data: Transaksi[]; nextCursor: string | null }>(`/api/transaksi${query}`)
+    api.get<{ data: Peminjaman[]; nextCursor: string | null }>(`/api/peminjaman${query}`)
       .then(res => {
         if (reset) setList(res.data);
         else setList(prev => [...prev, ...res.data]);
@@ -40,7 +40,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
 
   function exportCSV() {
     const headers = [
-      "ID", "Barang", "Kode", "Nama Peminjam", "Letak Pinjam",
+      "ID", "Barang", "Kode", "Nama Peminjam", "Ruangan Pinjam",
       "Petugas", "Email Petugas", "Tgl Pinjam", "Deadline", "Tgl Kembali", "Status", "Terlambat",
     ];
     const rows = list.map(t => [
@@ -48,7 +48,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
       t.barang.nama,
       t.barang.label,
       t.namaPeminjam,
-      t.letakPinjam,
+      t.ruanganTujuan,
       t.user.name ?? "",
       t.user.email,
       fDateShort(t.tanggalPinjam),
@@ -62,14 +62,14 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
     a.href = url;
-    a.download = `riwayat-transaksi-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `riwayat-peminjaman-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("CSV berhasil diexport");
   }
 
   // Badge status — terlambat persisten
-  function getBadge(t: Transaksi) {
+  function getBadge(t: Peminjaman) {
     if (t.terlambat) return { cls: "badge-danger", label: "Terlambat" };
     if (t.status === "AKTIF") return { cls: "badge-warn", label: "Aktif" };
     return { cls: "badge-ok", label: "Selesai" };
@@ -98,7 +98,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
       {/* Summary */}
       <div className="grid-3 mb-16">
         {[
-          { label: "Total Transaksi", value: list.length,                                badge: "badge-info"   },
+          { label: "Total Peminjaman", value: list.length,                                badge: "badge-info"   },
           { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length, badge: "badge-warn"   },
           { label: "Terlambat",       value: list.filter(t => t.terlambat).length,         badge: "badge-danger" },
         ].map(s => (
@@ -116,7 +116,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
               <tr>
                 <th style={{ width: "18%" }}>Barang</th>
                 <th style={{ width: "14%" }}>Peminjam</th>
-                <th style={{ width: "12%" }}>Letak</th>
+                <th style={{ width: "12%" }}>Ruangan</th>
                 <th style={{ width: "12%" }}>Petugas</th>
                 <th style={{ width: "11%" }}>Tgl Pinjam</th>
                 <th style={{ width: "11%" }}>Deadline</th>
@@ -130,7 +130,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
                   <td colSpan={8}>
                     <div className="empty-state">
                       <i className="ti ti-file-off" style={{ fontSize: 28 }} />
-                      Tidak ada data transaksi
+                      Tidak ada data peminjaman
                     </div>
                   </td>
                 </tr>
@@ -145,7 +145,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
                     <td>
                       <div className="td-sm" style={{ color: "var(--text-primary)" }}>{t.namaPeminjam}</div>
                     </td>
-                    <td className="td-sm">{t.letakPinjam}</td>
+                    <td className="td-sm">{t.ruanganTujuan}</td>
                     <td>
                       <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
                       <div className="td-code">{t.user.email}</div>

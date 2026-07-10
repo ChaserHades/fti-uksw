@@ -3,13 +3,13 @@
 import LiquidSelect from "@/components/LiquidSelect";
 import { KONDISI_OPTIONS } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
-import type { JenisBarang, Letak } from "@/types";
+import type { Kategori, Ruangan } from "@/types";
 
 interface BarangFormFieldsProps {
   form: BarangFormData;
   onChange: (key: string, value: unknown) => void;
-  jenisBarang: JenisBarang[];
-  letak: Letak[];
+  kategori: Kategori[];
+  ruangan: Ruangan[];
   /** If true, the label/kode field is read-only (e.g. from QR scan) */
   readOnlyLabel?: boolean;
   /** If true, show fewer fields (register modal from scan) */
@@ -22,7 +22,7 @@ interface BarangFormFieldsProps {
  * and ManualAddSection (add form).
  */
 export default function BarangFormFields({
-  form, onChange, jenisBarang, letak, readOnlyLabel = false, compact = false,
+  form, onChange, kategori, ruangan, readOnlyLabel = false, compact = false,
 }: BarangFormFieldsProps) {
   return (
     <>
@@ -117,27 +117,27 @@ export default function BarangFormFields({
         </div>
       )}
 
-      {/* Jenis Barang / Letak */}
+      {/* Kategori / Ruangan */}
       <div className="form-grid-2">
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label className="form-label">Jenis Barang *</label>
+          <label className="form-label">Kategori *</label>
           <LiquidSelect
-            value={form.jenisBarangId}
-            onChange={val => onChange("jenisBarangId", val)}
+            value={form.kategoriId}
+            onChange={val => onChange("kategoriId", val)}
             options={[
-              { value: "", label: "— Pilih jenis barang —" },
-              ...jenisBarang.map(k => ({ value: k.id, label: k.nama })),
+              { value: "", label: "— Pilih kategori —" },
+              ...kategori.map(k => ({ value: k.id, label: k.nama })),
             ]}
           />
         </div>
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label className="form-label">Letak</label>
+          <label className="form-label">Ruangan</label>
           <LiquidSelect
-            value={form.letakId}
-            onChange={val => onChange("letakId", val)}
+            value={form.ruanganId}
+            onChange={val => onChange("ruanganId", val)}
             options={[
               { value: "", label: "Tidak ada" },
-              ...letak.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` })),
+              ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` })),
             ]}
           />
         </div>

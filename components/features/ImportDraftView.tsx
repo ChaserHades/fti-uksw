@@ -9,7 +9,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 interface DraftRow {
   _rowNumber: number;
   _errorReason?: string;
-  jenisBarang: string;
+  kategori: string;
   label?: string;
   labelAset?: string;
   nama?: string;
@@ -21,7 +21,7 @@ interface DraftRow {
   keterangan?: string;
   kondisi?: string;
   status?: string;
-  letak?: string;
+  ruangan?: string;
   tanggalDatang?: string | Date;
   tanggalPindah?: string | Date;
   harga?: number;
@@ -40,7 +40,7 @@ interface ImportDraftViewProps {
 /* ═══════════════════════════════════════════════════════════
    Validation
    ═══════════════════════════════════════════════════════════ */
-function isValidJenisBarang(str: string | undefined | null): boolean {
+function isValidKategori(str: string | undefined | null): boolean {
   if (!str) return false;
   if (str === "Lainnya") return false;
   const alphanumeric = str.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, "");
@@ -83,8 +83,8 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   /* ── Per-row validate (explicit button click) ── */
   const handleValidateRow = (index: number) => {
     const row = errors[index];
-    if (!isValidJenisBarang(row.jenisBarang)) {
-      toast.error("Jenis Barang harus minimal 2 karakter alfanumerik");
+    if (!isValidKategori(row.kategori)) {
+      toast.error("Kategori harus minimal 2 karakter alfanumerik");
       return;
     }
     const fixed = { ...row };
@@ -114,7 +114,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
     if (confirmAction === "skip-push-all") {
       const errorAsLainnya = errors.map(e => {
         const row = { ...e };
-        if (!isValidJenisBarang(row.jenisBarang)) row.jenisBarang = "Lainnya";
+        if (!isValidKategori(row.kategori)) row.kategori = "Lainnya";
         delete row._errorReason;
         return row;
       });
@@ -141,7 +141,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
       title: "Push Semua Data?",
       message: (
         <div>
-          <div style={{ marginBottom: 8 }}><strong>{errors.length} data error</strong> akan masuk ke database dengan Jenis Barang = "Lainnya".</div>
+          <div style={{ marginBottom: 8 }}><strong>{errors.length} data error</strong> akan masuk ke database dengan Kategori = "Lainnya".</div>
           <div style={{ fontSize: 13, opacity: 0.7 }}>Data tersebut tetap akan tampil di Daftar Barang dan bisa diedit manual nanti.</div>
         </div>
       ),
@@ -211,7 +211,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
               <tr>
                 <th style={{ width: "6%" }}>Baris</th>
                 {tab === "error" && <th style={{ width: "22%" }}>Alasan Error</th>}
-                <th style={{ width: tab === "error" ? "24%" : "28%" }}>Jenis Barang *</th>
+                <th style={{ width: tab === "error" ? "24%" : "28%" }}>Kategori *</th>
                 <th style={{ width: "20%" }}>Label Aset</th>
                 <th style={{ width: tab === "error" ? "14%" : "20%" }}>Label</th>
                 <th style={{ width: "10%" }}>Tahun</th>
@@ -250,7 +250,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                     </td>
                   )}
 
-                  {/* Jenis Barang */}
+                  {/* Kategori */}
                   <td>
                     {tab === "error" ? (
                       <input
@@ -260,17 +260,17 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                           width: "100%",
                           height: 36,
                           fontSize: 13,
-                          borderColor: isValidJenisBarang(r.jenisBarang)
+                          borderColor: isValidKategori(r.kategori)
                             ? "rgba(125,212,168,0.4)"
                             : "rgba(240,128,112,0.4)",
                           transition: "border-color 0.2s",
                         }}
-                        value={r.jenisBarang || ""}
-                        onChange={(e) => handleEdit(i, "jenisBarang", e.target.value)}
+                        value={r.kategori || ""}
+                        onChange={(e) => handleEdit(i, "kategori", e.target.value)}
                         placeholder="Min 2 karakter alfanumerik"
                       />
                     ) : (
-                      <span className="td-name">{r.jenisBarang}</span>
+                      <span className="td-name">{r.kategori}</span>
                     )}
                   </td>
 

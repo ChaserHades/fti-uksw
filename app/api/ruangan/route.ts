@@ -1,4 +1,4 @@
-// app/api/letak/route.ts
+// app/api/ruangan/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const includeCount = searchParams.get("include") === "count";
 
-  const list = await prisma.letak.findMany({
+  const list = await prisma.ruangan.findMany({
     orderBy: { kode: "asc" },
     ...(includeCount ? { include: { _count: { select: { barang: true } } } } : {}),
   });
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json();
-  const item = await prisma.letak.create({
+  const item = await prisma.ruangan.create({
     data: {
       kode: body.kode,
       nama: body.nama,

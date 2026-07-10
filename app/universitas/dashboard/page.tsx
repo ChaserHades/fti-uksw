@@ -123,7 +123,7 @@ export default function UniversitasDashboard() {
             <div style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--color-ok)" }}>
               Rp {(totalNominal / 1000000).toFixed(1)}M
             </div>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dari {stats?.pengeluaranStat?.count || 0} transaksi pembelian</span>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dari {stats?.pengeluaranStat?.count || 0} peminjaman pembelian</span>
           </div>
         </Link>
 
@@ -141,7 +141,7 @@ export default function UniversitasDashboard() {
               <div key={b.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{b.nama}</div>
-                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.jenisBarang?.nama} · {b.label}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama} · {b.label}</div>
                 </div>
                 <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "4px 10px", fontSize: 11, borderRadius: 20 }}>
                   {b.kondisi.replace(/_/g, " ")}

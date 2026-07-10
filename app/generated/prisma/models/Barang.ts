@@ -306,7 +306,7 @@ export type BarangWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
   kategori?: Prisma.XOR<Prisma.KategoriBarangScalarRelationFilter, Prisma.KategoriBarangWhereInput>
   ruangan?: Prisma.XOR<Prisma.RuanganNullableScalarRelationFilter, Prisma.RuanganWhereInput> | null
-  transaksi?: Prisma.TransaksiListRelationFilter
+  peminjaman?: Prisma.PeminjamanListRelationFilter
 }
 
 export type BarangOrderByWithRelationInput = {
@@ -327,7 +327,7 @@ export type BarangOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   kategori?: Prisma.KategoriBarangOrderByWithRelationInput
   ruangan?: Prisma.RuanganOrderByWithRelationInput
-  transaksi?: Prisma.TransaksiOrderByRelationAggregateInput
+  peminjaman?: Prisma.PeminjamanOrderByRelationAggregateInput
 }
 
 export type BarangWhereUniqueInput = Prisma.AtLeast<{
@@ -351,7 +351,7 @@ export type BarangWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
   kategori?: Prisma.XOR<Prisma.KategoriBarangScalarRelationFilter, Prisma.KategoriBarangWhereInput>
   ruangan?: Prisma.XOR<Prisma.RuanganNullableScalarRelationFilter, Prisma.RuanganWhereInput> | null
-  transaksi?: Prisma.TransaksiListRelationFilter
+  peminjaman?: Prisma.PeminjamanListRelationFilter
 }, "id" | "kodeBarang">
 
 export type BarangOrderByWithAggregationInput = {
@@ -414,7 +414,7 @@ export type BarangCreateInput = {
   updatedAt?: Date | string
   kategori: Prisma.KategoriBarangCreateNestedOneWithoutBarangInput
   ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
-  transaksi?: Prisma.TransaksiCreateNestedManyWithoutBarangInput
+  peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
 }
 
 export type BarangUncheckedCreateInput = {
@@ -433,7 +433,7 @@ export type BarangUncheckedCreateInput = {
   ruanganId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  transaksi?: Prisma.TransaksiUncheckedCreateNestedManyWithoutBarangInput
+  peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutBarangInput
 }
 
 export type BarangUpdateInput = {
@@ -452,7 +452,7 @@ export type BarangUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kategori?: Prisma.KategoriBarangUpdateOneRequiredWithoutBarangNestedInput
   ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
-  transaksi?: Prisma.TransaksiUpdateManyWithoutBarangNestedInput
+  peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
 }
 
 export type BarangUncheckedUpdateInput = {
@@ -471,7 +471,7 @@ export type BarangUncheckedUpdateInput = {
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  transaksi?: Prisma.TransaksiUncheckedUpdateManyWithoutBarangNestedInput
+  peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutBarangNestedInput
 }
 
 export type BarangCreateManyInput = {
@@ -715,18 +715,18 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type BarangCreateNestedOneWithoutTransaksiInput = {
-  create?: Prisma.XOR<Prisma.BarangCreateWithoutTransaksiInput, Prisma.BarangUncheckedCreateWithoutTransaksiInput>
-  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutTransaksiInput
+export type BarangCreateNestedOneWithoutPeminjamanInput = {
+  create?: Prisma.XOR<Prisma.BarangCreateWithoutPeminjamanInput, Prisma.BarangUncheckedCreateWithoutPeminjamanInput>
+  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutPeminjamanInput
   connect?: Prisma.BarangWhereUniqueInput
 }
 
-export type BarangUpdateOneRequiredWithoutTransaksiNestedInput = {
-  create?: Prisma.XOR<Prisma.BarangCreateWithoutTransaksiInput, Prisma.BarangUncheckedCreateWithoutTransaksiInput>
-  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutTransaksiInput
-  upsert?: Prisma.BarangUpsertWithoutTransaksiInput
+export type BarangUpdateOneRequiredWithoutPeminjamanNestedInput = {
+  create?: Prisma.XOR<Prisma.BarangCreateWithoutPeminjamanInput, Prisma.BarangUncheckedCreateWithoutPeminjamanInput>
+  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutPeminjamanInput
+  upsert?: Prisma.BarangUpsertWithoutPeminjamanInput
   connect?: Prisma.BarangWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BarangUpdateToOneWithWhereWithoutTransaksiInput, Prisma.BarangUpdateWithoutTransaksiInput>, Prisma.BarangUncheckedUpdateWithoutTransaksiInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BarangUpdateToOneWithWhereWithoutPeminjamanInput, Prisma.BarangUpdateWithoutPeminjamanInput>, Prisma.BarangUncheckedUpdateWithoutPeminjamanInput>
 }
 
 export type BarangCreateWithoutKategoriInput = {
@@ -744,7 +744,7 @@ export type BarangCreateWithoutKategoriInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
-  transaksi?: Prisma.TransaksiCreateNestedManyWithoutBarangInput
+  peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
 }
 
 export type BarangUncheckedCreateWithoutKategoriInput = {
@@ -762,7 +762,7 @@ export type BarangUncheckedCreateWithoutKategoriInput = {
   ruanganId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  transaksi?: Prisma.TransaksiUncheckedCreateNestedManyWithoutBarangInput
+  peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutBarangInput
 }
 
 export type BarangCreateOrConnectWithoutKategoriInput = {
@@ -827,7 +827,7 @@ export type BarangCreateWithoutRuanganInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   kategori: Prisma.KategoriBarangCreateNestedOneWithoutBarangInput
-  transaksi?: Prisma.TransaksiCreateNestedManyWithoutBarangInput
+  peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
 }
 
 export type BarangUncheckedCreateWithoutRuanganInput = {
@@ -845,7 +845,7 @@ export type BarangUncheckedCreateWithoutRuanganInput = {
   kategoriId: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  transaksi?: Prisma.TransaksiUncheckedCreateNestedManyWithoutBarangInput
+  peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutBarangInput
 }
 
 export type BarangCreateOrConnectWithoutRuanganInput = {
@@ -874,7 +874,7 @@ export type BarangUpdateManyWithWhereWithoutRuanganInput = {
   data: Prisma.XOR<Prisma.BarangUpdateManyMutationInput, Prisma.BarangUncheckedUpdateManyWithoutRuanganInput>
 }
 
-export type BarangCreateWithoutTransaksiInput = {
+export type BarangCreateWithoutPeminjamanInput = {
   id?: string
   kodeBarang: string
   nama: string
@@ -892,7 +892,7 @@ export type BarangCreateWithoutTransaksiInput = {
   ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
 }
 
-export type BarangUncheckedCreateWithoutTransaksiInput = {
+export type BarangUncheckedCreateWithoutPeminjamanInput = {
   id?: string
   kodeBarang: string
   nama: string
@@ -910,23 +910,23 @@ export type BarangUncheckedCreateWithoutTransaksiInput = {
   updatedAt?: Date | string
 }
 
-export type BarangCreateOrConnectWithoutTransaksiInput = {
+export type BarangCreateOrConnectWithoutPeminjamanInput = {
   where: Prisma.BarangWhereUniqueInput
-  create: Prisma.XOR<Prisma.BarangCreateWithoutTransaksiInput, Prisma.BarangUncheckedCreateWithoutTransaksiInput>
+  create: Prisma.XOR<Prisma.BarangCreateWithoutPeminjamanInput, Prisma.BarangUncheckedCreateWithoutPeminjamanInput>
 }
 
-export type BarangUpsertWithoutTransaksiInput = {
-  update: Prisma.XOR<Prisma.BarangUpdateWithoutTransaksiInput, Prisma.BarangUncheckedUpdateWithoutTransaksiInput>
-  create: Prisma.XOR<Prisma.BarangCreateWithoutTransaksiInput, Prisma.BarangUncheckedCreateWithoutTransaksiInput>
+export type BarangUpsertWithoutPeminjamanInput = {
+  update: Prisma.XOR<Prisma.BarangUpdateWithoutPeminjamanInput, Prisma.BarangUncheckedUpdateWithoutPeminjamanInput>
+  create: Prisma.XOR<Prisma.BarangCreateWithoutPeminjamanInput, Prisma.BarangUncheckedCreateWithoutPeminjamanInput>
   where?: Prisma.BarangWhereInput
 }
 
-export type BarangUpdateToOneWithWhereWithoutTransaksiInput = {
+export type BarangUpdateToOneWithWhereWithoutPeminjamanInput = {
   where?: Prisma.BarangWhereInput
-  data: Prisma.XOR<Prisma.BarangUpdateWithoutTransaksiInput, Prisma.BarangUncheckedUpdateWithoutTransaksiInput>
+  data: Prisma.XOR<Prisma.BarangUpdateWithoutPeminjamanInput, Prisma.BarangUncheckedUpdateWithoutPeminjamanInput>
 }
 
-export type BarangUpdateWithoutTransaksiInput = {
+export type BarangUpdateWithoutPeminjamanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kodeBarang?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
@@ -944,7 +944,7 @@ export type BarangUpdateWithoutTransaksiInput = {
   ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
 }
 
-export type BarangUncheckedUpdateWithoutTransaksiInput = {
+export type BarangUncheckedUpdateWithoutPeminjamanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kodeBarang?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
@@ -994,7 +994,7 @@ export type BarangUpdateWithoutKategoriInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
-  transaksi?: Prisma.TransaksiUpdateManyWithoutBarangNestedInput
+  peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
 }
 
 export type BarangUncheckedUpdateWithoutKategoriInput = {
@@ -1012,7 +1012,7 @@ export type BarangUncheckedUpdateWithoutKategoriInput = {
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  transaksi?: Prisma.TransaksiUncheckedUpdateManyWithoutBarangNestedInput
+  peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutBarangNestedInput
 }
 
 export type BarangUncheckedUpdateManyWithoutKategoriInput = {
@@ -1064,7 +1064,7 @@ export type BarangUpdateWithoutRuanganInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kategori?: Prisma.KategoriBarangUpdateOneRequiredWithoutBarangNestedInput
-  transaksi?: Prisma.TransaksiUpdateManyWithoutBarangNestedInput
+  peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
 }
 
 export type BarangUncheckedUpdateWithoutRuanganInput = {
@@ -1082,7 +1082,7 @@ export type BarangUncheckedUpdateWithoutRuanganInput = {
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  transaksi?: Prisma.TransaksiUncheckedUpdateManyWithoutBarangNestedInput
+  peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutBarangNestedInput
 }
 
 export type BarangUncheckedUpdateManyWithoutRuanganInput = {
@@ -1108,11 +1108,11 @@ export type BarangUncheckedUpdateManyWithoutRuanganInput = {
  */
 
 export type BarangCountOutputType = {
-  transaksi: number
+  peminjaman: number
 }
 
 export type BarangCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  transaksi?: boolean | BarangCountOutputTypeCountTransaksiArgs
+  peminjaman?: boolean | BarangCountOutputTypeCountPeminjamanArgs
 }
 
 /**
@@ -1128,8 +1128,8 @@ export type BarangCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
 /**
  * BarangCountOutputType without action
  */
-export type BarangCountOutputTypeCountTransaksiArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TransaksiWhereInput
+export type BarangCountOutputTypeCountPeminjamanArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PeminjamanWhereInput
 }
 
 
@@ -1151,7 +1151,7 @@ export type BarangSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   updatedAt?: boolean
   kategori?: boolean | Prisma.KategoriBarangDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
-  transaksi?: boolean | Prisma.Barang$transaksiArgs<ExtArgs>
+  peminjaman?: boolean | Prisma.Barang$peminjamanArgs<ExtArgs>
   _count?: boolean | Prisma.BarangCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["barang"]>
 
@@ -1217,7 +1217,7 @@ export type BarangOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type BarangInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kategori?: boolean | Prisma.KategoriBarangDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
-  transaksi?: boolean | Prisma.Barang$transaksiArgs<ExtArgs>
+  peminjaman?: boolean | Prisma.Barang$peminjamanArgs<ExtArgs>
   _count?: boolean | Prisma.BarangCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BarangIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1234,7 +1234,7 @@ export type $BarangPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     kategori: Prisma.$KategoriBarangPayload<ExtArgs>
     ruangan: Prisma.$RuanganPayload<ExtArgs> | null
-    transaksi: Prisma.$TransaksiPayload<ExtArgs>[]
+    peminjaman: Prisma.$PeminjamanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1648,7 +1648,7 @@ export interface Prisma__BarangClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   kategori<T extends Prisma.KategoriBarangDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KategoriBarangDefaultArgs<ExtArgs>>): Prisma.Prisma__KategoriBarangClient<runtime.Types.Result.GetResult<Prisma.$KategoriBarangPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ruangan<T extends Prisma.Barang$ruanganArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Barang$ruanganArgs<ExtArgs>>): Prisma.Prisma__RuanganClient<runtime.Types.Result.GetResult<Prisma.$RuanganPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  transaksi<T extends Prisma.Barang$transaksiArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Barang$transaksiArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransaksiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  peminjaman<T extends Prisma.Barang$peminjamanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Barang$peminjamanArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2113,27 +2113,27 @@ export type Barang$ruanganArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Barang.transaksi
+ * Barang.peminjaman
  */
-export type Barang$transaksiArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Barang$peminjamanArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaksi
+   * Select specific fields to fetch from the Peminjaman
    */
-  select?: Prisma.TransaksiSelect<ExtArgs> | null
+  select?: Prisma.PeminjamanSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaksi
+   * Omit specific fields from the Peminjaman
    */
-  omit?: Prisma.TransaksiOmit<ExtArgs> | null
+  omit?: Prisma.PeminjamanOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransaksiInclude<ExtArgs> | null
-  where?: Prisma.TransaksiWhereInput
-  orderBy?: Prisma.TransaksiOrderByWithRelationInput | Prisma.TransaksiOrderByWithRelationInput[]
-  cursor?: Prisma.TransaksiWhereUniqueInput
+  include?: Prisma.PeminjamanInclude<ExtArgs> | null
+  where?: Prisma.PeminjamanWhereInput
+  orderBy?: Prisma.PeminjamanOrderByWithRelationInput | Prisma.PeminjamanOrderByWithRelationInput[]
+  cursor?: Prisma.PeminjamanWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.TransaksiScalarFieldEnum | Prisma.TransaksiScalarFieldEnum[]
+  distinct?: Prisma.PeminjamanScalarFieldEnum | Prisma.PeminjamanScalarFieldEnum[]
 }
 
 /**

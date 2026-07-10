@@ -5,24 +5,24 @@ import PageHeader from "@/components/PageHeader";
 import LiquidSelect from "@/components/LiquidSelect";
 import { api } from "@/helpers/api";
 import { fCurrency } from "@/helpers/format";
-import type { Barang, JenisBarang } from "@/types";
+import type { Barang, Kategori } from "@/types";
 
 export default function UniversitasBarangPage() {
   const [barang, setBarang]     = useState<Barang[]>([]);
-  const [jenisBarang, setJenisBarang] = useState<JenisBarang[]>([]);
+  const [kategori, setKategori] = useState<Kategori[]>([]);
   const [search, setSearch]     = useState("");
   const [filterKat, setFilterKat] = useState("");
 
   const load = useCallback(() => {
     const p = new URLSearchParams();
     if (search) p.set("search", search);
-    if (filterKat) p.set("jenisBarangId", filterKat);
+    if (filterKat) p.set("kategoriId", filterKat);
     api.get<Barang[]>(`/api/barang?${p}`).then(setBarang).catch(console.error);
   }, [search, filterKat]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
-    api.get<JenisBarang[]>("/api/jenis-barang").then(setJenisBarang).catch(console.error);
+    api.get<Kategori[]>("/api/kategori").then(setKategori).catch(console.error);
   }, []);
 
   const kondisiBadge: Record<string, string> = {
@@ -49,8 +49,8 @@ export default function UniversitasBarangPage() {
           value={filterKat} 
           onChange={(val) => setFilterKat(val)}
           options={[
-            { value: "", label: "Semua Jenis Barang" },
-            ...jenisBarang.map(k => ({ value: k.id, label: k.nama }))
+            { value: "", label: "Semua Kategori" },
+            ...kategori.map(k => ({ value: k.id, label: k.nama }))
           ]}
           style={{ width: 200 }}
         />
@@ -61,7 +61,7 @@ export default function UniversitasBarangPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>Label</th><th>Nama</th><th>Jenis Barang</th>
+                <th>Label</th><th>Nama</th><th>Kategori</th>
                 <th>Kondisi</th><th>Status</th><th>Jml</th><th>Harga</th>
               </tr>
             </thead>
@@ -78,7 +78,7 @@ export default function UniversitasBarangPage() {
                 <tr key={b.id}>
                   <td style={{ fontFamily: "monospace", fontSize: 12, color: "var(--text-muted)" }}>{b.label}</td>
                   <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.nama}</td>
-                  <td>{b.jenisBarang.nama}</td>
+                  <td>{b.kategori.nama}</td>
                   <td><span className={`badge ${kondisiBadge[b.kondisi] ?? "badge-muted"}`}>{b.kondisi.replace("_", " ")}</span></td>
                   <td><span className={`badge ${statusBadge[b.status] ?? "badge-muted"}`}>{b.status}</span></td>
                   <td>{b.jumlah}</td>

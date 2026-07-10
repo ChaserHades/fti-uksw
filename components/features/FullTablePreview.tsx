@@ -50,12 +50,12 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
       let valA: any = a[sortBy] ?? "";
       let valB: any = b[sortBy] ?? "";
 
-      if (sortBy === "jenisBarangId") {
-        valA = a.jenisBarang?.nama || "";
-        valB = b.jenisBarang?.nama || "";
-      } else if (sortBy === "letakId") {
-        valA = a.letak?.kode || "";
-        valB = b.letak?.kode || "";
+      if (sortBy === "kategoriId") {
+        valA = a.kategori?.nama || "";
+        valB = b.kategori?.nama || "";
+      } else if (sortBy === "ruanganId") {
+        valA = a.ruangan?.kode || "";
+        valB = b.ruangan?.kode || "";
       } else if (sortBy === "tanggalDatang" || sortBy === "tanggalPindah") {
         valA = valA ? new Date(valA).getTime() : 0;
         valB = valB ? new Date(valB).getTime() : 0;
@@ -185,14 +185,14 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
           >
             <tr>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("id")}>No {renderSortIcon("id")}</th>
-              <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("jenisBarangId")}>Jenis Barang {renderSortIcon("jenisBarangId")}</th>
+              <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("kategoriId")}>Kategori {renderSortIcon("kategoriId")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("label")}>Label {renderSortIcon("label")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("sn")}>SN {renderSortIcon("sn")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("labelAset")}>Label Aset {renderSortIcon("labelAset")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("merek")}>Merk {renderSortIcon("merek")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("model")}>Model {renderSortIcon("model")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("tipe")}>Type {renderSortIcon("tipe")}</th>
-              <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("letakId")}>Letak {renderSortIcon("letakId")}</th>
+              <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("ruanganId")}>Ruangan {renderSortIcon("ruanganId")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("harga")}>Harga {renderSortIcon("harga")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("sumberTahun")}>Tahun File {renderSortIcon("sumberTahun")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("tanggalDatang")}>Tgl Datang {renderSortIcon("tanggalDatang")}</th>
@@ -208,14 +208,14 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
             ) : filteredAndSorted.map((b, i) => (
               <tr key={b.id}>
                 <td className="td-sm text-muted">{i + 1}</td>
-                <td className="td-sm font-medium">{b.jenisBarang?.nama || "-"}</td>
+                <td className="td-sm font-medium">{b.kategori?.nama || "-"}</td>
                 <td className="td-code">{b.label || "-"}</td>
                 <td className="td-code">{b.sn || "-"}</td>
                 <td className="td-code">{b.labelAset || "-"}</td>
                 <td className="td-sm">{b.merek || "-"}</td>
                 <td className="td-sm">{b.model || "-"}</td>
                 <td className="td-sm">{b.tipe || "-"}</td>
-                <td className="td-sm font-medium text-info">{b.letak?.kode || "-"}</td>
+                <td className="td-sm font-medium text-info">{b.ruangan?.kode || "-"}</td>
                 <td className="td-sm">{b.harga ? `Rp ${b.harga.toLocaleString("id-ID")}` : "-"}</td>
                 <td className="td-sm">{b.sumberTahun || "-"}</td>
                 <td className="td-sm text-muted">{b.tanggalDatang ? new Date(b.tanggalDatang).toLocaleDateString("id-ID") : "-"}</td>

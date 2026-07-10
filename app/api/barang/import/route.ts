@@ -18,39 +18,39 @@ export async function POST(req: Request) {
     let skipped = 0;
     const dbErrors: { label: string | null; reason: string }[] = [];
 
-    // Gunakan loop berurutan untuk hindari bentrok jenisBarang/letak
+    // Gunakan loop berurutan untuk hindari bentrok kategori/ruangan
     for (const row of data) {
       try {
-        if (!row.jenisBarang) throw new Error("Jenis Barang kosong");
+        if (!row.kategori) throw new Error("Kategori kosong");
 
         // 1. Resolve Kategori
-        let kategori = await prisma.jenisBarang.findUnique({
-          where: { nama: row.jenisBarang }
+        let kategori = await prisma.kategori.findUnique({
+          where: { nama: row.kategori }
         });
         if (!kategori) {
-          kategori = await prisma.jenisBarang.create({
-            data: { nama: row.jenisBarang }
+          kategori = await prisma.kategori.create({
+            data: { nama: row.kategori }
           });
         }
 
-        // 2. Resolve Letak
-        let letakId: string | null = null;
-        if (row.letak) {
-          const letakStr = String(row.letak).trim();
-          let letak = await prisma.letak.findUnique({
-            where: { kode: letakStr }
+        // 2. Resolve Ruangan
+        let ruanganId: string | null = null;
+        if (row.ruangan) {
+          const ruanganStr = String(row.ruangan).trim();
+          let ruangan = await prisma.ruangan.findUnique({
+            where: { kode: ruanganStr }
           });
           
-          if (!letak) {
+          if (!ruangan) {
             // Extract Lantai (First digit)
-            const match = letakStr.match(/^(\d)/);
+            const match = ruanganStr.match(/^(\d)/);
             const lantaiStr = match ? `Lantai ${match[1]}` : null;
             
-            letak = await prisma.letak.create({
-              data: { kode: letakStr, nama: letakStr, lantai: lantaiStr }
+            ruangan = await prisma.ruangan.create({
+              data: { kode: ruanganStr, nama: ruanganStr, lantai: lantaiStr }
             });
           }
-          letakId = letak.id;
+          ruanganId = ruangan.id;
         }
 
         // 3. Find Existing
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
           });
         }
 
-        const namaFallback = [row.jenisBarang, row.merek, row.tipe].filter(Boolean).join(" ");
+        const namaFallback = [row.kategori, row.merek, row.tipe].filter(Boolean).join(" ");
         let kondisi = row.kondisi || "BAIK";
         const ketLower = (row.keterangan || "").toLowerCase();
         if (ketLower.includes("rusak berat")) kondisi = "RUSAK_BERAT";
@@ -83,8 +83,8 @@ export async function POST(req: Request) {
             existingBarang.vendor !== (row.vendor || null) ||
             existingBarang.keterangan !== (row.keterangan || null) ||
             existingBarang.kondisi !== kondisi ||
-            existingBarang.letakId !== letakId ||
-            existingBarang.jenisBarangId !== kategori.id ||
+            existingBarang.ruanganId !== ruanganId ||
+            existingBarang.kategoriId !== kategori.id ||
             existingBarang.harga !== (row.harga || null) ||
             existingBarang.sumberTahun !== (row.sumberTahun || null);
 
@@ -101,8 +101,8 @@ export async function POST(req: Request) {
                 vendor: row.vendor || null,
                 keterangan: row.keterangan || null,
                 kondisi: kondisi as any,
-                letakId: letakId,
-                jenisBarangId: kategori.id,
+                ruanganId: ruanganId,
+                kategoriId: kategori.id,
                 harga: row.harga || null,
                 sumberTahun: row.sumberTahun || null,
               }
@@ -125,8 +125,8 @@ export async function POST(req: Request) {
               status: "TERSEDIA",
               jumlah: 1,
               hasSticker: hasSticker,
-              letakId: letakId,
-              jenisBarangId: kategori.id,
+              ruanganId: ruanganId,
+              kategoriId: kategori.id,
               tanggalDatang: row.tanggalDatang ? new Date(row.tanggalDatang) : null,
               tanggalPindah: row.tanggalPindah ? new Date(row.tanggalPindah) : null,
               harga: row.harga || null,

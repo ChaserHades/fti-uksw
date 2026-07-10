@@ -33,7 +33,7 @@ enum StatusBarang {
   MAINTENANCE
 }
 
-enum StatusTransaksi {
+enum StatusPeminjaman {
   AKTIF
   SELESAI
 }
@@ -45,34 +45,34 @@ enum JenisPengeluaran {
 }
 
 model User {
-  id               String           @id @default(cuid())
-  name             String?
-  email            String           @unique
-  password         String?
-  provider         String           @default("credentials")
+  id                 String           @id @default(cuid())
+  name               String?
+  email              String           @unique
+  password           String?
+  provider           String           @default("credentials")
   role               Role             @default(TEKNISI)
   statusVerifikasi   StatusVerifikasi @default(PENDING)
   mustChangePassword Boolean          @default(false)
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
-  transaksi          Transaksi[]
-  pengeluaran      Pengeluaran[]
+  peminjaman         Peminjaman[]
+  pengeluaran        Pengeluaran[]
 
   @@map("users")
 }
 
-model JenisBarang {
-  id        String   @id @default(cuid())
-  nama      String   @unique
+model Kategori {
+  id         String   @id @default(cuid())
+  nama       String   @unique
   keterangan String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  barang    Barang[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  barang     Barang[]
 
-  @@map("jenis_barang")
+  @@map("kategori")
 }
 
-model Letak {
+model Ruangan {
   id        String   @id @default(cuid())
   kode      String   @unique
   nama      String
@@ -81,79 +81,79 @@ model Letak {
   updatedAt DateTime @updatedAt
   barang    Barang[]
 
-  @@map("letak")
+  @@map("ruangan")
 }
 
 model Barang {
-  id           String         @id @default(cuid())
-  label        String?        @unique
-  labelAset    String?        @unique
-  nama         String
-  sn           String?
-  merek        String?
-  model        String?
-  tipe         String?
-  vendor       String?
-  keterangan   String?
-  kondisi      KondisiBarang  @default(BAIK)
-  status       StatusBarang   @default(TERSEDIA)
-  jumlah       Int            @default(1)
+  id            String        @id @default(cuid())
+  label         String?       @unique
+  labelAset     String?       @unique
+  nama          String
+  sn            String?
+  merek         String?
+  model         String?
+  tipe          String?
+  vendor        String?
+  keterangan    String?
+  kondisi       KondisiBarang @default(BAIK)
+  status        StatusBarang  @default(TERSEDIA)
+  jumlah        Int           @default(1)
   tanggalDatang DateTime?
   tanggalPindah DateTime?
-  harga        Float?
-  sumberTahun  String?
+  harga         Float?
+  sumberTahun   String?
   /// true = barang punya sticker/barcode fisik (diregister via scan)
-  hasSticker   Boolean        @default(false)
+  hasSticker    Boolean       @default(false)
   /// QR image data URL — hanya ada jika di-generate dari sistem
-  qrCode       String?
-  foto         String?
-  jenisBarangId String
-  letakId      String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  jenisBarang JenisBarang    @relation(fields: [jenisBarangId], references: [id])
-  letak       Letak?         @relation(fields: [letakId], references: [id])
-  transaksi   Transaksi[]
+  qrCode        String?
+  foto          String?
+  kategoriId    String
+  ruanganId     String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  kategori      Kategori      @relation(fields: [kategoriId], references: [id])
+  ruangan       Ruangan?      @relation(fields: [ruanganId], references: [id])
+  peminjaman    Peminjaman[]
 
   @@map("barang")
 }
 
-model Transaksi {
-  id              String          @id @default(cuid())
+model Peminjaman {
+  id              String           @id @default(cuid())
   barangId        String
   userId          String
   /// Peminjam aktual (mahasiswa/dosen/staf) — diisi petugas via modal
   namaPeminjam    String
   /// Ruangan/Letak tujuan penggunaan — free-text
-  letakPinjam   String
-  tanggalPinjam   DateTime        @default(now())
+  ruanganTujuan   String
+  tanggalPinjam   DateTime         @default(now())
   tanggalKembali  DateTime?
   deadlineKembali DateTime
-  status          StatusTransaksi @default(AKTIF)
+  status          StatusPeminjaman @default(AKTIF)
   /// Persisten: true jika pernah melewati deadline, tidak di-reset saat dikembalikan
-  terlambat       Boolean         @default(false)
+  terlambat       Boolean          @default(false)
   catatan         String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  barang          Barang          @relation(fields: [barangId], references: [id])
-  user            User            @relation(fields: [userId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  barang          Barang           @relation(fields: [barangId], references: [id])
+  user            User             @relation(fields: [userId], references: [id])
 
-  @@map("transaksi")
+  @@map("peminjaman")
 }
 
 model Pengeluaran {
-  id          String             @id @default(cuid())
-  judul       String
-  deskripsi   String?
-  nominal     Float
-  tanggal     DateTime
-  jenis       JenisPengeluaran
+  id        String           @id @default(cuid())
+  judul     String
+  deskripsi String?
+  nominal   Float
+  tanggal   DateTime
+  jenis     JenisPengeluaran
   /// Path ke file nota/receipt (opsional)
-  notaUrl     String?
-  userId      String
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  user        User               @relation(fields: [userId], references: [id])
+  notaUrl   String?
+  userId    String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  user      User             @relation(fields: [userId], references: [id])
 
   @@map("pengeluaran")
 }
