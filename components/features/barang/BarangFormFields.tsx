@@ -1,5 +1,6 @@
 // components/features/barang/BarangFormFields.tsx
 "use client";
+import AsyncAutocomplete from "@/components/AsyncAutocomplete";
 import LiquidSelect from "@/components/LiquidSelect";
 import { KONDISI_OPTIONS } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
@@ -8,8 +9,6 @@ import type { Kategori, Ruangan } from "@/types";
 interface BarangFormFieldsProps {
   form: BarangFormData;
   onChange: (key: string, value: unknown) => void;
-  kategori: Kategori[];
-  ruangan: Ruangan[];
   /** If true, the label/kode field is read-only (e.g. from QR scan) */
   readOnlyLabel?: boolean;
   /** If true, show fewer fields (register modal from scan) */
@@ -22,7 +21,10 @@ interface BarangFormFieldsProps {
  * and ManualAddSection (add form).
  */
 export default function BarangFormFields({
-  form, onChange, kategori, ruangan, readOnlyLabel = false, compact = false,
+  form,
+  onChange,
+  readOnlyLabel = false,
+  compact = false,
 }: BarangFormFieldsProps) {
   return (
     <>
@@ -121,24 +123,22 @@ export default function BarangFormFields({
       <div className="form-grid-2">
         <div className="form-group" style={{ marginBottom: 0 }}>
           <label className="form-label">Kategori *</label>
-          <LiquidSelect
-            value={form.kategoriId}
-            onChange={val => onChange("kategoriId", val)}
-            options={[
-              { value: "", label: "— Pilih kategori —" },
-              ...kategori.map(k => ({ value: k.id, label: k.nama })),
-            ]}
+          <AsyncAutocomplete
+            value={form.kategori}
+            onChange={val => onChange("kategori", val)}
+            fetchUrl="/api/kategori"
+            placeholder="Ketik atau pilih kategori..."
+            mapOption={item => ({ value: item.id, label: item.nama })}
           />
         </div>
         <div className="form-group" style={{ marginBottom: 0 }}>
           <label className="form-label">Ruangan</label>
-          <LiquidSelect
-            value={form.ruanganId}
-            onChange={val => onChange("ruanganId", val)}
-            options={[
-              { value: "", label: "Tidak ada" },
-              ...ruangan.map(r => ({ value: r.id, label: `${r.kode} — ${r.nama}` })),
-            ]}
+          <AsyncAutocomplete
+            value={form.ruangan}
+            onChange={val => onChange("ruangan", val)}
+            fetchUrl="/api/ruangan"
+            placeholder="Ketik kode ruangan..."
+            mapOption={item => ({ value: item.id, label: item.kode })}
           />
         </div>
       </div>
@@ -159,9 +159,30 @@ export default function BarangFormFields({
         </div>
       </div>
 
-      <div className="form-group" style={{ marginBottom: 0 }}>
-        <label className="form-label">Harga (Rp)</label>
-        <input type="number" className="input" placeholder="0" value={form.harga} onChange={e => onChange("harga", e.target.value)} />
+      {/* Harga / SumberTahun / Status */}
+      <div className="form-grid-3" style={{ marginTop: 12 }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Harga (Rp)</label>
+          <input type="number" className="input" placeholder="0" value={form.harga} onChange={e => onChange("harga", e.target.value)} />
+        </div>
+        {!compact && (
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Sumber/Tahun</label>
+            <input className="input" placeholder="Contoh: BOS 2023" value={form.sumberTahun} onChange={e => onChange("sumberTahun", e.target.value)} />
+          </div>
+        )}
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Status</label>
+          <LiquidSelect
+            value={form.status}
+            onChange={val => onChange("status", val)}
+            options={[
+              { value: "TERSEDIA", label: "Tersedia" },
+              { value: "DIPINJAM", label: "Dipinjam" },
+              { value: "MAINTENANCE", label: "Maintenance" },
+            ]}
+          />
+        </div>
       </div>
 
       {/* Deskripsi — only in full mode */}

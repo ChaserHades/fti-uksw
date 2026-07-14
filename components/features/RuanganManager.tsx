@@ -45,7 +45,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   const { videoRef, canvasRef, scanning, startCamera: rawStartCamera, stopCamera } = useQrScanner(handleQrScanResult);
 
   const load = () =>
-    api.get<RuanganWithCount[]>("/api/ruangan?include=count").then(setList).catch(console.error);
+    api.get<{ data: RuanganWithCount[] }>("/api/ruangan?include=count&limit=all").then(res => setList(res.data)).catch(console.error);
 
   useEffect(() => { load(); }, []);
 

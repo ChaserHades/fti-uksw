@@ -3,20 +3,21 @@
 import React, { useState } from "react";
 import Modal from "@/components/Modal";
 import LiquidSelect from "@/components/LiquidSelect";
+import AsyncAutocomplete from "@/components/AsyncAutocomplete";
 
 interface ExportModalProps {
   open: boolean;
   onClose: () => void;
-  kategoriList: { id: string; nama: string }[];
 }
 
-export default function ExportModal({ open, onClose, kategoriList }: ExportModalProps) {
+export default function ExportModal({ open, onClose }: ExportModalProps) {
   const [exportType, setExportType] = useState<"all" | "filter">("all");
   const [format, setFormat] = useState<"xlsx" | "csv">("xlsx");
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   // Filters
+  const [filterKatName, setFilterKatName] = useState("");
   const [filterKat, setFilterKat] = useState("");
   const [filterSearch, setFilterSearch] = useState("");
   const [filterVendor, setFilterVendor] = useState("");
@@ -106,14 +107,17 @@ export default function ExportModal({ open, onClose, kategoriList }: ExportModal
               <input className="input" placeholder="Cari Label, SN, Nama..." value={filterSearch} onChange={e => setFilterSearch(e.target.value)} />
             </div>
             <div className="form-group">
-              <label className="form-label">Filter Kategori</label>
-              <LiquidSelect
-                value={filterKat}
-                onChange={setFilterKat}
-                options={[
-                  { value: "", label: "Semua Jenis" },
-                  ...kategoriList.map(k => ({ value: k.id, label: k.nama }))
-                ]}
+              <label className="form-label">Jenis / Kategori</label>
+              <AsyncAutocomplete
+                value={filterKatName}
+                onChange={(val) => {
+                  setFilterKatName(val);
+                  if (val === "") setFilterKat("");
+                }}
+                onSelect={(opt) => setFilterKat(opt.value)}
+                fetchUrl="/api/kategori"
+                placeholder="Semua Kategori"
+                mapOption={item => ({ value: item.id, label: item.nama })}
               />
             </div>
           </div>

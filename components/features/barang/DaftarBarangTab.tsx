@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import Modal from "@/components/Modal";
+import AsyncAutocomplete from "@/components/AsyncAutocomplete";
 import LiquidSelect from "@/components/LiquidSelect";
 import ConfirmModal from "@/components/ConfirmModal";
 import ExportModal from "@/components/features/ExportModal";
@@ -20,11 +21,10 @@ import { fDateShort } from "@/helpers/format";
 export default function DaftarBarangTab({ role }: { role: string }) {
   // Data
   const [barang, setBarang] = useState<Barang[]>([]);
-  const [kategori, setKategori] = useState<Kategori[]>([]);
-  const [ruangan, setRuangan] = useState<Ruangan[]>([]);
 
   // Filters & sort
   const [search, setSearch] = useState("");
+  const [filterKatName, setFilterKatName] = useState("");
   const [filterKat, setFilterKat] = useState("");
   const [sortBy, setSortBy] = useState("tanggalDatang");
   const [sortDir, setSortDir] = useState("desc");
@@ -77,10 +77,6 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }, [search, filterKat, cursor, sortBy, sortDir]);
 
   useEffect(() => { load(true); }, [search, filterKat, sortBy, sortDir]);
-  useEffect(() => {
-    api.get<Kategori[]>("/api/kategori").then(setKategori);
-    api.get<Ruangan[]>("/api/ruangan").then(setRuangan);
-  }, []);
 
   /* ── Form helpers ── */
   const handleFieldChange = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
@@ -101,7 +97,10 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       tanggalDatang: b.tanggalDatang ? new Date(b.tanggalDatang).toISOString().split("T")[0] : "",
       tanggalPindah: b.tanggalPindah ? new Date(b.tanggalPindah).toISOString().split("T")[0] : "",
       harga: b.harga?.toString() || "",
-      kategoriId: b.kategoriId, ruanganId: b.ruanganId || "",
+      sumberTahun: b.sumberTahun || "",
+      status: b.status || "TERSEDIA",
+      kategori: b.kategori?.nama || b.kategoriId || "", 
+      ruangan: b.ruangan?.kode || b.ruanganId || "",
     });
     setModal("form");
   }
@@ -143,7 +142,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }
 
   async function handleSave() {
-    if (!form.label || !form.nama || !form.kategoriId) {
+    if (!form.label || !form.nama || !form.kategori) {
       toast.error("Label, nama, dan kategori wajib diisi");
       return;
     }
@@ -154,7 +153,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang).toISOString() : null,
       tanggalPindah: form.tanggalPindah ? new Date(form.tanggalPindah).toISOString() : null,
       harga: form.harga ? Number(form.harga) : null,
-      ruanganId: form.ruanganId || null,
+      ruanganId: form.ruangan || null,
+      kategoriId: form.kategori,
     };
     try {
       if (selected) {
@@ -240,13 +240,16 @@ export default function DaftarBarangTab({ role }: { role: string }) {
           <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div style={{ flex: "0 1 180px", minWidth: 150 }}>
-          <LiquidSelect
-            value={filterKat}
-            onChange={setFilterKat}
-            options={[
-              { value: "", label: "Semua Kategori" },
-              ...kategori.map(k => ({ value: k.id, label: k.nama })),
-            ]}
+          <AsyncAutocomplete
+            value={filterKatName}
+            onChange={(val) => {
+              setFilterKatName(val);
+              if (val === "") setFilterKat(""); // clear filter if emptied
+            }}
+            onSelect={(opt) => setFilterKat(opt.value)}
+            fetchUrl="/api/kategori"
+            placeholder="Semua Kategori..."
+            mapOption={item => ({ value: item.id, label: item.nama })}
           />
         </div>
         <div style={{ flex: "0 1 180px", minWidth: 150 }}>
@@ -367,12 +370,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
       {/* Edit/Add Modal */}
       <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Barang" : "Tambah Barang"}>
-        <BarangFormFields
-          form={form}
-          onChange={handleFieldChange}
-          kategori={kategori}
-          ruangan={ruangan}
-        />
+        <BarangFormFields form={form} onChange={handleFieldChange} />
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(null)}>Batal</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
@@ -437,7 +435,6 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         <ExportModal
           open={showExport}
           onClose={() => setShowExport(false)}
-          kategoriList={kategori}
         />
       )}
 

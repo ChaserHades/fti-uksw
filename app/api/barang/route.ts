@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -90,6 +91,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
+  const kategoriId = await resolveKategori(body.kategoriId);
+  if (!kategoriId) return NextResponse.json({ error: "Kategori wajib diisi" }, { status: 400 });
+  const ruanganId = await resolveRuangan(body.ruanganId);
+
   const item = await prisma.barang.create({
     data: {
       label:      body.label,
@@ -108,8 +113,9 @@ export async function POST(req: Request) {
       tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
       harga:      body.harga ? Number(body.harga) : null,
       hasSticker: body.hasSticker ?? false,
-      ruanganId:    body.ruanganId  ?? null,
-      kategoriId: body.kategoriId,
+      sumberTahun: body.sumberTahun || null,
+      ruanganId,
+      kategoriId,
     },
     include: { kategori: true, ruangan: true },
   });

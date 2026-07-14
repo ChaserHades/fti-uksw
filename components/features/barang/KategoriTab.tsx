@@ -17,7 +17,7 @@ export default function KategoriTab() {
   const [confirmDel, setConfirmDel] = useState<{ id: string; nama: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const load = () => api.get<Kategori[]>("/api/kategori").then(setList).catch(console.error);
+  const load = () => api.get<{ data: Kategori[] }>("/api/kategori?limit=all").then(res => setList(res.data)).catch(console.error);
   useEffect(() => { load(); }, []);
 
   function openAdd() {
