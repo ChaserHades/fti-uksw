@@ -1,4 +1,4 @@
-// app/admin/laporan/page.tsx
+// components/features/LaporanManager.tsx
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -13,7 +13,7 @@ import type { Pengeluaran } from "@/types";
 
 type JenisFilter = "" | "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
 
-const EMPTY = { judul: "", keterangan: "", nominal: "", tanggal: "", jenis: "PEMBELIAN_ASET" };
+const EMPTY = { judul: "", keterangan: "", nominal: "", tanggal: "", jenis: "PEMBELIAN_ASET", pembelianKe: "" };
 const jenisLabel: Record<string, string> = {
   PEMBELIAN_ASET: "Pembelian Aset",
   MAINTENANCE: "Maintenance",
@@ -25,6 +25,25 @@ const jenisBadge: Record<string, string> = {
   LAINNYA: "badge-muted",
 };
 
+/** Determine how to display a file by its extension */
+function getFileType(url: string): "image" | "pdf" | "other" {
+  const ext = url.split(".").pop()?.toLowerCase() ?? "";
+  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "image";
+  if (ext === "pdf") return "pdf";
+  return "other";
+}
+
+/** Generate kode pembelian preview from tanggal + pembelianKe */
+function generateKodePreview(tanggal: string, pembelianKe: string): string {
+  if (!tanggal || !pembelianKe || isNaN(parseInt(pembelianKe, 10))) return "";
+  const d = new Date(tanggal);
+  if (isNaN(d.getTime())) return "";
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = String(d.getFullYear());
+  const nnn = String(parseInt(pembelianKe, 10)).padStart(3, "0");
+  return `${mm}${yyyy}-${nnn}`;
+}
+
 export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   const searchParams = useSearchParams();
   const [list,    setList]    = useState<Pengeluaran[]>([]);
@@ -33,12 +52,16 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   const [form,    setForm]    = useState(EMPTY);
   const [nota,    setNota]    = useState<File | null>(null);
   const [saving,  setSaving]  = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const [confirmDel, setConfirmDel] = useState<{ id: string, judul: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  // View invoice modal state
+  const [viewInvoice, setViewInvoice] = useState<Pengeluaran | null>(null);
 
   const load = (reset = true) => {
     const currentCursor = reset ? null : cursor;
@@ -67,6 +90,9 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
 
   const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
+  // Live kode preview
+  const kodePreview = generateKodePreview(form.tanggal, form.pembelianKe);
+
   async function handleSave() {
     if (!form.judul.trim()) { toast.error("Judul wajib diisi"); return; }
     if (!form.nominal || parseFloat(form.nominal) <= 0) { toast.error("Nominal harus > 0"); return; }
@@ -80,21 +106,39 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       fd.append("nominal", form.nominal);
       fd.append("tanggal", form.tanggal);
       fd.append("jenis", form.jenis);
+      if (form.pembelianKe) fd.append("pembelianKe", form.pembelianKe);
       if (nota) fd.append("nota", nota);
 
-      const res = await fetch("/api/pengeluaran", { method: "POST", body: fd });
+      const method = selectedId ? "PUT" : "POST";
+      const url = selectedId ? `/api/pengeluaran/${selectedId}` : "/api/pengeluaran";
+      const res = await fetch(url, { method, body: fd });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error ?? "Gagal menyimpan");
       }
-      toast.success("Pengeluaran berhasil dicatat");
+      toast.success(selectedId ? "Pengeluaran diperbarui" : "Pengeluaran berhasil dicatat");
       setModal(false);
       setForm(EMPTY);
       setNota(null);
+      setSelectedId(null);
       load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal menyimpan");
     } finally { setSaving(false); }
+  }
+
+  function openEdit(p: Pengeluaran) {
+    setSelectedId(p.id);
+    setForm({
+      judul: p.judul,
+      keterangan: p.keterangan ?? "",
+      nominal: p.nominal.toString(),
+      tanggal: new Date(p.tanggal).toISOString().split("T")[0],
+      jenis: p.jenis,
+      pembelianKe: p.pembelianKe ? String(p.pembelianKe) : "",
+    });
+    setNota(null);
+    setModal(true);
   }
 
   function handleDelete(id: string, judul: string) {
@@ -113,12 +157,13 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   }
 
   function exportCSV() {
-    const headers = ["Judul", "Jenis", "Nominal (Rp)", "Tanggal", "Deskripsi", "Pencatat"];
+    const headers = ["Judul", "Jenis", "Nominal (Rp)", "Tanggal", "Kode Pembelian", "Deskripsi", "Pencatat"];
     const rows = list.map(p => [
       p.judul,
       jenisLabel[p.jenis] ?? p.jenis,
       p.nominal.toString(),
       fDateShort(p.tanggal),
+      p.kodePembelian ?? "",
       p.keterangan ?? "",
       p.user.name ?? p.user.email,
     ]);
@@ -153,7 +198,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           <i className="ti ti-file-export" /> Export CSV
         </button>
         {role === "ADMIN" && (
-          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNota(null); setModal(true); }}>
+          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNota(null); setSelectedId(null); setModal(true); }}>
             <i className="ti ti-plus" /> Input Pengeluaran
           </button>
         )}
@@ -211,19 +256,33 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                   <td className="td-sm">{fDateShort(p.tanggal)}</td>
                   <td className="td-sm">{p.user.name ?? "—"}</td>
                   <td>
-                    {p.notaUrl ? (
-                      <a href={p.notaUrl} target="_blank" rel="noopener" className="btn btn-ghost btn-icon btn-sm" title="Lihat Nota">
-                        <i className="ti ti-file-check" />
-                      </a>
+                    {p.kodePembelian ? (
+                      <span className="badge badge-muted" style={{ fontSize: 10, padding: "2px 6px", fontFamily: "var(--font-mono, monospace)" }}>
+                        {p.kodePembelian}
+                      </span>
                     ) : (
                       <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
                     )}
                   </td>
                   {role === "ADMIN" && (
                     <td>
-                      <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(p.id, p.judul)} title="Hapus">
-                        <i className="ti ti-trash" />
-                      </button>
+                      <div className="action-row">
+                        {p.notaUrl && (
+                          <button
+                            className="btn btn-ghost btn-icon btn-sm"
+                            onClick={() => setViewInvoice(p)}
+                            title="Lihat Nota/Invoice"
+                          >
+                            <i className="ti ti-eye" />
+                          </button>
+                        )}
+                        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(p)} title="Edit">
+                          <i className="ti ti-edit" />
+                        </button>
+                        <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(p.id, p.judul)} title="Hapus">
+                          <i className="ti ti-trash" />
+                        </button>
+                      </div>
                     </td>
                   )}
                 </tr>
@@ -254,8 +313,8 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
         onCancel={() => setConfirmDel(null)}
       />
 
-      {/* Modal Input Pengeluaran */}
-      <Modal open={modal} onClose={() => setModal(false)} title="Catat Pengeluaran Baru">
+      {/* Modal Input/Edit Pengeluaran */}
+      <Modal open={modal} onClose={() => setModal(false)} title={selectedId ? "Edit Pengeluaran" : "Catat Pengeluaran Baru"}>
         <div className="form-grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Judul *</label>
@@ -284,13 +343,27 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
             <input type="date" className="input" value={form.tanggal} onChange={e => setF("tanggal", e.target.value)} />
           </div>
         </div>
+        <div className="form-grid-2">
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Pembelian ke-? <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>
+            <input type="number" className="input" placeholder="1" min={1} value={form.pembelianKe} onChange={e => setF("pembelianKe", e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+            {kodePreview && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Kode:</span>
+                <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: 700, fontSize: 14, color: "var(--color-info)", letterSpacing: "0.5px" }}>{kodePreview}</span>
+              </div>
+            )}
+          </div>
+        </div>
         <div className="form-group">
           <label className="form-label">Deskripsi</label>
           <input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => setF("keterangan", e.target.value)} />
         </div>
         <div className="form-group">
-          <label className="form-label">Upload Nota / Receipt <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>
-          <input type="file" className="input" accept="image/*,.pdf" onChange={e => setNota(e.target.files?.[0] ?? null)} />
+          <label className="form-label">Upload Nota / Invoice <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(jpg, pdf, docx — opsional)</span></label>
+          <input type="file" className="input" accept="image/*,.pdf,.doc,.docx" onChange={e => setNota(e.target.files?.[0] ?? null)} />
         </div>
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(false)}>Batal</button>
@@ -299,6 +372,65 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
               <i className="ti ti-check" />Simpan</>}
           </button>
         </div>
+      </Modal>
+
+      {/* View Invoice Modal */}
+      <Modal open={!!viewInvoice} onClose={() => setViewInvoice(null)} title={viewInvoice ? `Invoice: ${viewInvoice.judul}` : "Invoice"}>
+        {viewInvoice && viewInvoice.notaUrl && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Invoice metadata */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Judul</span>
+                <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{viewInvoice.judul}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Nominal</span>
+                <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>Rp {viewInvoice.nominal.toLocaleString("id-ID")}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Tanggal</span>
+                <span style={{ color: "var(--text-primary)" }}>{fDateShort(viewInvoice.tanggal)}</span>
+              </div>
+              {viewInvoice.kodePembelian && (
+                <div>
+                  <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Kode Pembelian</span>
+                  <span className="badge badge-info" style={{ fontSize: 12, fontFamily: "var(--font-mono, monospace)" }}>{viewInvoice.kodePembelian}</span>
+                </div>
+              )}
+            </div>
+
+            {/* File viewer */}
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16 }}>
+              {getFileType(viewInvoice.notaUrl) === "image" ? (
+                <img
+                  src={viewInvoice.notaUrl}
+                  alt="Nota"
+                  style={{ width: "100%", maxHeight: 500, objectFit: "contain", borderRadius: 8, background: "rgba(255,255,255,0.03)" }}
+                />
+              ) : getFileType(viewInvoice.notaUrl) === "pdf" ? (
+                <iframe
+                  src={viewInvoice.notaUrl}
+                  title="Nota PDF"
+                  style={{ width: "100%", height: 500, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}
+                />
+              ) : (
+                <div style={{ textAlign: "center", padding: 32 }}>
+                  <i className="ti ti-file-text" style={{ fontSize: 48, color: "var(--text-muted)", display: "block", marginBottom: 12 }} />
+                  <a href={viewInvoice.notaUrl} download className="btn btn-primary" target="_blank" rel="noopener">
+                    <i className="ti ti-download" /> Download File
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {viewInvoice && !viewInvoice.notaUrl && (
+          <div className="empty-state" style={{ padding: 32 }}>
+            <i className="ti ti-file-off" style={{ fontSize: 36 }} />
+            <p>Tidak ada file nota untuk invoice ini.</p>
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -39,6 +39,9 @@ export async function GET(req: Request) {
   return NextResponse.json({ data: list, nextCursor });
 }
 
+/** Allowed file extensions for nota/invoice upload */
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx"];
+
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,6 +54,7 @@ export async function POST(req: Request) {
   const tanggal   = formData.get("tanggal") as string;
   const jenis     = formData.get("jenis") as string;
   const nota      = formData.get("nota") as File | null;
+  const pembelianKeRaw = formData.get("pembelianKe") as string | null;
 
   if (!judul?.trim()) return NextResponse.json({ error: "Judul wajib diisi" }, { status: 400 });
   if (isNaN(nominal) || nominal <= 0) return NextResponse.json({ error: "Nominal tidak valid" }, { status: 400 });
@@ -58,11 +62,31 @@ export async function POST(req: Request) {
   if (!["PEMBELIAN_ASET", "MAINTENANCE", "LAINNYA"].includes(jenis))
     return NextResponse.json({ error: "Jenis tidak valid" }, { status: 400 });
 
+  // --- Generate kodePembelian from tanggal + pembelianKe ---
+  let kodePembelian: string | null = null;
+  let pembelianKe: number | null = null;
+
+  if (pembelianKeRaw && !isNaN(parseInt(pembelianKeRaw, 10))) {
+    pembelianKe = parseInt(pembelianKeRaw, 10);
+    const d = new Date(tanggal);
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = String(d.getFullYear());
+    const nnn = String(pembelianKe).padStart(3, "0");
+    kodePembelian = `${mm}${yyyy}-${nnn}`;
+  }
+
+  // --- Handle file upload (jpg, pdf, docx, etc.) ---
   let notaUrl: string | null = null;
   if (nota && nota.size > 0) {
+    const ext = (nota.name.split(".").pop() ?? "").toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      return NextResponse.json(
+        { error: `Format file .${ext} tidak didukung. Gunakan: ${ALLOWED_EXTENSIONS.join(", ")}` },
+        { status: 400 }
+      );
+    }
     const uploadDir = join(process.cwd(), "public", "uploads", "nota");
     await mkdir(uploadDir, { recursive: true });
-    const ext = nota.name.split(".").pop() ?? "jpg";
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const buffer = Buffer.from(await nota.arrayBuffer());
     await writeFile(join(uploadDir, filename), buffer);
@@ -77,6 +101,8 @@ export async function POST(req: Request) {
       tanggal: new Date(tanggal),
       jenis: jenis as "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA",
       notaUrl,
+      kodePembelian,
+      pembelianKe,
       userId: session.id,
     },
     include: { user: true },

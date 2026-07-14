@@ -142,18 +142,22 @@ model Peminjaman {
 }
 
 model Pengeluaran {
-  id        String           @id @default(cuid())
-  judul     String
-  deskripsi String?
-  nominal   Float
-  tanggal   DateTime
-  jenis     JenisPengeluaran
-  /// Path ke file nota/receipt (opsional)
-  notaUrl   String?
-  userId    String
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  user      User             @relation(fields: [userId], references: [id])
+  id             String           @id @default(cuid())
+  judul          String
+  deskripsi      String?
+  nominal        Float
+  tanggal        DateTime
+  jenis          JenisPengeluaran
+  /// Path ke file nota/receipt (opsional — jpg, pdf, docx)
+  notaUrl        String?
+  /// Kode pembelian auto-generated: mmyyyy-nnn (e.g. 022023-001)
+  kodePembelian  String?
+  /// Urutan pembelian ke-berapa di bulan tersebut
+  pembelianKe    Int?
+  userId         String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  user           User             @relation(fields: [userId], references: [id])
 
   @@map("pengeluaran")
 }

@@ -49,10 +49,20 @@ export async function GET(req: Request) {
     skip: cursor ? 1 : 0,
     cursor: cursor ? { id: cursor } : undefined,
     where: {
-      ...(search     ? { nama: { contains: search, mode: "insensitive" } } : {}),
-      ...(kategoriId ? { kategoriId }                                 : {}),
-      ...(ruanganId    ? { ruanganId }                                         : {}),
-      ...(tersedia === "true" ? { status: "TERSEDIA" }                     : {}),
+      AND: [
+        // Multi-field search: nama, label, labelAset, kategori.nama
+        ...(search ? [{
+          OR: [
+            { nama: { contains: search, mode: "insensitive" as const } },
+            { label: { contains: search, mode: "insensitive" as const } },
+            { labelAset: { contains: search, mode: "insensitive" as const } },
+            { kategori: { nama: { contains: search, mode: "insensitive" as const } } },
+          ],
+        }] : []),
+        ...(kategoriId ? [{ kategoriId }] : []),
+        ...(ruanganId  ? [{ ruanganId }]  : []),
+        ...(tersedia === "true" ? [{ status: "TERSEDIA" as const }] : []),
+      ],
     },
     include: { kategori: true, ruangan: true },
     orderBy: (() => {

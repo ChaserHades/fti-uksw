@@ -114,6 +114,8 @@ export interface Pengeluaran {
   tanggal: string;
   jenis: "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
   notaUrl?: string | null;
+  kodePembelian?: string | null;
+  pembelianKe?: number | null;
   userId: string;
   createdAt: string;
   user: User;

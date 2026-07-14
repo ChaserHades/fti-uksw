@@ -10,8 +10,9 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
-import type { Barang, Kategori, Ruangan } from "@/types";
+import type { Barang, Kategori, Ruangan, Pengeluaran } from "@/types";
 import BarangFormFields from "./BarangFormFields";
+import { fDateShort } from "@/helpers/format";
 
 /* ═══════════════════════════════════════════════════════════
    DaftarBarangTab — Main CRUD table for Barang
@@ -29,11 +30,16 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [sortDir, setSortDir] = useState("desc");
 
   // Modal state
-  const [modal, setModal] = useState<"form" | "qr" | "print_options" | null>(null);
+  const [modal, setModal] = useState<"form" | "qr" | "print_options" | "cek" | null>(null);
   const [selected, setSelected] = useState<Barang | null>(null);
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
   const [qrData, setQrData] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
   const [bulkQrData, setBulkQrData] = useState<{ qrCode: string; kode: string; nama: string }[] | null>(null);
+
+  // Cek Barang state
+  const [cekBarang, setCekBarang] = useState<Barang | null>(null);
+  const [cekInvoice, setCekInvoice] = useState<Pengeluaran | null>(null);
+  const [cekLoading, setCekLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Delete confirm
@@ -207,13 +213,31 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     img.src = qrData.qrCode;
   }
 
+  /* ── Cek Barang handler ── */
+  async function openCekBarang(b: Barang) {
+    setSelected(b);
+    setCekBarang(b);
+    setCekInvoice(null);
+    setCekLoading(true);
+    setModal("cek");
+    try {
+      const res = await api.get<{ barang: Barang; pengeluaran: Pengeluaran | null }>(`/api/barang/${b.id}/invoice`);
+      setCekBarang(res.barang);
+      setCekInvoice(res.pengeluaran);
+    } catch {
+      // Invoice not found is fine, we still show barang detail
+    } finally {
+      setCekLoading(false);
+    }
+  }
+
   return (
     <>
       {/* Filters */}
       <div className="glass filter-bar mb-16">
         <div className="search-wrap" style={{ flex: "1 1 180px", minWidth: 150 }}>
           <i className="ti ti-search search-icon" />
-          <input className="input" placeholder="Cari nama barang…" value={search} onChange={e => setSearch(e.target.value)} />
+          <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div style={{ flex: "0 1 180px", minWidth: 150 }}>
           <LiquidSelect
@@ -296,6 +320,9 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                   <td className="td-code">{b.labelAset || "-"}</td>
                   <td>
                     <div className="action-row">
+                      <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openCekBarang(b)} title="Cek Barang">
+                        <i className="ti ti-search" />
+                      </button>
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openQR(b)} title="QR Code">
                         <i className="ti ti-qrcode" />
                       </button>
@@ -413,6 +440,108 @@ export default function DaftarBarangTab({ role }: { role: string }) {
           kategoriList={kategori}
         />
       )}
+
+      {/* Cek Barang Modal — Detail + Invoice */}
+      <Modal open={modal === "cek"} onClose={() => setModal(null)} title={cekBarang ? `Detail: ${cekBarang.nama}` : "Detail Barang"}>
+        {cekLoading ? (
+          <div style={{ textAlign: "center", padding: 32 }}>
+            <div className="spinner" style={{ margin: "0 auto 12px" }} />
+            <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>Mengambil data…</span>
+          </div>
+        ) : cekBarang && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {/* Barang Detail Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {[
+                { label: "Label", value: cekBarang.label },
+                { label: "Label Aset", value: cekBarang.labelAset },
+                { label: "Nama", value: cekBarang.nama },
+                { label: "Kategori", value: cekBarang.kategori?.nama },
+                { label: "Merek", value: cekBarang.merek },
+                { label: "Model", value: cekBarang.model },
+                { label: "Tipe", value: cekBarang.tipe },
+                { label: "SN", value: cekBarang.sn },
+                { label: "Vendor", value: cekBarang.vendor },
+                { label: "Kondisi", value: cekBarang.kondisi },
+                { label: "Status", value: cekBarang.status },
+                { label: "Jumlah", value: String(cekBarang.jumlah) },
+                { label: "Ruangan", value: cekBarang.ruangan ? `${cekBarang.ruangan.nama} (${cekBarang.ruangan.kode})` : null },
+                { label: "Harga", value: cekBarang.harga ? `Rp ${cekBarang.harga.toLocaleString("id-ID")}` : null },
+                { label: "Tanggal Datang", value: cekBarang.tanggalDatang ? fDateShort(cekBarang.tanggalDatang) : null },
+                { label: "Sumber/Tahun", value: cekBarang.sumberTahun },
+              ].filter(r => r.value).map(r => (
+                <div key={r.label}>
+                  <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>{r.label}</span>
+                  <span style={{ fontWeight: 500, color: "var(--text-primary)", fontSize: 13 }}>{r.value}</span>
+                </div>
+              ))}
+            </div>
+            {cekBarang.keterangan && (
+              <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Keterangan</span>
+                <span style={{ color: "var(--text-primary)", fontSize: 13 }}>{cekBarang.keterangan}</span>
+              </div>
+            )}
+
+            {/* Invoice / Nota Section */}
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <i className="ti ti-receipt" style={{ fontSize: 18, color: "var(--color-info)" }} />
+                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>Nota Pembelian / Invoice</span>
+              </div>
+              {cekInvoice ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "12px 16px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div>
+                      <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Judul</span>
+                      <span style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 13 }}>{cekInvoice.judul}</span>
+                    </div>
+                    <div>
+                      <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Nominal</span>
+                      <span style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 13 }}>Rp {cekInvoice.nominal.toLocaleString("id-ID")}</span>
+                    </div>
+                    <div>
+                      <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Tanggal</span>
+                      <span style={{ color: "var(--text-primary)", fontSize: 13 }}>{fDateShort(cekInvoice.tanggal)}</span>
+                    </div>
+                    {cekInvoice.kodePembelian && (
+                      <div>
+                        <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Kode Pembelian</span>
+                        <span className="badge badge-info" style={{ fontSize: 12, fontFamily: "var(--font-mono, monospace)" }}>{cekInvoice.kodePembelian}</span>
+                      </div>
+                    )}
+                  </div>
+                  {cekInvoice.notaUrl && (
+                    <div style={{ borderRadius: 8, overflow: "hidden" }}>
+                      {(() => {
+                        const ext = (cekInvoice.notaUrl ?? "").split(".").pop()?.toLowerCase() ?? "";
+                        if (["jpg","jpeg","png","gif","webp"].includes(ext)) {
+                          return <img src={cekInvoice.notaUrl!} alt="Nota" style={{ width: "100%", maxHeight: 400, objectFit: "contain", background: "rgba(255,255,255,0.03)" }} />;
+                        }
+                        if (ext === "pdf") {
+                          return <iframe src={cekInvoice.notaUrl!} title="Nota PDF" style={{ width: "100%", height: 400, border: "1px solid rgba(255,255,255,0.1)" }} />;
+                        }
+                        return (
+                          <div style={{ textAlign: "center", padding: 24 }}>
+                            <a href={cekInvoice.notaUrl!} download className="btn btn-primary" target="_blank" rel="noopener">
+                              <i className="ti ti-download" /> Download File Nota
+                            </a>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ textAlign: "center", padding: 20, color: "var(--text-muted)", fontSize: 13, background: "rgba(255,255,255,0.02)", borderRadius: 8 }}>
+                  <i className="ti ti-file-off" style={{ fontSize: 28, display: "block", marginBottom: 8 }} />
+                  Tidak ada invoice/nota yang terhubung dengan barang ini.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }
