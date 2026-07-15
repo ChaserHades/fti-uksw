@@ -1,6 +1,6 @@
 // components/features/PinjamManager.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
@@ -23,6 +23,10 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   const [lookErr,   setLookErr]   = useState("");
   const [manualInput, setManualInput] = useState("");
 
+  const [search, setSearch]     = useState("");
+  const [cursor, setCursor]     = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   // QR Scanner hook
   const { videoRef, canvasRef, scanning, startCamera: rawStartCamera, stopCamera } = useQrScanner(handleScanResult);
 
@@ -34,13 +38,30 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   const [processing, setProcessing] = useState(false);
 
   // ── Load aktif ──
-  const loadAktif = () =>
-    api.get<{ data: Peminjaman[]; nextCursor: string | null }>("/api/peminjaman?status=AKTIF").then(res => setAllAktif(res.data)).catch(console.error);
+  const loadAktif = useCallback((reset = true) => {
+    const cur = reset ? null : cursor;
+    const params = new URLSearchParams();
+    params.set("status", "AKTIF");
+    params.set("limit", "50");
+    if (search) params.set("search", search);
+    if (cur) params.set("cursor", cur);
+
+    if (!reset) setLoadingMore(true);
+    api.get<{ data: Peminjaman[]; nextCursor: string | null }>(`/api/peminjaman?${params}`)
+      .then(res => {
+        if (reset) setAllAktif(res.data);
+        else setAllAktif(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+      })
+      .catch(console.error)
+      .finally(() => { if (!reset) setLoadingMore(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, cursor]);
 
   useEffect(() => { 
-    loadAktif(); 
+    loadAktif(true); 
     if (searchParams.get("action") === "scan") setMode("scan");
-  }, [searchParams]);
+  }, [searchParams, search]);
 
 
 
@@ -244,6 +265,17 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
           )}
 
           <div className="glass">
+            <div className="filter-bar mb-16" style={{ padding: "16px" }}>
+              <div className="search-wrap" style={{ flex: "1 1 200px" }}>
+                <i className="ti ti-search search-icon" />
+                <input
+                  className="input"
+                  placeholder="Cari peminjam atau barang..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+            </div>
             <div className="table-wrap">
               <table className="table">
                 <thead>
@@ -295,6 +327,13 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                 </tbody>
               </table>
             </div>
+            {cursor && (
+              <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <button className="btn btn-ghost" onClick={() => loadAktif(false)} disabled={loadingMore}>
+                  {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}

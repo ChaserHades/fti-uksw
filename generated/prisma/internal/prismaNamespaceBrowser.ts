@@ -170,7 +170,7 @@ export const PengeluaranScalarFieldEnum = {
   nominal: 'nominal',
   tanggal: 'tanggal',
   jenis: 'jenis',
-  notaUrl: 'notaUrl',
+  notaUrls: 'notaUrls',
   kodePembelian: 'kodePembelian',
   pembelianKe: 'pembelianKe',
   userId: 'userId',

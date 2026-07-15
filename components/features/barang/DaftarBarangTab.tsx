@@ -508,24 +508,26 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                       </div>
                     )}
                   </div>
-                  {cekInvoice.notaUrl && (
-                    <div style={{ borderRadius: 8, overflow: "hidden" }}>
-                      {(() => {
-                        const ext = (cekInvoice.notaUrl ?? "").split(".").pop()?.toLowerCase() ?? "";
-                        if (["jpg","jpeg","png","gif","webp"].includes(ext)) {
-                          return <img src={cekInvoice.notaUrl!} alt="Nota" style={{ width: "100%", maxHeight: 400, objectFit: "contain", background: "rgba(255,255,255,0.03)" }} />;
-                        }
-                        if (ext === "pdf") {
-                          return <iframe src={cekInvoice.notaUrl!} title="Nota PDF" style={{ width: "100%", height: 400, border: "1px solid rgba(255,255,255,0.1)" }} />;
-                        }
+                  {cekInvoice.notaUrls && cekInvoice.notaUrls.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                      {cekInvoice.notaUrls.map((url, idx) => {
+                        const ext = url.split(".").pop()?.toLowerCase() ?? "";
                         return (
-                          <div style={{ textAlign: "center", padding: 24 }}>
-                            <a href={cekInvoice.notaUrl!} download className="btn btn-primary" target="_blank" rel="noopener">
-                              <i className="ti ti-download" /> Download File Nota
-                            </a>
+                          <div key={idx} style={{ borderRadius: 8, overflow: "hidden" }}>
+                            {["jpg","jpeg","png","gif","webp"].includes(ext) ? (
+                              <img src={url} alt={`Nota ${idx + 1}`} style={{ width: "100%", maxHeight: 400, objectFit: "contain", background: "rgba(255,255,255,0.03)" }} />
+                            ) : ext === "pdf" ? (
+                              <iframe src={url} title={`Nota PDF ${idx + 1}`} style={{ width: "100%", height: 400, border: "1px solid rgba(255,255,255,0.1)" }} />
+                            ) : (
+                              <div style={{ textAlign: "center", padding: 24, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
+                                <a href={url} download className="btn btn-primary" target="_blank" rel="noopener">
+                                  <i className="ti ti-download" /> Download File Nota {idx + 1}
+                                </a>
+                              </div>
+                            )}
                           </div>
                         );
-                      })()}
+                      })}
                     </div>
                   )}
                 </div>

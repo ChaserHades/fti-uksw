@@ -14,6 +14,8 @@ export async function GET(req: Request) {
   const limit  = parseInt(searchParams.get("limit") || "50", 10);
   const cursor = searchParams.get("cursor");
 
+  const search = searchParams.get("search");
+
   // Build where clause
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = {};
@@ -24,6 +26,14 @@ export async function GET(req: Request) {
     where.terlambat = true;
   } else if (status === "AKTIF" || status === "SELESAI") {
     where.status = status;
+  }
+
+  if (search) {
+    where.OR = [
+      { namaPeminjam: { contains: search, mode: "insensitive" } },
+      { barang: { nama: { contains: search, mode: "insensitive" } } },
+      { barang: { label: { contains: search, mode: "insensitive" } } },
+    ];
   }
 
   const list = await prisma.peminjaman.findMany({

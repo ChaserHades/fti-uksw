@@ -113,7 +113,7 @@ export interface Pengeluaran {
   nominal: number;
   tanggal: string;
   jenis: "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
-  notaUrl?: string | null;
+  notaUrls: string[];
   kodePembelian?: string | null;
   pembelianKe?: number | null;
   userId: string;

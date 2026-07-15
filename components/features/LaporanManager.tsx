@@ -50,7 +50,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   const [filter,  setFilter]  = useState<JenisFilter>("");
   const [modal,   setModal]   = useState(false);
   const [form,    setForm]    = useState(EMPTY);
-  const [nota,    setNota]    = useState<File | null>(null);
+  const [notas,   setNotas]   = useState<File[]>([]);
   const [saving,  setSaving]  = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -107,7 +107,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       fd.append("tanggal", form.tanggal);
       fd.append("jenis", form.jenis);
       if (form.pembelianKe) fd.append("pembelianKe", form.pembelianKe);
-      if (nota) fd.append("nota", nota);
+      notas.forEach(n => fd.append("nota", n));
 
       const method = selectedId ? "PUT" : "POST";
       const url = selectedId ? `/api/pengeluaran/${selectedId}` : "/api/pengeluaran";
@@ -119,7 +119,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       toast.success(selectedId ? "Pengeluaran diperbarui" : "Pengeluaran berhasil dicatat");
       setModal(false);
       setForm(EMPTY);
-      setNota(null);
+      setNotas([]);
       setSelectedId(null);
       load();
     } catch (e) {
@@ -137,7 +137,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       jenis: p.jenis,
       pembelianKe: p.pembelianKe ? String(p.pembelianKe) : "",
     });
-    setNota(null);
+    setNotas([]);
     setModal(true);
   }
 
@@ -198,7 +198,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           <i className="ti ti-file-export" /> Export CSV
         </button>
         {role === "ADMIN" && (
-          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNota(null); setSelectedId(null); setModal(true); }}>
+          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNotas([]); setSelectedId(null); setModal(true); }}>
             <i className="ti ti-plus" /> Input Pengeluaran
           </button>
         )}
@@ -267,11 +267,11 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                   {role === "ADMIN" && (
                     <td>
                       <div className="action-row">
-                        {p.notaUrl && (
+                        {p.notaUrls && p.notaUrls.length > 0 && (
                           <button
                             className="btn btn-ghost btn-icon btn-sm"
                             onClick={() => setViewInvoice(p)}
-                            title="Lihat Nota/Invoice"
+                            title={`Lihat ${p.notaUrls.length} Nota/Invoice`}
                           >
                             <i className="ti ti-eye" />
                           </button>
@@ -363,7 +363,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
         </div>
         <div className="form-group">
           <label className="form-label">Upload Nota / Invoice <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(jpg, pdf, docx — opsional)</span></label>
-          <input type="file" className="input" accept="image/*,.pdf,.doc,.docx" onChange={e => setNota(e.target.files?.[0] ?? null)} />
+          <input type="file" multiple className="input" accept="image/*,.pdf,.doc,.docx" onChange={e => setNotas(Array.from(e.target.files ?? []))} />
         </div>
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(false)}>Batal</button>
@@ -376,7 +376,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
 
       {/* View Invoice Modal */}
       <Modal open={!!viewInvoice} onClose={() => setViewInvoice(null)} title={viewInvoice ? `Invoice: ${viewInvoice.judul}` : "Invoice"}>
-        {viewInvoice && viewInvoice.notaUrl && (
+        {viewInvoice && viewInvoice.notaUrls && viewInvoice.notaUrls.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {/* Invoice metadata */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -400,35 +400,136 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
               )}
             </div>
 
-            {/* File viewer */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16 }}>
-              {getFileType(viewInvoice.notaUrl) === "image" ? (
-                <img
-                  src={viewInvoice.notaUrl}
-                  alt="Nota"
-                  style={{ width: "100%", maxHeight: 500, objectFit: "contain", borderRadius: 8, background: "rgba(255,255,255,0.03)" }}
-                />
-              ) : getFileType(viewInvoice.notaUrl) === "pdf" ? (
-                <iframe
-                  src={viewInvoice.notaUrl}
-                  title="Nota PDF"
-                  style={{ width: "100%", height: 500, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}
-                />
-              ) : (
-                <div style={{ textAlign: "center", padding: 32 }}>
-                  <i className="ti ti-file-text" style={{ fontSize: 48, color: "var(--text-muted)", display: "block", marginBottom: 12 }} />
-                  <a href={viewInvoice.notaUrl} download className="btn btn-primary" target="_blank" rel="noopener">
-                    <i className="ti ti-download" /> Download File
-                  </a>
+            {/* File viewer (Multiple) */}
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+              {viewInvoice.notaUrls.map((url, idx) => (
+                <div key={idx} style={{ position: "relative", padding: 12, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, background: "rgba(255,255,255,0.02)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Nota #{idx + 1}</span>
+                    {role === "ADMIN" && (
+                      <button 
+                        className="btn btn-danger btn-sm"
+                        onClick={async () => {
+                          if (!confirm("Hapus nota ini?")) return;
+                          try {
+                            await api.delete(`/api/pengeluaran/${viewInvoice.id}/nota`, { url });
+                            toast.success("Nota dihapus");
+                            load();
+                            setViewInvoice(prev => prev ? { ...prev, notaUrls: prev.notaUrls.filter(u => u !== url) } : null);
+                          } catch {
+                            toast.error("Gagal menghapus nota");
+                          }
+                        }}
+                      >
+                        <i className="ti ti-trash" /> Hapus
+                      </button>
+                    )}
+                  </div>
+                  {getFileType(url) === "image" ? (
+                    <img
+                      src={url}
+                      alt={`Nota ${idx + 1}`}
+                      style={{ width: "100%", maxHeight: 500, objectFit: "contain", borderRadius: 8, background: "rgba(255,255,255,0.03)" }}
+                    />
+                  ) : getFileType(url) === "pdf" ? (
+                    <iframe
+                      src={url}
+                      title={`Nota PDF ${idx + 1}`}
+                      style={{ width: "100%", height: 500, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}
+                    />
+                  ) : (
+                    <div style={{ textAlign: "center", padding: 32 }}>
+                      <i className="ti ti-file-text" style={{ fontSize: 48, color: "var(--text-muted)", display: "block", marginBottom: 12 }} />
+                      <a href={url} download className="btn btn-primary" target="_blank" rel="noopener">
+                        <i className="ti ti-download" /> Download File
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Add New Nota Inline */}
+              {role === "ADMIN" && (
+                <div style={{ marginTop: 8, padding: 16, border: "1px dashed rgba(255,255,255,0.2)", borderRadius: 8, background: "rgba(255,255,255,0.01)" }}>
+                  <label className="form-label" style={{ marginBottom: 8, display: "block" }}>Tambah Nota Baru</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input 
+                      type="file" 
+                      className="input" 
+                      accept="image/*,.pdf,.doc,.docx"
+                      style={{ flex: 1 }}
+                      id={`add-nota-${viewInvoice.id}`}
+                    />
+                    <button 
+                      className="btn btn-primary"
+                      onClick={async () => {
+                        const input = document.getElementById(`add-nota-${viewInvoice.id}`) as HTMLInputElement;
+                        const file = input.files?.[0];
+                        if (!file) return toast.error("Pilih file terlebih dahulu");
+                        const fd = new FormData();
+                        fd.append("nota", file);
+                        try {
+                          const res = await fetch(`/api/pengeluaran/${viewInvoice.id}/nota`, { method: "POST", body: fd });
+                          if (!res.ok) throw new Error("Gagal mengunggah nota");
+                          toast.success("Nota ditambahkan");
+                          input.value = "";
+                          load();
+                          const updated = await res.json();
+                          setViewInvoice(updated);
+                        } catch (e: any) {
+                          toast.error(e.message || "Gagal mengunggah nota");
+                        }
+                      }}
+                    >
+                      <i className="ti ti-upload" /> Upload
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         )}
-        {viewInvoice && !viewInvoice.notaUrl && (
+        {viewInvoice && (!viewInvoice.notaUrls || viewInvoice.notaUrls.length === 0) && (
           <div className="empty-state" style={{ padding: 32 }}>
             <i className="ti ti-file-off" style={{ fontSize: 36 }} />
-            <p>Tidak ada file nota untuk invoice ini.</p>
+            <p style={{ marginBottom: 16 }}>Tidak ada file nota untuk invoice ini.</p>
+            {role === "ADMIN" && (
+              <div style={{ marginTop: 8, padding: 16, border: "1px dashed rgba(255,255,255,0.2)", borderRadius: 8, background: "rgba(255,255,255,0.01)", textAlign: "left" }}>
+                <label className="form-label" style={{ marginBottom: 8, display: "block" }}>Tambah Nota Pertama</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input 
+                    type="file" 
+                    className="input" 
+                    accept="image/*,.pdf,.doc,.docx"
+                    style={{ flex: 1 }}
+                    id={`add-first-nota-${viewInvoice.id}`}
+                  />
+                  <button 
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      const input = document.getElementById(`add-first-nota-${viewInvoice.id}`) as HTMLInputElement;
+                      const file = input.files?.[0];
+                      if (!file) return toast.error("Pilih file terlebih dahulu");
+                      const fd = new FormData();
+                      fd.append("nota", file);
+                      try {
+                        const res = await fetch(`/api/pengeluaran/${viewInvoice.id}/nota`, { method: "POST", body: fd });
+                        if (!res.ok) throw new Error("Gagal mengunggah nota");
+                        toast.success("Nota ditambahkan");
+                        input.value = "";
+                        load();
+                        const updated = await res.json();
+                        setViewInvoice(updated);
+                      } catch (e: any) {
+                        toast.error(e.message || "Gagal mengunggah nota");
+                      }
+                    }}
+                  >
+                    <i className="ti ti-upload" /> Upload
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Modal>

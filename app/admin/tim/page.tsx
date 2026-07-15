@@ -1,6 +1,6 @@
 // app/admin/tim/page.tsx
 "use client";
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import PageHeader from "@/components/PageHeader";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
@@ -22,6 +22,10 @@ export default function TimVerifikasiPage() {
   const [loading, setLoading]   = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const [search, setSearch]     = useState("");
+  const [cursor, setCursor]     = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   // User Edit Modal State
   const [editModal, setEditModal] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
@@ -40,10 +44,26 @@ export default function TimVerifikasiPage() {
     isOpen: false, title: "", message: "", danger: false, onConfirm: () => {}
   });
 
-  const load = () =>
-    api.get<User[]>("/api/users").then(setUsers).catch(console.error);
+  const load = useCallback((reset = true) => {
+    const cur = reset ? null : cursor;
+    const params = new URLSearchParams();
+    params.set("limit", "50");
+    if (search) params.set("search", search);
+    if (cur) params.set("cursor", cur);
 
-  useEffect(() => { load(); }, []);
+    if (!reset) setLoadingMore(true);
+    api.get<{ data: User[]; nextCursor: string | null }>(`/api/users?${params}`)
+      .then(res => {
+        if (reset) setUsers(res.data);
+        else setUsers(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+      })
+      .catch(console.error)
+      .finally(() => { if (!reset) setLoadingMore(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, cursor]);
+
+  useEffect(() => { load(true); }, [search]);
 
   async function handleAction(userId: string, action: "APPROVE" | "REJECT") {
     setLoading(userId);
@@ -178,6 +198,17 @@ export default function TimVerifikasiPage() {
       {/* Tab: Anggota Aktif */}
       {tab === "anggota" && (
         <div className="glass">
+          <div className="filter-bar mb-16" style={{ padding: "16px" }}>
+            <div className="search-wrap" style={{ flex: "1 1 200px" }}>
+              <i className="ti ti-search search-icon" />
+              <input
+                className="input"
+                placeholder="Cari nama atau email..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -240,6 +271,13 @@ export default function TimVerifikasiPage() {
               </tbody>
             </table>
           </div>
+          {cursor && (
+            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <button className="btn btn-ghost" onClick={() => load(false)} disabled={loadingMore}>
+                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

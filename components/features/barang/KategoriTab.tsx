@@ -1,15 +1,21 @@
 // components/features/barang/KategoriTab.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Modal from "@/components/Modal";
 import ConfirmModal from "@/components/ConfirmModal";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import type { Kategori } from "@/types";
 
+const LIMIT = 50;
+
 /** CRUD tab for managing Kategori (asset categories) */
 export default function KategoriTab() {
   const [list, setList] = useState<Kategori[]>([]);
+  const [search, setSearch] = useState("");
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   const [modal, setModal] = useState(false);
   const [selected, setSelected] = useState<Kategori | null>(null);
   const [form, setForm] = useState({ nama: "", keterangan: "" });
@@ -17,8 +23,26 @@ export default function KategoriTab() {
   const [confirmDel, setConfirmDel] = useState<{ id: string; nama: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const load = () => api.get<{ data: Kategori[] }>("/api/kategori?limit=all").then(res => setList(res.data)).catch(console.error);
-  useEffect(() => { load(); }, []);
+  const load = useCallback((reset = true) => {
+    const cur = reset ? null : cursor;
+    const params = new URLSearchParams();
+    params.set("limit", String(LIMIT));
+    if (search) params.set("search", search);
+    if (cur) params.set("cursor", cur);
+
+    if (!reset) setLoadingMore(true);
+    api.get<{ data: Kategori[]; nextCursor: string | null }>(`/api/kategori?${params}`)
+      .then(res => {
+        if (reset) setList(res.data);
+        else setList(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+      })
+      .catch(console.error)
+      .finally(() => { if (!reset) setLoadingMore(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, cursor]);
+
+  useEffect(() => { load(true); }, [search]);
 
   function openAdd() {
     setSelected(null);
@@ -69,7 +93,16 @@ export default function KategoriTab() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
+      <div className="glass filter-bar mb-16">
+        <div className="search-wrap" style={{ flex: "1 1 200px" }}>
+          <i className="ti ti-search search-icon" />
+          <input
+            className="input"
+            placeholder="Cari kategori..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
         <button className="btn btn-primary" onClick={openAdd}>
           <i className="ti ti-plus" /> Tambah Kategori
         </button>
@@ -114,6 +147,13 @@ export default function KategoriTab() {
             ))}
           </tbody>
         </table>
+        {cursor && (
+          <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+            <button className="btn btn-ghost" onClick={() => load(false)} disabled={loadingMore}>
+              {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+            </button>
+          </div>
+        )}
       </div>
 
       <ConfirmModal

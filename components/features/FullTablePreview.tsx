@@ -12,38 +12,49 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
   const [data, setData] = useState<Barang[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sortBy, setSortBy] = useState<keyof Barang>("tanggalDatang");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  useEffect(() => {
-    if (isOpen) {
-      setLoading(true);
-      fetch("/api/barang?limit=all")
-        .then(res => res.json())
-        .then(json => {
-          if (json.data) setData(json.data);
-        })
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    }
-  }, [isOpen]);
+  const load = (reset = true) => {
+    if (!isOpen) return;
+    const cur = reset ? null : cursor;
+    const params = new URLSearchParams();
+    params.set("limit", "50");
+    if (search) params.set("search", search);
+    if (cur) params.set("cursor", cur);
 
-  // Local filtering & sorting so it behaves instantly like a spreadsheet
+    if (reset) setLoading(true);
+    else setLoadingMore(true);
+
+    fetch(`/api/barang?${params}`)
+      .then(res => res.json())
+      .then(json => {
+        if (json.data) {
+          if (reset) setData(json.data);
+          else setData(prev => [...prev, ...json.data]);
+          setCursor(json.nextCursor);
+        }
+      })
+      .catch(console.error)
+      .finally(() => {
+        if (reset) setLoading(false);
+        else setLoadingMore(false);
+      });
+  };
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      load(true);
+    }, 300);
+    return () => clearTimeout(delay);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, search]);
+
+  // Local sorting so it behaves instantly like a spreadsheet
   const filteredAndSorted = useMemo(() => {
     let list = [...data];
-
-    // Search
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(b => 
-        (b.nama && b.nama.toLowerCase().includes(q)) ||
-        (b.merek && b.merek.toLowerCase().includes(q)) ||
-        (b.tipe && b.tipe.toLowerCase().includes(q)) ||
-        (b.label && b.label.toLowerCase().includes(q)) ||
-        (b.labelAset && b.labelAset.toLowerCase().includes(q)) ||
-        (b.sn && b.sn.toLowerCase().includes(q))
-      );
-    }
 
     // Sort
     list.sort((a, b) => {
@@ -67,7 +78,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
     });
 
     return list;
-  }, [data, search, sortBy, sortDir]);
+  }, [data, sortBy, sortDir]);
 
   // Lock ALL scroll behind overlay (html + body)
   useEffect(() => {
@@ -227,6 +238,13 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
             ))}
           </tbody>
         </table>
+        {cursor && (
+          <div style={{ padding: "16px", textAlign: "center" }}>
+            <button className="btn btn-ghost" onClick={() => load(false)} disabled={loadingMore}>
+              {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Hide back button hint & show real button on group hover via CSS */}

@@ -1,6 +1,6 @@
 // components/features/RuanganManager.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Modal from "@/components/Modal";
 import PageHeader from "@/components/PageHeader";
 import LiquidSelect from "@/components/LiquidSelect";
@@ -12,12 +12,15 @@ import { useQrScanner } from "@/hooks/useQrScanner";
 import type { Ruangan, Barang } from "@/types";
 
 const EMPTY = { kode: "", nama: "", lantai: "" };
+const LIMIT = 50;
 
 interface RuanganWithCount extends Ruangan { _count?: { barang: number }; }
 
 export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   const [list, setList] = useState<RuanganWithCount[]>([]);
   const [search, setSearch] = useState("");
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [modal, setModal] = useState<"form" | "pindah" | "detail" | null>(null);
   const [selected, setSelected] = useState<Ruangan | null>(null);
   const [form, setForm] = useState(EMPTY);
@@ -44,10 +47,27 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   }
   const { videoRef, canvasRef, scanning, startCamera: rawStartCamera, stopCamera } = useQrScanner(handleQrScanResult);
 
-  const load = () =>
-    api.get<{ data: RuanganWithCount[] }>("/api/ruangan?include=count&limit=all").then(res => setList(res.data)).catch(console.error);
+  const load = useCallback((reset = true) => {
+    const cur = reset ? null : cursor;
+    const params = new URLSearchParams();
+    params.set("include", "count");
+    params.set("limit", String(LIMIT));
+    if (search) params.set("search", search);
+    if (cur) params.set("cursor", cur);
 
-  useEffect(() => { load(); }, []);
+    if (!reset) setLoadingMore(true);
+    api.get<{ data: RuanganWithCount[]; nextCursor: string | null }>(`/api/ruangan?${params}`)
+      .then(res => {
+        if (reset) setList(res.data);
+        else setList(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+      })
+      .catch(console.error)
+      .finally(() => { if (!reset) setLoadingMore(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, cursor]);
+
+  useEffect(() => { load(true); }, [search]);
 
 
 
@@ -140,10 +160,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     catch { toast.error("Tidak dapat mengakses kamera"); }
   }
 
-  const filtered = list.filter(r =>
-    r.nama.toLowerCase().includes(search.toLowerCase()) ||
-    r.kode.toLowerCase().includes(search.toLowerCase())
-  );
+  // Data is already filtered server-side via search param
 
   return (
     <div className="animate-fade-in">
@@ -178,9 +195,9 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {list.length === 0 ? (
                 <tr><td colSpan={4}><div className="empty-state"><i className="ti ti-building-off" style={{ fontSize: 28 }} />Belum ada ruangan</div></td></tr>
-              ) : filtered.map(r => (
+              ) : list.map(r => (
                 <tr key={r.id}>
                   <td>
                     <div className="td-name">{r.nama}</div>
@@ -208,6 +225,13 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
             </tbody>
           </table>
         </div>
+        {cursor && (
+          <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+            <button className="btn btn-ghost" onClick={() => load(false)} disabled={loadingMore}>
+              {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+            </button>
+          </div>
+        )}
       </div>
 
       <ConfirmModal

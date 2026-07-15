@@ -149,7 +149,7 @@ model Pengeluaran {
   tanggal        DateTime
   jenis          JenisPengeluaran
   /// Path ke file nota/receipt (opsional — jpg, pdf, docx)
-  notaUrl        String?
+  notaUrls       String[]         @default([])
   /// Kode pembelian auto-generated: mmyyyy-nnn (e.g. 022023-001)
   kodePembelian  String?
   /// Urutan pembelian ke-berapa di bulan tersebut

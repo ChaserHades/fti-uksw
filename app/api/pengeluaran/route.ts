@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   const nominal   = parseFloat(formData.get("nominal") as string);
   const tanggal   = formData.get("tanggal") as string;
   const jenis     = formData.get("jenis") as string;
-  const nota      = formData.get("nota") as File | null;
+  const notas     = formData.getAll("nota") as File[];
   const pembelianKeRaw = formData.get("pembelianKe") as string | null;
 
   if (!judul?.trim()) return NextResponse.json({ error: "Judul wajib diisi" }, { status: 400 });
@@ -75,24 +75,50 @@ export async function POST(req: Request) {
     kodePembelian = `${mm}${yyyy}-${nnn}`;
   }
 
-  // --- Handle file upload (jpg, pdf, docx, etc.) ---
-  let notaUrl: string | null = null;
-  if (nota && nota.size > 0) {
-    const ext = (nota.name.split(".").pop() ?? "").toLowerCase();
-    if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      return NextResponse.json(
-        { error: `Format file .${ext} tidak didukung. Gunakan: ${ALLOWED_EXTENSIONS.join(", ")}` },
-        { status: 400 }
-      );
-    }
+  // --- Handle files upload (jpg, pdf, docx, etc.) ---
+  const uploadedUrls: string[] = [];
+  if (notas && notas.length > 0) {
     const uploadDir = join(process.cwd(), "public", "uploads", "nota");
     await mkdir(uploadDir, { recursive: true });
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const buffer = Buffer.from(await nota.arrayBuffer());
-    await writeFile(join(uploadDir, filename), buffer);
-    notaUrl = `/uploads/nota/${filename}`;
+
+    for (const nota of notas) {
+      if (nota.size === 0) continue;
+      const ext = (nota.name.split(".").pop() ?? "").toLowerCase();
+      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+        return NextResponse.json(
+          { error: `Format file .${ext} tidak didukung. Gunakan: ${ALLOWED_EXTENSIONS.join(", ")}` },
+          { status: 400 }
+        );
+      }
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const buffer = Buffer.from(await nota.arrayBuffer());
+      await writeFile(join(uploadDir, filename), buffer);
+      uploadedUrls.push(`/uploads/nota/${filename}`);
+    }
   }
 
+  // Jika ada kodePembelian, cek apakah sudah ada record dengan kode tersebut
+  if (kodePembelian) {
+    const existing = await prisma.pengeluaran.findFirst({
+      where: { kodePembelian }
+    });
+
+    if (existing) {
+      // Append notas to existing record
+      const updated = await prisma.pengeluaran.update({
+        where: { id: existing.id },
+        data: {
+          notaUrls: {
+            push: uploadedUrls
+          }
+        },
+        include: { user: true },
+      });
+      return NextResponse.json(updated, { status: 200 }); // 200 OK because we updated
+    }
+  }
+
+  // Jika tidak ada kodePembelian atau belum ada record, create baru
   const pengeluaran = await prisma.pengeluaran.create({
     data: {
       judul: judul.trim(),
@@ -100,7 +126,7 @@ export async function POST(req: Request) {
       nominal,
       tanggal: new Date(tanggal),
       jenis: jenis as "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA",
-      notaUrl,
+      notaUrls: uploadedUrls,
       kodePembelian,
       pembelianKe,
       userId: session.id,

@@ -21,8 +21,8 @@ const jenisBadge: Record<string, string> = {
 };
 
 export default function CashflowUniversitasPage() {
-  const [list,    setList]    = useState<Pengeluaran[]>([]);
-  const [filter,  setFilter]  = useState<JenisFilter>("");
+  const [list, setList] = useState<Pengeluaran[]>([]);
+  const [filter, setFilter] = useState<JenisFilter>("");
 
   const load = () => {
     const params = filter ? `?jenis=${filter}` : "";
@@ -41,10 +41,10 @@ export default function CashflowUniversitasPage() {
       p.keterangan ?? "",
       p.user.name ?? p.user.email,
     ]);
-    const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
     a.href = url; a.download = `laporan-pengeluaran-fti-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click(); URL.revokeObjectURL(url);
   }
@@ -76,9 +76,9 @@ export default function CashflowUniversitasPage() {
       {/* Summary */}
       <div className="grid-3 mb-16">
         {[
-          { label: "Total Data Pengeluaran", value: list.length,                                                   badge: "badge-info" },
-          { label: "Total Nominal",          value: `Rp ${totalNominal.toLocaleString("id-ID")}`,                  badge: "badge-warn" },
-          { label: "Pembelian Aset",         value: list.filter(p => p.jenis === "PEMBELIAN_ASET").length,          badge: "badge-ok" },
+          { label: "Total Data Pengeluaran", value: list.length, badge: "badge-info" },
+          { label: "Total Nominal", value: `Rp ${totalNominal.toLocaleString("id-ID")}`, badge: "badge-warn" },
+          { label: "Pembelian Aset", value: list.filter(p => p.jenis === "PEMBELIAN_ASET").length, badge: "badge-ok" },
         ].map(s => (
           <div key={s.label} className="glass summary-badge-row">
             <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
@@ -124,10 +124,14 @@ export default function CashflowUniversitasPage() {
                   <td className="td-sm">{fDateShort(p.tanggal)}</td>
                   <td className="td-sm">{p.user.name ?? "—"}</td>
                   <td>
-                    {p.notaUrl ? (
-                      <a href={p.notaUrl} target="_blank" rel="noopener" className="btn btn-ghost btn-icon btn-sm" title="Lihat Nota">
-                        <i className="ti ti-file-check" />
-                      </a>
+                    {p.notaUrls && p.notaUrls.length > 0 ? (
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {p.notaUrls.map((url, i) => (
+                          <a key={i} href={url} target="_blank" rel="noopener" className="btn btn-ghost btn-icon btn-sm" title={`Lihat Nota ${i + 1}`}>
+                            <i className="ti ti-file-check" />
+                          </a>
+                        ))}
+                      </div>
                     ) : (
                       <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
                     )}

@@ -23,23 +23,27 @@ export async function PUT(req: Request, { params }: Params) {
     const jenis = formData.get("jenis") as string;
     const pembelianKe = formData.get("pembelianKe") ? Number(formData.get("pembelianKe")) : null;
     
-    const nota = formData.get("nota") as File | null;
-    let notaUrl: string | undefined = undefined;
+    const notas = formData.getAll("nota") as File[];
+    const uploadedUrls: string[] = [];
 
-    if (nota && nota.size > 0) {
-      const ext = (nota.name.split(".").pop() ?? "").toLowerCase();
-      if (!ALLOWED_EXTENSIONS.includes(ext)) {
-        return NextResponse.json(
-          { error: `Format file .${ext} tidak didukung. Gunakan: ${ALLOWED_EXTENSIONS.join(", ")}` },
-          { status: 400 }
-        );
-      }
+    if (notas && notas.length > 0) {
       const uploadDir = join(process.cwd(), "public", "uploads", "nota");
       await mkdir(uploadDir, { recursive: true });
-      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const buffer = Buffer.from(await nota.arrayBuffer());
-      await writeFile(join(uploadDir, filename), buffer);
-      notaUrl = `/uploads/nota/${filename}`;
+      
+      for (const nota of notas) {
+        if (nota.size === 0) continue;
+        const ext = (nota.name.split(".").pop() ?? "").toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(ext)) {
+          return NextResponse.json(
+            { error: `Format file .${ext} tidak didukung. Gunakan: ${ALLOWED_EXTENSIONS.join(", ")}` },
+            { status: 400 }
+          );
+        }
+        const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const buffer = Buffer.from(await nota.arrayBuffer());
+        await writeFile(join(uploadDir, filename), buffer);
+        uploadedUrls.push(`/uploads/nota/${filename}`);
+      }
     }
 
     let kodePembelian = null;
@@ -63,7 +67,11 @@ export async function PUT(req: Request, { params }: Params) {
         jenis: jenis as "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA",
         pembelianKe,
         kodePembelian,
-        ...(notaUrl && { notaUrl })
+        ...(uploadedUrls.length > 0 && {
+          notaUrls: {
+            push: uploadedUrls
+          }
+        })
       }
     });
 
