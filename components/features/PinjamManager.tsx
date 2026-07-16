@@ -264,9 +264,9 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
             </div>
           )}
 
-          <div className="glass">
-            <div className="filter-bar mb-16" style={{ padding: "16px" }}>
-              <div className="search-wrap" style={{ flex: "1 1 200px" }}>
+          <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+            <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
+              <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0 }}>
                 <i className="ti ti-search search-icon" />
                 <input
                   className="input"

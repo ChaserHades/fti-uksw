@@ -232,63 +232,73 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
   return (
     <>
-      {/* Filters */}
-      <div className="glass filter-bar mb-16">
-        <div className="search-wrap" style={{ flex: "1 1 180px", minWidth: 150 }}>
-          <i className="ti ti-search search-icon" />
-          <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <div style={{ flex: "0 1 180px", minWidth: 150 }}>
-          <LiquidSelectAsync
-            value={filterKat}
-            onChange={setFilterKat}
-            fetchUrl="/api/kategori"
-            placeholder="Semua Kategori..."
-            mapOption={item => ({ value: item.id, label: item.nama })}
-          />
-        </div>
-        <div style={{ flex: "0 1 180px", minWidth: 150 }}>
-          <LiquidSelect
-            value={sortBy}
-            onChange={setSortBy}
-            options={[
-              { value: "tanggalDatang", label: "Sort: Tanggal" },
-              { value: "merek", label: "Sort: Merek" },
-              { value: "kategoriId", label: "Sort: Jenis" },
-              { value: "ruanganId", label: "Sort: Ruangan" },
-            ]}
-          />
-        </div>
-        <div style={{ flex: "0 1 120px", minWidth: 100 }}>
-          <LiquidSelect
-            value={sortDir}
-            onChange={setSortDir}
-            options={[
-              { value: "desc", label: "Terbaru/Z-A" },
-              { value: "asc", label: "Terlama/A-Z" },
-            ]}
-          />
-        </div>
-        <button className="btn btn-ghost" onClick={() => setFullPreview(true)}>
-          <i className="ti ti-table" /> Full Preview
-        </button>
-        {role === "ADMIN" && (
-          <>
-            <button className="btn btn-primary" onClick={openAdd}>
-              <i className="ti ti-plus" /> Tambah
-            </button>
-            <button className="btn btn-ghost" onClick={() => setModal("print_options")} title="Print QR Semua Barang (Bulk)">
-              <i className="ti ti-printer" /> Bulk Print
-            </button>
-            <button className="btn btn-primary" onClick={() => setShowExport(true)}>
-              <i className="ti ti-download" /> Export
-            </button>
-          </>
-        )}
-      </div>
+      {/* Unified Action Bar, Filters, and Table Container */}
+      <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+        
+        {/* Top Header / Primary Actions */}
+        <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
+          
+          <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0 }}>
+            <i className="ti ti-search search-icon" />
+            <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
 
-      {/* Table */}
-      <div className="glass">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+            {role === "ADMIN" && (
+              <>
+                <button className="btn btn-ghost" onClick={() => setModal("print_options")} title="Print QR Semua Barang (Bulk)">
+                  <i className="ti ti-printer" /> Bulk Print
+                </button>
+                <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setShowExport(true)}>
+                  <i className="ti ti-download" /> Export
+                </button>
+                <button className="btn btn-primary" onClick={openAdd}>
+                  <i className="ti ti-plus" /> Tambah
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Bar / Filters */}
+        <div style={{ padding: "12px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", background: "rgba(0,0,0,0.15)", borderBottom: "1px solid var(--glass-border)" }}>
+          <div style={{ flex: "1 1 200px", minWidth: 150 }}>
+            <LiquidSelectAsync
+              value={filterKat}
+              onChange={setFilterKat}
+              fetchUrl="/api/kategori"
+              placeholder="Semua Kategori..."
+              mapOption={item => ({ value: item.id, label: item.nama })}
+            />
+          </div>
+          <div style={{ flex: "1 1 180px", minWidth: 150 }}>
+            <LiquidSelect
+              value={sortBy}
+              onChange={setSortBy}
+              options={[
+                { value: "tanggalDatang", label: "Sort: Tanggal" },
+                { value: "merek", label: "Sort: Merek" },
+                { value: "kategoriId", label: "Sort: Jenis" },
+                { value: "ruanganId", label: "Sort: Ruangan" },
+              ]}
+            />
+          </div>
+          <div style={{ flex: "0 1 140px", minWidth: 120 }}>
+            <LiquidSelect
+              value={sortDir}
+              onChange={setSortDir}
+              options={[
+                { value: "desc", label: "Terbaru/Z-A" },
+                { value: "asc", label: "Terlama/A-Z" },
+              ]}
+            />
+          </div>
+          <button className="btn btn-ghost" style={{ flexShrink: 0 }} onClick={() => setFullPreview(true)}>
+            <i className="ti ti-table" /> Full Preview
+          </button>
+        </div>
+
+        {/* Table Content */}
         <div className="table-wrap">
           <table className="table" style={{ minWidth: 600 }}>
             <thead>

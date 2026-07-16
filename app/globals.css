@@ -854,11 +854,6 @@ button {
   color: var(--text-secondary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(18, 18, 20, 0.95);
-  backdrop-filter: blur(12px);
 }
 
 .table td {
@@ -883,13 +878,8 @@ button {
 }
 
 .table-wrap {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: calc(100vh - 280px); /* Keeps scrollbar visible on screen */
-  -webkit-overflow-scrolling: touch;
   border-radius: 0 0 var(--r-md) var(--r-md);
-  width: 100%;
-
+  overflow: visible;
 }
 
 .td-name {

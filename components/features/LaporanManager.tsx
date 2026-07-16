@@ -180,30 +180,6 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
 
   return (
     <div className="animate-fade-in">
-      {/* Filters & Export */}
-      <div className="glass filter-bar mb-16">
-        <div style={{ flex: "0 1 180px", minWidth: 150 }}>
-          <LiquidSelect
-            value={filter}
-            onChange={val => setFilter(val as JenisFilter)}
-            options={[
-              { value: "", label: "Semua Jenis" },
-              { value: "PEMBELIAN_ASET", label: "Pembelian Aset" },
-              { value: "MAINTENANCE", label: "Maintenance" },
-              { value: "LAINNYA", label: "Lainnya" }
-            ]}
-          />
-        </div>
-        <button className="btn btn-ghost" onClick={exportCSV}>
-          <i className="ti ti-file-export" /> Export CSV
-        </button>
-        {role === "ADMIN" && (
-          <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNotas([]); setSelectedId(null); setModal(true); }}>
-            <i className="ti ti-plus" /> Input Pengeluaran
-          </button>
-        )}
-      </div>
-
       {/* Summary */}
       <div className="grid-3 mb-16">
         {[
@@ -218,8 +194,33 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
         ))}
       </div>
 
-      {/* Table */}
-      <div className="glass">
+      <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+        {/* Top Header / Primary Actions */}
+        <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
+          <div style={{ flex: "1 1 200px", minWidth: 150, margin: 0 }}>
+            <LiquidSelect
+              value={filter}
+              onChange={val => setFilter(val as JenisFilter)}
+              options={[
+                { value: "", label: "Semua Jenis" },
+                { value: "PEMBELIAN_ASET", label: "Pembelian Aset" },
+                { value: "MAINTENANCE", label: "Maintenance" },
+                { value: "LAINNYA", label: "Lainnya" }
+              ]}
+            />
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+            <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={exportCSV}>
+              <i className="ti ti-file-export" /> Export CSV
+            </button>
+            {role === "ADMIN" && (
+              <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNotas([]); setSelectedId(null); setModal(true); }}>
+                <i className="ti ti-plus" /> Input Pengeluaran
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="table-wrap">
           <table className="table">
             <thead>

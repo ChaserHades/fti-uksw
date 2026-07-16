@@ -164,27 +164,29 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
 
   return (
     <div className="animate-fade-in">
-      <div className="glass filter-bar mb-16">
-        <div className="search-wrap" style={{ flex: "1 1 200px" }}>
-          <i className="ti ti-search search-icon" />
-          <input
-            className="input"
-            placeholder="Cari ruangan..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+      <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+        <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
+          <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0 }}>
+            <i className="ti ti-search search-icon" />
+            <input
+              className="input"
+              placeholder="Cari ruangan..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+            <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={openPindah}>
+              <i className="ti ti-arrows-exchange" /> Pindah Barang
+            </button>
+            {role === "ADMIN" && (
+              <button className="btn btn-primary" onClick={openAdd}>
+                <i className="ti ti-plus" /> Tambah Ruangan
+              </button>
+            )}
+          </div>
         </div>
-        <button className="btn btn-ghost" onClick={openPindah}>
-          <i className="ti ti-arrows-exchange" /> Pindah Barang
-        </button>
-        {role === "ADMIN" && (
-          <button className="btn btn-primary" onClick={openAdd}>
-            <i className="ti ti-plus" /> Tambah Ruangan
-          </button>
-        )}
-      </div>
 
-      <div className="glass">
         <div className="table-wrap">
           <table className="table">
             <thead>

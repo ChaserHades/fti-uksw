@@ -197,9 +197,10 @@ export default function TimVerifikasiPage() {
 
       {/* Tab: Anggota Aktif */}
       {tab === "anggota" && (
-        <div className="glass">
-          <div className="filter-bar mb-16" style={{ padding: "16px" }}>
-            <div className="search-wrap" style={{ flex: "1 1 200px" }}>
+        <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+          {/* Top Header / Primary Actions */}
+          <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
+            <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0 }}>
               <i className="ti ti-search search-icon" />
               <input
                 className="input"
@@ -284,28 +285,29 @@ export default function TimVerifikasiPage() {
       {/* Tab: Verifikasi */}
       {tab === "verifikasi" && (
         <>
-          <div className="glass filter-bar mb-16">
-            <div style={{ width: 180 }}>
-              <LiquidSelect
-                value={filter}
-                onChange={val => setFilter(val as FilterStatus)}
-                options={[
-                  { value: "PENDING", label: `Pending (${pendingCount})` },
-                  { value: "APPROVED", label: "Approved" },
-                  { value: "REJECTED", label: "Rejected" },
-                  { value: "ALL", label: "Semua" }
-                ]}
-              />
-            </div>
-          </div>
-
           {pendingCount > 0 && filter === "PENDING" && (
             <div className="alert alert-warn mb-16">
               <i className="ti ti-alert-triangle" /> Ada {pendingCount} user menunggu verifikasi
             </div>
           )}
 
-          <div className="glass">
+          <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+            {/* Top Header / Primary Actions */}
+            <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
+              <div style={{ width: 180, margin: 0 }}>
+                <LiquidSelect
+                  value={filter}
+                  onChange={val => setFilter(val as FilterStatus)}
+                  options={[
+                    { value: "PENDING", label: `Pending (${pendingCount})` },
+                    { value: "APPROVED", label: "Approved" },
+                    { value: "REJECTED", label: "Rejected" },
+                    { value: "ALL", label: "Semua" }
+                  ]}
+                />
+              </div>
+            </div>
+
             <div className="table-wrap">
               <table className="table">
                 <thead>

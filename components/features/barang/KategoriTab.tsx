@@ -93,24 +93,25 @@ export default function KategoriTab() {
 
   return (
     <>
-      <div className="glass filter-bar mb-16">
-        <div className="search-wrap" style={{ flex: "1 1 200px" }}>
-          <i className="ti ti-search search-icon" />
-          <input
-            className="input"
-            placeholder="Cari kategori..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+      <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+        <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
+          <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0 }}>
+            <i className="ti ti-search search-icon" />
+            <input
+              className="input"
+              placeholder="Cari kategori..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          <button className="btn btn-primary" onClick={openAdd}>
+            <i className="ti ti-plus" /> Tambah Kategori
+          </button>
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <i className="ti ti-plus" /> Tambah Kategori
-        </button>
-      </div>
 
-      <div className="glass">
-        <table className="table">
-          <thead>
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
             <tr>
               <th>#</th>
               <th>Nama Kategori</th>
@@ -154,6 +155,7 @@ export default function KategoriTab() {
             </button>
           </div>
         )}
+        </div>
       </div>
 
       <ConfirmModal
