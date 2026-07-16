@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Modal from "@/components/Modal";
 import LiquidSelect from "@/components/LiquidSelect";
-import AsyncAutocomplete from "@/components/AsyncAutocomplete";
+import LiquidSelectAsync from "@/components/LiquidSelectAsync";
 
 interface ExportModalProps {
   open: boolean;
@@ -17,12 +17,11 @@ export default function ExportModal({ open, onClose }: ExportModalProps) {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   // Filters
-  const [filterKatName, setFilterKatName] = useState("");
   const [filterKat, setFilterKat] = useState("");
   const [filterSearch, setFilterSearch] = useState("");
   const [filterVendor, setFilterVendor] = useState("");
   const [filterRuangan, setFilterRuangan] = useState("");
-  
+
   const [loading, setLoading] = useState(false);
 
   async function handleExport() {
@@ -31,7 +30,7 @@ export default function ExportModal({ open, onClose }: ExportModalProps) {
       const q = new URLSearchParams();
       q.set("format", format);
       q.set("type", exportType);
-      
+
       if (exportType === "filter") {
         if (filterKat) q.set("kategoriId", filterKat);
         if (filterSearch) q.set("search", filterSearch);
@@ -56,13 +55,13 @@ export default function ExportModal({ open, onClose }: ExportModalProps) {
       const a = document.createElement("a");
       a.href = url;
       const d = new Date();
-      const dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+      const dateStr = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
       a.download = `Export_Aset_${dateStr}.${format}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      
+
       onClose();
     } catch (e: any) {
       alert(e.message);
@@ -108,13 +107,9 @@ export default function ExportModal({ open, onClose }: ExportModalProps) {
             </div>
             <div className="form-group">
               <label className="form-label">Jenis / Kategori</label>
-              <AsyncAutocomplete
-                value={filterKatName}
-                onChange={(val) => {
-                  setFilterKatName(val);
-                  if (val === "") setFilterKat("");
-                }}
-                onSelect={(opt) => setFilterKat(opt.value)}
+              <LiquidSelectAsync
+                value={filterKat}
+                onChange={setFilterKat}
                 fetchUrl="/api/kategori"
                 placeholder="Semua Kategori"
                 mapOption={item => ({ value: item.id, label: item.nama })}

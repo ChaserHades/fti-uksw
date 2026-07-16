@@ -2,8 +2,8 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import Modal from "@/components/Modal";
-import AsyncAutocomplete from "@/components/AsyncAutocomplete";
 import LiquidSelect from "@/components/LiquidSelect";
+import LiquidSelectAsync from "@/components/LiquidSelectAsync";
 import ConfirmModal from "@/components/ConfirmModal";
 import ExportModal from "@/components/features/ExportModal";
 import FullTablePreview from "@/components/features/FullTablePreview";
@@ -24,7 +24,6 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
   // Filters & sort
   const [search, setSearch] = useState("");
-  const [filterKatName, setFilterKatName] = useState("");
   const [filterKat, setFilterKat] = useState("");
   const [sortBy, setSortBy] = useState("tanggalDatang");
   const [sortDir, setSortDir] = useState("desc");
@@ -99,7 +98,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       harga: b.harga?.toString() || "",
       sumberTahun: b.sumberTahun || "",
       status: b.status || "TERSEDIA",
-      kategori: b.kategori?.nama || b.kategoriId || "", 
+      kategori: b.kategori?.nama || b.kategoriId || "",
       ruangan: b.ruangan?.kode || b.ruanganId || "",
     });
     setModal("form");
@@ -118,22 +117,22 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
   async function handleBulkPrint(mode: "ALL" | "TODAY" | "NOT_PRINTED" | "SELECTED") {
     let payload: any = { mode };
-    
+
     // For "SELECTED", we use current loaded barang (current page)
     if (mode === "SELECTED") {
       if (barang.length === 0) { toast.error("Tidak ada barang di halaman ini"); return; }
       payload.ids = barang.map(b => b.id);
     }
-    
+
     setModal(null);
     const toastId = toast.loading("Mempersiapkan dokumen cetak...");
-    
+
     try {
       const res = await api.post<{ qrCode: string; kode: string; nama: string }[]>("/api/barang/qr-bulk", payload);
       setBulkQrData(res);
       toast.success("Siap dicetak!", { id: toastId });
       setTimeout(() => window.print(), 500);
-      
+
       // Refresh list if NOT_PRINTED was selected since we might have updated hasSticker
       if (mode === "NOT_PRINTED") load(true);
     } catch (e: any) {
@@ -240,13 +239,9 @@ export default function DaftarBarangTab({ role }: { role: string }) {
           <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div style={{ flex: "0 1 180px", minWidth: 150 }}>
-          <AsyncAutocomplete
-            value={filterKatName}
-            onChange={(val) => {
-              setFilterKatName(val);
-              if (val === "") setFilterKat(""); // clear filter if emptied
-            }}
-            onSelect={(opt) => setFilterKat(opt.value)}
+          <LiquidSelectAsync
+            value={filterKat}
+            onChange={setFilterKat}
             fetchUrl="/api/kategori"
             placeholder="Semua Kategori..."
             mapOption={item => ({ value: item.id, label: item.nama })}
@@ -514,7 +509,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                         const ext = url.split(".").pop()?.toLowerCase() ?? "";
                         return (
                           <div key={idx} style={{ borderRadius: 8, overflow: "hidden" }}>
-                            {["jpg","jpeg","png","gif","webp"].includes(ext) ? (
+                            {["jpg", "jpeg", "png", "gif", "webp"].includes(ext) ? (
                               <img src={url} alt={`Nota ${idx + 1}`} style={{ width: "100%", maxHeight: 400, objectFit: "contain", background: "rgba(255,255,255,0.03)" }} />
                             ) : ext === "pdf" ? (
                               <iframe src={url} title={`Nota PDF ${idx + 1}`} style={{ width: "100%", height: 400, border: "1px solid rgba(255,255,255,0.1)" }} />

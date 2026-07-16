@@ -854,6 +854,11 @@ button {
   color: var(--text-secondary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(18, 18, 20, 0.95);
+  backdrop-filter: blur(12px);
 }
 
 .table td {
@@ -879,6 +884,8 @@ button {
 
 .table-wrap {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 280px); /* Keeps scrollbar visible on screen */
   -webkit-overflow-scrolling: touch;
   border-radius: 0 0 var(--r-md) var(--r-md);
   width: 100%;
@@ -2118,23 +2125,30 @@ summary {
    ═══════════════════════════════════════════════════════════ */
 @media print {
 
-  /* Menghilangkan teks default browser (Tanggal, URL, Page Number) */
+  /* Set margin 0 to disable browser's default headers (date, localhost URL, page number) */
   @page {
     margin: 0;
   }
 
-  /* Hide all elements by default */
-  body * {
-    visibility: hidden;
+  /* Hide UI elements that shouldn't be printed */
+  header, nav, aside, .dynamic-island-wrapper, .filter-bar, .table-wrap, .page-title, .page-sub, .tabs-wrapper, .modal-overlay, .toast-container, .btn, button, .tabs, .tab-item, 
+  [role="status"], [role="alert"], #toast-container {
+    display: none !important;
   }
 
-  /* Only make the print areas and their children visible */
-  #print-qr-area,
-  #print-qr-area *,
-  #bulk-print-area,
-  #bulk-print-area * {
-    visibility: visible;
+  /* Remove padding/margin from wrappers so the QR container starts at top-left */
+  body, html, .ds-bg, .main-content, main, #__next, .content, .glass {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
+
+  /* We don't hide everything because it causes parent visibility issues, instead we hide what we don't want above. */
 
   /* -------------------------------------------
      SINGLE PRINT (Match the exact 5x1.8cm dimensions)
@@ -2182,21 +2196,14 @@ summary {
      BULK PRINT (Grid Layout with cutting guides)
      ------------------------------------------- */
   #bulk-print-area {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
+    position: static !important;
     width: 100% !important;
     height: auto !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 1cm !important;
-    /* Jarak 1cm antar stiker */
-    padding: 1cm !important;
-    /* Jarak 1cm dari tepi kertas */
+    display: block !important; /* Block instead of flex to fix page-break bugs */
     background: white !important;
-    justify-content: flex-start !important;
-    align-content: flex-start !important;
     margin: 0 !important;
+    padding: 1.5cm !important; /* Increased padding for better margins on sides */
+    box-sizing: border-box !important; /* Prevents width: 100% + padding from overflowing right side */
     max-height: none !important;
     overflow: visible !important;
   }
@@ -2206,17 +2213,19 @@ summary {
     height: 1.8cm !important;
     padding: 0.15cm !important;
     box-sizing: border-box !important;
-    display: flex !important;
+    display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-start !important;
     border: 1px dashed #aaa !important;
     /* Garis potong stiker */
+    break-inside: avoid !important;
     page-break-inside: avoid !important;
     /* Jangan potong stiker antar halaman */
     background: white !important;
     color: black !important;
     border-radius: 0.2cm !important;
+    margin: 0 0.5cm 0.5cm 0 !important; /* Jarak antar stiker */
   }
 
   .bulk-qr-item img {

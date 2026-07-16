@@ -33,10 +33,10 @@ export default function AsyncAutocomplete({
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(false);
   const [cursor, setCursor] = useState<string | null>(null);
-  
+
   // Local state for the input text (so they can type freely)
   const [inputValue, setInputValue] = useState(value);
-  
+
   const ref = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>(null);
 
@@ -62,7 +62,7 @@ export default function AsyncAutocomplete({
   const loadData = async (searchStr: string, reset = true) => {
     setLoading(true);
     const currentCursor = reset ? null : cursor;
-    
+
     // Parse base URL and query params
     const url = new URL(fetchUrl, window.location.origin);
     url.searchParams.set("limit", "5");
@@ -72,7 +72,7 @@ export default function AsyncAutocomplete({
     try {
       const res = await api.get<{ data: any[]; nextCursor: string | null }>(url.pathname + url.search);
       const newOptions = res.data.map(mapOption);
-      
+
       setOptions(prev => reset ? newOptions : [...prev, ...newOptions]);
       setCursor(res.nextCursor);
     } catch (e) {
@@ -93,7 +93,7 @@ export default function AsyncAutocomplete({
     const val = e.target.value;
     setInputValue(val);
     onChange(val); // Also update parent immediately so form stays in sync
-    
+
     setOpen(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
@@ -112,9 +112,9 @@ export default function AsyncAutocomplete({
         onFocus={handleFocus}
         autoComplete="off"
       />
-      
+
       {open && (
-        <div 
+        <div
           className="glass"
           style={{
             position: "absolute",
@@ -138,7 +138,7 @@ export default function AsyncAutocomplete({
               "{inputValue}" akan disimpan sebagai entri baru.
             </div>
           )}
-          
+
           {options.map(opt => (
             <div
               key={opt.value}
