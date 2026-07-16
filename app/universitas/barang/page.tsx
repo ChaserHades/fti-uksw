@@ -17,12 +17,12 @@ export default function UniversitasBarangPage() {
     const p = new URLSearchParams();
     if (search) p.set("search", search);
     if (filterKat) p.set("kategoriId", filterKat);
-    api.get<Barang[]>(`/api/barang?${p}`).then(setBarang).catch(console.error);
+    api.get<{ data: Barang[] }>(`/api/barang?${p}`).then(r => setBarang(Array.isArray(r) ? r : (r?.data ?? []))).catch(console.error);
   }, [search, filterKat]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
-    api.get<Kategori[]>("/api/kategori").then(setKategori).catch(console.error);
+    api.get<{ data: Kategori[] }>("/api/kategori").then(r => setKategori(Array.isArray(r) ? r : (r?.data ?? []))).catch(console.error);
   }, []);
 
   const kondisiBadge: Record<string, string> = {

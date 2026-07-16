@@ -26,7 +26,9 @@ export default function CashflowUniversitasPage() {
 
   const load = () => {
     const params = filter ? `?jenis=${filter}` : "";
-    api.get<Pengeluaran[]>(`/api/pengeluaran${params}`).then(setList).catch(console.error);
+    api.get<{ data: Pengeluaran[] } | Pengeluaran[]>(`/api/pengeluaran${params}`)
+      .then(r => setList(Array.isArray(r) ? r : (r as { data: Pengeluaran[] })?.data ?? []))
+      .catch(console.error);
   };
 
   useEffect(() => { load(); }, [filter]);
