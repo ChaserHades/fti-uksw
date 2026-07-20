@@ -2330,6 +2330,19 @@ summary {
   .no-print {
     display: none !important;
   }
+
+  /* Cashflow Print Report */
+  #print-cashflow-area {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    color: black !important;
+    padding: 2cm !important;
+    box-sizing: border-box !important;
+  }
 }
 
 /* =========================================

@@ -25,16 +25,14 @@ export function fCurrency(amount: number): string {
 }
 
 export function isOverdue(deadline: string | Date): boolean {
-  const str = deadline instanceof Date ? deadline.toISOString() : deadline;
-  const dateOnly = str.split("T")[0]; 
-  const targetTime = new Date(`${dateOnly}T18:00:00+07:00`);
+  const d = new Date(deadline);
+  const targetTime = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 18, 0, 0);
   return new Date() > targetTime;
 }
 
 export function isDueSoon(deadline: string | Date): boolean {
-  const str = deadline instanceof Date ? deadline.toISOString() : deadline;
-  const dateOnly = str.split("T")[0];
-  const targetTime = new Date(`${dateOnly}T18:00:00+07:00`);
+  const d = new Date(deadline);
+  const targetTime = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 18, 0, 0);
   const diff = targetTime.getTime() - Date.now();
   return diff > 0 && diff <= 86_400_000;
 }

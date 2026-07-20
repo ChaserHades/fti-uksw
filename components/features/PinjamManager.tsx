@@ -14,9 +14,9 @@ type Mode = "scan" | "list";
 
 export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   const searchParams = useSearchParams();
-  
   // ── State ──
-  const [mode, setMode]             = useState<Mode>("scan");
+  const [mode, setMode]                 = useState<Mode>("list");
+  const [modalScanner, setModalScanner] = useState(false);
   const [allAktif, setAllAktif]     = useState<Peminjaman[]>([]);
   const [barang, setBarang]         = useState<Barang | null>(null);
   const [peminjamanAktif, setPeminjamanAktif] = useState<Peminjaman | null>(null);
@@ -61,11 +61,9 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   useEffect(() => { 
     loadAktif(true); 
     const action = searchParams.get("action");
-    if (action === "scan") setMode("scan");
+    if (action === "scan") setModalScanner(true);
     else if (action === "list") setMode("list");
   }, [searchParams, search]);
-
-
 
   // ── Camera wrapper ──
   async function startCamera() {
@@ -78,6 +76,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
     setBarang(data);
     if (data.status === "TERSEDIA") {
       setForm({ namaPeminjam: "", ruanganTujuan: "", deadlineKembali: "", catatan: "" });
+      setModalScanner(false);
+      stopCamera();
       setModalPinjam(true);
     } else if (data.status === "DIPINJAM") {
       const res = await api.get<{ data: Peminjaman[]; nextCursor: string | null }>("/api/peminjaman?status=AKTIF");
@@ -85,6 +85,8 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       const found = trxList.find(t => t.barangId === data.id);
       if (found) {
         setPeminjamanAktif(found);
+        setModalScanner(false);
+        stopCamera();
         setModalKembali(true);
       } else {
         setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi peminjaman tidak ditemukan`);
@@ -159,98 +161,86 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
 
   return (
     <>
-      {/* Mode switcher */}
-      <div className="mobile-scroll-x" style={{ display: "flex", gap: "24px", marginBottom: "32px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-        {([
-          { key: "scan" as Mode, icon: "ti-qrcode",  label: "Scan QR" },
-          { key: "list" as Mode, icon: "ti-list",     label: "Daftar Aktif" },
-        ]).map(t => {
-          const active = mode === t.key;
-          return (
-            <button
-              key={t.key}
-              onClick={() => setMode(t.key)}
-              style={{
-                display: "flex", alignItems: "center", gap: "8px", padding: "12px 4px", fontSize: "14px",
-                fontWeight: active ? 600 : 500,
-                color: active ? "#FFF" : "var(--text-secondary)",
-                background: "transparent",
-                border: "none", borderBottom: active ? "2px solid #FFF" : "2px solid transparent",
-                transition: "all 0.2s", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
-                marginBottom: "-1px"
-              }}
-            >
-              <i className={`ti ${t.icon}`} style={{ opacity: active ? 1 : 0.6 }} />{t.label}
-              {t.key === "list" && allAktif.length > 0 && (
-                <span className="badge badge-info" style={{ marginLeft: "4px", padding: "2px 8px", fontSize: 11 }}>{allAktif.length}</span>
-              )}
-            </button>
-          );
-        })}
-
-      </div>
-
-      {/* MODE: SCAN */}
-      {mode === "scan" && (
-        <div className="scan-container">
-          <div className="glass" style={{ padding: 24 }}>
-            <div className="scan-heading">
-              <div className="scan-title">Scan QR Code Barang</div>
-            </div>
-
-            {lookErr && (
-              <div className="alert alert-danger" style={{ marginBottom: 16 }}>
-                <i className="ti ti-alert-triangle" /> {lookErr}
-              </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, gap: 16, flexWrap: "wrap" }}>
+        {/* Mode switcher */}
+        <div className="mobile-scroll-x" style={{ display: "flex", gap: "24px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div
+            style={{
+              display: "flex", alignItems: "center", gap: "8px", padding: "12px 4px", fontSize: "14px",
+              fontWeight: 600,
+              color: "#FFF",
+              background: "transparent",
+              border: "none", borderBottom: "2px solid #FFF",
+              whiteSpace: "nowrap", flexShrink: 0,
+              marginBottom: "-1px"
+            }}
+          >
+            <i className="ti ti-list" />Daftar Peminjaman Aktif
+            {allAktif.length > 0 && (
+              <span className="badge badge-info" style={{ marginLeft: "4px", padding: "2px 8px", fontSize: 11 }}>{allAktif.length}</span>
             )}
-
-            <div style={{
-              position: "relative", width: "100%", aspectRatio: "3/2",
-              borderRadius: 10, overflow: "hidden", background: "#000",
-              border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
-              marginBottom: 16, transition: "border-color .3s",
-            }}>
-              <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "scaleX(-1)" }} />
-              <canvas ref={canvasRef} style={{ display: "none" }} />
-              {!scanning && (
-                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                  <i className="ti ti-camera-off" style={{ fontSize: 28, color: "var(--text-muted)" }} />
-                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              {!scanning
-                ? <button className="btn btn-primary" onClick={startCamera}><i className="ti ti-camera" />Buka Kamera</button>
-                : <button className="btn btn-ghost" onClick={stopCamera}><i className="ti ti-camera-off" />Stop Kamera</button>
-              }
-            </div>
-
-            <div style={{ marginTop: 24, padding: "16px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12 }}>Atau input manual (Kode / Nama):</div>
-              <form style={{ display: "flex", gap: 8 }} onSubmit={e => {
-                e.preventDefault();
-                if (manualInput.trim()) {
-                  stopCamera();
-                  handleScanResult(manualInput.trim());
-                }
-              }}>
-                <input 
-                  className="input" 
-                  placeholder="Ketik kode atau nama barang..." 
-                  value={manualInput} 
-                  onChange={e => setManualInput(e.target.value)} 
-                  style={{ flex: 1 }}
-                />
-                <button type="submit" className="btn btn-primary"><i className="ti ti-search" />Cari</button>
-              </form>
-            </div>
           </div>
         </div>
-      )}
+        
+        <button className="btn btn-primary" onClick={() => { setModalScanner(true); }}>
+          <i className="ti ti-qrcode" /> Scan Peminjaman
+        </button>
+      </div>
 
-      {/* MODE: LIST */}
+      {/* Modal Scanner */}
+      <Modal open={modalScanner} onClose={() => { setModalScanner(false); stopCamera(); }} title="Scan QR Code Barang">
+        <div className="scan-heading" style={{ marginBottom: 14 }}>
+          <div className="scan-sub">Scan QR atau input kode barang manual untuk memproses peminjaman/pengembalian.</div>
+        </div>
+
+        {lookErr && (
+          <div className="alert alert-danger" style={{ marginBottom: 16 }}>
+            <i className="ti ti-alert-triangle" /> {lookErr}
+          </div>
+        )}
+
+        <div style={{
+          position: "relative", width: "100%", aspectRatio: "3/2",
+          borderRadius: 10, overflow: "hidden", background: "#000",
+          border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
+          marginBottom: 16, transition: "border-color .3s",
+        }}>
+          <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "scaleX(-1)" }} />
+          <canvas ref={canvasRef} style={{ display: "none" }} />
+          {!scanning && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <i className="ti ti-camera-off" style={{ fontSize: 28, color: "var(--text-muted)" }} />
+              <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+          {!scanning
+            ? <button className="btn btn-primary" onClick={startCamera}><i className="ti ti-camera" />Buka Kamera</button>
+            : <button className="btn btn-ghost" onClick={stopCamera}><i className="ti ti-camera-off" />Stop Kamera</button>
+          }
+        </div>
+
+        <div className="form-group" style={{ marginTop: 24, padding: "16px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <label className="form-label">Atau input manual (Kode / Nama):</label>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input 
+              className="input" 
+              placeholder="Ketik kode atau nama barang..." 
+              value={manualInput} 
+              onChange={e => setManualInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && manualInput.trim()) { stopCamera(); handleScanResult(manualInput.trim()); } }}
+              style={{ flex: 1 }}
+            />
+            <button className="btn btn-primary" onClick={() => { if (manualInput.trim()) { stopCamera(); handleScanResult(manualInput.trim()); } }}>
+              <i className="ti ti-search" />Cari
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* MODE: LIST AKTIF */}
       {mode === "list" && (
         <>
           {terlambat.length > 0 && (

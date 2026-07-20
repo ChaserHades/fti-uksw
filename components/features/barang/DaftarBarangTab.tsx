@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import Modal from "@/components/Modal";
+import UnifiedExportModal from "@/components/features/UnifiedExportModal";
 import LiquidSelect from "@/components/LiquidSelect";
 import LiquidSelectAsync from "@/components/LiquidSelectAsync";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -59,6 +60,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [selectedPrintIds, setSelectedPrintIds] = useState<Set<string>>(new Set());
   const [isSearchingPrint, setIsSearchingPrint] = useState(false);
 
+  // Note: we can remove exportFormat state since it's inside the modal, but handleBulkExport expects it to be passed.
+  // Actually, we'll refactor handleBulkExport to accept format: string as parameter.
   // Export Selection state
   const [exportFormat, setExportFormat] = useState<"xlsx" | "csv">("xlsx");
   const [exportSearch, setExportSearch] = useState("");
@@ -207,12 +210,12 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     }
   }
 
-  async function handleBulkExport(mode: "ALL" | "TODAY" | "SELECTED", customIds?: string[]) {
+  async function handleBulkExport(mode: "ALL" | "TODAY" | "SELECTED", customIds?: string[], format: string = "xlsx") {
     const toastId = toast.loading("Mengekspor data...");
     setModal(null);
     try {
       const q = new URLSearchParams();
-      q.set("format", exportFormat);
+      q.set("format", format);
       q.set("mode", mode);
       
       if (mode === "SELECTED") {
@@ -685,34 +688,18 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       )}
 
       {/* Export Options Modal */}
-      <Modal open={modal === "export_options"} onClose={() => setModal(null)} title="Pilih Opsi Export Aset">
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "12px" }}>
-          
-          <div className="form-group" style={{ marginBottom: 12 }}>
-            <label className="form-label" style={{ fontSize: 13 }}>Format Export</label>
-            <div style={{ display: "flex", gap: "16px" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: 14 }}>
-                <input type="radio" name="exportFormat" checked={exportFormat === "xlsx"} onChange={() => setExportFormat("xlsx")} style={{ accentColor: "var(--color-info)" }} />
-                Excel (.xlsx)
-              </label>
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: 14 }}>
-                <input type="radio" name="exportFormat" checked={exportFormat === "csv"} onChange={() => setExportFormat("csv")} style={{ accentColor: "var(--color-info)" }} />
-                CSV (.csv)
-              </label>
-            </div>
-          </div>
-
-          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkExport("TODAY")}>
-            <i className="ti ti-calendar" style={{ color: "var(--color-info)" }} /> Export Data Hari Ini
-          </button>
-          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => setModal("export_select")}>
-            <i className="ti ti-file" style={{ color: "var(--ds-mist)" }} /> Export Barang Pilihan (Manual)
-          </button>
-          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkExport("ALL")}>
-            <i className="ti ti-database" style={{ color: "var(--color-warn)" }} /> Export Seluruh Database
-          </button>
-        </div>
-      </Modal>
+      <UnifiedExportModal
+        open={modal === "export_options"}
+        onClose={() => setModal(null)}
+        type="ASET"
+        hasSelection={true}
+        onSearchSelection={() => {
+          setModal("export_select");
+        }}
+        onExport={(format, mode) => {
+          handleBulkExport(mode, undefined, format);
+        }}
+      />
 
       {/* Export Select Modal */}
       <Modal open={modal === "export_select"} onClose={() => { setModal(null); setSelectedExportIds(new Set()); setExportSearch(""); }} title="Pilih Barang untuk di-Export">
@@ -768,7 +755,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               disabled={selectedExportIds.size === 0}
               onClick={() => handleBulkExport("SELECTED", Array.from(selectedExportIds))}
             >
-              <i className="ti ti-download" /> Export ({selectedExportIds.size}) Data
+              <i className="ti ti-download" /> Lanjut Opsi Export ({selectedExportIds.size}) Data
             </button>
           </div>
         </div>

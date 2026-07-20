@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
 import type { Peminjaman } from "@/types";
+import UnifiedExportModal from "@/components/features/UnifiedExportModal";
 
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
@@ -15,6 +16,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
   const [filter, setFilter] = useState<StatusFilter>("");
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [exportModal, setExportModal] = useState(false);
 
   const load = (reset = true) => {
     const currentCursor = reset ? null : cursor;
@@ -38,34 +40,33 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  function exportCSV() {
-    const headers = [
-      "ID", "Barang", "Kode", "Nama Peminjam", "Ruangan Pinjam",
-      "Petugas", "Email Petugas", "Tgl Pinjam", "Deadline", "Tgl Kembali", "Status", "Terlambat",
-    ];
-    const rows = list.map(t => [
-      t.id,
-      t.barang.nama,
-      t.barang.label,
-      t.namaPeminjam,
-      t.ruanganTujuan,
-      t.user.name ?? "",
-      t.user.email,
-      fDateShort(t.tanggalPinjam),
-      fDateShort(t.deadlineKembali),
-      t.tanggalKembali ? fDateShort(t.tanggalKembali) : "",
-      t.status,
-      t.terlambat ? "Ya" : "Tidak",
-    ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `riwayat-peminjaman-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("CSV berhasil diexport");
+  async function handleExport(format: string, mode: "ALL" | "TODAY" | "SELECTED") {
+    const toastId = toast.loading("Mengekspor data...");
+    setExportModal(false);
+    try {
+      const q = new URLSearchParams();
+      q.set("format", format);
+      q.set("mode", mode);
+      
+      const res = await fetch(`/api/peminjaman/export?${q.toString()}`);
+      if (!res.ok) throw new Error("Gagal export");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const d = new Date();
+      const dateStr = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+      a.download = `Export_Riwayat_${dateStr}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("Berhasil di-export", { id: toastId });
+    } catch (e: any) {
+      toast.error(e.message || "Gagal export", { id: toastId });
+    }
   }
 
   // Badge status — terlambat persisten
@@ -106,8 +107,8 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
               ]}
             />
           </div>
-          <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={exportCSV}>
-            <i className="ti ti-file-export" /> Export CSV
+          <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setExportModal(true)}>
+            <i className="ti ti-file-export" /> Export Data
           </button>
         </div>
 
@@ -180,6 +181,13 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
           )}
         </div>
       </div>
+
+      <UnifiedExportModal
+        open={exportModal}
+        onClose={() => setExportModal(false)}
+        type="RIWAYAT"
+        onExport={handleExport}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { fDateShort, terbilang } from "@/helpers/format";
 import ConfirmModal from "@/components/ConfirmModal";
+import UnifiedExportModal from "@/components/features/UnifiedExportModal";
 import type { Pengeluaran } from "@/types";
 
 type JenisFilter = "" | "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
@@ -62,6 +63,10 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
 
   // View invoice modal state
   const [viewInvoice, setViewInvoice] = useState<Pengeluaran | null>(null);
+
+  // Export & Print State
+  const [exportModal, setExportModal] = useState(false);
+  const [printData, setPrintData] = useState<Pengeluaran[] | null>(null);
 
   const load = (reset = true) => {
     const currentCursor = reset ? null : cursor;
@@ -156,24 +161,48 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
     finally { setIsDeleting(false); setConfirmDel(null); }
   }
 
-  function exportCSV() {
-    const headers = ["Judul", "Jenis", "Nominal (Rp)", "Tanggal", "Kode Pembelian", "Deskripsi", "Pencatat"];
-    const rows = list.map(p => [
-      p.judul,
-      jenisLabel[p.jenis] ?? p.jenis,
-      p.nominal.toString(),
-      fDateShort(p.tanggal),
-      p.kodePembelian ?? "",
-      p.keterangan ?? "",
-      p.user.name ?? p.user.email,
-    ]);
-    const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url; a.download = `laporan-pengeluaran-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click(); URL.revokeObjectURL(url);
-    toast.success("CSV berhasil diexport");
+  async function handleExport(format: string, mode: "ALL" | "TODAY" | "SELECTED") {
+    const toastId = toast.loading("Mengekspor data...");
+    setExportModal(false);
+
+    if (format === "pdf") {
+      try {
+        const query = mode === "TODAY" ? "?jenis=TODAY&limit=10000" : "?limit=10000";
+        // We will hijack the existing endpoint to return all by high limit
+        const res = await api.get<{ data: Pengeluaran[] }>(`/api/pengeluaran${query}`);
+        setPrintData(res.data);
+        toast.success("Siap dicetak!", { id: toastId });
+        setTimeout(() => window.print(), 500);
+      } catch (e: any) {
+        toast.error("Gagal menyiapkan data cetak", { id: toastId });
+      }
+      return;
+    }
+
+    try {
+      const q = new URLSearchParams();
+      q.set("format", format);
+      q.set("mode", mode);
+      
+      const res = await fetch(`/api/pengeluaran/export?${q.toString()}`);
+      if (!res.ok) throw new Error("Gagal export");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const d = new Date();
+      const dateStr = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+      a.download = `Export_Cashflow_${dateStr}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("Berhasil di-export", { id: toastId });
+    } catch (e: any) {
+      toast.error(e.message || "Gagal export", { id: toastId });
+    }
   }
 
   const totalNominal = list.reduce((sum, p) => sum + p.nominal, 0);
@@ -210,8 +239,8 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
             />
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
-            <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={exportCSV}>
-              <i className="ti ti-file-export" /> Export CSV
+            <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setExportModal(true)}>
+              <i className="ti ti-file-export" /> Export Data
             </button>
             {role === "ADMIN" && (
               <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setNotas([]); setSelectedId(null); setModal(true); }}>
@@ -539,6 +568,49 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           </div>
         )}
       </Modal>
+
+      <UnifiedExportModal
+        open={exportModal}
+        onClose={() => setExportModal(false)}
+        type="CASHFLOW"
+        onExport={handleExport}
+      />
+
+      {/* Hidden Print Area */}
+      {printData && (
+        <div id="print-cashflow-area" style={{ display: "none" }} className="print-only">
+          <div style={{ textAlign: "center", marginBottom: 24, borderBottom: "2px solid #000", paddingBottom: 16 }}>
+            <h2 style={{ margin: "0 0 8px 0", fontSize: 24 }}>Laporan Keuangan & Cashflow</h2>
+            <p style={{ margin: 0, fontSize: 14 }}>Dicetak pada: {new Date().toLocaleString("id-ID")}</p>
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <thead>
+              <tr style={{ background: "#f5f5f5" }}>
+                <th style={{ border: "1px solid #000", padding: 8, textAlign: "left" }}>NO</th>
+                <th style={{ border: "1px solid #000", padding: 8, textAlign: "left" }}>KODE</th>
+                <th style={{ border: "1px solid #000", padding: 8, textAlign: "left" }}>TANGGAL</th>
+                <th style={{ border: "1px solid #000", padding: 8, textAlign: "left" }}>JUDUL</th>
+                <th style={{ border: "1px solid #000", padding: 8, textAlign: "left" }}>JENIS</th>
+                <th style={{ border: "1px solid #000", padding: 8, textAlign: "right" }}>NOMINAL</th>
+                <th style={{ border: "1px solid #000", padding: 8, textAlign: "left" }}>KETERANGAN</th>
+              </tr>
+            </thead>
+            <tbody>
+              {printData.map((p, i) => (
+                <tr key={p.id}>
+                  <td style={{ border: "1px solid #000", padding: 8 }}>{i + 1}</td>
+                  <td style={{ border: "1px solid #000", padding: 8 }}>{p.kodePembelian || p.id.slice(-6).toUpperCase()}</td>
+                  <td style={{ border: "1px solid #000", padding: 8 }}>{fDateShort(p.tanggal)}</td>
+                  <td style={{ border: "1px solid #000", padding: 8 }}>{p.judul}</td>
+                  <td style={{ border: "1px solid #000", padding: 8 }}>{jenisLabel[p.jenis] ?? p.jenis}</td>
+                  <td style={{ border: "1px solid #000", padding: 8, textAlign: "right" }}>Rp {p.nominal.toLocaleString("id-ID")}</td>
+                  <td style={{ border: "1px solid #000", padding: 8 }}>{p.keterangan || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

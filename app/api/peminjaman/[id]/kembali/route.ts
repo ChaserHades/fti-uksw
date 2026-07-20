@@ -17,9 +17,16 @@ export async function POST(_: Request, { params }: Params) {
   if (!peminjaman || peminjaman.status === "SELESAI")
     return NextResponse.json({ error: "Peminjaman tidak valid" }, { status: 400 });
 
-  // Persisten: jika kembali melewati deadline → terlambat = true, tidak pernah di-reset
+  // Persisten: jika kembali melewati deadline → terlambat = true
   const now = new Date();
-  const wasLate = peminjaman.terlambat || now > peminjaman.deadlineKembali;
+  
+  // Ambil tanggal saja dari deadline (yang tersimpan dalam UTC midnight)
+  const str = peminjaman.deadlineKembali.toISOString();
+  const dateOnly = str.split("T")[0]; 
+  // Deadline dianggap jam 18:00 waktu lokal (WIB/UTC+7) di hari H
+  const targetTime = new Date(`${dateOnly}T18:00:00+07:00`);
+  
+  const wasLate = peminjaman.terlambat || now > targetTime;
 
   const [updated] = await prisma.$transaction([
     prisma.peminjaman.update({
