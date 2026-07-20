@@ -36,7 +36,8 @@ export default function UniversitasDashboard() {
 
   return (
     <div className="animate-fade-in">
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .bento-dashboard {
           display: grid;
           grid-template-columns: repeat(12, 1fr);
@@ -93,7 +94,7 @@ export default function UniversitasDashboard() {
 
       {/* 2. BENTO COCKPIT GRID */}
       <div className="bento-dashboard">
-        
+
         {/* TOTAL ASET & KONDISI (Span 8) */}
         <Link href="/universitas/manajemen?tab=barang" className="bento-card bento-span-8">
           <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 16 }}>Total Inventaris FTI</span>
@@ -101,7 +102,7 @@ export default function UniversitasDashboard() {
             <span style={{ fontSize: "clamp(3rem, 5vw, 5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--text-primary)" }}>{stats?.totalBarang ?? 0}</span>
             <span style={{ color: "var(--text-secondary)" }}>Items</span>
           </div>
-          
+
           <div style={{ marginTop: "auto", paddingTop: 32 }}>
             <div style={{ display: "flex", gap: 24, marginBottom: 12, flexWrap: "wrap" }}>
               <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-ok)", marginRight: 6 }}>●</span> {kondisiCount.baik} Baik</span>
@@ -109,9 +110,9 @@ export default function UniversitasDashboard() {
               <span style={{ fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}><span style={{ color: "var(--color-err)", marginRight: 6 }}>●</span> {kondisiCount.rusakBerat} Rusak Berat</span>
             </div>
             <div style={{ display: "flex", height: 4, borderRadius: 2, overflow: "hidden", background: "rgba(255,255,255,0.05)" }}>
-              <div style={{ width: `${totalBarangSample ? (kondisiCount.baik/totalBarangSample)*100 : 0}%`, background: "var(--color-ok)" }} />
-              <div style={{ width: `${totalBarangSample ? (kondisiCount.rusakRingan/totalBarangSample)*100 : 0}%`, background: "var(--color-warn)" }} />
-              <div style={{ width: `${totalBarangSample ? (kondisiCount.rusakBerat/totalBarangSample)*100 : 0}%`, background: "var(--color-err)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.baik / totalBarangSample) * 100 : 0}%`, background: "var(--color-ok)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.rusakRingan / totalBarangSample) * 100 : 0}%`, background: "var(--color-warn)" }} />
+              <div style={{ width: `${totalBarangSample ? (kondisiCount.rusakBerat / totalBarangSample) * 100 : 0}%`, background: "var(--color-err)" }} />
             </div>
           </div>
         </Link>
@@ -131,9 +132,9 @@ export default function UniversitasDashboard() {
         <div className="bento-card bento-span-8" style={{ padding: "32px 0 0 0" }}>
           <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-info)" }}>Aset Terbaru FTI</span>
-            <Link href="/universitas/manajemen?tab=barang" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua &rarr;</Link>
+            <Link href="/universitas/manajemen?tab=barang" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua</Link>
           </div>
-          
+
           <div style={{ display: "flex", flexDirection: "column" }}>
             {barang.length === 0 ? (
               <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Kosong</div>
@@ -154,7 +155,7 @@ export default function UniversitasDashboard() {
         {/* DISTRIBUSI KATEGORI (Span 4) */}
         <div className="bento-card bento-span-4">
           <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 24 }}>Top Kategori</span>
-          
+
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {kategoriStat.length === 0 ? (
               <div style={{ color: "var(--text-muted)" }}>Tidak ada data</div>

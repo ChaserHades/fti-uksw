@@ -255,7 +255,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                     Rp {p.nominal.toLocaleString("id-ID")}
                   </td>
                   <td className="td-sm">{fDateShort(p.tanggal)}</td>
-                  <td className="td-sm">{p.user.name ?? "—"}</td>
+                  <td className="td-sm">{p.user.name ?? ""}</td>
                   <td>
                     {p.kodePembelian ? (
                       <span className="badge badge-muted" style={{ fontSize: 10, padding: "2px 6px", fontFamily: "var(--font-mono, monospace)" }}>
@@ -317,11 +317,11 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       {/* Modal Input/Edit Pengeluaran */}
       <Modal open={modal} onClose={() => setModal(false)} title={selectedId ? "Edit Pengeluaran" : "Catat Pengeluaran Baru"}>
         <div className="form-grid-2">
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group">
             <label className="form-label">Judul *</label>
             <input className="input" placeholder="Pembelian Keyboard" value={form.judul} onChange={e => setF("judul", e.target.value)} />
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group">
             <label className="form-label">Jenis *</label>
             <LiquidSelect
               value={form.jenis}
@@ -335,21 +335,21 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           </div>
         </div>
         <div className="form-grid-2">
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group">
             <label className="form-label">Nominal (Rp) *</label>
             <input type="number" className="input" placeholder="0" value={form.nominal} onChange={e => setF("nominal", e.target.value)} />
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group">
             <label className="form-label">Tanggal *</label>
             <input type="date" className="input" value={form.tanggal} onChange={e => setF("tanggal", e.target.value)} />
           </div>
         </div>
         <div className="form-grid-2">
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group">
             <label className="form-label">Pembelian ke-? <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>
             <input type="number" className="input" placeholder="1" min={1} value={form.pembelianKe} onChange={e => setF("pembelianKe", e.target.value)} />
           </div>
-          <div className="form-group" style={{ marginBottom: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+          <div className="form-group" style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
             {kodePreview && (
               <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
                 <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Kode:</span>

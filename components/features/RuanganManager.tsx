@@ -205,7 +205,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                     <div className="td-name">{r.nama}</div>
                     {r.kode !== r.nama && <div className="text-meta">{r.kode}</div>}
                   </td>
-                  <td>{r.lantai ?? "—"}</td>
+                  <td>{r.lantai ?? ""}</td>
                   <td>
                     <span className="badge badge-info">{r._count?.barang ?? 0}</span>
                   </td>
@@ -369,7 +369,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                   <tbody>
                     {detailList.map(b => (
                       <tr key={b.id}>
-                        <td className="td-mono">{b.label ?? b.sn ?? "—"}</td>
+                        <td className="td-mono">{b.label ?? b.sn ?? ""}</td>
                         <td className="td-name">{b.nama}</td>
                         <td>
                           {b.kondisi === "BAIK" && <span className="badge badge-success">Baik</span>}

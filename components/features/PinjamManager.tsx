@@ -194,7 +194,6 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
           <div className="glass" style={{ padding: 24 }}>
             <div className="scan-heading">
               <div className="scan-title">Scan QR Code Barang</div>
-              <div className="scan-sub">Tersedia → form pinjam &nbsp;·&nbsp; Dipinjam → langsung kembalikan</div>
             </div>
 
             {lookErr && (
@@ -358,11 +357,11 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               <input className="input" placeholder="Nama mahasiswa/dosen/staf" value={form.namaPeminjam} onChange={e => setF("namaPeminjam", e.target.value)} autoFocus />
             </div>
             <div className="form-grid-2">
-              <div className="form-group" style={{ marginBottom: 0 }}>
+              <div className="form-group">
                 <label className="form-label">Ruangan Penggunaan *</label>
                 <input className="input" placeholder="Lab 1 / R.101" value={form.ruanganTujuan} onChange={e => setF("ruanganTujuan", e.target.value)} />
               </div>
-              <div className="form-group" style={{ marginBottom: 0 }}>
+              <div className="form-group">
                 <label className="form-label">Deadline Kembali *</label>
                 <input type="date" className="input" value={form.deadlineKembali} onChange={e => setF("deadlineKembali", e.target.value)} />
               </div>

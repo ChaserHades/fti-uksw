@@ -49,7 +49,6 @@ export default function ManualAddSection() {
       <div className="glass" style={{ padding: 24 }}>
         <div className="scan-heading" style={{ marginBottom: 16 }}>
           <div className="scan-title">Input Manual Barang Baru</div>
-          <div className="scan-sub">Barang tanpa QR → auto-generate QR → langsung Print</div>
         </div>
 
         <BarangFormFields form={form} onChange={handleFieldChange} />

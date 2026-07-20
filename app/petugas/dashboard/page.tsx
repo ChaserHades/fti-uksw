@@ -38,7 +38,8 @@ export default function TeknisiDashboard() {
 
   return (
     <div className="animate-fade-in">
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .bento-dashboard {
           display: grid;
           grid-template-columns: repeat(12, 1fr);
@@ -95,7 +96,7 @@ export default function TeknisiDashboard() {
 
       {/* 2. BENTO COCKPIT GRID */}
       <div className="bento-dashboard">
-        
+
         {/* STATS PRIBADI (Span 8) */}
         <div className="bento-card bento-span-8" style={{ padding: 32, display: "flex", flexDirection: "column" }}>
           <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 24 }}>Aktivitas Peminjaman Anda</span>
@@ -121,7 +122,7 @@ export default function TeknisiDashboard() {
         <div className="bento-card bento-span-4" style={{ padding: "32px 0 0 0" }}>
           <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-info)" }}>Peminjaman Sistem</span>
-            <Link href="/petugas/manajemen?tab=pinjam" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Proses &rarr;</Link>
+            <Link href="/petugas/manajemen?tab=pinjam" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Proses</Link>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             {allAktif.length === 0 ? (
@@ -148,9 +149,9 @@ export default function TeknisiDashboard() {
         <div className="bento-card bento-span-8" style={{ padding: "32px 0 0 0" }}>
           <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Riwayat Peminjaman Pribadi</span>
-            <Link href="/petugas/manajemen?tab=riwayat" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua &rarr;</Link>
+            <Link href="/petugas/manajemen?tab=riwayat" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua</Link>
           </div>
-          
+
           <div style={{ display: "flex", flexDirection: "column" }}>
             {myTrx.length === 0 ? (
               <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Belum ada riwayat peminjaman.</div>
@@ -175,9 +176,9 @@ export default function TeknisiDashboard() {
         <div className="bento-card bento-span-4" style={{ padding: "32px 0 0 0" }}>
           <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-ok)" }}>Barang Tersedia</span>
-            <Link href="/petugas/manajemen?tab=barang" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Semua &rarr;</Link>
+            <Link href="/petugas/manajemen?tab=barang" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Semua</Link>
           </div>
-          
+
           <div style={{ display: "flex", flexDirection: "column" }}>
             {tersedia.length === 0 ? (
               <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Tidak ada barang</div>

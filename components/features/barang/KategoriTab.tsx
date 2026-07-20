@@ -133,7 +133,7 @@ export default function KategoriTab() {
               <tr key={k.id}>
                 <td className="td-sm" style={{ color: "var(--text-muted)" }}>{i + 1}</td>
                 <td className="td-name">{k.nama}</td>
-                <td>{k.keterangan ?? "-"}</td>
+                <td>{k.keterangan ?? ""}</td>
                 <td>
                   <div className="action-row">
                     <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(k)}>

@@ -153,7 +153,7 @@ export default function AdminDashboard() {
         <div className="bento-card bento-span-8" style={{ padding: "32px 0 0 0" }}>
           <div style={{ padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <span style={{ textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, color: "var(--color-warn)" }}>Peminjaman Aktif ({stats?.dipinjam ?? 0})</span>
-            <Link href="/admin/manajemen?tab=pinjam" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua &rarr;</Link>
+            <Link href="/admin/manajemen?tab=pinjam" style={{ fontSize: 12, color: "var(--text-secondary)", textDecoration: "none" }}>Lihat Semua</Link>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>

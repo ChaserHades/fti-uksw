@@ -124,7 +124,7 @@ export default function CashflowUniversitasPage() {
                     Rp {p.nominal.toLocaleString("id-ID")}
                   </td>
                   <td className="td-sm">{fDateShort(p.tanggal)}</td>
-                  <td className="td-sm">{p.user.name ?? "—"}</td>
+                  <td className="td-sm">{p.user.name ?? ""}</td>
                   <td>
                     {p.notaUrls && p.notaUrls.length > 0 ? (
                       <div style={{ display: "flex", gap: 4 }}>

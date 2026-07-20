@@ -231,7 +231,7 @@ export default function TimVerifikasiPage() {
                 ) : approvedUsers.map((u, i) => (
                   <tr key={u.id}>
                     <td className="td-sm" style={{ color: "var(--text-muted)" }}>{i + 1}</td>
-                    <td className="td-name">{u.name ?? "—"}</td>
+                    <td className="td-name">{u.name ?? ""}</td>
                     <td className="td-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
                     <td><span className={`badge ${roleBadge[u.role] ?? "badge-muted"}`}>{u.role}</span></td>
                     <td className="td-sm">{fDateShort(u.createdAt)}</td>
@@ -330,7 +330,7 @@ export default function TimVerifikasiPage() {
                     const isProcessing = loading === u.id;
                     return (
                       <tr key={u.id}>
-                        <td className="td-name">{u.name ?? "—"}</td>
+                        <td className="td-name">{u.name ?? ""}</td>
                         <td className="td-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
                         <td><span className={`badge ${roleBadge[u.role] ?? "badge-muted"}`}>{u.role}</span></td>
                         <td><span className={`badge ${statusBadge[u.statusVerifikasi]}`}>{u.statusVerifikasi}</span></td>

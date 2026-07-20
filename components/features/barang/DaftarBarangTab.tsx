@@ -29,11 +29,21 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [sortDir, setSortDir] = useState("desc");
 
   // Modal state
-  const [modal, setModal] = useState<"form" | "qr" | "print_options" | "cek" | null>(null);
+  const [modal, setModal] = useState<"form" | "qr" | "print_options" | "print_select" | "cek" | null>(null);
   const [selected, setSelected] = useState<Barang | null>(null);
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
   const [qrData, setQrData] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
   const [bulkQrData, setBulkQrData] = useState<{ qrCode: string; kode: string; nama: string }[] | null>(null);
+
+  // Print Selection state
+  const [printSearch, setPrintSearch] = useState("");
+  const [printSearchResults, setPrintSearchResults] = useState<Barang[]>([]);
+  const [selectedPrintIds, setSelectedPrintIds] = useState<Set<string>>(new Set());
+  const [isSearchingPrint, setIsSearchingPrint] = useState(false);
+
+  // Print Unprinted Confirm State
+  const [confirmUnprintedCount, setConfirmUnprintedCount] = useState<number | null>(null);
+  const [isCheckingUnprinted, setIsCheckingUnprinted] = useState(false);
 
   // Cek Barang state
   const [cekBarang, setCekBarang] = useState<Barang | null>(null);
@@ -77,6 +87,20 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
   useEffect(() => { load(true); }, [search, filterKat, sortBy, sortDir]);
 
+  /* ── Print Selection Search ── */
+  useEffect(() => {
+    if (modal === "print_select") {
+      setIsSearchingPrint(true);
+      const delay = setTimeout(() => {
+        api.get<{ data: Barang[] }>(`/api/barang?limit=50&search=${encodeURIComponent(printSearch)}`)
+          .then(res => setPrintSearchResults(res.data))
+          .catch(console.error)
+          .finally(() => setIsSearchingPrint(false));
+      }, 300);
+      return () => clearTimeout(delay);
+    }
+  }, [modal, printSearch]);
+
   /* ── Form helpers ── */
   const handleFieldChange = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
 
@@ -115,16 +139,21 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     }
   }
 
-  async function handleBulkPrint(mode: "ALL" | "TODAY" | "NOT_PRINTED" | "SELECTED") {
+  async function handleBulkPrint(mode: "ALL" | "TODAY" | "NOT_PRINTED" | "SELECTED", customIds?: string[]) {
     let payload: any = { mode };
 
-    // For "SELECTED", we use current loaded barang (current page)
+    // For "SELECTED", we use customIds if provided, else use current loaded barang (current page)
     if (mode === "SELECTED") {
-      if (barang.length === 0) { toast.error("Tidak ada barang di halaman ini"); return; }
-      payload.ids = barang.map(b => b.id);
+      if (customIds) {
+        payload.ids = customIds;
+      } else {
+        if (barang.length === 0) { toast.error("Tidak ada barang di halaman ini"); return; }
+        payload.ids = barang.map(b => b.id);
+      }
     }
 
     setModal(null);
+    setConfirmUnprintedCount(null);
     const toastId = toast.loading("Mempersiapkan dokumen cetak...");
 
     try {
@@ -187,6 +216,22 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     }
   }
 
+  async function handleCheckUnprinted() {
+    setIsCheckingUnprinted(true);
+    try {
+      const res = await api.get<{ count: number }>("/api/barang/unprinted-count");
+      if (res.count === 0) {
+        toast.error("Semua data barang sudah pernah dicetak!");
+      } else {
+        setConfirmUnprintedCount(res.count);
+      }
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || "Gagal mengecek jumlah data");
+    } finally {
+      setIsCheckingUnprinted(false);
+    }
+  }
+
   /* ── QR download helper ── */
   function downloadQR() {
     if (!qrData) return;
@@ -234,10 +279,10 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     <>
       {/* Unified Action Bar, Filters, and Table Container */}
       <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
-        
+
         {/* Top Header / Primary Actions */}
         <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
-          
+
           <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0 }}>
             <i className="ti ti-search search-icon" />
             <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} />
@@ -324,8 +369,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                 <tr key={b.id}>
                   <td className="td-sm text-muted">{i + 1}</td>
                   <td className="td-sm font-medium">{b.kategori.nama}</td>
-                  <td className="td-code">{b.label || "-"}</td>
-                  <td className="td-code">{b.labelAset || "-"}</td>
+                  <td className="td-code">{b.label || ""}</td>
+                  <td className="td-code">{b.labelAset || ""}</td>
                   <td>
                     <div className="action-row">
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openCekBarang(b)} title="Cek Barang">
@@ -371,6 +416,16 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         danger
       />
 
+      {/* Print Unprinted Confirm */}
+      <ConfirmModal
+        isOpen={confirmUnprintedCount !== null}
+        title="Cetak Data Belum Pernah Dicetak"
+        message={`Apakah anda yakin ingin mencetak ${confirmUnprintedCount} data barang yang baru masuk/belum pernah dicetak?`}
+        confirmLabel={`Cetak ${confirmUnprintedCount} Data`}
+        onConfirm={() => handleBulkPrint("NOT_PRINTED")}
+        onCancel={() => setConfirmUnprintedCount(null)}
+      />
+
       <FullTablePreview isOpen={fullPreview} onClose={() => setFullPreview(false)} />
 
       {/* Edit/Add Modal */}
@@ -409,18 +464,81 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       {/* Print Options Modal */}
       <Modal open={modal === "print_options"} onClose={() => setModal(null)} title="Pilih Opsi Cetak QR">
         <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "12px" }}>
-          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("NOT_PRINTED")}>
-            <i className="ti ti-check" style={{ color: "var(--color-ok)" }} /> Print Belum Pernah Dicetak
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={handleCheckUnprinted} disabled={isCheckingUnprinted}>
+            {isCheckingUnprinted ? (
+              <><i className="ti ti-loader" style={{ color: "var(--color-ok)" }} /> Mengecek data...</>
+            ) : (
+              <><i className="ti ti-check" style={{ color: "var(--color-ok)" }} /> Print Belum Pernah Dicetak</>
+            )}
           </button>
           <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("TODAY")}>
             <i className="ti ti-calendar" style={{ color: "var(--color-info)" }} /> Print Data Hari Ini
           </button>
-          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("SELECTED")}>
-            <i className="ti ti-file" style={{ color: "var(--ds-mist)" }} /> Print Halaman Ini Saja
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => setModal("print_select")}>
+            <i className="ti ti-file" style={{ color: "var(--ds-mist)" }} /> Print Barang Pilihan (Manual)
           </button>
           <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkPrint("ALL")}>
             <i className="ti ti-database" style={{ color: "var(--color-warn)" }} /> Print Seluruh Database
           </button>
+        </div>
+      </Modal>
+
+      {/* Print Select Modal */}
+      <Modal open={modal === "print_select"} onClose={() => { setModal(null); setSelectedPrintIds(new Set()); setPrintSearch(""); }} title="Pilih Barang untuk Dicetak">
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", minHeight: 300 }}>
+          <div className="search-wrap" style={{ margin: 0 }}>
+            <i className="ti ti-search search-icon" />
+            <input
+              className="input"
+              placeholder="Cari nama, label, atau kategori..."
+              value={printSearch}
+              onChange={e => setPrintSearch(e.target.value)}
+            />
+          </div>
+          <div style={{ flex: 1, overflowY: "auto", maxHeight: 350, background: "rgba(0,0,0,0.15)", borderRadius: 12, padding: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+            {isSearchingPrint ? (
+              <div style={{ textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
+                <div className="spinner spinner-sm" style={{ margin: "0 auto 12px" }} />
+                Mencari...
+              </div>
+            ) : printSearchResults.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 32, color: "var(--text-muted)", fontSize: 13 }}>
+                Tidak ada barang ditemukan.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {printSearchResults.map(b => (
+                  <label key={b.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, cursor: "pointer", border: "1px solid transparent", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}>
+                    <input
+                      type="checkbox"
+                      checked={selectedPrintIds.has(b.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedPrintIds);
+                        if (e.target.checked) newSet.add(b.id);
+                        else newSet.delete(b.id);
+                        setSelectedPrintIds(newSet);
+                      }}
+                      style={{ width: 18, height: 18, accentColor: "var(--ds-mid)", cursor: "pointer" }}
+                    />
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 2 }}>{b.nama}</span>
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{b.labelAset || b.label || ""} • {b.kategori?.nama}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="modal-footer" style={{ borderTop: "none", paddingTop: 8, paddingBottom: 0 }}>
+            <button className="btn btn-ghost" onClick={() => { setModal("print_options"); setSelectedPrintIds(new Set()); setPrintSearch(""); }}>Kembali</button>
+            <button
+              className="btn btn-primary"
+              disabled={selectedPrintIds.size === 0}
+              onClick={() => handleBulkPrint("SELECTED", Array.from(selectedPrintIds))}
+            >
+              <i className="ti ti-printer" /> Cetak ({selectedPrintIds.size}) QR
+            </button>
+          </div>
         </div>
       </Modal>
 

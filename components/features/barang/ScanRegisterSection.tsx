@@ -77,7 +77,6 @@ export default function ScanRegisterSection() {
       <div className="glass" style={{ padding: 24 }}>
         <div className="scan-heading">
           <div className="scan-title">Scan QR / Barcode Aset</div>
-          <div className="scan-sub">Sudah di DB → tampil info &nbsp;·&nbsp; Belum → form registrasi baru</div>
         </div>
 
         {/* Camera viewport */}

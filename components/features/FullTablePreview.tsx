@@ -49,7 +49,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
       load(true);
     }, 300);
     return () => clearTimeout(delay);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, search]);
 
   // Local sorting so it behaves instantly like a spreadsheet
@@ -219,21 +219,21 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
             ) : filteredAndSorted.map((b, i) => (
               <tr key={b.id}>
                 <td className="td-sm text-muted">{i + 1}</td>
-                <td className="td-sm font-medium">{b.kategori?.nama || "-"}</td>
-                <td className="td-code">{b.label || "-"}</td>
-                <td className="td-code">{b.sn || "-"}</td>
-                <td className="td-code">{b.labelAset || "-"}</td>
-                <td className="td-sm">{b.merek || "-"}</td>
-                <td className="td-sm">{b.model || "-"}</td>
-                <td className="td-sm">{b.tipe || "-"}</td>
-                <td className="td-sm font-medium text-info">{b.ruangan?.kode || "-"}</td>
-                <td className="td-sm">{b.harga ? `Rp ${b.harga.toLocaleString("id-ID")}` : "-"}</td>
-                <td className="td-sm">{b.sumberTahun || "-"}</td>
-                <td className="td-sm text-muted">{b.tanggalDatang ? new Date(b.tanggalDatang).toLocaleDateString("id-ID") : "-"}</td>
-                <td className="td-sm text-muted">{b.tanggalPindah ? new Date(b.tanggalPindah).toLocaleDateString("id-ID") : "-"}</td>
+                <td className="td-sm font-medium">{b.kategori?.nama || ""}</td>
+                <td className="td-code">{b.label || ""}</td>
+                <td className="td-code">{b.sn || ""}</td>
+                <td className="td-code">{b.labelAset || ""}</td>
+                <td className="td-sm">{b.merek || ""}</td>
+                <td className="td-sm">{b.model || ""}</td>
+                <td className="td-sm">{b.tipe || ""}</td>
+                <td className="td-sm font-medium text-info">{b.ruangan?.kode || ""}</td>
+                <td className="td-sm">{b.harga ? `Rp ${b.harga.toLocaleString("id-ID")}` : ""}</td>
+                <td className="td-sm">{b.sumberTahun || ""}</td>
+                <td className="td-sm text-muted">{b.tanggalDatang ? new Date(b.tanggalDatang).toLocaleDateString("id-ID") : ""}</td>
+                <td className="td-sm text-muted">{b.tanggalPindah ? new Date(b.tanggalPindah).toLocaleDateString("id-ID") : ""}</td>
                 <td><span className={`badge ${b.kondisi === "BAIK" ? "badge-ok" : "badge-warn"}`}>{b.kondisi.replace(/_/g, " ")}</span></td>
                 <td><span className={`badge ${b.status === "TERSEDIA" ? "badge-ok" : "badge-muted"}`}>{b.status}</span></td>
-                <td className="td-sm max-w-[200px] truncate" title={b.keterangan || ""}>{b.keterangan || "-"}</td>
+                <td className="td-sm max-w-[200px] truncate" title={b.keterangan || ""}>{b.keterangan || ""}</td>
               </tr>
             ))}
           </tbody>

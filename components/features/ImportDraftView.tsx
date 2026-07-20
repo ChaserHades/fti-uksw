@@ -275,13 +275,13 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                   </td>
 
                   {/* Label Aset */}
-                  <td className="td-code">{r.labelAset || r.label || "-"}</td>
+                  <td className="td-code">{r.labelAset || r.label || ""}</td>
 
                   {/* Label */}
-                  <td className="td-code">{r.label || "-"}</td>
+                  <td className="td-code">{r.label || ""}</td>
 
                   {/* Tahun */}
-                  <td className="td-sm">{r.sumberTahun || "-"}</td>
+                  <td className="td-sm">{r.sumberTahun || ""}</td>
 
                   {/* Actions (error only) */}
                   {tab === "error" && (

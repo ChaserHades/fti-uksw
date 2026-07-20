@@ -11,7 +11,7 @@ import type { Peminjaman } from "@/types";
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
 export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
-  const [list,   setList]   = useState<Peminjaman[]>([]);
+  const [list, setList] = useState<Peminjaman[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("");
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -35,7 +35,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
 
   useEffect(() => {
     load(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   function exportCSV() {
@@ -57,10 +57,10 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
       t.status,
       t.terlambat ? "Ya" : "Tidak",
     ]);
-    const csv  = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
     a.href = url;
     a.download = `riwayat-peminjaman-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
@@ -80,9 +80,9 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
       {/* Summary */}
       <div className="grid-3 mb-16">
         {[
-          { label: "Total Peminjaman", value: list.length,                                badge: "badge-info"   },
-          { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length, badge: "badge-warn"   },
-          { label: "Terlambat",       value: list.filter(t => t.terlambat).length,         badge: "badge-danger" },
+          { label: "Total Peminjaman", value: list.length, badge: "badge-info" },
+          { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length, badge: "badge-warn" },
+          { label: "Terlambat", value: list.filter(t => t.terlambat).length, badge: "badge-danger" },
         ].map(s => (
           <div key={s.label} className="glass summary-badge-row">
             <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
@@ -148,7 +148,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
                     </td>
                     <td className="td-sm">{t.ruanganTujuan}</td>
                     <td>
-                      <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? "—"}</div>
+                      <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? ""}</div>
                       <div className="td-code">{t.user.email}</div>
                     </td>
                     <td className="td-sm">{fDateShort(t.tanggalPinjam)}</td>
@@ -169,9 +169,9 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
           </table>
           {cursor && (
             <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-              <button 
-                className="btn btn-ghost" 
-                onClick={() => load(false)} 
+              <button
+                className="btn btn-ghost"
+                onClick={() => load(false)}
                 disabled={loadingMore}
               >
                 {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}

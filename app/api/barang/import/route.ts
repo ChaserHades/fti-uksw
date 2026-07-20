@@ -40,12 +40,12 @@ export async function POST(req: Request) {
           let ruangan = await prisma.ruangan.findUnique({
             where: { kode: ruanganStr }
           });
-          
+
           if (!ruangan) {
             // Extract Lantai (First digit)
             const match = ruanganStr.match(/^(\d)/);
             const lantaiStr = match ? `Lantai ${match[1]}` : null;
-            
+
             ruangan = await prisma.ruangan.create({
               data: { kode: ruanganStr, nama: ruanganStr, lantai: lantaiStr }
             });
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         const hasSticker = !!(row.label || row.labelAset || row.sn);
 
         if (existingBarang) {
-          const isChanged = 
+          const isChanged =
             existingBarang.nama !== namaFallback ||
             existingBarang.merek !== (row.merek || null) ||
             existingBarang.model !== (row.model || null) ||
