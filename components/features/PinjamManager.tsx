@@ -60,7 +60,9 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
 
   useEffect(() => { 
     loadAktif(true); 
-    if (searchParams.get("action") === "scan") setMode("scan");
+    const action = searchParams.get("action");
+    if (action === "scan") setMode("scan");
+    else if (action === "list") setMode("list");
   }, [searchParams, search]);
 
 
@@ -377,44 +379,49 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       </Modal>
 
       {/* Modal Kembali */}
-      <Modal open={modalKembali} onClose={() => { setModalKembali(false); setPeminjamanAktif(null); setBarang(null); }} title="Konfirmasi Pengembalian">
+      <Modal open={modalKembali} onClose={() => { setModalKembali(false); setPeminjamanAktif(null); setBarang(null); }} title="Peringatan Status Barang">
         {barang && peminjamanAktif && (
-          <>
-            <div className="modal-preview">
-              <div className="modal-preview-title" style={{ marginBottom: 8 }}>{barang.nama}</div>
-              <div className="flex-col" style={{ gap: 5 }}>
-                {[
-                  { label: "Kode",     value: barang.label },
-                  { label: "Peminjam", value: peminjamanAktif.namaPeminjam },
-                  { label: "Dipinjam", value: fDateShort(peminjamanAktif.tanggalPinjam) },
-                  { label: "Deadline", value: fDateShort(peminjamanAktif.deadlineKembali) },
-                ].map(row => (
-                  <div key={row.label} className="modal-preview-row">
-                    <span className="modal-preview-label">{row.label}</span>
-                    <span className="modal-preview-value" style={{ fontFamily: row.label === "Kode" ? "monospace" : undefined }}>{row.value}</span>
-                  </div>
-                ))}
+          <div style={{ textAlign: "center", padding: "8px 0" }}>
+            <div style={{ 
+              width: 72, height: 72, borderRadius: "50%", background: "rgba(255, 171, 0, 0.1)", 
+              display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" 
+            }}>
+              <i className="ti ti-alert-triangle" style={{ fontSize: 36, color: "var(--color-warn)" }} />
+            </div>
+            
+            <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", marginBottom: 12 }}>
+              Barang Masih Dipinjam!
+            </h3>
+            
+            <p style={{ color: "var(--text-secondary)", fontSize: 14, marginBottom: 24, lineHeight: 1.5, padding: "0 16px" }}>
+              Sistem mencatat bahwa <strong>{barang.nama}</strong> ({barang.label || barang.kode}) saat ini masih dalam status peminjaman oleh <strong style={{ color: "var(--text-primary)" }}>{peminjamanAktif.namaPeminjam}</strong>.
+            </p>
+
+            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 16, textAlign: "left", marginBottom: 24 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>Tgl Pinjam</span>
+                <span style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 500 }}>{fDateShort(peminjamanAktif.tanggalPinjam)}</span>
               </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>Batas Kembali</span>
+                <span style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 500 }}>{fDateShort(peminjamanAktif.deadlineKembali)}</span>
+              </div>
+              {isOverdue(peminjamanAktif.deadlineKembali) && (
+                <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)", color: "var(--color-danger)", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                  <i className="ti ti-alert-circle" style={{ fontSize: 16 }} /> Melewati batas waktu pengembalian!
+                </div>
+              )}
             </div>
 
-            {isOverdue(peminjamanAktif.deadlineKembali) && (
-              <div className="alert alert-danger mb-16">
-                <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
-                Barang ini sudah melewati deadline pengembalian!
-              </div>
-            )}
-
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 16 }}>
-              Konfirmasi bahwa barang telah dikembalikan. Status akan otomatis berubah menjadi <strong>Tersedia</strong>.
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-ghost" onClick={() => { setModalKembali(false); setPeminjamanAktif(null); setBarang(null); }}>Batal</button>
-              <button className="btn btn-success" onClick={() => handleKembali(peminjamanAktif.id)} disabled={processing}>
-                {processing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-circle-check" />Konfirmasi Kembali</>}
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setModalKembali(false); setPeminjamanAktif(null); setBarang(null); }}>
+                Tutup
+              </button>
+              <button className="btn btn-success" style={{ flex: 1.5 }} onClick={() => handleKembali(peminjamanAktif.id)} disabled={processing}>
+                {processing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</> : <><i className="ti ti-check" /> Tandai Dikembalikan</>}
               </button>
             </div>
-          </>
+          </div>
         )}
       </Modal>
     </>

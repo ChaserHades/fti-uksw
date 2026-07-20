@@ -5,7 +5,7 @@ import Modal from "@/components/Modal";
 import LiquidSelect from "@/components/LiquidSelect";
 import LiquidSelectAsync from "@/components/LiquidSelectAsync";
 import ConfirmModal from "@/components/ConfirmModal";
-import ExportModal from "@/components/features/ExportModal";
+
 import FullTablePreview from "@/components/features/FullTablePreview";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
@@ -47,7 +47,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [sortDir, setSortDir] = useState("desc");
 
   // Modal state
-  const [modal, setModal] = useState<"form" | "qr" | "print_options" | "print_select" | "cek" | null>(null);
+  const [modal, setModal] = useState<"form" | "qr" | "print_options" | "print_select" | "export_options" | "export_select" | "cek" | null>(null);
   const [selected, setSelected] = useState<Barang | null>(null);
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
   const [qrData, setQrData] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
@@ -58,6 +58,13 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [printSearchResults, setPrintSearchResults] = useState<Barang[]>([]);
   const [selectedPrintIds, setSelectedPrintIds] = useState<Set<string>>(new Set());
   const [isSearchingPrint, setIsSearchingPrint] = useState(false);
+
+  // Export Selection state
+  const [exportFormat, setExportFormat] = useState<"xlsx" | "csv">("xlsx");
+  const [exportSearch, setExportSearch] = useState("");
+  const [exportSearchResults, setExportSearchResults] = useState<Barang[]>([]);
+  const [selectedExportIds, setSelectedExportIds] = useState<Set<string>>(new Set());
+  const [isSearchingExport, setIsSearchingExport] = useState(false);
 
   // Print Unprinted Confirm State
   const [confirmUnprintedCount, setConfirmUnprintedCount] = useState<number | null>(null);
@@ -78,7 +85,6 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [loadingMore, setLoadingMore] = useState(false);
 
   // Sub-features
-  const [showExport, setShowExport] = useState(false);
   const [fullPreview, setFullPreview] = useState(false);
 
   /* ── Data loading ── */
@@ -118,6 +124,20 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       return () => clearTimeout(delay);
     }
   }, [modal, printSearch]);
+
+  /* ── Export Selection Search ── */
+  useEffect(() => {
+    if (modal === "export_select") {
+      setIsSearchingExport(true);
+      const delay = setTimeout(() => {
+        api.get<{ data: Barang[] }>(`/api/barang?limit=50&search=${encodeURIComponent(exportSearch)}`)
+          .then(res => setExportSearchResults(res.data))
+          .catch(console.error)
+          .finally(() => setIsSearchingExport(false));
+      }, 300);
+      return () => clearTimeout(delay);
+    }
+  }, [modal, exportSearch]);
 
   /* ── Form helpers ── */
   const handleFieldChange = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
@@ -184,6 +204,49 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       if (mode === "NOT_PRINTED") load(true);
     } catch (e: any) {
       toast.error(e.response?.data?.error || "Gagal menyiapkan dokumen cetak", { id: toastId });
+    }
+  }
+
+  async function handleBulkExport(mode: "ALL" | "TODAY" | "SELECTED", customIds?: string[]) {
+    const toastId = toast.loading("Mengekspor data...");
+    setModal(null);
+    try {
+      const q = new URLSearchParams();
+      q.set("format", exportFormat);
+      q.set("mode", mode);
+      
+      if (mode === "SELECTED") {
+        if (!customIds || customIds.length === 0) {
+          toast.error("Pilih setidaknya satu barang", { id: toastId });
+          return;
+        }
+        q.set("ids", customIds.join(","));
+      }
+
+      if (sortBy) q.set("sortBy", sortBy);
+      if (sortDir) q.set("sortDir", sortDir);
+
+      const res = await fetch(`/api/barang/export?${q.toString()}`);
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error || "Gagal export");
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const d = new Date();
+      const dateStr = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+      a.download = `Export_Aset_${dateStr}.${exportFormat}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("Berhasil di-export", { id: toastId });
+    } catch (e: any) {
+      toast.error(e.message || "Gagal export", { id: toastId });
     }
   }
 
@@ -328,7 +391,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                 <button className="btn btn-ghost" onClick={() => setModal("print_options")} title="Print QR Semua Barang (Bulk)">
                   <i className="ti ti-printer" /> Bulk Print
                 </button>
-                <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setShowExport(true)}>
+                <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setModal("export_options")}>
                   <i className="ti ti-download" /> Export
                 </button>
                 <button className="btn btn-primary" onClick={openAdd}>
@@ -392,15 +455,16 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               <tr>
                 <th style={{ width: "6%" }}>No</th>
                 <th>Kategori</th>
-                <th style={{ width: "20%" }}>Label</th>
-                <th style={{ width: "20%" }}>Label Aset</th>
+                <th style={{ width: "15%" }}>Label</th>
+                <th style={{ width: "15%" }}>Label Aset</th>
+                <th style={{ width: "10%" }}>Status</th>
                 <th style={{ width: "15%" }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {barang.length === 0 ? (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <div className="empty-state">
                       <i className="ti ti-box-off" style={{ fontSize: 30 }} />
                       Tidak ada data barang
@@ -413,6 +477,12 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                   <td className="td-sm font-medium">{b.kategori.nama}</td>
                   <td className="td-code">{b.label || ""}</td>
                   <td className="td-code">{b.labelAset || ""}</td>
+                  <td>
+                    {b.status === "TERSEDIA" && <span className="badge badge-ok">Tersedia</span>}
+                    {b.status === "DIPINJAM" && <span className="badge badge-warn">Dipinjam</span>}
+                    {b.status === "MAINTENANCE" && <span className="badge badge-info">Mainten.</span>}
+                    {b.status === "RUSAK" && <span className="badge badge-error">Rusak</span>}
+                  </td>
                   <td>
                     <div className="action-row">
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openCekBarang(b)} title="Cek Barang">
@@ -615,12 +685,95 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         </div>
       )}
 
-      {showExport && (
-        <ExportModal
-          open={showExport}
-          onClose={() => setShowExport(false)}
-        />
-      )}
+      {/* Export Options Modal */}
+      <Modal open={modal === "export_options"} onClose={() => setModal(null)} title="Pilih Opsi Export Aset">
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "12px" }}>
+          
+          <div className="form-group" style={{ marginBottom: 12 }}>
+            <label className="form-label" style={{ fontSize: 13 }}>Format Export</label>
+            <div style={{ display: "flex", gap: "16px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: 14 }}>
+                <input type="radio" name="exportFormat" checked={exportFormat === "xlsx"} onChange={() => setExportFormat("xlsx")} style={{ accentColor: "var(--color-info)" }} />
+                Excel (.xlsx)
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: 14 }}>
+                <input type="radio" name="exportFormat" checked={exportFormat === "csv"} onChange={() => setExportFormat("csv")} style={{ accentColor: "var(--color-info)" }} />
+                CSV (.csv)
+              </label>
+            </div>
+          </div>
+
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkExport("TODAY")}>
+            <i className="ti ti-calendar" style={{ color: "var(--color-info)" }} /> Export Data Hari Ini
+          </button>
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => setModal("export_select")}>
+            <i className="ti ti-file" style={{ color: "var(--ds-mist)" }} /> Export Barang Pilihan (Manual)
+          </button>
+          <button className="btn btn-ghost" style={{ justifyContent: "flex-start" }} onClick={() => handleBulkExport("ALL")}>
+            <i className="ti ti-database" style={{ color: "var(--color-warn)" }} /> Export Seluruh Database
+          </button>
+        </div>
+      </Modal>
+
+      {/* Export Select Modal */}
+      <Modal open={modal === "export_select"} onClose={() => { setModal(null); setSelectedExportIds(new Set()); setExportSearch(""); }} title="Pilih Barang untuk di-Export">
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", minHeight: 300 }}>
+          <div className="search-wrap" style={{ margin: 0 }}>
+            <i className="ti ti-search search-icon" />
+            <input
+              className="input"
+              placeholder="Ketik nama atau label barang lalu tunggu sejenak..."
+              value={exportSearch}
+              onChange={e => setExportSearch(e.target.value)}
+            />
+          </div>
+
+          <div style={{ flex: 1, overflowY: "auto", maxHeight: 350, background: "rgba(0,0,0,0.15)", borderRadius: 12, padding: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+            {isSearchingExport ? (
+              <div style={{ textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
+                <div className="spinner spinner-sm" style={{ margin: "0 auto 12px" }} />
+                Mencari...
+              </div>
+            ) : exportSearchResults.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 32, color: "var(--text-muted)", fontSize: 13 }}>
+                Tidak ada barang ditemukan.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {exportSearchResults.map(b => (
+                  <label key={b.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, cursor: "pointer", border: "1px solid transparent", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}>
+                    <input
+                      type="checkbox"
+                      checked={selectedExportIds.has(b.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedExportIds);
+                        if (e.target.checked) newSet.add(b.id);
+                        else newSet.delete(b.id);
+                        setSelectedExportIds(newSet);
+                      }}
+                      style={{ width: 18, height: 18, accentColor: "var(--ds-mid)", cursor: "pointer" }}
+                    />
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 2 }}>{b.nama}</span>
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{b.labelAset || b.label || ""} • {b.kategori?.nama}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="modal-footer" style={{ borderTop: "none", paddingTop: 8, paddingBottom: 0 }}>
+            <button className="btn btn-ghost" onClick={() => { setModal("export_options"); setSelectedExportIds(new Set()); setExportSearch(""); }}>Kembali</button>
+            <button
+              className="btn btn-primary"
+              disabled={selectedExportIds.size === 0}
+              onClick={() => handleBulkExport("SELECTED", Array.from(selectedExportIds))}
+            >
+              <i className="ti ti-download" /> Export ({selectedExportIds.size}) Data
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Cek Barang Modal — Detail + Invoice */}
       <Modal open={modal === "cek"} onClose={() => setModal(null)} title={cekBarang ? `Detail: ${cekBarang.nama}` : "Detail Barang"}>

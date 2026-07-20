@@ -11,14 +11,26 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") || "xlsx";
-  const type = searchParams.get("type") || "all";
+  const mode = searchParams.get("mode") || "ALL";
+  const idsParam = searchParams.get("ids");
   
   const sortBy = searchParams.get("sortBy") || "createdAt";
   const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
 
-  // Build Query
+  // Build Query based on mode
   const where: any = {};
-  if (type === "filter") {
+  
+  if (mode === "TODAY") {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    where.createdAt = { gte: today };
+  } else if (mode === "SELECTED") {
+    const ids = idsParam ? idsParam.split(",") : [];
+    if (ids.length > 0) {
+      where.id = { in: ids };
+    }
+  } else if (mode === "FILTER") {
+    // Keep legacy filter support just in case
     const search = searchParams.get("search");
     if (search) {
       where.OR = [
