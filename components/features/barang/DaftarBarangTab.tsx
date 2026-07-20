@@ -450,7 +450,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       {/* Scanner Modal */}
       <Modal open={scanModalOpen} onClose={() => { stopCamera(); setScanModalOpen(false); }} title="Scan QR Code Aset">
         <div style={{
-          position: "relative", width: "100%", aspectRatio: "4/3", borderRadius: 12,
+          position: "relative", width: "100%", aspectRatio: "3/2", borderRadius: 10,
           overflow: "hidden", background: "#000",
           border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
           marginBottom: 16,
@@ -458,14 +458,9 @@ export default function DaftarBarangTab({ role }: { role: string }) {
           <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "scaleX(-1)" }} />
           <canvas ref={canvasRef} style={{ display: "none" }} />
           {!scanning && (
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
-              <i className="ti ti-camera-off" style={{ fontSize: 36, color: "var(--text-muted)" }} />
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
-            </div>
-          )}
-          {scanning && (
-            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-              <div style={{ width: 180, height: 180, borderRadius: 10, border: "2px solid var(--color-ok)", boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)" }} />
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <i className="ti ti-camera-off" style={{ fontSize: 28, color: "var(--text-muted)" }} />
+              <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
             </div>
           )}
         </div>
