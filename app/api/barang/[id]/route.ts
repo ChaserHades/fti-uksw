@@ -1,7 +1,7 @@
 // app/api/barang/[id]/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
 
 type Params = { params: Promise<{ id: string }> };
@@ -18,14 +18,21 @@ export async function GET(_: Request, { params }: Params) {
 
 export async function PUT(req: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN")
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
+  if (session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const kategoriId = await resolveKategori(body.kategoriId);
   if (!kategoriId) return NextResponse.json({ error: "Kategori wajib diisi" }, { status: 400 });
   const ruanganId = await resolveRuangan(body.ruanganId);
+
+  const jumlah = body.jumlah ? Number(body.jumlah) : 1;
+  const harga = body.harga ? Number(body.harga) : null;
+
+  if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
+  if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
   const item = await prisma.barang.update({
     where: { id },
@@ -40,10 +47,10 @@ export async function PUT(req: Request, { params }: Params) {
       vendor: body.vendor || null,
       keterangan: body.keterangan ?? null,
       kondisi: body.kondisi,
-      jumlah: Number(body.jumlah),
+      jumlah: jumlah,
       tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
       tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
-      harga: body.harga ? Number(body.harga) : null,
+      harga: harga,
       sumberTahun: body.sumberTahun || null,
       kategoriId,
       ruanganId,
@@ -55,8 +62,9 @@ export async function PUT(req: Request, { params }: Params) {
 
 export async function DELETE(_: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN")
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
+  if (session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {

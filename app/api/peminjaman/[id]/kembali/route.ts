@@ -1,15 +1,18 @@
 // app/api/peminjaman/[id]/kembali/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function POST(_: Request, { params }: Params) {
-  const { id } = await params;
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
+  if (session.role !== "ADMIN" && session.role !== "TEKNISI") {
+    return NextResponse.json({ error: "Forbidden: Hanya teknisi atau admin yang dapat memproses pengembalian" }, { status: 403 });
+  }
 
+  const { id } = await params;
   const peminjaman = await prisma.peminjaman.findUnique({ where: { id } });
   if (!peminjaman || peminjaman.status === "SELESAI")
     return NextResponse.json({ error: "Peminjaman tidak valid" }, { status: 400 });

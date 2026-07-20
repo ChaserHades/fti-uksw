@@ -6,6 +6,7 @@ import StatCard from "@/components/StatCard";
 import QuickActionCard from "@/components/QuickActionCard";
 import ProgressList from "@/components/ProgressList";
 import { api } from "@/helpers/api";
+import { fCurrency, terbilang } from "@/helpers/format";
 import type { DashboardStats, Barang, Pengeluaran } from "@/types";
 
 interface KategoriStat { nama: string; total: number; }
@@ -121,10 +122,15 @@ export default function UniversitasDashboard() {
         <Link href="/universitas/manajemen?tab=laporan" className="bento-card bento-span-4" style={{ justifyContent: "space-between" }}>
           <span style={{ color: "var(--color-warn)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600 }}>Total Pengeluaran</span>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
-            <div style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--color-ok)" }}>
-              Rp {(totalNominal / 1000000).toFixed(1)}M
+            <div style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--color-ok)" }}>
+              {fCurrency(totalNominal)}
             </div>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dari {stats?.pengeluaranStat?.count || 0} peminjaman pembelian</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
+                ({terbilang(totalNominal)} Rupiah)
+              </span>
+              <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dari {stats?.pengeluaranStat?.count || 0} catatan pengeluaran</span>
+            </div>
           </div>
         </Link>
 

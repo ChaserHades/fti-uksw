@@ -2,6 +2,7 @@
 "use client";
 import AsyncAutocomplete from "@/components/AsyncAutocomplete";
 import LiquidSelect from "@/components/LiquidSelect";
+import { terbilang } from "@/helpers/format";
 import { KONDISI_OPTIONS } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
 import type { Kategori, Ruangan } from "@/types";
@@ -164,6 +165,11 @@ export default function BarangFormFields({
         <div className="form-group">
           <label className="form-label">Harga (Rp)</label>
           <input type="number" className="input" placeholder="0" value={form.harga} onChange={e => onChange("harga", e.target.value)} />
+          {form.harga && !isNaN(Number(form.harga)) && Number(form.harga) > 0 && (
+            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6, fontStyle: "italic" }}>
+              {terbilang(Number(form.harga))} Rupiah
+            </div>
+          )}
         </div>
         {!compact && (
           <div className="form-group">

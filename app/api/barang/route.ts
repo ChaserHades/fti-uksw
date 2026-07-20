@@ -1,12 +1,12 @@
 // app/api/barang/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
 
 export async function GET(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
 
   const searchParams = new URL(req.url).searchParams;
   const search     = searchParams.get("search")     ?? "";
@@ -86,14 +86,21 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN")
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
+  if (session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const kategoriId = await resolveKategori(body.kategoriId);
   if (!kategoriId) return NextResponse.json({ error: "Kategori wajib diisi" }, { status: 400 });
   const ruanganId = await resolveRuangan(body.ruanganId);
+
+  const jumlah = body.jumlah ? Number(body.jumlah) : 1;
+  const harga = body.harga ? Number(body.harga) : null;
+
+  if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
+  if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
   const item = await prisma.barang.create({
     data: {
@@ -108,10 +115,10 @@ export async function POST(req: Request) {
       keterangan: body.keterangan || null,
       kondisi:    body.kondisi || "BAIK",
       status:     body.status || "TERSEDIA",
-      jumlah:     body.jumlah ? Number(body.jumlah) : 1,
+      jumlah:     jumlah,
       tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
       tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
-      harga:      body.harga ? Number(body.harga) : null,
+      harga:      harga,
       hasSticker: body.hasSticker ?? false,
       sumberTahun: body.sumberTahun || null,
       ruanganId,

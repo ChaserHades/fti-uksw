@@ -1,9 +1,12 @@
 // app/api/ruangan/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 export async function GET(req: Request) {
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
+
   const { searchParams } = new URL(req.url);
   const includeCount = searchParams.get("include") === "count";
   const search = searchParams.get("search") || "";
@@ -35,8 +38,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN")
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
+  if (session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json();
   const item = await prisma.ruangan.create({

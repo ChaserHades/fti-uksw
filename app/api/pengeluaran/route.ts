@@ -1,13 +1,13 @@
 // app/api/pengeluaran/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
 export async function GET(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
 
   const searchParams = new URL(req.url).searchParams;
   const jenis = searchParams.get("jenis");
@@ -43,8 +43,8 @@ export async function GET(req: Request) {
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx"];
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
   if (session.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const formData = await req.formData();

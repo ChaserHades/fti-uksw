@@ -155,6 +155,7 @@ erDiagram
 
 ## 7. Keamanan & Integritas (Security Standard)
 
-1. **Proteksi Akses (Route Guarding):** Halaman seperti `/admin` atau `/universitas` dijaga oleh aturan logika di sisi *Server Components*. Intervensi URL ke halaman yang bukan porsinya akan segera mengembalikan (*redirect*) pengguna.
-2. **Kriptografi Kredensial:** Seluruh kombinasi sandi (`password`) di-*hash* satu arah (*one-way salted hash*) menggunakan `bcryptjs`. Pengembang atau pengelola pangkalan data (DBA) tidak dapat melihat sandi asli staf.
-3. **Penyitaan Sesi (Force Relogin):** Fitur pencegahan pembajakan yang diterapkan ketika admin menekan tuas "Reset Sandi", maka sesi staf tersebut otomatis menghendaki penggantian sandi mandiri di *login screen* berikutnya (`mustChangePassword` *flags*).
+1. **Proteksi Akses (Route Guarding & API Guard):** Halaman seperti `/admin` atau `/universitas` dijaga oleh aturan logika di sisi *Server Components*. Selain itu, seluruh rute _backend_ API dilindungi oleh *guard* tersentralisasi (`checkApiAuth`) yang akan menolak akses modifikasi data (HTTP 403 Forbidden) apabila pengguna berstatus `PENDING` atau jika peran (*role*) tidak sesuai (contoh: *role* `UNIVERSITAS` tidak bisa mengeksekusi POST Peminjaman barang).
+2. **Validasi Data Ekstrem (Anti-Glitches):** Modul API memiliki validasi keamanan terhadap _input_ anomali untuk menjaga integritas neraca aset. Sistem akan menolak masukan harga bernilai negatif maupun jumlah aset kurang dari satu (1).
+3. **Kriptografi Kredensial:** Seluruh kombinasi sandi (`password`) di-*hash* satu arah (*one-way salted hash*) menggunakan `bcryptjs`. Pengembang atau pengelola pangkalan data (DBA) tidak dapat melihat sandi asli staf.
+4. **Penyitaan Sesi (Force Relogin):** Fitur pencegahan pembajakan yang diterapkan ketika admin menekan tuas "Reset Sandi", maka sesi staf tersebut otomatis menghendaki penggantian sandi mandiri di *login screen* berikutnya (`mustChangePassword` *flags*).

@@ -61,3 +61,25 @@ export function parseQrPayload(raw: string): string {
   } catch { /* plain string */ }
   return trimmed;
 }
+
+export function terbilang(angka: number): string {
+  const words = [
+    "", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"
+  ];
+
+  if (angka < 0) return "Minus " + terbilang(Math.abs(angka));
+  if (angka === 0) return "Nol";
+  
+  if (angka < 12) return words[angka];
+  if (angka < 20) return terbilang(angka - 10) + " Belas";
+  if (angka < 100) return terbilang(Math.floor(angka / 10)) + " Puluh" + (angka % 10 !== 0 ? " " + terbilang(angka % 10) : "");
+  if (angka < 200) return "Seratus" + (angka - 100 !== 0 ? " " + terbilang(angka - 100) : "");
+  if (angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus" + (angka % 100 !== 0 ? " " + terbilang(angka % 100) : "");
+  if (angka < 2000) return "Seribu" + (angka - 1000 !== 0 ? " " + terbilang(angka - 1000) : "");
+  if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + " Ribu" + (angka % 1000 !== 0 ? " " + terbilang(angka % 1000) : "");
+  if (angka < 1000000000) return terbilang(Math.floor(angka / 1000000)) + " Juta" + (angka % 1000000 !== 0 ? " " + terbilang(angka % 1000000) : "");
+  if (angka < 1000000000000) return terbilang(Math.floor(angka / 1000000000)) + " Miliar" + (angka % 1000000000 !== 0 ? " " + terbilang(angka % 1000000000) : "");
+  if (angka < 1000000000000000) return terbilang(Math.floor(angka / 1000000000000)) + " Triliun" + (angka % 1000000000000 !== 0 ? " " + terbilang(angka % 1000000000000) : "");
+
+  return "";
+}

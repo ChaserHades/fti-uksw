@@ -1,11 +1,11 @@
 // app/api/peminjaman/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 export async function GET(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
 
   const searchParams = new URL(req.url).searchParams;
   const status = searchParams.get("status");
@@ -58,8 +58,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, error } = await checkApiAuth();
+  if (error) return error;
+  if (session.role !== "ADMIN" && session.role !== "TEKNISI") {
+    return NextResponse.json({ error: "Forbidden: Hanya teknisi atau admin yang dapat memproses peminjaman" }, { status: 403 });
+  }
 
   const { barangId, namaPeminjam, ruanganTujuan, deadlineKembali, catatan } = await req.json();
 

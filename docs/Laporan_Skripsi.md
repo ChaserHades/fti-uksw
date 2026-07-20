@@ -28,7 +28,7 @@ Penelitian ini menggunakan model pengembangan perangkat lunak _Agile Development
 3. **Implementasi Kode (Implementation):**
    - **Frontend & Backend (Fullstack):** Menggunakan *framework* **Next.js (App Router)** dengan arsitektur berbasis komponen *(React)* untuk menghasilkan *Single Page Application* yang cepat, responsif, dan siap untuk perutean API di satu wadah.
    - **Database Management:** Menggunakan **Prisma ORM** yang dihubungkan dengan *database engine* relasional **PostgreSQL** untuk menjaga keamanan tipe statis (*type safety*) dan integritas referensial.
-   - **Keamanan (Security):** Menyematkan algoritma kriptografi _bcrypt_ untuk pengacakan *password*, serta *middleware* untuk otentikasi lapis atas berdasarkan tipe _Role_.
+   - **Keamanan (Security):** Menyematkan algoritma kriptografi _bcrypt_ untuk pengacakan *password*, serta *middleware* untuk otentikasi lapis atas berdasarkan tipe _Role_. Selain itu, level _Backend_ API dilindungi menggunakan _guard_ tersentralisasi yang memblokir mutasi data dari akun berstatus _Pending_ serta menolak parameter numerik ekstrem (anti-glitches), guna menjaga integritas *database*.
    - **Pemrosesan Utilitas:** Implementasi *library* `qrcode` untuk konversi identitas aset menjadi matriks kode yang siap dipindai kamera, serta `exceljs` untuk rekapitulasi data.
 4. **Pengujian (Testing):** Melakukan _Black-box testing_ untuk mengevaluasi keluaran antarmuka, mencakup pengujian perutean otentikasi (Route Guards), uji responsivitas fitur pemindaian kamera, serta konfirmasi manipulasi data (CRUD) aset. 
 5. **Pemeliharaan (Maintenance):** Siklus iterasi yang memungkinkan peningkatan kinerja berbasis umpan balik pengguna.

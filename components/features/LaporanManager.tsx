@@ -7,7 +7,7 @@ import Modal from "@/components/Modal";
 import LiquidSelect from "@/components/LiquidSelect";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
-import { fDateShort } from "@/helpers/format";
+import { fDateShort, terbilang } from "@/helpers/format";
 import ConfirmModal from "@/components/ConfirmModal";
 import type { Pengeluaran } from "@/types";
 
@@ -338,6 +338,11 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           <div className="form-group">
             <label className="form-label">Nominal (Rp) *</label>
             <input type="number" className="input" placeholder="0" value={form.nominal} onChange={e => setF("nominal", e.target.value)} />
+            {form.nominal && !isNaN(Number(form.nominal)) && Number(form.nominal) > 0 && (
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6, fontStyle: "italic" }}>
+                {terbilang(Number(form.nominal))} Rupiah
+              </div>
+            )}
           </div>
           <div className="form-group">
             <label className="form-label">Tanggal *</label>
