@@ -394,7 +394,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
             </h3>
             
             <p style={{ color: "var(--text-secondary)", fontSize: 14, marginBottom: 24, lineHeight: 1.5, padding: "0 16px" }}>
-              Sistem mencatat bahwa <strong>{barang.nama}</strong> ({barang.label || barang.kode}) saat ini masih dalam status peminjaman oleh <strong style={{ color: "var(--text-primary)" }}>{peminjamanAktif.namaPeminjam}</strong>.
+              Sistem mencatat bahwa <strong>{barang.nama}</strong> ({barang.label || barang.labelAset}) saat ini masih dalam status peminjaman oleh <strong style={{ color: "var(--text-primary)" }}>{peminjamanAktif.namaPeminjam}</strong>.
             </p>
 
             <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 16, textAlign: "left", marginBottom: 24 }}>

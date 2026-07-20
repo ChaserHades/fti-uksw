@@ -481,7 +481,6 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                     {b.status === "TERSEDIA" && <span className="badge badge-ok">Tersedia</span>}
                     {b.status === "DIPINJAM" && <span className="badge badge-warn">Dipinjam</span>}
                     {b.status === "MAINTENANCE" && <span className="badge badge-info">Mainten.</span>}
-                    {b.status === "RUSAK" && <span className="badge badge-error">Rusak</span>}
                   </td>
                   <td>
                     <div className="action-row">
