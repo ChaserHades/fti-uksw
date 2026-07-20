@@ -9,6 +9,8 @@ import ExportModal from "@/components/features/ExportModal";
 import FullTablePreview from "@/components/features/FullTablePreview";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
+import { useQrScanner } from "@/hooks/useQrScanner";
+import { parseQrPayload } from "@/helpers/format";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
 import type { Barang, Kategori, Ruangan, Pengeluaran } from "@/types";
@@ -24,6 +26,22 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
   // Filters & sort
   const [search, setSearch] = useState("");
+
+  const [scanModalOpen, setScanModalOpen] = useState(false);
+  const handleScanResult = async (raw: string) => {
+    const code = parseQrPayload(raw);
+    setSearch(code);
+    setScanModalOpen(false);
+    try {
+      const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(code)}`);
+      if (data && data.id) {
+        openCekBarang(data);
+      }
+    } catch {
+      // If not found by kode, just leave it in the search bar
+    }
+  };
+  const { videoRef, canvasRef, scanning, startCamera, stopCamera } = useQrScanner(handleScanResult);
   const [filterKat, setFilterKat] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [sortDir, setSortDir] = useState("desc");
@@ -283,9 +301,25 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         {/* Top Header / Primary Actions */}
         <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--glass-border)" }}>
 
-          <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0 }}>
+          <div className="search-wrap" style={{ flex: "1 1 300px", minWidth: 250, margin: 0, position: "relative", display: "flex", alignItems: "center" }}>
             <i className="ti ti-search search-icon" />
-            <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} />
+            <input className="input" placeholder="Cari nama, label, label aset, kategori…" value={search} onChange={e => setSearch(e.target.value)} style={{ paddingRight: 90 }} />
+            <button 
+              onClick={async () => {
+                setScanModalOpen(true);
+                try {
+                  await startCamera();
+                } catch {
+                  toast.error("Gagal mengakses kamera");
+                }
+              }} 
+              title="Scan QR Code" 
+              className="btn btn-ghost" 
+              style={{ position: "absolute", right: 8, padding: "6px 12px", minWidth: "auto", height: "auto", display: "flex", alignItems: "center", gap: "6px" }}
+            >
+              <i className="ti ti-qrcode" style={{ fontSize: 18 }} />
+              <span style={{ fontSize: "14px", fontWeight: 500 }}>Scan</span>
+            </button>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
@@ -412,6 +446,30 @@ export default function DaftarBarangTab({ role }: { role: string }) {
           )}
         </div>
       </div>
+
+      {/* Scanner Modal */}
+      <Modal open={scanModalOpen} onClose={() => { stopCamera(); setScanModalOpen(false); }} title="Scan QR Code Aset">
+        <div style={{
+          position: "relative", width: "100%", aspectRatio: "4/3", borderRadius: 12,
+          overflow: "hidden", background: "#000",
+          border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
+          marginBottom: 16,
+        }}>
+          <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "scaleX(-1)" }} />
+          <canvas ref={canvasRef} style={{ display: "none" }} />
+          {!scanning && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+              <i className="ti ti-camera-off" style={{ fontSize: 36, color: "var(--text-muted)" }} />
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Kamera tidak aktif</span>
+            </div>
+          )}
+          {scanning && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+              <div style={{ width: 180, height: 180, borderRadius: 10, border: "2px solid var(--color-ok)", boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)" }} />
+            </div>
+          )}
+        </div>
+      </Modal>
 
       {/* Delete Confirm */}
       <ConfirmModal

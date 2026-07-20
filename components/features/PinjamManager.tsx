@@ -208,7 +208,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               border: `2px solid ${scanning ? "var(--color-ok)" : "var(--glass-border)"}`,
               marginBottom: 16, transition: "border-color .3s",
             }}>
-              <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "none" }} />
+              <video ref={videoRef} playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", display: scanning ? "block" : "none", transform: "scaleX(-1)" }} />
               <canvas ref={canvasRef} style={{ display: "none" }} />
               {!scanning && (
                 <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
