@@ -363,7 +363,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
               </div>
               <div className="form-group">
                 <label className="form-label">Deadline Kembali *</label>
-                <input type="date" className="input" value={form.deadlineKembali} onChange={e => setF("deadlineKembali", e.target.value)} />
+                <input type="date" max="9999-12-31" className="input" value={form.deadlineKembali} onChange={e => setF("deadlineKembali", e.target.value)} />
               </div>
             </div>
             <div className="form-group">

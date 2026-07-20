@@ -214,8 +214,8 @@ export default function TimVerifikasiPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>#</th><th>Nama</th><th>Email</th>
-                  <th>Role</th><th>Bergabung</th><th>Status Password</th><th style={{textAlign: "right"}}>Aksi</th>
+                  <th style={{ width: "6%" }}>No</th><th>Nama</th><th>Email</th>
+                  <th>Role</th><th>Bergabung</th><th>Status Password</th><th style={{ width: "15%" }}>Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -223,14 +223,14 @@ export default function TimVerifikasiPage() {
                   <tr>
                     <td colSpan={5}>
                       <div className="empty-state">
-                        <i className="ti ti-users" style={{ fontSize: 28 }} />
+                        <i className="ti ti-users" style={{ fontSize: 30 }} />
                         Belum ada anggota aktif
                       </div>
                     </td>
                   </tr>
                 ) : approvedUsers.map((u, i) => (
                   <tr key={u.id}>
-                    <td className="td-sm" style={{ color: "var(--text-muted)" }}>{i + 1}</td>
+                    <td className="td-sm text-muted">{i + 1}</td>
                     <td className="td-name">{u.name ?? ""}</td>
                     <td className="td-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
                     <td><span className={`badge ${roleBadge[u.role] ?? "badge-muted"}`}>{u.role}</span></td>
@@ -254,8 +254,8 @@ export default function TimVerifikasiPage() {
                         <span className="badge badge-ok"><i className="ti ti-check" /> Aman</span>
                       )}
                     </td>
-                    <td style={{textAlign: "right"}}>
-                      <div className="action-row" style={{ justifyContent: "flex-end", flexWrap: "wrap" }}>
+                    <td>
+                      <div className="action-row">
                         <button className="btn btn-ghost btn-icon btn-sm" onClick={() => setEditModal(u)} title="Edit User">
                           <i className="ti ti-edit" />
                         </button>
@@ -312,8 +312,8 @@ export default function TimVerifikasiPage() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Nama</th><th>Email</th><th>Role</th>
-                    <th>Status</th><th>Tgl Daftar</th><th>Aksi</th>
+                    <th style={{ width: "6%" }}>No</th><th>Nama</th><th>Email</th><th>Role</th>
+                    <th>Status</th><th>Tgl Daftar</th><th style={{ width: "15%" }}>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -321,15 +321,16 @@ export default function TimVerifikasiPage() {
                     <tr>
                       <td colSpan={6}>
                         <div className="empty-state">
-                          <i className="ti ti-users-minus" style={{ fontSize: 28 }} />
+                          <i className="ti ti-users-minus" style={{ fontSize: 30 }} />
                           Tidak ada user {filter !== "ALL" ? filter.toLowerCase() : ""}
                         </div>
                       </td>
                     </tr>
-                  ) : filteredVerifikasi.map(u => {
+                  ) : filteredVerifikasi.map((u, i) => {
                     const isProcessing = loading === u.id;
                     return (
                       <tr key={u.id}>
+                        <td className="td-sm text-muted">{i + 1}</td>
                         <td className="td-name">{u.name ?? ""}</td>
                         <td className="td-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
                         <td><span className={`badge ${roleBadge[u.role] ?? "badge-muted"}`}>{u.role}</span></td>

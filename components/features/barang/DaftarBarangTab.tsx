@@ -25,7 +25,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   // Filters & sort
   const [search, setSearch] = useState("");
   const [filterKat, setFilterKat] = useState("");
-  const [sortBy, setSortBy] = useState("tanggalDatang");
+  const [sortBy, setSortBy] = useState("");
   const [sortDir, setSortDir] = useState("desc");
 
   // Modal state
@@ -307,7 +307,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
         {/* Bottom Bar / Filters */}
         <div style={{ padding: "12px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", background: "rgba(0,0,0,0.15)", borderBottom: "1px solid var(--glass-border)" }}>
-          <div style={{ flex: "1 1 200px", minWidth: 150 }}>
+          <div style={{ flex: "1 1 200px", minWidth: 160 }}>
             <LiquidSelectAsync
               value={filterKat}
               onChange={setFilterKat}
@@ -316,26 +316,34 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               mapOption={item => ({ value: item.id, label: item.nama })}
             />
           </div>
-          <div style={{ flex: "1 1 180px", minWidth: 150 }}>
+          <div style={{ flex: "1 1 160px", minWidth: 140 }}>
             <LiquidSelect
               value={sortBy}
               onChange={setSortBy}
               options={[
-                { value: "tanggalDatang", label: "Sort: Tanggal" },
-                { value: "merek", label: "Sort: Merek" },
-                { value: "kategoriId", label: "Sort: Jenis" },
-                { value: "ruanganId", label: "Sort: Ruangan" },
+                { value: "", label: "Default" },
+                { value: "tanggalDatang", label: "Tanggal Datang" },
+                { value: "merek", label: "Merek" },
+                { value: "kategoriId", label: "Jenis Kategori" },
+                { value: "ruanganId", label: "Ruangan" },
               ]}
             />
           </div>
-          <div style={{ flex: "0 1 140px", minWidth: 120 }}>
+          <div style={{ flex: "1 1 140px", minWidth: 120 }}>
             <LiquidSelect
               value={sortDir}
               onChange={setSortDir}
-              options={[
-                { value: "desc", label: "Terbaru/Z-A" },
-                { value: "asc", label: "Terlama/A-Z" },
-              ]}
+              options={
+                sortBy === "tanggalDatang" || sortBy === ""
+                  ? [
+                    { value: "desc", label: "Terbaru" },
+                    { value: "asc", label: "Terlama" },
+                  ]
+                  : [
+                    { value: "asc", label: "A - Z (Menaik)" },
+                    { value: "desc", label: "Z - A (Menurun)" },
+                  ]
+              }
             />
           </div>
           <button className="btn btn-ghost" style={{ flexShrink: 0 }} onClick={() => setFullPreview(true)}>

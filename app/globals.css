@@ -896,7 +896,8 @@ button {
 
 .table-wrap {
   border-radius: 0 0 var(--r-md) var(--r-md);
-  overflow: visible;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .td-name {

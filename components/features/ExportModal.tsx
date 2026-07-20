@@ -143,10 +143,17 @@ export default function ExportModal({ open, onClose }: ExportModalProps) {
           <LiquidSelect
             value={sortDir}
             onChange={(v: any) => setSortDir(v)}
-            options={[
-              { value: "desc", label: isDateSort ? "Terbaru (Newest)" : "Z-A (Descending)" },
-              { value: "asc", label: isDateSort ? "Terlama (Oldest)" : "A-Z (Ascending)" }
-            ]}
+            options={
+              isDateSort
+                ? [
+                  { value: "desc", label: "Terbaru" },
+                  { value: "asc", label: "Terlama" }
+                ]
+                : [
+                  { value: "asc", label: "A - Z" },
+                  { value: "desc", label: "Z - A" }
+                ]
+            }
           />
         </div>
       </div>

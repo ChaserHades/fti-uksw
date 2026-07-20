@@ -26,8 +26,6 @@ async function main() {
     });
   }
 
-  // Dummy data dihapus sesuai request, mulai dari sini data akan murni dari input pengguna.
-
   console.log("Seed selesai!");
   console.log("  admin@fti.local       / admin123");
   console.log("  teknisi@fti.local     / teknisi123");

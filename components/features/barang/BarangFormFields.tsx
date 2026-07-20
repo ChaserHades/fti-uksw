@@ -151,11 +151,11 @@ export default function BarangFormFields({
         </div>
         <div className="form-group">
           <label className="form-label">Tgl Datang</label>
-          <input type="date" className="input" value={form.tanggalDatang} onChange={e => onChange("tanggalDatang", e.target.value)} />
+          <input type="date" max="9999-12-31" className="input" value={form.tanggalDatang} onChange={e => onChange("tanggalDatang", e.target.value)} />
         </div>
         <div className="form-group">
           <label className="form-label">Tgl Pindah</label>
-          <input type="date" className="input" value={form.tanggalPindah} onChange={e => onChange("tanggalPindah", e.target.value)} />
+          <input type="date" max="9999-12-31" className="input" value={form.tanggalPindah} onChange={e => onChange("tanggalPindah", e.target.value)} />
         </div>
       </div>
 

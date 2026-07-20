@@ -341,7 +341,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           </div>
           <div className="form-group">
             <label className="form-label">Tanggal *</label>
-            <input type="date" className="input" value={form.tanggal} onChange={e => setF("tanggal", e.target.value)} />
+            <input type="date" max="9999-12-31" className="input" value={form.tanggal} onChange={e => setF("tanggal", e.target.value)} />
           </div>
         </div>
         <div className="form-grid-2">
