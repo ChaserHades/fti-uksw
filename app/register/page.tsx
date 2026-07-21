@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -10,7 +10,16 @@ export default function RegisterPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState("TEKNISI");
+
+  useEffect(() => {
+    setName("");
+    setEmail("");
+    setPassword("");
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -49,18 +58,45 @@ export default function RegisterPage() {
                 <i className="ti ti-alert-circle" /> {error}
               </div>
             )}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} autoComplete="off">
               <div className="form-group">
                 <label className="form-label">Nama Lengkap</label>
-                <input name="name" className="input" placeholder="Nama lengkap" required />
+                <input
+                  name="name"
+                  className="input"
+                  placeholder="Nama lengkap"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="off"
+                />
               </div>
               <div className="form-group">
                 <label className="form-label">Email</label>
-                <input name="email" type="email" className="input" placeholder="email@domain.com" required />
+                <input
+                  name="email"
+                  type="email"
+                  className="input"
+                  placeholder="email@domain.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="off"
+                />
               </div>
               <div className="form-group">
                 <label className="form-label">Password</label>
-                <input name="password" type="password" className="input" placeholder="Minimal 8 karakter" required minLength={8} />
+                <input
+                  name="password"
+                  type="password"
+                  className="input"
+                  placeholder="Minimal 8 karakter"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
               </div>
               <div className="form-group">
                 <label className="form-label">Role yang Diajukan</label>

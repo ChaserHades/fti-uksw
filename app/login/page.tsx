@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { loginAction } from "@/actions/auth";
@@ -7,6 +7,13 @@ import { loginAction } from "@/actions/auth";
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,7 +49,7 @@ export default function LoginPage() {
                 <i className="ti ti-alert-circle" /> {error}
               </div>
             )}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} autoComplete="off">
               <div className="form-group">
                 <label className="form-label">Email</label>
                 <input
@@ -51,7 +58,9 @@ export default function LoginPage() {
                   className="input"
                   placeholder="email@domain.com"
                   required
-                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
               <div className="form-group">
@@ -62,7 +71,9 @@ export default function LoginPage() {
                   className="input"
                   placeholder="••••••••"
                   required
-                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
               <button
