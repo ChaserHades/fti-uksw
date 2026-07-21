@@ -16,12 +16,11 @@ export async function GET(_: Request, { params }: Params) {
 
   const payload = JSON.stringify({
     id: barang.id,
-    kode: barang.label,
-    nama: barang.nama,
+    kode: barang.labelAset || barang.label,
   });
 
   const qrDataUrl = await QRCode.toDataURL(payload, { width: 300, margin: 2 });
   await prisma.barang.update({ where: { id }, data: { qrCode: qrDataUrl } });
 
-  return NextResponse.json({ qrCode: qrDataUrl, kode: barang.label, nama: barang.nama });
+  return NextResponse.json({ qrCode: qrDataUrl, kode: barang.label });
 }

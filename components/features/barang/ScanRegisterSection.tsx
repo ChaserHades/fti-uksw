@@ -25,7 +25,7 @@ export default function ScanRegisterSection() {
     try {
       const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode)}`);
       setFoundBarang(data);
-      toast.success(`Barang "${data.nama}" sudah terdaftar di database`);
+      toast.success(`Barang "${data.kategori?.nama}" sudah terdaftar di database`);
     } catch {
       setForm({ ...BARANG_FORM_EMPTY, label: kode });
       setRegisterModal(true);
@@ -37,7 +37,7 @@ export default function ScanRegisterSection() {
   const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
 
   async function handleRegister() {
-    if (!form.nama.trim()) { toast.error("Nama wajib diisi"); return; }
+
     if (!form.kategori) { toast.error("Jenis barang wajib dipilih"); return; }
     setSaving(true);
     try {
@@ -51,7 +51,7 @@ export default function ScanRegisterSection() {
         kategoriId: form.kategori,
         hasSticker: true,
       });
-      toast.success(`Barang "${form.nama}" berhasil diregistrasi!`);
+      toast.success(`Barang berhasil diregistrasi!`);
       setRegisterModal(false);
       setScannedKode("");
       setForm(BARANG_FORM_EMPTY);
@@ -111,7 +111,7 @@ export default function ScanRegisterSection() {
         {/* Found result */}
         {scannedKode && !scanning && foundBarang && (
           <div className="alert alert-warn" style={{ marginTop: 14 }}>
-            <i className="ti ti-check" /> Barang <strong>{foundBarang.nama}</strong> ({foundBarang.label}) sudah terdaftar.
+            <i className="ti ti-check" /> Barang <strong>{foundBarang.kategori?.nama}</strong> ({foundBarang.label}) sudah terdaftar.
           </div>
         )}
       </div>

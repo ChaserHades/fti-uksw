@@ -133,7 +133,7 @@ export default function TeknisiDashboard() {
               return (
                 <div key={t.id} className="bento-row" style={{ padding: "12px 32px", borderTop: idx === 0 ? "none" : "" }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{t.barang.kategori?.nama}</div>
                     <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{t.namaPeminjam}</div>
                   </div>
                   <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`} style={{ padding: "2px 8px", fontSize: 10, borderRadius: 12 }}>
@@ -158,7 +158,7 @@ export default function TeknisiDashboard() {
             ) : myTrx.slice(0, 4).map((t, idx) => (
               <div key={t.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{t.barang.kategori?.nama}</div>
                   <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{t.barang.label} · Deadline: {fDateShort(t.deadlineKembali)}</div>
                 </div>
                 <div>
@@ -185,8 +185,8 @@ export default function TeknisiDashboard() {
             ) : tersedia.map((b, idx) => (
               <div key={b.id} className="bento-row" style={{ padding: "12px 32px", borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{b.nama}</div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{b.kategori?.nama}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{b.label}</div>
                 </div>
                 <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "2px 8px", fontSize: 10, borderRadius: 12 }}>
                   {b.kondisi === "BAIK" ? "Baik" : b.kondisi === "RUSAK_RINGAN" ? "Rusak" : "Rusak Berat"}

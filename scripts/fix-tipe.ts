@@ -27,7 +27,6 @@ async function fixTipeRuangan() {
         data: {
           tipe: null,
           ruanganId: ruangan.id,
-          nama: newNama
         }
       });
       console.log(`Fixed ${b.label || b.id}: tipe ${b.tipe} -> ruangan ${ruanganStr}, nama -> ${newNama}`);

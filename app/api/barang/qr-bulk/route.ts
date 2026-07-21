@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
     const barangs = await prisma.barang.findMany({
       where: whereClause,
-      select: { id: true, label: true, nama: true }
+      select: { id: true, label: true, labelAset: true }
     });
 
     if (barangs.length === 0) {
@@ -45,14 +45,12 @@ export async function POST(req: Request) {
       barangs.map(async (b) => {
         const payload = JSON.stringify({
           id: b.id,
-          kode: b.label,
-          nama: b.nama,
+          kode: b.labelAset || b.label,
         });
         const qrCode = await QRCode.toDataURL(payload, { margin: 1, width: 300 });
         return {
           id: b.id,
-          kode: b.label,
-          nama: b.nama,
+          kode: b.labelAset || b.label,
           qrCode
         };
       })

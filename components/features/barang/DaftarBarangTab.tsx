@@ -51,8 +51,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [modal, setModal] = useState<"form" | "qr" | "print_options" | "print_select" | "export_options" | "export_select" | "cek" | null>(null);
   const [selected, setSelected] = useState<Barang | null>(null);
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
-  const [qrData, setQrData] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
-  const [bulkQrData, setBulkQrData] = useState<{ qrCode: string; kode: string; nama: string }[] | null>(null);
+  const [qrData, setQrData] = useState<{ qrCode: string; kode: string } | null>(null);
+  const [bulkQrData, setBulkQrData] = useState<{ qrCode: string; kode: string }[] | null>(null);
 
   // Print Selection state
   const [printSearch, setPrintSearch] = useState("");
@@ -86,6 +86,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   // Pagination
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
   // Sub-features
   const [fullPreview, setFullPreview] = useState(false);
@@ -101,11 +102,12 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     if (currentCursor) p.set("cursor", currentCursor);
 
     if (!reset) setLoadingMore(true);
-    api.get<{ data: Barang[]; nextCursor: string | null }>(`/api/barang?${p}`)
+    api.get<{ data: Barang[]; nextCursor: string | null; totalCount: number }>(`/api/barang?${p}`)
       .then(res => {
         if (reset) setBarang(res.data);
         else setBarang(prev => [...prev, ...res.data]);
         setCursor(res.nextCursor);
+        setTotalCount(res.totalCount ?? 0);
       })
       .catch(console.error)
       .finally(() => { if (!reset) setLoadingMore(false); });
@@ -154,7 +156,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   function openEdit(b: Barang) {
     setSelected(b);
     setForm({
-      label: b.label || "", labelAset: b.labelAset || "", nama: b.nama, sn: b.sn || "",
+      label: b.label || "", labelAset: b.labelAset || "", sn: b.sn || "",
       merek: b.merek || "", model: b.model || "", tipe: b.tipe || "", vendor: b.vendor || "",
       keterangan: b.keterangan || "",
       kondisi: b.kondisi, jumlah: b.jumlah,
@@ -172,7 +174,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   async function openQR(b: Barang) {
     setSelected(b);
     try {
-      const data = await api.get<{ qrCode: string; kode: string; nama: string }>(`/api/barang/${b.id}/qr`);
+      const data = await api.get<{ qrCode: string; kode: string }>(`/api/barang/${b.id}/qr`);
       setQrData(data);
       setModal("qr");
     } catch {
@@ -198,7 +200,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     const toastId = toast.loading("Mempersiapkan dokumen cetak...");
 
     try {
-      const res = await api.post<{ qrCode: string; kode: string; nama: string }[]>("/api/barang/qr-bulk", payload);
+      const res = await api.post<{ qrCode: string; kode: string }[]>("/api/barang/qr-bulk", payload);
       setBulkQrData(res);
       toast.success("Siap dicetak!", { id: toastId });
       setTimeout(() => window.print(), 500);
@@ -254,8 +256,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }
 
   async function handleSave() {
-    if (!form.label || !form.nama || !form.kategori) {
-      toast.error("Label, nama, dan kategori wajib diisi");
+    if (!form.label || !form.kategori) {
+      toast.error("Label dan kategori wajib diisi");
       return;
     }
     setSaving(true);
@@ -498,7 +500,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                           <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit">
                             <i className="ti ti-edit" />
                           </button>
-                          <button className="btn btn-danger btn-icon btn-sm" onClick={() => setConfirmDel({ id: b.id, nama: b.nama })} title="Hapus">
+                          <button className="btn btn-danger btn-icon btn-sm" onClick={() => setConfirmDel({ id: b.id, nama: b.kategori?.nama || "Barang" })} title="Hapus">
                             <i className="ti ti-trash" />
                           </button>
                         </>
@@ -509,13 +511,18 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               ))}
             </tbody>
           </table>
-          {cursor && (
-            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-              <button className="btn btn-ghost" onClick={() => load(false)} disabled={loadingMore}>
-                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+          <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              Menampilkan {barang.length} dari {totalCount} data
+            </span>
+            {cursor ? (
+              <button className="btn btn-ghost btn-sm" onClick={() => load(false)} disabled={loadingMore}>
+                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : <>Muat Lebih Banyak <i className="ti ti-chevron-down" /></>}
               </button>
-            </div>
-          )}
+            ) : (
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Semua data ditampilkan</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -654,7 +661,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                       style={{ width: 18, height: 18, accentColor: "var(--ds-mid)", cursor: "pointer" }}
                     />
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 2 }}>{b.nama}</span>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 2 }}>{b.kategori?.nama}</span>
                       <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{b.labelAset || b.label || ""} • {b.kategori?.nama}</span>
                     </div>
                   </label>
@@ -740,7 +747,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                       style={{ width: 18, height: 18, accentColor: "var(--ds-mid)", cursor: "pointer" }}
                     />
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 2 }}>{b.nama}</span>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 2 }}>{b.kategori?.nama}</span>
                       <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{b.labelAset || b.label || ""} • {b.kategori?.nama}</span>
                     </div>
                   </label>
@@ -762,7 +769,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       </Modal>
 
       {/* Cek Barang Modal — Detail + Invoice */}
-      <Modal open={modal === "cek"} onClose={() => setModal(null)} title={cekBarang ? `Detail: ${cekBarang.nama}` : "Detail Barang"}>
+      <Modal open={modal === "cek"} onClose={() => setModal(null)} title={cekBarang ? `Detail: ${cekBarang.kategori?.nama || "Barang"}` : "Detail Barang"}>
         {cekLoading ? (
           <div style={{ textAlign: "center", padding: 32 }}>
             <div className="spinner" style={{ margin: "0 auto 12px" }} />
@@ -775,7 +782,6 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               {[
                 { label: "Label", value: cekBarang.label },
                 { label: "Label Aset", value: cekBarang.labelAset },
-                { label: "Nama", value: cekBarang.nama },
                 { label: "Kategori", value: cekBarang.kategori?.nama },
                 { label: "Merek", value: cekBarang.merek },
                 { label: "Model", value: cekBarang.model },

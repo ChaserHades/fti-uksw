@@ -147,8 +147,8 @@ export default function UniversitasDashboard() {
             ) : barang.slice(0, 5).map((b, idx) => (
               <div key={b.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{b.nama}</div>
-                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.kategori?.nama} · {b.label}</div>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{b.kategori?.nama}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.label}</div>
                 </div>
                 <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "4px 10px", fontSize: 11, borderRadius: 20 }}>
                   {b.kondisi.replace(/_/g, " ")}

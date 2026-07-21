@@ -1,10 +1,16 @@
 // helpers/api.ts
 
-// In-memory request deduplication — same URL within 300ms = same promise
+// In-memory request deduplication — same URL within 100ms = same promise
 const inflight = new Map<string, Promise<unknown>>();
 
 export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const isGet = !options?.method || options.method === "GET";
+  const isMutation = !isGet; // POST, PUT, DELETE
+
+  // Mutations invalidate all cached GET promises immediately
+  if (isMutation) {
+    inflight.clear();
+  }
 
   if (isGet) {
     const existing = inflight.get(url);
@@ -14,8 +20,8 @@ export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T
   const promise = fetch(url, {
     ...options,
     headers: { "Content-Type": "application/json", ...options?.headers },
-    // Next.js 15+ fetch cache — revalidate every 30s for GET
-    ...(isGet ? { next: { revalidate: 30 } } : { cache: "no-store" }),
+    // Always fetch fresh data — no caching for inventory system
+    cache: "no-store",
   }).then(async (res) => {
     const text = await res.text();
     let data;
@@ -28,8 +34,8 @@ export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T
 
   if (isGet) {
     inflight.set(url, promise);
-    // Clear after 300ms so rapid duplicate calls share the promise
-    promise.finally(() => setTimeout(() => inflight.delete(url), 300));
+    // Clear after 100ms so only truly duplicate rapid calls share the promise
+    promise.finally(() => setTimeout(() => inflight.delete(url), 100));
   }
 
   return promise;

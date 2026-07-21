@@ -89,10 +89,10 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
         stopCamera();
         setModalKembali(true);
       } else {
-        setLookErr(`Barang "${data.nama}" berstatus DIPINJAM tapi peminjaman tidak ditemukan`);
+        setLookErr(`Barang "${data.kategori?.nama}" berstatus DIPINJAM tapi peminjaman tidak ditemukan`);
       }
     } else {
-      setLookErr(`Barang "${data.nama}" berstatus ${data.status} — tidak dapat diproses.`);
+      setLookErr(`Barang "${data.kategori?.nama}" berstatus ${data.status} — tidak dapat diproses.`);
     }
   }
 
@@ -109,7 +109,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
         if (listData.length === 1) {
           await processBarang(listData[0]);
         } else if (listData.length > 1) {
-          setLookErr(`Ditemukan ${listData.length} barang dengan kata kunci "${kode}". Harap ketik nama lebih spesifik atau gunakan Kode Barang.`);
+          setLookErr(`Ditemukan ${listData.length} barang dengan kata kunci "${kode}". Harap ketik kata kunci lebih spesifik atau gunakan Kode Barang.`);
         } else {
           setLookErr(`Barang "${kode}" tidak ditemukan.`);
         }
@@ -223,11 +223,11 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
         </div>
 
         <div className="form-group" style={{ marginTop: 24, padding: "16px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <label className="form-label">Atau input manual (Kode / Nama):</label>
+          <label className="form-label">Atau input manual (Kode / Kategori):</label>
           <div style={{ display: "flex", gap: 8 }}>
             <input 
               className="input" 
-              placeholder="Ketik kode atau nama barang..." 
+              placeholder="Ketik kode atau kategori barang..." 
               value={manualInput} 
               onChange={e => setManualInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && manualInput.trim()) { stopCamera(); handleScanResult(manualInput.trim()); } }}
@@ -284,7 +284,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                     return (
                       <tr key={t.id}>
                         <td>
-                          <div className="td-name">{t.barang.nama}</div>
+                          <div className="td-name">{t.barang.kategori?.nama}</div>
                           <div className="td-code">{t.barang.label}</div>
                         </td>
                         <td className="td-sm">{t.namaPeminjam}</td>
@@ -333,7 +333,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                 <i className="ti ti-box" style={{ fontSize: 20 }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="modal-preview-title">{barang.nama}</div>
+                <div className="modal-preview-title">{barang.kategori?.nama}</div>
                 <div className="td-code">{barang.label}</div>
               </div>
               <span className="badge badge-ok" style={{ flexShrink: 0 }}>Tersedia</span>
@@ -384,7 +384,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
             </h3>
             
             <p style={{ color: "var(--text-secondary)", fontSize: 14, marginBottom: 24, lineHeight: 1.5, padding: "0 16px" }}>
-              Sistem mencatat bahwa <strong>{barang.nama}</strong> ({barang.label || barang.labelAset}) saat ini masih dalam status peminjaman oleh <strong style={{ color: "var(--text-primary)" }}>{peminjamanAktif.namaPeminjam}</strong>.
+              Sistem mencatat bahwa <strong>{barang.kategori?.nama}</strong> ({barang.label || barang.labelAset}) saat ini masih dalam status peminjaman oleh <strong style={{ color: "var(--text-primary)" }}>{peminjamanAktif.namaPeminjam}</strong>.
             </p>
 
             <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 16, textAlign: "left", marginBottom: 24 }}>

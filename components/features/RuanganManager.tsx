@@ -133,7 +133,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
       const b = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode.trim())}`);
       setPindahBarang(b);
       setPindahTarget(b.ruanganId ?? "");
-      toast.success(`Ditemukan: ${b.nama}`);
+      toast.success(`Ditemukan: ${b.kategori?.nama}`);
     } catch {
       toast.error(`Barang dengan kode "${kode}" tidak ditemukan`);
     }
@@ -146,7 +146,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     setPindahSaving(true);
     try {
       await api.put(`/api/barang/${pindahBarang.id}`, { ruanganId: pindahTarget });
-      toast.success(`"${pindahBarang.nama}" dipindahkan ke ruangan baru`);
+      toast.success(`"${pindahBarang.kategori?.nama}" dipindahkan ke ruangan baru`);
       setModal(null); setPindahBarang(null);
       load();
     } catch (e) {
@@ -312,7 +312,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                 <i className="ti ti-box" style={{ fontSize: 18 }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="modal-preview-title">{pindahBarang.nama}</div>
+                <div className="modal-preview-title">{pindahBarang.kategori?.nama}</div>
                 <div className="td-code">{pindahBarang.label} · Ruangan saat ini: <strong>{pindahBarang.ruangan?.kode ?? "Tidak ada"}</strong></div>
               </div>
             </div>
@@ -362,7 +362,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                   <thead>
                     <tr>
                       <th>Kode</th>
-                      <th>Nama Barang</th>
+                      <th>Kategori Barang</th>
                       <th>Kondisi</th>
                     </tr>
                   </thead>
@@ -370,7 +370,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                     {detailList.map(b => (
                       <tr key={b.id}>
                         <td className="td-mono">{b.label ?? b.sn ?? ""}</td>
-                        <td className="td-name">{b.nama}</td>
+                        <td className="td-name">{b.kategori?.nama}</td>
                         <td>
                           {b.kondisi === "BAIK" && <span className="badge badge-success">Baik</span>}
                           {b.kondisi === "RUSAK_RINGAN" && <span className="badge badge-warn">Rusak Ringan</span>}

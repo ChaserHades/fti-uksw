@@ -3,7 +3,6 @@ import ExcelJS from "exceljs";
 export type ParsedBarang = {
   label: string;
   labelAset: string | null;
-  nama: string;
   sn: string | null;
   merek: string | null;
   model: string | null;
@@ -78,14 +77,11 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
       return;
     }
 
-    
-    const nama = jenisValue || "Tanpa Nama";
-    const kategori = jenisValue || "Lainnya";
+    const kategori = jenisValue || "";
 
     results.push({
       label: labelValue || "",
       labelAset: labelAsetValue || null,
-      nama: nama,
       sn: snValue || null,
       merek: getCellValue(worksheet, rowNumber, COL.MERK) || null,
       model: getCellValue(worksheet, rowNumber, COL.MODEL) || null,

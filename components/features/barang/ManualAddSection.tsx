@@ -13,13 +13,13 @@ import BarangFormFields from "./BarangFormFields";
 export default function ManualAddSection() {
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
   const [saving, setSaving] = useState(false);
-  const [qrResult, setQrResult] = useState<{ qrCode: string; kode: string; nama: string } | null>(null);
+  const [qrResult, setQrResult] = useState<{ qrCode: string; kode: string } | null>(null);
 
   const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
 
   async function handleSave() {
-    if (!form.label || !form.nama || !form.kategori) {
-      toast.error("Label, nama, dan kategori wajib diisi");
+    if (!form.label || !form.kategori) {
+      toast.error("Label dan kategori wajib diisi");
       return;
     }
     setSaving(true);
@@ -33,7 +33,7 @@ export default function ManualAddSection() {
         ruanganId: form.ruangan || null,
         kategoriId: form.kategori,
       });
-      const qr = await api.get<{ qrCode: string; kode: string; nama: string }>(`/api/barang/${created.id}/qr`);
+      const qr = await api.get<{ qrCode: string; kode: string }>(`/api/barang/${created.id}/qr`);
       setQrResult(qr);
       toast.success("Barang ditambahkan! QR Code siap di-print.");
       setForm(BARANG_FORM_EMPTY);
@@ -66,7 +66,7 @@ export default function ManualAddSection() {
       <Modal open={!!qrResult} onClose={() => setQrResult(null)} title="QR Code Berhasil Dibuat">
         {qrResult && (
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "var(--text-primary)" }}>{qrResult.nama}</div>
+
 
             <div id="print-qr-area" style={{ background: "#fff", padding: "24px", borderRadius: "12px", display: "inline-block", margin: "16px auto 20px" }}>
               <img src={qrResult.qrCode} alt="QR" style={{ width: 200, height: 200, display: "block", marginBottom: 16 }} />

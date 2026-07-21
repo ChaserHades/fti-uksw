@@ -39,7 +39,6 @@ export async function PUT(req: Request, { params }: Params) {
     data: {
       label: body.label,
       labelAset: body.labelAset || null,
-      nama: body.nama,
       sn: body.sn || null,
       merek: body.merek || null,
       model: body.model || null,

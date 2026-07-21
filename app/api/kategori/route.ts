@@ -12,21 +12,26 @@ export async function GET(req: Request) {
   const limit = limitParam === "all" ? undefined : parseInt(limitParam || "50", 10);
   const cursor = searchParams.get("cursor");
 
-  const list = await prisma.kategori.findMany({
-    take: limit !== undefined ? limit + 1 : undefined,
-    skip: cursor ? 1 : 0,
-    cursor: cursor ? { id: cursor } : undefined,
-    where: search ? { nama: { contains: search, mode: "insensitive" } } : {},
-    orderBy: { nama: "asc" },
-  });
+  const searchWhere = search ? { nama: { contains: search, mode: "insensitive" as const } } : {};
+
+  const [list, totalCount] = await Promise.all([
+    prisma.kategori.findMany({
+      take: limit !== undefined ? limit + 1 : undefined,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      where: searchWhere,
+      orderBy: { nama: "asc" },
+    }),
+    prisma.kategori.count({ where: searchWhere }),
+  ]);
 
   let nextCursor: string | null = null;
   if (limit !== undefined && list.length > limit) {
-    const nextItem = list.pop();
-    nextCursor = nextItem!.id;
+    list.pop(); // Remove the extra item
+    nextCursor = list[list.length - 1].id;
   }
 
-  return NextResponse.json({ data: list, nextCursor });
+  return NextResponse.json({ data: list, nextCursor, totalCount });
 }
 
 export async function POST(req: Request) {

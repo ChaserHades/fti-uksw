@@ -88,7 +88,6 @@ model Barang {
   id            String        @id @default(cuid())
   label         String?       @unique
   labelAset     String?       @unique
-  nama          String
   sn            String?
   merek         String?
   model         String?

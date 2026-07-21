@@ -12,7 +12,6 @@ interface DraftRow {
   kategori: string;
   label?: string;
   labelAset?: string;
-  nama?: string;
   sn?: string;
   merek?: string;
   model?: string;
@@ -51,16 +50,22 @@ function isValidKategori(str: string | undefined | null): boolean {
    Component
    ═══════════════════════════════════════════════════════════ */
 export default function ImportDraftView({ draftValid, draftError, onCancel, onPush, pushing }: ImportDraftViewProps) {
-  const [tab, setTab] = useState<"valid" | "error">(draftError.length > 0 ? "error" : "valid");
+  const [tab, setTab] = useState<"error" | "valid">(draftError.length > 0 ? "error" : "valid");
   const [errors, setErrors] = useState<DraftRow[]>(draftError);
   const [valids, setValids] = useState<DraftRow[]>(draftValid);
+
+  // Pagination (Load More)
+  const [visibleCount, setVisibleCount] = useState(10);
+  useEffect(() => {
+    setVisibleCount(10);
+  }, [tab]);
 
   // Skip menu
   const [showSkipMenu, setShowSkipMenu] = useState(false);
   const skipRef = useRef<HTMLDivElement>(null);
 
   // Confirmation modals (double validation)
-  const [confirmAction, setConfirmAction] = useState<"skip-push-all" | "skip-delete" | "push-valid" | null>(null);
+  const [confirmAction, setConfirmAction] = useState<"skip-push-all" | "skip-delete" | "push-valid" | "bulk-validate" | null>(null);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -76,6 +81,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   /* ── Inline edit: data stays in error tab ── */
   const handleEdit = (index: number, field: keyof DraftRow, value: string) => {
     const updated = [...errors];
+    // Convert undefined to empty string to keep controlled input warning away if needed
     updated[index] = { ...updated[index], [field]: value };
     setErrors(updated);
   };
@@ -105,13 +111,23 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
     const newErrors = [...errors];
     newErrors.splice(index, 1);
     setErrors(newErrors);
-    toast(`Baris ${row._rowNumber} dihapus`, { icon: "\u{1F5D1}\u{FE0F}" });
+    toast(`Baris ${row._rowNumber} dihapus`, { icon: "🗑️" });
     if (newErrors.length === 0) setTab("valid");
   };
 
   /* ── Confirmed actions ── */
   const executeConfirmedAction = () => {
-    if (confirmAction === "skip-push-all") {
+    if (confirmAction === "bulk-validate") {
+      const fixedErrors = errors.map(e => {
+        const r = { ...e };
+        delete r._errorReason;
+        return r;
+      });
+      setValids(prev => [...prev, ...fixedErrors]);
+      setErrors([]);
+      setTab("valid");
+      toast.success("Semua data error dipindahkan ke Valid");
+    } else if (confirmAction === "skip-push-all") {
       const errorAsLainnya = errors.map(e => {
         const row = { ...e };
         if (!isValidKategori(row.kategori)) row.kategori = "Lainnya";
@@ -134,9 +150,26 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
 
   const hasErrors = errors.length > 0;
   const currentList = tab === "error" ? errors : valids;
-
+  
+  // Smart merge logic: if remaining items <= 10, show them all to avoid a straggler page
+  let displayedCount = visibleCount;
+  if (currentList.length - visibleCount <= 10) {
+    displayedCount = currentList.length;
+  }
+  const visibleList = currentList.slice(0, displayedCount);
   /* ── Confirmation modal messages ── */
   const confirmMessages: Record<string, { title: string; message: React.ReactNode; danger: boolean; label: string }> = {
+    "bulk-validate": {
+      title: "Validasi Semua Error?",
+      message: (
+        <div>
+          <div style={{ marginBottom: 8 }}><strong>{errors.length} baris</strong> akan dipindahkan ke tab Valid.</div>
+          <div style={{ fontSize: 13, opacity: 0.7 }}>Pastikan Anda sudah memperbaiki kolom-kolom yang diperlukan.</div>
+        </div>
+      ),
+      danger: false,
+      label: "Ya, Validasi & Pindahkan",
+    },
     "skip-push-all": {
       title: "Push Semua Data?",
       message: (
@@ -170,8 +203,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   const activeConfirm = confirmAction ? confirmMessages[confirmAction] : null;
 
   return (
-    <div style={{ marginTop: 24 }}>
-
+    <div style={{ marginTop: 24, paddingBottom: 60 }}>
       {/* ── Header ── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
         <div>
@@ -203,25 +235,25 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
         </div>
       </div>
 
-      {/* ── Table (matches Daftar Barang structure) ── */}
+      {/* ── Table ── */}
       <div className="glass">
         <div className="table-wrap">
-          <table className="table">
+          <table className="table" style={{ width: "100%", tableLayout: "fixed" }}>
             <thead>
               <tr>
-                <th style={{ width: "6%" }}>Baris</th>
-                {tab === "error" && <th style={{ width: "22%" }}>Alasan Error</th>}
-                <th style={{ width: tab === "error" ? "24%" : "28%" }}>Kategori *</th>
+                <th style={{ width: "5%" }}>Baris</th>
+                {tab === "error" && <th style={{ width: "15%" }}>Alasan Error</th>}
+                <th style={{ width: tab === "error" ? "20%" : "25%" }}>Kategori *</th>
                 <th style={{ width: "20%" }}>Label Aset</th>
-                <th style={{ width: tab === "error" ? "14%" : "20%" }}>Label</th>
+                <th style={{ width: "15%" }}>Label</th>
                 <th style={{ width: "10%" }}>Tahun</th>
-                {tab === "error" && <th style={{ width: "10%" }}>Aksi</th>}
+                {tab === "error" && <th style={{ width: "15%" }}>Aksi</th>}
               </tr>
             </thead>
             <tbody>
-              {currentList.length === 0 ? (
+              {visibleList.length === 0 ? (
                 <tr>
-                  <td colSpan={tab === "error" ? 7 : 5}>
+                  <td colSpan={tab === "error" ? 8 : 7}>
                     <div className="empty-state">
                       <i className="ti ti-mood-empty" style={{ fontSize: 30 }} />
                       {tab === "error"
@@ -230,85 +262,139 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                     </div>
                   </td>
                 </tr>
-              ) : currentList.map((r, i) => (
-                <tr key={`${tab}-${r._rowNumber}`}>
-                  <td className="td-sm text-muted" style={{ fontFamily: "monospace" }}>{r._rowNumber}</td>
+              ) : visibleList.map((r) => {
+                const absoluteIdx = currentList.findIndex(item => item._rowNumber === r._rowNumber);
+                
+                return (
+                  <tr key={`${tab}-${r._rowNumber}`}>
+                    <td className="td-sm text-muted" style={{ fontFamily: "monospace" }}>{r._rowNumber}</td>
 
-                  {/* Error reason */}
-                  {tab === "error" && (
-                    <td>
-                      <span style={{
-                        fontSize: 12,
-                        color: "var(--color-err)",
-                        lineHeight: 1.5,
-                        display: "block",
-                        whiteSpace: "normal",
-                        wordBreak: "break-word",
-                      }}>
-                        {r._errorReason}
-                      </span>
-                    </td>
-                  )}
-
-                  {/* Kategori */}
-                  <td>
-                    {tab === "error" ? (
-                      <input
-                        type="text"
-                        className="input"
-                        style={{
-                          width: "100%",
-                          height: 36,
-                          fontSize: 13,
-                          borderColor: isValidKategori(r.kategori)
-                            ? "rgba(125,212,168,0.4)"
-                            : "rgba(240,128,112,0.4)",
-                          transition: "border-color 0.2s",
-                        }}
-                        value={r.kategori || ""}
-                        onChange={(e) => handleEdit(i, "kategori", e.target.value)}
-                        placeholder="Min 2 karakter alfanumerik"
-                      />
-                    ) : (
-                      <span className="td-name">{r.kategori}</span>
+                    {/* Error reason */}
+                    {tab === "error" && (
+                      <td>
+                        <span style={{
+                          fontSize: 12,
+                          color: "var(--color-err)",
+                          lineHeight: 1.5,
+                          display: "block",
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                        }}>
+                          {r._errorReason}
+                        </span>
+                      </td>
                     )}
-                  </td>
 
-                  {/* Label Aset */}
-                  <td className="td-code">{r.labelAset || r.label || ""}</td>
-
-                  {/* Label */}
-                  <td className="td-code">{r.label || ""}</td>
-
-                  {/* Tahun */}
-                  <td className="td-sm">{r.sumberTahun || ""}</td>
-
-                  {/* Actions (error only) */}
-                  {tab === "error" && (
+                    {/* Kategori */}
                     <td>
-                      <div className="action-row">
-                        <button
-                          className="btn btn-ghost btn-icon btn-sm"
-                          onClick={() => handleValidateRow(i)}
-                          title="Validasi & pindah ke Valid"
-                          style={{ color: "var(--color-ok)" }}
-                        >
-                          <i className="ti ti-check" />
-                        </button>
-                        <button
-                          className="btn btn-ghost btn-icon btn-sm"
-                          onClick={() => handleDeleteRow(i)}
-                          title="Hapus baris"
-                        >
-                          <i className="ti ti-trash" />
-                        </button>
-                      </div>
+                      {tab === "error" ? (
+                        <input
+                          type="text"
+                          className="input"
+                          style={{
+                            width: "100%", height: 36, fontSize: 13,
+                            borderColor: isValidKategori(r.kategori) ? "rgba(125,212,168,0.4)" : "rgba(240,128,112,0.4)",
+                            transition: "border-color 0.2s",
+                          }}
+                          value={r.kategori || ""}
+                          onChange={(e) => handleEdit(absoluteIdx, "kategori", e.target.value)}
+                          placeholder="Min 2 karakter alfanumerik"
+                        />
+                      ) : (
+                        <span className="td-name">{r.kategori}</span>
+                      )}
                     </td>
-                  )}
-                </tr>
-              ))}
+
+                    {/* Label Aset */}
+                    <td>
+                      {tab === "error" ? (
+                        <input
+                          type="text"
+                          className="input"
+                          style={{ width: "100%", height: 36, fontSize: 13 }}
+                          value={r.labelAset || ""}
+                          onChange={(e) => handleEdit(absoluteIdx, "labelAset", e.target.value)}
+                        />
+                      ) : (
+                        <span className="td-code">{r.labelAset || r.label || ""}</span>
+                      )}
+                    </td>
+
+                    {/* Label */}
+                    <td>
+                      {tab === "error" ? (
+                        <input
+                          type="text"
+                          className="input"
+                          style={{ width: "100%", height: 36, fontSize: 13 }}
+                          value={r.label || ""}
+                          onChange={(e) => handleEdit(absoluteIdx, "label", e.target.value)}
+                        />
+                      ) : (
+                        <span className="td-code">{r.label || ""}</span>
+                      )}
+                    </td>
+
+                    {/* Tahun */}
+                    <td>
+                      {tab === "error" ? (
+                        <input
+                          type="text"
+                          className="input"
+                          style={{ width: "100%", height: 36, fontSize: 13 }}
+                          value={r.sumberTahun || ""}
+                          onChange={(e) => handleEdit(absoluteIdx, "sumberTahun", e.target.value)}
+                        />
+                      ) : (
+                        <span className="td-sm">{r.sumberTahun || ""}</span>
+                      )}
+                    </td>
+
+                    {/* Actions (error only) */}
+                    {tab === "error" && (
+                      <td>
+                        <div className="action-row">
+                          <button
+                            className="btn btn-ghost btn-icon btn-sm"
+                            onClick={() => handleValidateRow(absoluteIdx)}
+                            title="Validasi & pindah ke Valid"
+                            style={{ color: "var(--color-ok)" }}
+                          >
+                            <i className="ti ti-check" />
+                          </button>
+                          <button
+                            className="btn btn-ghost btn-icon btn-sm"
+                            onClick={() => handleDeleteRow(absoluteIdx)}
+                            title="Hapus baris"
+                          >
+                            <i className="ti ti-trash" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+
+          {currentList.length > displayedCount && (
+            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <button 
+                className="btn btn-ghost btn-sm" 
+                onClick={() => setVisibleCount(p => p + 10)}
+              >
+                Muat Lebih Banyak <i className="ti ti-chevron-down" />
+              </button>
+            </div>
+          )}
+
+          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              Menampilkan {visibleList.length} dari {currentList.length} data
+            </span>
+          </div>
+
         </div>
       </div>
 
@@ -412,19 +498,25 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
             </div>
           )}
 
-          {/* Push valid data */}
-          <button
-            className="btn btn-primary"
-            disabled={hasErrors || valids.length === 0 || pushing}
-            onClick={() => setConfirmAction("push-valid")}
-            style={{ gap: 8 }}
-          >
-            {pushing ? (
-              <><div className="spinner" style={{ width: 14, height: 14 }} /> Pushing...</>
-            ) : (
-              <><i className="ti ti-database-import" style={{ fontSize: 16 }} /> Push {valids.length} Data</>
-            )}
-          </button>
+          {/* Validasi Error atau Push Valid Data */}
+          {tab === "error" && hasErrors ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => setConfirmAction("bulk-validate")}
+              style={{ gap: 8 }}
+            >
+              <i className="ti ti-checks" /> Validasi & Pindahkan Ke Valid
+            </button>
+          ) : (
+            <button
+              className="btn btn-primary"
+              disabled={hasErrors || valids.length === 0 || pushing}
+              onClick={() => setConfirmAction("push-valid")}
+              style={{ gap: 8 }}
+            >
+              {pushing ? <><div className="spinner" style={{ width: 14, height: 14 }} />Menyimpan…</> : <><i className="ti ti-upload" />Push Data Ke DB</>}
+            </button>
+          )}
         </div>
       </div>
 

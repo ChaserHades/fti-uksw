@@ -37,7 +37,7 @@ export async function GET(req: Request) {
         { label: { contains: search, mode: "insensitive" } },
         { labelAset: { contains: search, mode: "insensitive" } },
         { sn: { contains: search, mode: "insensitive" } },
-        { nama: { contains: search, mode: "insensitive" } },
+        { kategori: { nama: { contains: search, mode: "insensitive" } } },
         { merek: { contains: search, mode: "insensitive" } }
       ];
     }

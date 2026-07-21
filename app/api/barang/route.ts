@@ -18,6 +18,8 @@ export async function GET(req: Request) {
   const limitParam = searchParams.get("limit");
   const limit = limitParam === "all" ? undefined : parseInt(limitParam || "50", 10);
   const cursor = searchParams.get("cursor");
+
+  // ── Single-item lookup by kode (QR scan, etc.) ──
   if (kode) {
     // Try exact match first
     let item = await prisma.barang.findUnique({
@@ -45,83 +47,71 @@ export async function GET(req: Request) {
     return NextResponse.json(item);
   }
 
+  // ── Build shared where clause ──
+  const where = {
+    AND: [
+      // Multi-field search: label, labelAset, kategori.nama
+      ...(search ? [{
+        OR: [
+          { label: { contains: search, mode: "insensitive" as const } },
+          { labelAset: { contains: search, mode: "insensitive" as const } },
+          { kategori: { nama: { contains: search, mode: "insensitive" as const } } },
+        ],
+      }] : []),
+      ...(kategoriId ? [{ kategoriId }] : []),
+      ...(ruanganId ? [{ ruanganId }] : []),
+      ...(tersedia === "true" ? [{ status: "TERSEDIA" as const }] : []),
+    ],
+  };
+
   const sortBy = searchParams.get("sortBy");
   const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
-  const isSortByLabelDate = sortBy === "tanggalDatang";
 
-  const list = await prisma.barang.findMany({
-    take: isSortByLabelDate ? undefined : (limit !== undefined ? limit + 1 : undefined),
-    skip: isSortByLabelDate ? undefined : (cursor ? 1 : 0),
-    cursor: (!isSortByLabelDate && cursor) ? { id: cursor } : undefined,
-    where: {
-      AND: [
-        // Multi-field search: nama, label, labelAset, kategori.nama
-        ...(search ? [{
-          OR: [
-            { nama: { contains: search, mode: "insensitive" as const } },
-            { label: { contains: search, mode: "insensitive" as const } },
-            { labelAset: { contains: search, mode: "insensitive" as const } },
-            { kategori: { nama: { contains: search, mode: "insensitive" as const } } },
-          ],
-        }] : []),
-        ...(kategoriId ? [{ kategoriId }] : []),
-        ...(ruanganId ? [{ ruanganId }] : []),
-        ...(tersedia === "true" ? [{ status: "TERSEDIA" as const }] : []),
-      ],
-    },
-    include: { kategori: true, ruangan: true },
-    orderBy: isSortByLabelDate ? undefined : (() => {
-      if (sortBy === "kategoriId") return { kategori: { nama: sortDir } };
-      if (sortBy === "ruanganId") return { ruangan: { kode: sortDir } };
-      if (sortBy === "merek" || sortBy === "harga") return { [sortBy]: sortDir };
-      return { createdAt: "desc" };
-    })(),
-  });
+  // ── Resolve orderBy ──
+  const orderBy = (() => {
+    if (sortBy === "kategoriId") return { kategori: { nama: sortDir } };
+    if (sortBy === "ruanganId") return { ruangan: { kode: sortDir } };
+    if (sortBy === "merek" || sortBy === "harga") return { [sortBy]: sortDir };
+    if (sortBy === "tanggalDatang") return { createdAt: sortDir }; // DB-level sort, refined client-side if needed
+    return { createdAt: "desc" };
+  })() as any;
 
-  let processedList = list;
+  // ── Run data query + count in parallel ──
+  const takeCount = limit !== undefined ? limit * 2 + 1 : undefined;
 
-  if (isSortByLabelDate) {
-    const getScore = (label: string) => {
-      // Allow prefixes like VENT-HDM-, extract MMYYYY-XXX
-      const match = label.match(/(\d{2})(\d{4})-(\d+)$/);
-      if (match) {
-        const [, mm, yyyy, seq] = match;
-        return parseInt(yyyy, 10) * 1000000 + parseInt(mm, 10) * 1000 + parseInt(seq, 10);
-      }
-      return 0;
-    };
+  const [list, totalCount] = await Promise.all([
+    prisma.barang.findMany({
+      take: takeCount,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      where,
+      include: { kategori: true, ruangan: true },
+      orderBy,
+    }),
+    prisma.barang.count({ where }),
+  ]);
 
-    processedList.sort((a, b) => {
-      const scoreA = getScore(a.label || "");
-      const scoreB = getScore(b.label || "");
-      if (scoreA !== scoreB) {
-        return sortDir === "asc" ? scoreA - scoreB : scoreB - scoreA;
-      }
-      return 0;
-    });
-
-    let startIndex = 0;
-    if (cursor) {
-      const cursorIndex = processedList.findIndex(item => item.id === cursor);
-      if (cursorIndex !== -1) {
-        startIndex = cursorIndex + 1;
-      }
-    }
-    
-    if (limit !== undefined) {
-      processedList = processedList.slice(startIndex, startIndex + limit + 1);
-    } else {
-      processedList = processedList.slice(startIndex);
-    }
-  }
-
+  // ── Cursor pagination ──
   let nextCursor: string | null = null;
-  if (limit !== undefined && processedList.length > limit) {
-    const nextItem = processedList.pop();
-    nextCursor = nextItem!.id;
+  let returnedList = list;
+
+  if (limit !== undefined) {
+    if (list.length > limit * 2) {
+      // Lebih dari 2x limit, berarti masih ada sisa banyak. Kembalikan sesuai limit saja.
+      returnedList = list.slice(0, limit);
+      nextCursor = list[limit - 1].id;
+    } else if (list.length > limit && list.length <= limit * 2) {
+      // Sisa data <= limit, kembalikan semuanya sekaligus agar tidak ada "straggler page"
+      returnedList = list;
+      nextCursor = null;
+    } else {
+      // Data <= limit
+      returnedList = list;
+      nextCursor = null;
+    }
   }
 
-  return NextResponse.json({ data: processedList, nextCursor });
+  return NextResponse.json({ data: returnedList, nextCursor, totalCount });
 }
 
 export async function POST(req: Request) {
@@ -145,7 +135,6 @@ export async function POST(req: Request) {
     data: {
       label: body.label,
       labelAset: body.labelAset || null,
-      nama: body.nama,
       sn: body.sn || null,
       merek: body.merek || null,
       model: body.model || null,

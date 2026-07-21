@@ -26,7 +26,7 @@ export async function GET(req: Request) {
     const data = await prisma.peminjaman.findMany({
       where,
       include: {
-        barang: { include: { ruangan: true } },
+        barang: { include: { ruangan: true, kategori: true } },
         user: true,
       },
       orderBy: { createdAt: "desc" }
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
     // Format data for export
     const rows = data.map((t, i) => ({
       NO: i + 1,
-      BARANG: t.barang?.nama || "-",
+      BARANG: t.barang?.kategori?.nama || "-",
       "LABEL BARANG": t.barang?.label || "-",
       PEMINJAM: t.namaPeminjam,
       "RUANGAN TUJUAN": t.ruanganTujuan,

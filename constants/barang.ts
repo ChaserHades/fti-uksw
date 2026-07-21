@@ -2,7 +2,7 @@
 // Shared constants for Barang-related components
 
 export const BARANG_FORM_EMPTY = {
-  label: "", labelAset: "", nama: "", sn: "", merek: "", model: "", tipe: "", vendor: "", keterangan: "",
+  label: "", labelAset: "", sn: "", merek: "", model: "", tipe: "", vendor: "", keterangan: "",
   kondisi: "BAIK", jumlah: 1, tanggalDatang: "", tanggalPindah: "", harga: "", kategori: "", ruangan: "",
   sumberTahun: "", status: "TERSEDIA"
 };

@@ -58,8 +58,8 @@ export async function POST(req: Request) {
     rawData.forEach((row, index) => {
       const draftRow = { ...row, sumberTahun, _rowNumber: index + 3 }; // +3 is an estimate of excel row
 
-      if (!draftRow.kategori || draftRow.kategori === "Lainnya") {
-        error.push({ ...draftRow, _errorReason: "Kategori kosong atau tidak terdeteksi" });
+      if (!draftRow.kategori || draftRow.kategori.trim() === "") {
+        error.push({ ...draftRow, _errorReason: "Kolom Kategori tidak boleh kosong atau hilang." });
       } else if (isAnomalousValue(draftRow.kategori)) {
         error.push({
           ...draftRow,

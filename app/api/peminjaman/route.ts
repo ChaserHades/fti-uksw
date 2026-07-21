@@ -31,30 +31,33 @@ export async function GET(req: Request) {
   if (search) {
     where.OR = [
       { namaPeminjam: { contains: search, mode: "insensitive" } },
-      { barang: { nama: { contains: search, mode: "insensitive" } } },
+      { barang: { kategori: { nama: { contains: search, mode: "insensitive" } } } },
       { barang: { label: { contains: search, mode: "insensitive" } } },
     ];
   }
 
-  const list = await prisma.peminjaman.findMany({
-    take: limit + 1,
-    skip: cursor ? 1 : 0,
-    cursor: cursor ? { id: cursor } : undefined,
-    where,
-    include: {
-      barang: { include: { kategori: true, ruangan: true } },
-      user: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [list, totalCount] = await Promise.all([
+    prisma.peminjaman.findMany({
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      where,
+      include: {
+        barang: { include: { kategori: true, ruangan: true } },
+        user: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.peminjaman.count({ where }),
+  ]);
 
   let nextCursor: string | null = null;
   if (list.length > limit) {
-    const nextItem = list.pop();
-    nextCursor = nextItem!.id;
+    list.pop(); // Remove the extra item
+    nextCursor = list[list.length - 1].id;
   }
 
-  return NextResponse.json({ data: list, nextCursor });
+  return NextResponse.json({ data: list, nextCursor, totalCount });
 }
 
 export async function POST(req: Request) {

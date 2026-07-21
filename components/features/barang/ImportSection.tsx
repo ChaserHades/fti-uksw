@@ -51,9 +51,9 @@ export default function ImportSection() {
   }
 
   return (
-    <div style={{ maxWidth: 800 }}>
+    <div>
       {!draftData ? (
-        <div className="glass" style={{ padding: 24 }}>
+        <div className="glass" style={{ padding: 24, maxWidth: 800 }}>
           <div className="scan-heading" style={{ marginBottom: 16 }}>
             <div className="scan-title">Import CSV / Excel</div>
             <div className="scan-sub">Unggah file aset. Data akan masuk ke draf (Pre-flight Check) sebelum disimpan permanen.</div>

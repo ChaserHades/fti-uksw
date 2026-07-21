@@ -60,12 +60,6 @@ export default function BarangFormFields({
         </div>
       </div>
 
-      {/* Nama Barang */}
-      <div className="form-group">
-        <label className="form-label">Nama Barang *</label>
-        <input className="input" placeholder="Nama barang" value={form.nama} onChange={e => onChange("nama", e.target.value)} />
-      </div>
-
       {/* Merek / Model / Tipe — skip model in compact */}
       {compact ? (
         <div className="form-grid-2">

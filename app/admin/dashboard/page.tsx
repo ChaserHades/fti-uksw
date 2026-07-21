@@ -166,7 +166,7 @@ export default function AdminDashboard() {
                 return (
                   <div key={t.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{t.barang.nama}</div>
+                      <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{t.barang.kategori?.nama}</div>
                       <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{t.namaPeminjam} · Deadline: {fDateShort(t.deadlineKembali)}</div>
                     </div>
                     <span className={`badge ${late ? "badge-danger" : soon ? "badge-warn" : "badge-ok"}`} style={{ padding: "4px 10px", fontSize: 11, borderRadius: 20 }}>

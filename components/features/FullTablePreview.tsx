@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import type { Barang } from "@/types";
+import { api } from "@/helpers/api";
 
 interface FullTablePreviewProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
   const [search, setSearch] = useState("");
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [sortBy, setSortBy] = useState<keyof Barang>("tanggalDatang");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -28,14 +30,12 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
     if (reset) setLoading(true);
     else setLoadingMore(true);
 
-    fetch(`/api/barang?${params}`)
-      .then(res => res.json())
-      .then(json => {
-        if (json.data) {
-          if (reset) setData(json.data);
-          else setData(prev => [...prev, ...json.data]);
-          setCursor(json.nextCursor);
-        }
+    api.get<{ data: Barang[]; nextCursor: string | null; totalCount: number }>(`/api/barang?${params}`)
+      .then(res => {
+        if (reset) setData(res.data);
+        else setData(prev => [...prev, ...res.data]);
+        setCursor(res.nextCursor);
+        setTotalCount(res.totalCount ?? 0);
       })
       .catch(console.error)
       .finally(() => {
@@ -238,13 +238,18 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
             ))}
           </tbody>
         </table>
-        {cursor && (
-          <div style={{ padding: "16px", textAlign: "center" }}>
-            <button className="btn btn-ghost" onClick={() => load(false)} disabled={loadingMore}>
-              {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
-            </button>
+        <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              Menampilkan {data.length} dari {totalCount} data
+            </span>
+            {cursor ? (
+              <button className="btn btn-ghost btn-sm" onClick={() => load(false)} disabled={loadingMore}>
+                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : <>Muat Lebih Banyak <i className="ti ti-chevron-down" /></>}
+              </button>
+            ) : (
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Semua data ditampilkan</span>
+            )}
           </div>
-        )}
       </div>
 
       {/* Hide back button hint & show real button on group hover via CSS */}

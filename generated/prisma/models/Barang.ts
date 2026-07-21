@@ -40,7 +40,6 @@ export type BarangMinAggregateOutputType = {
   id: string | null
   label: string | null
   labelAset: string | null
-  nama: string | null
   sn: string | null
   merek: string | null
   model: string | null
@@ -67,7 +66,6 @@ export type BarangMaxAggregateOutputType = {
   id: string | null
   label: string | null
   labelAset: string | null
-  nama: string | null
   sn: string | null
   merek: string | null
   model: string | null
@@ -94,7 +92,6 @@ export type BarangCountAggregateOutputType = {
   id: number
   label: number
   labelAset: number
-  nama: number
   sn: number
   merek: number
   model: number
@@ -133,7 +130,6 @@ export type BarangMinAggregateInputType = {
   id?: true
   label?: true
   labelAset?: true
-  nama?: true
   sn?: true
   merek?: true
   model?: true
@@ -160,7 +156,6 @@ export type BarangMaxAggregateInputType = {
   id?: true
   label?: true
   labelAset?: true
-  nama?: true
   sn?: true
   merek?: true
   model?: true
@@ -187,7 +182,6 @@ export type BarangCountAggregateInputType = {
   id?: true
   label?: true
   labelAset?: true
-  nama?: true
   sn?: true
   merek?: true
   model?: true
@@ -301,7 +295,6 @@ export type BarangGroupByOutputType = {
   id: string
   label: string | null
   labelAset: string | null
-  nama: string
   sn: string | null
   merek: string | null
   model: string | null
@@ -351,7 +344,6 @@ export type BarangWhereInput = {
   id?: Prisma.StringFilter<"Barang"> | string
   label?: Prisma.StringNullableFilter<"Barang"> | string | null
   labelAset?: Prisma.StringNullableFilter<"Barang"> | string | null
-  nama?: Prisma.StringFilter<"Barang"> | string
   sn?: Prisma.StringNullableFilter<"Barang"> | string | null
   merek?: Prisma.StringNullableFilter<"Barang"> | string | null
   model?: Prisma.StringNullableFilter<"Barang"> | string | null
@@ -381,7 +373,6 @@ export type BarangOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   labelAset?: Prisma.SortOrderInput | Prisma.SortOrder
-  nama?: Prisma.SortOrder
   sn?: Prisma.SortOrderInput | Prisma.SortOrder
   merek?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -414,7 +405,6 @@ export type BarangWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.BarangWhereInput | Prisma.BarangWhereInput[]
   OR?: Prisma.BarangWhereInput[]
   NOT?: Prisma.BarangWhereInput | Prisma.BarangWhereInput[]
-  nama?: Prisma.StringFilter<"Barang"> | string
   sn?: Prisma.StringNullableFilter<"Barang"> | string | null
   merek?: Prisma.StringNullableFilter<"Barang"> | string | null
   model?: Prisma.StringNullableFilter<"Barang"> | string | null
@@ -444,7 +434,6 @@ export type BarangOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   labelAset?: Prisma.SortOrderInput | Prisma.SortOrder
-  nama?: Prisma.SortOrder
   sn?: Prisma.SortOrderInput | Prisma.SortOrder
   merek?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -479,7 +468,6 @@ export type BarangScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Barang"> | string
   label?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
   labelAset?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
-  nama?: Prisma.StringWithAggregatesFilter<"Barang"> | string
   sn?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
   merek?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
   model?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
@@ -506,7 +494,6 @@ export type BarangCreateInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -534,7 +521,6 @@ export type BarangUncheckedCreateInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -562,7 +548,6 @@ export type BarangUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -590,7 +575,6 @@ export type BarangUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -618,7 +602,6 @@ export type BarangCreateManyInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -645,7 +628,6 @@ export type BarangUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -670,7 +652,6 @@ export type BarangUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -707,7 +688,6 @@ export type BarangCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   labelAset?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   sn?: Prisma.SortOrder
   merek?: Prisma.SortOrder
   model?: Prisma.SortOrder
@@ -739,7 +719,6 @@ export type BarangMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   labelAset?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   sn?: Prisma.SortOrder
   merek?: Prisma.SortOrder
   model?: Prisma.SortOrder
@@ -766,7 +745,6 @@ export type BarangMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   labelAset?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   sn?: Prisma.SortOrder
   merek?: Prisma.SortOrder
   model?: Prisma.SortOrder
@@ -929,7 +907,6 @@ export type BarangCreateWithoutKategoriInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -956,7 +933,6 @@ export type BarangUncheckedCreateWithoutKategoriInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -1012,7 +988,6 @@ export type BarangScalarWhereInput = {
   id?: Prisma.StringFilter<"Barang"> | string
   label?: Prisma.StringNullableFilter<"Barang"> | string | null
   labelAset?: Prisma.StringNullableFilter<"Barang"> | string | null
-  nama?: Prisma.StringFilter<"Barang"> | string
   sn?: Prisma.StringNullableFilter<"Barang"> | string | null
   merek?: Prisma.StringNullableFilter<"Barang"> | string | null
   model?: Prisma.StringNullableFilter<"Barang"> | string | null
@@ -1039,7 +1014,6 @@ export type BarangCreateWithoutRuanganInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -1066,7 +1040,6 @@ export type BarangUncheckedCreateWithoutRuanganInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -1119,7 +1092,6 @@ export type BarangCreateWithoutPeminjamanInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -1146,7 +1118,6 @@ export type BarangUncheckedCreateWithoutPeminjamanInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -1189,7 +1160,6 @@ export type BarangUpdateWithoutPeminjamanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1216,7 +1186,6 @@ export type BarangUncheckedUpdateWithoutPeminjamanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1243,7 +1212,6 @@ export type BarangCreateManyKategoriInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -1269,7 +1237,6 @@ export type BarangUpdateWithoutKategoriInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1296,7 +1263,6 @@ export type BarangUncheckedUpdateWithoutKategoriInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1323,7 +1289,6 @@ export type BarangUncheckedUpdateManyWithoutKategoriInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1349,7 +1314,6 @@ export type BarangCreateManyRuanganInput = {
   id?: string
   label?: string | null
   labelAset?: string | null
-  nama: string
   sn?: string | null
   merek?: string | null
   model?: string | null
@@ -1375,7 +1339,6 @@ export type BarangUpdateWithoutRuanganInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1402,7 +1365,6 @@ export type BarangUncheckedUpdateWithoutRuanganInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1429,7 +1391,6 @@ export type BarangUncheckedUpdateManyWithoutRuanganInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1486,7 +1447,6 @@ export type BarangSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   id?: boolean
   label?: boolean
   labelAset?: boolean
-  nama?: boolean
   sn?: boolean
   merek?: boolean
   model?: boolean
@@ -1517,7 +1477,6 @@ export type BarangSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   label?: boolean
   labelAset?: boolean
-  nama?: boolean
   sn?: boolean
   merek?: boolean
   model?: boolean
@@ -1546,7 +1505,6 @@ export type BarangSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   label?: boolean
   labelAset?: boolean
-  nama?: boolean
   sn?: boolean
   merek?: boolean
   model?: boolean
@@ -1575,7 +1533,6 @@ export type BarangSelectScalar = {
   id?: boolean
   label?: boolean
   labelAset?: boolean
-  nama?: boolean
   sn?: boolean
   merek?: boolean
   model?: boolean
@@ -1598,7 +1555,7 @@ export type BarangSelectScalar = {
   updatedAt?: boolean
 }
 
-export type BarangOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "label" | "labelAset" | "nama" | "sn" | "merek" | "model" | "tipe" | "vendor" | "keterangan" | "kondisi" | "status" | "jumlah" | "tanggalDatang" | "tanggalPindah" | "harga" | "sumberTahun" | "hasSticker" | "qrCode" | "foto" | "kategoriId" | "ruanganId" | "createdAt" | "updatedAt", ExtArgs["result"]["barang"]>
+export type BarangOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "label" | "labelAset" | "sn" | "merek" | "model" | "tipe" | "vendor" | "keterangan" | "kondisi" | "status" | "jumlah" | "tanggalDatang" | "tanggalPindah" | "harga" | "sumberTahun" | "hasSticker" | "qrCode" | "foto" | "kategoriId" | "ruanganId" | "createdAt" | "updatedAt", ExtArgs["result"]["barang"]>
 export type BarangInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kategori?: boolean | Prisma.KategoriDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
@@ -1625,7 +1582,6 @@ export type $BarangPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: string
     label: string | null
     labelAset: string | null
-    nama: string
     sn: string | null
     merek: string | null
     model: string | null
@@ -2081,7 +2037,6 @@ export interface BarangFieldRefs {
   readonly id: Prisma.FieldRef<"Barang", 'String'>
   readonly label: Prisma.FieldRef<"Barang", 'String'>
   readonly labelAset: Prisma.FieldRef<"Barang", 'String'>
-  readonly nama: Prisma.FieldRef<"Barang", 'String'>
   readonly sn: Prisma.FieldRef<"Barang", 'String'>
   readonly merek: Prisma.FieldRef<"Barang", 'String'>
   readonly model: Prisma.FieldRef<"Barang", 'String'>

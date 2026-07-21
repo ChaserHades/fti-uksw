@@ -12,7 +12,6 @@ export interface Barang {
   id: string;
   label: string | null;
   labelAset: string | null;
-  nama: string;
   sn?: string | null;
   merek?: string | null;
   model?: string | null;

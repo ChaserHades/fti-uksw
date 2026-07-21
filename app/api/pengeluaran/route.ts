@@ -32,8 +32,8 @@ export async function GET(req: Request) {
 
   let nextCursor: string | null = null;
   if (list.length > limit) {
-    const nextItem = list.pop();
-    nextCursor = nextItem!.id;
+    list.pop(); // Remove the extra item
+    nextCursor = list[list.length - 1].id;
   }
 
   return NextResponse.json({ data: list, nextCursor });

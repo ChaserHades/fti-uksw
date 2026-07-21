@@ -64,9 +64,27 @@ export async function POST(req: Request) {
           existingBarang = await prisma.barang.findFirst({
             where: { OR: orConditions }
           });
+        } else {
+          // 4. Fallback matching jika tidak ada SN/Label:
+          // Mencocokkan berdasarkan kombinasi field core (identity)
+          const fallbackMatches = await prisma.barang.findMany({
+            where: {
+              sumberTahun: row.sumberTahun || null,
+              merek: row.merek || null,
+              model: row.model || null,
+              tipe: row.tipe || null,
+              ruanganId: ruanganId,
+              vendor: row.vendor || null,
+            }
+          });
+          
+          if (fallbackMatches.length > 0) {
+            // Pilih match pertama yang paling mirip
+            // (karena ini fallback, kita asumsikan ini barang yang sama jika core identity sama)
+            existingBarang = fallbackMatches[0];
+          }
         }
 
-        const namaFallback = [row.kategori, row.merek, row.tipe].filter(Boolean).join(" ");
         let kondisi = row.kondisi || "BAIK";
         const ketLower = (row.keterangan || "").toLowerCase();
         if (ketLower.includes("rusak berat")) kondisi = "RUSAK_BERAT";
@@ -75,8 +93,14 @@ export async function POST(req: Request) {
         const hasSticker = !!(row.label || row.labelAset || row.sn);
 
         if (existingBarang) {
+          // 5. Cek SEMUA kolom apakah ada yang berubah (termasuk tanggal)
+          const dtDatangExcel = row.tanggalDatang ? new Date(row.tanggalDatang).getTime() : null;
+          const dtDatangDB = existingBarang.tanggalDatang ? existingBarang.tanggalDatang.getTime() : null;
+          
+          const dtPindahExcel = row.tanggalPindah ? new Date(row.tanggalPindah).getTime() : null;
+          const dtPindahDB = existingBarang.tanggalPindah ? existingBarang.tanggalPindah.getTime() : null;
+
           const isChanged =
-            existingBarang.nama !== namaFallback ||
             existingBarang.merek !== (row.merek || null) ||
             existingBarang.model !== (row.model || null) ||
             existingBarang.tipe !== (row.tipe || null) ||
@@ -86,7 +110,12 @@ export async function POST(req: Request) {
             existingBarang.ruanganId !== ruanganId ||
             existingBarang.kategoriId !== kategori.id ||
             existingBarang.harga !== (row.harga || null) ||
-            existingBarang.sumberTahun !== (row.sumberTahun || null);
+            existingBarang.sumberTahun !== (row.sumberTahun || null) ||
+            existingBarang.label !== (row.label || null) ||
+            existingBarang.labelAset !== (row.labelAset || null) ||
+            existingBarang.sn !== (row.sn || null) ||
+            dtDatangDB !== dtDatangExcel ||
+            dtPindahDB !== dtPindahExcel;
 
           if (!isChanged) {
             skipped++;
@@ -94,7 +123,6 @@ export async function POST(req: Request) {
             await prisma.barang.update({
               where: { id: existingBarang.id },
               data: {
-                nama: namaFallback,
                 merek: row.merek || null,
                 model: row.model || null,
                 tipe: row.tipe || null,
@@ -105,6 +133,11 @@ export async function POST(req: Request) {
                 kategoriId: kategori.id,
                 harga: row.harga || null,
                 sumberTahun: row.sumberTahun || null,
+                label: row.label || null,
+                labelAset: row.labelAset || null,
+                sn: row.sn || null,
+                tanggalDatang: row.tanggalDatang ? new Date(row.tanggalDatang) : null,
+                tanggalPindah: row.tanggalPindah ? new Date(row.tanggalPindah) : null,
               }
             });
             updated++;
@@ -115,7 +148,6 @@ export async function POST(req: Request) {
               label: row.label || null,
               labelAset: row.labelAset || null,
               sn: row.sn || null,
-              nama: namaFallback,
               merek: row.merek || null,
               model: row.model || null,
               tipe: row.tipe || null,

@@ -61,14 +61,14 @@ export default function UniversitasBarangPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>Label</th><th>Nama</th><th>Kategori</th>
+                <th>Label</th><th>Kategori</th>
                 <th>Kondisi</th><th>Status</th><th>Jml</th><th>Harga</th>
               </tr>
             </thead>
             <tbody>
               {barang.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={6}>
                     <div className="empty-state">
                       <i className="ti ti-box-off" style={{ fontSize: 28 }} />Tidak ada data
                     </div>
@@ -77,8 +77,7 @@ export default function UniversitasBarangPage() {
               ) : barang.map((b) => (
                 <tr key={b.id}>
                   <td style={{ fontFamily: "monospace", fontSize: 12, color: "var(--text-muted)" }}>{b.label}</td>
-                  <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.nama}</td>
-                  <td>{b.kategori.nama}</td>
+                  <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>{b.kategori.nama}</td>
                   <td><span className={`badge ${kondisiBadge[b.kondisi] ?? "badge-muted"}`}>{b.kondisi.replace("_", " ")}</span></td>
                   <td><span className={`badge ${statusBadge[b.status] ?? "badge-muted"}`}>{b.status}</span></td>
                   <td>{b.jumlah}</td>

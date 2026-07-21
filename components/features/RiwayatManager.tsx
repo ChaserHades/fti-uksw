@@ -141,7 +141,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
                 return (
                   <tr key={t.id}>
                     <td>
-                      <div className="td-name">{t.barang.nama}</div>
+                      <div className="td-name">{t.barang.kategori.nama}</div>
                       <div className="td-code">{t.barang.label}</div>
                     </td>
                     <td>

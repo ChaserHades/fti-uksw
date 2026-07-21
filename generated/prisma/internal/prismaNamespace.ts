@@ -935,7 +935,6 @@ export const BarangScalarFieldEnum = {
   id: 'id',
   label: 'label',
   labelAset: 'labelAset',
-  nama: 'nama',
   sn: 'sn',
   merek: 'merek',
   model: 'model',
