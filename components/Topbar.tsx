@@ -45,6 +45,8 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
   const searchParams = useSearchParams();
   const [open,    setOpen]    = useState(false);
   const [compact, setCompact] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const headerRef  = useRef<HTMLElement>(null);
   const ghostRef   = useRef<HTMLDivElement>(null);
@@ -80,6 +82,42 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
 
   useEffect(() => { setOpen(false); }, [pathname]);
 
+  // Scroll logic for Topbar visual animation and hide/show
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          
+          // Scrolled state for background styling
+          setIsScrolled(currentScrollY > 20);
+          
+          // Hide/Show logic based on scroll direction
+          if (currentScrollY > lastScrollY && currentScrollY > 80) {
+            // Scrolling down
+            setIsHidden(true);
+            setOpen(false); // Close dropdown if it's open
+          } else if (currentScrollY < lastScrollY) {
+            // Scrolling up
+            setIsHidden(false);
+          }
+          
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Initial check
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const isActive = (href: string) => {
     // If href has a query param, we must match pathname AND the specific tab param
     if (href.includes("?")) {
@@ -108,7 +146,8 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
     <div className="topbar-wrapper" onMouseLeave={handleMouseLeave}>
       <header 
         ref={headerRef} 
-        className={`topbar${compact ? " topbar-compact" : ""}`}
+        className={`topbar${compact ? " topbar-compact" : ""}${isScrolled ? " topbar-scrolled" : ""}`}
+        data-hidden={String(isHidden)}
       >
 
         {/* Brand */}

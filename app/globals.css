@@ -146,7 +146,7 @@ button {
   background: radial-gradient(ellipse at top, transparent 0%, var(--ds-void) 100%);
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 /* Abstract blurred ring silhouettes (ambient lighting effect) */
@@ -195,8 +195,10 @@ button {
    4. TOPBAR (navigation header)
    ═══════════════════════════════════════════════════════════ */
 .topbar-wrapper {
-  position: sticky;
+  position: fixed;
   top: var(--topbar-gap);
+  left: 0;
+  right: 0;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
@@ -230,6 +232,12 @@ button {
 
 .topbar[data-hidden="true"] {
   transform: translateY(calc(-100% - var(--topbar-gap) - 4px));
+}
+
+.topbar.topbar-scrolled {
+  background: rgba(30, 30, 32, 0.95);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .topbar-brand {
@@ -2510,4 +2518,45 @@ summary {
     display: none;
     /* Never show labels on mobile */
   }
+}
+
+/* Scroll to top button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px; /* Match standard UI */
+  background: rgba(255, 255, 255, 0.05); /* Glass */
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 99;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-to-top:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--ds-mid); /* Accent icon color on hover */
+}
+
+.scroll-to-top:active {
+  transform: translateY(0) scale(0.95);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }

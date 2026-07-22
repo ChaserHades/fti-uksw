@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
   title: { default: "Aset FTI UKSW", template: "%s | Aset FTI" },
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="ds-bg" suppressHydrationWarning>
         {children}
+        <ScrollToTop />
         <Toaster
           position="top-right"
           containerClassName="no-print"
