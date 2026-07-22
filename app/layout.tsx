@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               fontSize: "13px",
             },
             success: { iconTheme: { primary: "#7dd4a8", secondary: "#1B263B" } },
-            error:   { iconTheme: { primary: "#f08070", secondary: "#1B263B" } },
+            error: { iconTheme: { primary: "#f08070", secondary: "#1B263B" } },
           }}
         />
       </body>
