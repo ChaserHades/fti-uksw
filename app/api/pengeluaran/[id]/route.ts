@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx"];
 
@@ -27,9 +26,6 @@ export async function PUT(req: Request, { params }: Params) {
     const uploadedUrls: string[] = [];
 
     if (notas && notas.length > 0) {
-      const uploadDir = join(process.cwd(), "public", "uploads", "nota");
-      await mkdir(uploadDir, { recursive: true });
-      
       for (const nota of notas) {
         if (nota.size === 0) continue;
         const ext = (nota.name.split(".").pop() ?? "").toLowerCase();
@@ -39,10 +35,20 @@ export async function PUT(req: Request, { params }: Params) {
             { status: 400 }
           );
         }
-        const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        
         const buffer = Buffer.from(await nota.arrayBuffer());
-        await writeFile(join(uploadDir, filename), buffer);
-        uploadedUrls.push(`/uploads/nota/${filename}`);
+        const base64String = buffer.toString("base64");
+        
+        let mimeType = "application/octet-stream";
+        if (ext === "pdf") mimeType = "application/pdf";
+        else if (["jpg", "jpeg"].includes(ext)) mimeType = "image/jpeg";
+        else if (ext === "png") mimeType = "image/png";
+        else if (ext === "gif") mimeType = "image/gif";
+        else if (ext === "webp") mimeType = "image/webp";
+        else if (["doc", "docx"].includes(ext)) mimeType = "application/msword";
+
+        const dataUrl = `data:${mimeType};base64,${base64String}`;
+        uploadedUrls.push(dataUrl);
       }
     }
 
