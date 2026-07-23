@@ -358,6 +358,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumAksiLogFilter<$PrismaModel = never> = {
+  equals?: $Enums.AksiLog | Prisma.EnumAksiLogFieldRefInput<$PrismaModel>
+  in?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAksiLogFilter<$PrismaModel> | $Enums.AksiLog
+}
+
+export type EnumAksiLogWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AksiLog | Prisma.EnumAksiLogFieldRefInput<$PrismaModel>
+  in?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAksiLogWithAggregatesFilter<$PrismaModel> | $Enums.AksiLog
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAksiLogFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAksiLogFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -691,6 +708,23 @@ export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumAksiLogFilter<$PrismaModel = never> = {
+  equals?: $Enums.AksiLog | Prisma.EnumAksiLogFieldRefInput<$PrismaModel>
+  in?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAksiLogFilter<$PrismaModel> | $Enums.AksiLog
+}
+
+export type NestedEnumAksiLogWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AksiLog | Prisma.EnumAksiLogFieldRefInput<$PrismaModel>
+  in?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AksiLog[] | Prisma.ListEnumAksiLogFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAksiLogWithAggregatesFilter<$PrismaModel> | $Enums.AksiLog
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAksiLogFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAksiLogFilter<$PrismaModel>
 }
 
 

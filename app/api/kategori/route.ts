@@ -41,5 +41,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json();
   const item = await prisma.kategori.create({ data: body });
+
+  await prisma.logAktivitas.create({
+    data: {
+      aksi: "CREATE",
+      entitas: "KATEGORI",
+      entitasId: item.id,
+      detail: `Menambahkan kategori baru: ${item.nama}`,
+      userId: session.id
+    }
+  });
+
   return NextResponse.json(item, { status: 201 });
 }

@@ -114,6 +114,17 @@ export async function POST(req: Request) {
         },
         include: { user: true },
       });
+
+      await prisma.logAktivitas.create({
+        data: {
+          aksi: "UPDATE",
+          entitas: "PENGELUARAN",
+          entitasId: existing.id,
+          detail: `Menambahkan nota ke pengeluaran: ${existing.judul}`,
+          userId: session.id
+        }
+      });
+
       return NextResponse.json(updated, { status: 200 }); // 200 OK because we updated
     }
   }
@@ -132,6 +143,16 @@ export async function POST(req: Request) {
       userId: session.id,
     },
     include: { user: true },
+  });
+
+  await prisma.logAktivitas.create({
+    data: {
+      aksi: "CREATE",
+      entitas: "PENGELUARAN",
+      entitasId: pengeluaran.id,
+      detail: `Menambahkan pengeluaran baru: ${pengeluaran.judul}`,
+      userId: session.id
+    }
   });
 
   return NextResponse.json(pengeluaran, { status: 201 });

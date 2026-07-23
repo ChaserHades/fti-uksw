@@ -34,29 +34,47 @@ export async function PUT(req: Request, { params }: Params) {
   if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
   if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
-  const item = await prisma.barang.update({
-    where: { id },
-    data: {
-      label: body.label,
-      labelAset: body.labelAset || null,
-      sn: body.sn || null,
-      merek: body.merek || null,
-      model: body.model || null,
-      tipe: body.tipe || null,
-      vendor: body.vendor || null,
-      keterangan: body.keterangan ?? null,
-      kondisi: body.kondisi,
-      jumlah: jumlah,
-      tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
-      tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
-      harga: harga,
-      sumberTahun: body.sumberTahun || null,
-      kategoriId,
-      ruanganId,
-    },
-    include: { kategori: true, ruangan: true },
-  });
-  return NextResponse.json(item);
+  try {
+    const item = await prisma.barang.update({
+      where: { id },
+      data: {
+        label: body.label,
+        labelAset: body.labelAset || null,
+        sn: body.sn || null,
+        merek: body.merek || null,
+        model: body.model || null,
+        tipe: body.tipe || null,
+        vendor: body.vendor || null,
+        keterangan: body.keterangan ?? null,
+        kondisi: body.kondisi,
+        jumlah: jumlah,
+        tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
+        tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
+        harga: harga,
+        sumberTahun: body.sumberTahun || null,
+        kategoriId,
+        ruanganId,
+      },
+      include: { kategori: true, ruangan: true },
+    });
+
+    await prisma.logAktivitas.create({
+      data: {
+        aksi: "UPDATE",
+        entitas: "BARANG",
+        entitasId: item.id,
+        detail: `Memperbarui barang: ${item.label || item.labelAset || item.merek || "Tanpa Nama"}`,
+        userId: session.id
+      }
+    });
+
+    return NextResponse.json(item);
+  } catch (e: any) {
+    if (e.code === "P2002") {
+      return NextResponse.json({ error: "Kode Barang (Label) sudah digunakan, gunakan label lain." }, { status: 400 });
+    }
+    return NextResponse.json({ error: e.message || "Terjadi kesalahan pada server" }, { status: 500 });
+  }
 }
 
 export async function DELETE(_: Request, { params }: Params) {
@@ -67,7 +85,21 @@ export async function DELETE(_: Request, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
+    const barangToDelete = await prisma.barang.findUnique({ where: { id } });
+    if (!barangToDelete) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
     await prisma.barang.delete({ where: { id } });
+    
+    await prisma.logAktivitas.create({
+      data: {
+        aksi: "DELETE",
+        entitas: "BARANG",
+        entitasId: id,
+        detail: `Menghapus barang: ${barangToDelete.label || barangToDelete.labelAset || barangToDelete.merek || "Tanpa Nama"}`,
+        userId: session.id
+      }
+    });
+
     return NextResponse.json({ message: "Deleted" });
   } catch (error: any) {
     if (error?.message?.includes("foreign key constraint") || error?.code === "P2003") {

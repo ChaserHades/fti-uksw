@@ -75,6 +75,16 @@ export async function PUT(req: Request, { params }: Params) {
       }
     });
 
+    await prisma.logAktivitas.create({
+      data: {
+        aksi: "UPDATE",
+        entitas: "PENGELUARAN",
+        entitasId: updated.id,
+        detail: `Memperbarui pengeluaran: ${updated.judul}`,
+        userId: session.id
+      }
+    });
+
     return NextResponse.json(updated);
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Gagal update" }, { status: 500 });
@@ -87,6 +97,20 @@ export async function DELETE(_: Request, { params }: Params) {
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  const pengeluaranToDelete = await prisma.pengeluaran.findUnique({ where: { id } });
+  if (!pengeluaranToDelete) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
   await prisma.pengeluaran.delete({ where: { id } });
+
+  await prisma.logAktivitas.create({
+    data: {
+      aksi: "DELETE",
+      entitas: "PENGELUARAN",
+      entitasId: id,
+      detail: `Menghapus pengeluaran: ${pengeluaranToDelete.judul}`,
+      userId: session.id
+    }
+  });
+
   return NextResponse.json({ message: "Deleted" });
 }

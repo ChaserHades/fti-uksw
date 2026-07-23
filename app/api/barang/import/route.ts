@@ -173,6 +173,15 @@ export async function POST(req: Request) {
       }
     }
 
+    await prisma.logAktivitas.create({
+      data: {
+        aksi: "IMPORT",
+        entitas: "BARANG",
+        detail: `Import massal barang. Baru: ${inserted.length}, Diperbarui: ${updated.length}, Dilewati: ${skipped.length}, Error: ${dbErrors.length}`,
+        userId: session.id
+      }
+    });
+
     return NextResponse.json({
       message: "Proses import selesai",
       stats: { inserted, updated, skipped, errors: dbErrors },

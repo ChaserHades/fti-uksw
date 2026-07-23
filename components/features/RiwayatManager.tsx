@@ -8,6 +8,7 @@ import { api } from "@/helpers/api";
 import { fDateShort } from "@/helpers/format";
 import type { Peminjaman } from "@/types";
 import UnifiedExportModal from "@/components/features/UnifiedExportModal";
+import LogAktivitasView from "@/components/features/LogAktivitasView";
 
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
@@ -76,111 +77,134 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
     return { cls: "badge-ok", label: "Selesai" };
   }
 
+  const [subTab, setSubTab] = useState<"peminjaman" | "aktivitas">("peminjaman");
+
   return (
     <div className="animate-fade-in">
-      {/* Summary */}
-      <div className="grid-3 mb-16">
-        {[
-          { label: "Total Peminjaman", value: list.length, badge: "badge-info" },
-          { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length, badge: "badge-warn" },
-          { label: "Terlambat", value: list.filter(t => t.terlambat).length, badge: "badge-danger" },
-        ].map(s => (
-          <div key={s.label} className="glass summary-badge-row">
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
-            <span className={`badge ${s.badge}`} style={{ fontSize: 14, fontWeight: 700, padding: "4px 14px", flexShrink: 0 }}>{s.value}</span>
-          </div>
-        ))}
+      <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
+        <button 
+          className={`btn ${subTab === "peminjaman" ? "btn-primary" : "btn-ghost"}`} 
+          onClick={() => setSubTab("peminjaman")}
+        >
+          Peminjaman
+        </button>
+        <button 
+          className={`btn ${subTab === "aktivitas" ? "btn-primary" : "btn-ghost"}`} 
+          onClick={() => setSubTab("aktivitas")}
+        >
+          Aktivitas (Log)
+        </button>
       </div>
 
-      <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
-        {/* Top Header / Primary Actions */}
-        <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "flex-end", borderBottom: "1px solid var(--glass-border)" }}>
-          <div style={{ flex: "1 1 200px", minWidth: 150, margin: 0 }}>
-            <LiquidSelect
-              value={filter}
-              onChange={val => setFilter(val as StatusFilter)}
-              options={[
-                { value: "", label: "Semua Status" },
-                { value: "AKTIF", label: "Aktif" },
-                { value: "SELESAI", label: "Selesai" },
-                { value: "TERLAMBAT", label: "Terlambat" }
-              ]}
-            />
+      {subTab === "aktivitas" ? (
+        <LogAktivitasView />
+      ) : (
+        <>
+          {/* Summary */}
+          <div className="grid-3 mb-16">
+            {[
+              { label: "Total Peminjaman", value: list.length, badge: "badge-info" },
+              { label: "Sedang Dipinjam", value: list.filter(t => t.status === "AKTIF").length, badge: "badge-warn" },
+              { label: "Terlambat", value: list.filter(t => t.terlambat).length, badge: "badge-danger" },
+            ].map(s => (
+              <div key={s.label} className="glass summary-badge-row">
+                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.label}</span>
+                <span className={`badge ${s.badge}`} style={{ fontSize: 14, fontWeight: 700, padding: "4px 14px", flexShrink: 0 }}>{s.value}</span>
+              </div>
+            ))}
           </div>
-          <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setExportModal(true)}>
-            <i className="ti ti-file-export" /> Export Data
-          </button>
-        </div>
 
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: "18%" }}>Barang</th>
-                <th style={{ width: "14%" }}>Peminjam</th>
-                <th style={{ width: "12%" }}>Ruangan</th>
-                <th style={{ width: "12%" }}>Petugas</th>
-                <th style={{ width: "11%" }}>Tgl Pinjam</th>
-                <th style={{ width: "11%" }}>Deadline</th>
-                <th style={{ width: "11%" }}>Tgl Kembali</th>
-                <th style={{ width: "11%" }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.length === 0 ? (
-                <tr>
-                  <td colSpan={8}>
-                    <div className="empty-state">
-                      <i className="ti ti-file-off" style={{ fontSize: 28 }} />
-                      Tidak ada data peminjaman
-                    </div>
-                  </td>
-                </tr>
-              ) : list.map(t => {
-                const badge = getBadge(t);
-                return (
-                  <tr key={t.id}>
-                    <td>
-                      <div className="td-name">{t.barang.kategori.nama}</div>
-                      <div className="td-code">{t.barang.label}</div>
-                    </td>
-                    <td>
-                      <div className="td-sm" style={{ color: "var(--text-primary)" }}>{t.namaPeminjam}</div>
-                    </td>
-                    <td className="td-sm">{t.ruanganTujuan}</td>
-                    <td>
-                      <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? ""}</div>
-                      <div className="td-code">{t.user.email}</div>
-                    </td>
-                    <td className="td-sm">{fDateShort(t.tanggalPinjam)}</td>
-                    <td className="td-sm">{fDateShort(t.deadlineKembali)}</td>
-                    <td style={{ fontSize: 12 }}>
-                      {t.tanggalKembali
-                        ? fDateShort(t.tanggalKembali)
-                        : <span style={{ color: "var(--text-muted)" }}>—</span>
-                      }
-                    </td>
-                    <td>
-                      <span className={`badge ${badge.cls}`}>{badge.label}</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {cursor && (
-            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-              <button
-                className="btn btn-ghost"
-                onClick={() => load(false)}
-                disabled={loadingMore}
-              >
-                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+          <div className="glass" style={{ display: "flex", flexDirection: "column", overflow: "hidden", marginBottom: 64 }}>
+            {/* Top Header / Primary Actions */}
+            <div style={{ padding: "16px 24px", display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "flex-end", borderBottom: "1px solid var(--glass-border)" }}>
+              <div style={{ flex: "1 1 200px", minWidth: 150, margin: 0 }}>
+                <LiquidSelect
+                  value={filter}
+                  onChange={val => setFilter(val as StatusFilter)}
+                  options={[
+                    { value: "", label: "Semua Status" },
+                    { value: "AKTIF", label: "Aktif" },
+                    { value: "SELESAI", label: "Selesai" },
+                    { value: "TERLAMBAT", label: "Terlambat" }
+                  ]}
+                />
+              </div>
+              <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setExportModal(true)}>
+                <i className="ti ti-file-export" /> Export Data
               </button>
             </div>
-          )}
-        </div>
-      </div>
+
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "18%" }}>Barang</th>
+                    <th style={{ width: "14%" }}>Peminjam</th>
+                    <th style={{ width: "12%" }}>Ruangan</th>
+                    <th style={{ width: "12%" }}>Petugas</th>
+                    <th style={{ width: "11%" }}>Tgl Pinjam</th>
+                    <th style={{ width: "11%" }}>Deadline</th>
+                    <th style={{ width: "11%" }}>Tgl Kembali</th>
+                    <th style={{ width: "11%" }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.length === 0 ? (
+                    <tr>
+                      <td colSpan={8}>
+                        <div className="empty-state">
+                          <i className="ti ti-file-off" style={{ fontSize: 28 }} />
+                          Tidak ada data peminjaman
+                        </div>
+                      </td>
+                    </tr>
+                  ) : list.map(t => {
+                    const badge = getBadge(t);
+                    return (
+                      <tr key={t.id}>
+                        <td>
+                          <div className="td-name">{t.barang.kategori.nama}</div>
+                          <div className="td-code">{t.barang.label}</div>
+                        </td>
+                        <td>
+                          <div className="td-sm" style={{ color: "var(--text-primary)" }}>{t.namaPeminjam}</div>
+                        </td>
+                        <td className="td-sm">{t.ruanganTujuan}</td>
+                        <td>
+                          <div className="td-sm" style={{ color: "var(--text-secondary)" }}>{t.user.name ?? ""}</div>
+                          <div className="td-code">{t.user.email}</div>
+                        </td>
+                        <td className="td-sm">{fDateShort(t.tanggalPinjam)}</td>
+                        <td className="td-sm">{fDateShort(t.deadlineKembali)}</td>
+                        <td style={{ fontSize: 12 }}>
+                          {t.tanggalKembali
+                            ? fDateShort(t.tanggalKembali)
+                            : <span style={{ color: "var(--text-muted)" }}>—</span>
+                          }
+                        </td>
+                        <td>
+                          <span className={`badge ${badge.cls}`}>{badge.label}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {cursor && (
+                <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                  <button
+                    className="btn btn-ghost"
+                    onClick={() => load(false)}
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : "Muat Lebih Banyak"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <UnifiedExportModal
         open={exportModal}

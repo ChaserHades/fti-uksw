@@ -150,6 +150,7 @@ erDiagram
 - **Unified Glass Interface:** Pendekatan *User Interface* yang menyatukan area filter, pencarian (*search*), serta penayangan (*data table*) ke dalam satu kontainer modern berbasis *glassmorphism* agar proses interaksi terasa lebih intuitif.
 - **Automated QR Generation & Mass Printing:** Secara otonom menerbitkan matriks QR untuk identifikasi mesin. Sistem menyertakan format *print-ready* yang dinamis mendeteksi area cetak dan tata letak per baris untuk mencetak langsung puluhan stiker QR tanpa membuang ruang kertas.
 - **Real-time Pagination (Cursor & Offset):** Optimasi basis data yang menggunakan pendekatan indeks yang akurat (kursor berbasis ID) untuk melayani lalu lintas pencarian besar tanpa membebani performa server.
+- **Pre-flight Check Import & Transparent Reporting:** Fitur unggulan saat memasukkan (*import*) data massal via Excel/CSV. Sistem melakukan pratinjau *error* secara seketika (*Pre-flight Check*) yang dipecah halamannya dengan navigasi tombol *Sebelumnya/Selanjutnya* (*Next/Prev Pagination*). Setelah data berhasil diproses (*Push*), sistem memberikan Laporan Transparan bergaya *Bento Grid* yang mengelompokkan secara jelas rincian data baru (ditambahkan), data lama yang terdeteksi perubahan isinya (diperbarui), data yang diabaikan karena identik (*skipped*), serta kegagalan sistematis (*error*).
 
 ---
 

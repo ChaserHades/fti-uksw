@@ -224,6 +224,7 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   peminjaman?: Prisma.PeminjamanListRelationFilter
   pengeluaran?: Prisma.PengeluaranListRelationFilter
+  logAktivitas?: Prisma.LogAktivitasListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -239,6 +240,7 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   peminjaman?: Prisma.PeminjamanOrderByRelationAggregateInput
   pengeluaran?: Prisma.PengeluaranOrderByRelationAggregateInput
+  logAktivitas?: Prisma.LogAktivitasOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -257,6 +259,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   peminjaman?: Prisma.PeminjamanListRelationFilter
   pengeluaran?: Prisma.PengeluaranListRelationFilter
+  logAktivitas?: Prisma.LogAktivitasListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -304,6 +307,7 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutUserInput
   pengeluaran?: Prisma.PengeluaranCreateNestedManyWithoutUserInput
+  logAktivitas?: Prisma.LogAktivitasCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -319,6 +323,7 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutUserInput
   pengeluaran?: Prisma.PengeluaranUncheckedCreateNestedManyWithoutUserInput
+  logAktivitas?: Prisma.LogAktivitasUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -334,6 +339,7 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   peminjaman?: Prisma.PeminjamanUpdateManyWithoutUserNestedInput
   pengeluaran?: Prisma.PengeluaranUpdateManyWithoutUserNestedInput
+  logAktivitas?: Prisma.LogAktivitasUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -349,6 +355,7 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutUserNestedInput
   pengeluaran?: Prisma.PengeluaranUncheckedUpdateManyWithoutUserNestedInput
+  logAktivitas?: Prisma.LogAktivitasUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -486,6 +493,20 @@ export type UserUpdateOneRequiredWithoutPengeluaranNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPengeluaranInput, Prisma.UserUpdateWithoutPengeluaranInput>, Prisma.UserUncheckedUpdateWithoutPengeluaranInput>
 }
 
+export type UserCreateNestedOneWithoutLogAktivitasInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogAktivitasInput, Prisma.UserUncheckedCreateWithoutLogAktivitasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogAktivitasInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLogAktivitasNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogAktivitasInput, Prisma.UserUncheckedCreateWithoutLogAktivitasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogAktivitasInput
+  upsert?: Prisma.UserUpsertWithoutLogAktivitasInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLogAktivitasInput, Prisma.UserUpdateWithoutLogAktivitasInput>, Prisma.UserUncheckedUpdateWithoutLogAktivitasInput>
+}
+
 export type UserCreateWithoutPeminjamanInput = {
   id?: string
   name?: string | null
@@ -498,6 +519,7 @@ export type UserCreateWithoutPeminjamanInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pengeluaran?: Prisma.PengeluaranCreateNestedManyWithoutUserInput
+  logAktivitas?: Prisma.LogAktivitasCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPeminjamanInput = {
@@ -512,6 +534,7 @@ export type UserUncheckedCreateWithoutPeminjamanInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pengeluaran?: Prisma.PengeluaranUncheckedCreateNestedManyWithoutUserInput
+  logAktivitas?: Prisma.LogAktivitasUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPeminjamanInput = {
@@ -542,6 +565,7 @@ export type UserUpdateWithoutPeminjamanInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pengeluaran?: Prisma.PengeluaranUpdateManyWithoutUserNestedInput
+  logAktivitas?: Prisma.LogAktivitasUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPeminjamanInput = {
@@ -556,6 +580,7 @@ export type UserUncheckedUpdateWithoutPeminjamanInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pengeluaran?: Prisma.PengeluaranUncheckedUpdateManyWithoutUserNestedInput
+  logAktivitas?: Prisma.LogAktivitasUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPengeluaranInput = {
@@ -570,6 +595,7 @@ export type UserCreateWithoutPengeluaranInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutUserInput
+  logAktivitas?: Prisma.LogAktivitasCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPengeluaranInput = {
@@ -584,6 +610,7 @@ export type UserUncheckedCreateWithoutPengeluaranInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutUserInput
+  logAktivitas?: Prisma.LogAktivitasUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPengeluaranInput = {
@@ -614,6 +641,7 @@ export type UserUpdateWithoutPengeluaranInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   peminjaman?: Prisma.PeminjamanUpdateManyWithoutUserNestedInput
+  logAktivitas?: Prisma.LogAktivitasUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPengeluaranInput = {
@@ -628,6 +656,83 @@ export type UserUncheckedUpdateWithoutPengeluaranInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutUserNestedInput
+  logAktivitas?: Prisma.LogAktivitasUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLogAktivitasInput = {
+  id?: string
+  name?: string | null
+  email: string
+  password?: string | null
+  provider?: string
+  role?: $Enums.Role
+  statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutUserInput
+  pengeluaran?: Prisma.PengeluaranCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLogAktivitasInput = {
+  id?: string
+  name?: string | null
+  email: string
+  password?: string | null
+  provider?: string
+  role?: $Enums.Role
+  statusVerifikasi?: $Enums.StatusVerifikasi
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutUserInput
+  pengeluaran?: Prisma.PengeluaranUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLogAktivitasInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogAktivitasInput, Prisma.UserUncheckedCreateWithoutLogAktivitasInput>
+}
+
+export type UserUpsertWithoutLogAktivitasInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLogAktivitasInput, Prisma.UserUncheckedUpdateWithoutLogAktivitasInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogAktivitasInput, Prisma.UserUncheckedCreateWithoutLogAktivitasInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLogAktivitasInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLogAktivitasInput, Prisma.UserUncheckedUpdateWithoutLogAktivitasInput>
+}
+
+export type UserUpdateWithoutLogAktivitasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  peminjaman?: Prisma.PeminjamanUpdateManyWithoutUserNestedInput
+  pengeluaran?: Prisma.PengeluaranUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLogAktivitasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  statusVerifikasi?: Prisma.EnumStatusVerifikasiFieldUpdateOperationsInput | $Enums.StatusVerifikasi
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutUserNestedInput
+  pengeluaran?: Prisma.PengeluaranUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -638,11 +743,13 @@ export type UserUncheckedUpdateWithoutPengeluaranInput = {
 export type UserCountOutputType = {
   peminjaman: number
   pengeluaran: number
+  logAktivitas: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   peminjaman?: boolean | UserCountOutputTypeCountPeminjamanArgs
   pengeluaran?: boolean | UserCountOutputTypeCountPengeluaranArgs
+  logAktivitas?: boolean | UserCountOutputTypeCountLogAktivitasArgs
 }
 
 /**
@@ -669,6 +776,13 @@ export type UserCountOutputTypeCountPengeluaranArgs<ExtArgs extends runtime.Type
   where?: Prisma.PengeluaranWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLogAktivitasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LogAktivitasWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -683,6 +797,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   peminjaman?: boolean | Prisma.User$peminjamanArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.User$pengeluaranArgs<ExtArgs>
+  logAktivitas?: boolean | Prisma.User$logAktivitasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -729,6 +844,7 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   peminjaman?: boolean | Prisma.User$peminjamanArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.User$pengeluaranArgs<ExtArgs>
+  logAktivitas?: boolean | Prisma.User$logAktivitasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -739,6 +855,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     peminjaman: Prisma.$PeminjamanPayload<ExtArgs>[]
     pengeluaran: Prisma.$PengeluaranPayload<ExtArgs>[]
+    logAktivitas: Prisma.$LogAktivitasPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1147,6 +1264,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   peminjaman<T extends Prisma.User$peminjamanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$peminjamanArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pengeluaran<T extends Prisma.User$pengeluaranArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pengeluaranArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PengeluaranPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  logAktivitas<T extends Prisma.User$logAktivitasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logAktivitasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogAktivitasPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1624,6 +1742,30 @@ export type User$pengeluaranArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.PengeluaranScalarFieldEnum | Prisma.PengeluaranScalarFieldEnum[]
+}
+
+/**
+ * User.logAktivitas
+ */
+export type User$logAktivitasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogAktivitas
+   */
+  select?: Prisma.LogAktivitasSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogAktivitas
+   */
+  omit?: Prisma.LogAktivitasOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogAktivitasInclude<ExtArgs> | null
+  where?: Prisma.LogAktivitasWhereInput
+  orderBy?: Prisma.LogAktivitasOrderByWithRelationInput | Prisma.LogAktivitasOrderByWithRelationInput[]
+  cursor?: Prisma.LogAktivitasWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LogAktivitasScalarFieldEnum | Prisma.LogAktivitasScalarFieldEnum[]
 }
 
 /**

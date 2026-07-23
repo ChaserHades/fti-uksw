@@ -131,29 +131,46 @@ export async function POST(req: Request) {
   if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
   if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
-  const item = await prisma.barang.create({
-    data: {
-      label: body.label,
-      labelAset: body.labelAset || null,
-      sn: body.sn || null,
-      merek: body.merek || null,
-      model: body.model || null,
-      tipe: body.tipe || null,
-      vendor: body.vendor || null,
-      keterangan: body.keterangan || null,
-      kondisi: body.kondisi || "BAIK",
-      status: body.status || "TERSEDIA",
-      jumlah: jumlah,
-      tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
-      tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
-      harga: harga,
-      hasSticker: body.hasSticker ?? false,
-      sumberTahun: body.sumberTahun || null,
-      ruanganId,
-      kategoriId,
-    },
-    include: { kategori: true, ruangan: true },
-  });
+  try {
+    const item = await prisma.barang.create({
+      data: {
+        label: body.label,
+        labelAset: body.labelAset || null,
+        sn: body.sn || null,
+        merek: body.merek || null,
+        model: body.model || null,
+        tipe: body.tipe || null,
+        vendor: body.vendor || null,
+        keterangan: body.keterangan || null,
+        kondisi: body.kondisi || "BAIK",
+        status: body.status || "TERSEDIA",
+        jumlah: jumlah,
+        tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
+        tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
+        harga: harga,
+        hasSticker: body.hasSticker ?? false,
+        sumberTahun: body.sumberTahun || null,
+        ruanganId,
+        kategoriId,
+      },
+      include: { kategori: true, ruangan: true },
+    });
 
-  return NextResponse.json(item, { status: 201 });
+    await prisma.logAktivitas.create({
+      data: {
+        aksi: "CREATE",
+        entitas: "BARANG",
+        entitasId: item.id,
+        detail: `Menambahkan barang baru: ${item.label || item.labelAset || item.merek || "Tanpa Nama"}`,
+        userId: session.id
+      }
+    });
+
+    return NextResponse.json(item, { status: 201 });
+  } catch (e: any) {
+    if (e.code === "P2002") {
+      return NextResponse.json({ error: "Kode Barang (Label) sudah digunakan, gunakan label lain." }, { status: 400 });
+    }
+    return NextResponse.json({ error: e.message || "Terjadi kesalahan pada server" }, { status: 500 });
+  }
 }

@@ -12,6 +12,17 @@ export async function PUT(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json();
   const item = await prisma.kategori.update({ where: { id }, data: body });
+
+  await prisma.logAktivitas.create({
+    data: {
+      aksi: "UPDATE",
+      entitas: "KATEGORI",
+      entitasId: item.id,
+      detail: `Memperbarui kategori: ${item.nama}`,
+      userId: session.id
+    }
+  });
+
   return NextResponse.json(item);
 }
 
@@ -20,6 +31,20 @@ export async function DELETE(_: Request, { params }: Params) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const kategoriToDelete = await prisma.kategori.findUnique({ where: { id } });
+  if (!kategoriToDelete) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
   await prisma.kategori.delete({ where: { id } });
+
+  await prisma.logAktivitas.create({
+    data: {
+      aksi: "DELETE",
+      entitas: "KATEGORI",
+      entitasId: id,
+      detail: `Menghapus kategori: ${kategoriToDelete.nama}`,
+      userId: session.id
+    }
+  });
+
   return NextResponse.json({ message: "Deleted" });
 }

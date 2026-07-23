@@ -60,3 +60,13 @@ export const JenisPengeluaran = {
 } as const
 
 export type JenisPengeluaran = (typeof JenisPengeluaran)[keyof typeof JenisPengeluaran]
+
+
+export const AksiLog = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  IMPORT: 'IMPORT'
+} as const
+
+export type AksiLog = (typeof AksiLog)[keyof typeof AksiLog]

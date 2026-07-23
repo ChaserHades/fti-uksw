@@ -37,7 +37,7 @@ export default function BarangFormFields({
           </label>
           <input
             className="input"
-            placeholder="BRG-001"
+            placeholder="CADD-BKT-022023-001"
             value={form.label}
             onChange={e => onChange("label", e.target.value)}
             readOnly={readOnlyLabel}
@@ -47,7 +47,7 @@ export default function BarangFormFields({
         {!compact && (
           <div className="form-group">
             <label className="form-label">Label Aset</label>
-            <input className="input" placeholder="LBL-AST-01" value={form.labelAset} onChange={e => onChange("labelAset", e.target.value)} />
+            <input className="input" placeholder="FTI-UKSW-2023-001" value={form.labelAset} onChange={e => onChange("labelAset", e.target.value)} />
           </div>
         )}
         <div className="form-group">
@@ -65,26 +65,26 @@ export default function BarangFormFields({
         <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Merek</label>
-            <input className="input" placeholder="Merek barang" value={form.merek} onChange={e => onChange("merek", e.target.value)} />
+            <input className="input" placeholder="HP, Lenovo" value={form.merek} onChange={e => onChange("merek", e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">Tipe</label>
-            <input className="input" placeholder="Model / Tipe" value={form.tipe} onChange={e => onChange("tipe", e.target.value)} />
+            <input className="input" placeholder="Gen 2" value={form.tipe} onChange={e => onChange("tipe", e.target.value)} />
           </div>
         </div>
       ) : (
         <div className="form-grid-3">
           <div className="form-group">
             <label className="form-label">Merek</label>
-            <input className="input" placeholder="Merek barang" value={form.merek} onChange={e => onChange("merek", e.target.value)} />
+            <input className="input" placeholder="HP, Lenovo" value={form.merek} onChange={e => onChange("merek", e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">Model</label>
-            <input className="input" placeholder="Model barang" value={form.model} onChange={e => onChange("model", e.target.value)} />
+            <input className="input" placeholder="ThinkPad L14" value={form.model} onChange={e => onChange("model", e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">Tipe</label>
-            <input className="input" placeholder="Tipe barang" value={form.tipe} onChange={e => onChange("tipe", e.target.value)} />
+            <input className="input" placeholder="Gen 2" value={form.tipe} onChange={e => onChange("tipe", e.target.value)} />
           </div>
         </div>
       )}
@@ -94,22 +94,22 @@ export default function BarangFormFields({
         <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Serial Number (SN)</label>
-            <input className="input" placeholder="S/N" value={form.sn} onChange={e => onChange("sn", e.target.value)} />
+            <input className="input" placeholder="PF3Q..." value={form.sn} onChange={e => onChange("sn", e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">Vendor / Supplier</label>
-            <input className="input" placeholder="Nama vendor" value={form.vendor} onChange={e => onChange("vendor", e.target.value)} />
+            <input className="input" placeholder="CV. Komputer" value={form.vendor} onChange={e => onChange("vendor", e.target.value)} />
           </div>
         </div>
       ) : (
         <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Vendor / Supplier</label>
-            <input className="input" placeholder="Nama vendor" value={form.vendor} onChange={e => onChange("vendor", e.target.value)} />
+            <input className="input" placeholder="CV. Komputer" value={form.vendor} onChange={e => onChange("vendor", e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">Serial Number (SN)</label>
-            <input className="input" placeholder="S/N" value={form.sn} onChange={e => onChange("sn", e.target.value)} />
+            <input className="input" placeholder="PF3Q..." value={form.sn} onChange={e => onChange("sn", e.target.value)} />
           </div>
         </div>
       )}
@@ -122,7 +122,7 @@ export default function BarangFormFields({
             value={form.kategori}
             onChange={val => onChange("kategori", val)}
             fetchUrl="/api/kategori"
-            placeholder="Ketik atau pilih kategori..."
+            placeholder="Laptop"
             mapOption={item => ({ value: item.id, label: item.nama })}
           />
         </div>
@@ -132,7 +132,7 @@ export default function BarangFormFields({
             value={form.ruangan}
             onChange={val => onChange("ruangan", val)}
             fetchUrl="/api/ruangan"
-            placeholder="Ketik kode ruangan..."
+            placeholder="LAB-CADD"
             mapOption={item => ({ value: item.id, label: item.kode })}
           />
         </div>
@@ -168,7 +168,7 @@ export default function BarangFormFields({
         {!compact && (
           <div className="form-group">
             <label className="form-label">Sumber/Tahun</label>
-            <input className="input" placeholder="Contoh: BOS 2023" value={form.sumberTahun} onChange={e => onChange("sumberTahun", e.target.value)} />
+            <input className="input" placeholder="Hibah 2023" value={form.sumberTahun} onChange={e => onChange("sumberTahun", e.target.value)} />
           </div>
         )}
         <div className="form-group">
@@ -189,7 +189,7 @@ export default function BarangFormFields({
       {!compact && (
         <div className="form-group">
           <label className="form-label">Deskripsi</label>
-          <input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => onChange("keterangan", e.target.value)} />
+          <input className="input" placeholder="Pembelian dana hibah lab" value={form.keterangan} onChange={e => onChange("keterangan", e.target.value)} />
         </div>
       )}
     </>

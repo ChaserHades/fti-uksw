@@ -56,7 +56,8 @@ export const ModelName = {
   Ruangan: 'Ruangan',
   Barang: 'Barang',
   Peminjaman: 'Peminjaman',
-  Pengeluaran: 'Pengeluaran'
+  Pengeluaran: 'Pengeluaran',
+  LogAktivitas: 'LogAktivitas'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -178,6 +179,19 @@ export const PengeluaranScalarFieldEnum = {
 } as const
 
 export type PengeluaranScalarFieldEnum = (typeof PengeluaranScalarFieldEnum)[keyof typeof PengeluaranScalarFieldEnum]
+
+
+export const LogAktivitasScalarFieldEnum = {
+  id: 'id',
+  aksi: 'aksi',
+  entitas: 'entitas',
+  entitasId: 'entitasId',
+  detail: 'detail',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogAktivitasScalarFieldEnum = (typeof LogAktivitasScalarFieldEnum)[keyof typeof LogAktivitasScalarFieldEnum]
 
 
 export const SortOrder = {

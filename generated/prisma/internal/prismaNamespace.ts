@@ -402,7 +402,8 @@ export const ModelName = {
   Ruangan: 'Ruangan',
   Barang: 'Barang',
   Peminjaman: 'Peminjaman',
-  Pengeluaran: 'Pengeluaran'
+  Pengeluaran: 'Pengeluaran',
+  LogAktivitas: 'LogAktivitas'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "kategori" | "ruangan" | "barang" | "peminjaman" | "pengeluaran"
+    modelProps: "user" | "kategori" | "ruangan" | "barang" | "peminjaman" | "pengeluaran" | "logAktivitas"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -866,6 +867,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LogAktivitas: {
+      payload: Prisma.$LogAktivitasPayload<ExtArgs>
+      fields: Prisma.LogAktivitasFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogAktivitasFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogAktivitasFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>
+        }
+        findFirst: {
+          args: Prisma.LogAktivitasFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogAktivitasFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>
+        }
+        findMany: {
+          args: Prisma.LogAktivitasFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>[]
+        }
+        create: {
+          args: Prisma.LogAktivitasCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>
+        }
+        createMany: {
+          args: Prisma.LogAktivitasCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LogAktivitasCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>[]
+        }
+        delete: {
+          args: Prisma.LogAktivitasDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>
+        }
+        update: {
+          args: Prisma.LogAktivitasUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogAktivitasDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogAktivitasUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LogAktivitasUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>[]
+        }
+        upsert: {
+          args: Prisma.LogAktivitasUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogAktivitasPayload>
+        }
+        aggregate: {
+          args: Prisma.LogAktivitasAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogAktivitas>
+        }
+        groupBy: {
+          args: Prisma.LogAktivitasGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogAktivitasGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogAktivitasCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogAktivitasCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1008,6 +1083,19 @@ export const PengeluaranScalarFieldEnum = {
 } as const
 
 export type PengeluaranScalarFieldEnum = (typeof PengeluaranScalarFieldEnum)[keyof typeof PengeluaranScalarFieldEnum]
+
+
+export const LogAktivitasScalarFieldEnum = {
+  id: 'id',
+  aksi: 'aksi',
+  entitas: 'entitas',
+  entitasId: 'entitasId',
+  detail: 'detail',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogAktivitasScalarFieldEnum = (typeof LogAktivitasScalarFieldEnum)[keyof typeof LogAktivitasScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1186,6 +1274,20 @@ export type EnumJenisPengeluaranFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type ListEnumJenisPengeluaranFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisPengeluaran[]'>
     
 
+
+/**
+ * Reference to a field of type 'AksiLog'
+ */
+export type EnumAksiLogFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AksiLog'>
+    
+
+
+/**
+ * Reference to a field of type 'AksiLog[]'
+ */
+export type ListEnumAksiLogFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AksiLog[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1343,6 +1445,7 @@ export type GlobalOmitConfig = {
   barang?: Prisma.BarangOmit
   peminjaman?: Prisma.PeminjamanOmit
   pengeluaran?: Prisma.PengeluaranOmit
+  logAktivitas?: Prisma.LogAktivitasOmit
 }
 
 /* Types for Logging */

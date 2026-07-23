@@ -47,3 +47,8 @@ export type Peminjaman = Prisma.PeminjamanModel
  * 
  */
 export type Pengeluaran = Prisma.PengeluaranModel
+/**
+ * Model LogAktivitas
+ * 
+ */
+export type LogAktivitas = Prisma.LogAktivitasModel

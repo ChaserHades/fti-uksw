@@ -55,5 +55,16 @@ export async function POST(req: Request) {
       lantai: body.lantai ?? null,
     },
   });
+
+  await prisma.logAktivitas.create({
+    data: {
+      aksi: "CREATE",
+      entitas: "RUANGAN",
+      entitasId: item.id,
+      detail: `Menambahkan ruangan baru: ${item.kode} - ${item.nama}`,
+      userId: session.id
+    }
+  });
+
   return NextResponse.json(item, { status: 201 });
 }
