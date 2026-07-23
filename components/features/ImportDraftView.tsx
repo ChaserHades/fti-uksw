@@ -54,10 +54,12 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   const [errors, setErrors] = useState<DraftRow[]>(draftError);
   const [valids, setValids] = useState<DraftRow[]>(draftValid);
 
-  // Pagination (Load More)
-  const [visibleCount, setVisibleCount] = useState(10);
+  // Pagination (Next/Prev)
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 10;
+  
   useEffect(() => {
-    setVisibleCount(10);
+    setCurrentPage(0);
   }, [tab]);
 
   // Skip menu
@@ -151,12 +153,9 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   const hasErrors = errors.length > 0;
   const currentList = tab === "error" ? errors : valids;
   
-  // Smart merge logic: if remaining items <= 10, show them all to avoid a straggler page
-  let displayedCount = visibleCount;
-  if (currentList.length - visibleCount <= 10) {
-    displayedCount = currentList.length;
-  }
-  const visibleList = currentList.slice(0, displayedCount);
+  const totalPages = Math.ceil(currentList.length / itemsPerPage);
+  const startIndex = currentPage * itemsPerPage;
+  const visibleList = currentList.slice(startIndex, startIndex + itemsPerPage);
   /* ── Confirmation modal messages ── */
   const confirmMessages: Record<string, { title: string; message: React.ReactNode; danger: boolean; label: string }> = {
     "bulk-validate": {
@@ -378,22 +377,37 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
             </tbody>
           </table>
 
-          {currentList.length > displayedCount && (
-            <div style={{ padding: "16px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-              <button 
-                className="btn btn-ghost btn-sm" 
-                onClick={() => setVisibleCount(p => p + 10)}
-              >
-                Muat Lebih Banyak <i className="ti ti-chevron-down" />
-              </button>
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                Halaman {currentPage + 1} dari {totalPages} (Total {currentList.length} data)
+              </span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  disabled={currentPage === 0}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                >
+                  <i className="ti ti-chevron-left" /> Sebelumnya
+                </button>
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  disabled={currentPage >= totalPages - 1}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
+                  Selanjutnya <i className="ti ti-chevron-right" />
+                </button>
+              </div>
             </div>
           )}
 
-          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-              Menampilkan {visibleList.length} dari {currentList.length} data
-            </span>
-          </div>
+          {totalPages <= 1 && currentList.length > 0 && (
+            <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+              <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                Menampilkan {currentList.length} data
+              </span>
+            </div>
+          )}
 
         </div>
       </div>

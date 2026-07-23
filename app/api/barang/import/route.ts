@@ -13,13 +13,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Tidak ada data untuk di-push" }, { status: 400 });
     }
 
-    let inserted = 0;
-    let updated = 0;
-    let skipped = 0;
+    const inserted: string[] = [];
+    const updated: string[] = [];
+    const skipped: string[] = [];
     const dbErrors: { label: string | null; reason: string }[] = [];
 
     // Gunakan loop berurutan untuk hindari bentrok kategori/ruangan
     for (const row of data) {
+      const itemIdentifier = row.label || row.labelAset || row.sn || row.merek || "Tanpa Nama";
       try {
         if (!row.kategori) throw new Error("Kategori kosong");
 
@@ -118,7 +119,7 @@ export async function POST(req: Request) {
             dtPindahDB !== dtPindahExcel;
 
           if (!isChanged) {
-            skipped++;
+            skipped.push(itemIdentifier);
           } else {
             await prisma.barang.update({
               where: { id: existingBarang.id },
@@ -140,7 +141,7 @@ export async function POST(req: Request) {
                 tanggalPindah: row.tanggalPindah ? new Date(row.tanggalPindah) : null,
               }
             });
-            updated++;
+            updated.push(itemIdentifier);
           }
         } else {
           await prisma.barang.create({
@@ -165,16 +166,16 @@ export async function POST(req: Request) {
               sumberTahun: row.sumberTahun || null,
             }
           });
-          inserted++;
+          inserted.push(itemIdentifier);
         }
       } catch (err: any) {
-        dbErrors.push({ label: row.label || row.sn || "Unknown", reason: err.message });
+        dbErrors.push({ label: itemIdentifier, reason: err.message });
       }
     }
 
     return NextResponse.json({
       message: "Proses import selesai",
-      stats: { inserted, updated, skipped, errors: dbErrors.length },
+      stats: { inserted, updated, skipped, errors: dbErrors },
       dbErrors
     });
 
