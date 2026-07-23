@@ -110,10 +110,11 @@ export default function AsyncAutocomplete({
         value={inputValue}
         onChange={handleInputChange}
         onFocus={handleFocus}
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
         autoComplete="off"
       />
 
-      {open && (
+      {open && (options.length > 0 || loading) && (
         <div
           className="glass"
           style={{
@@ -133,11 +134,7 @@ export default function AsyncAutocomplete({
             gap: 2
           }}
         >
-          {options.length === 0 && !loading && inputValue.trim() && (
-            <div style={{ padding: "8px 12px", fontSize: 13, color: "var(--text-muted)", textAlign: "center" }}>
-              "{inputValue}" akan disimpan sebagai entri baru.
-            </div>
-          )}
+          {/* Omitted "entri baru" block so it stays hidden when empty */}
 
           {options.map(opt => (
             <div

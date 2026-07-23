@@ -785,6 +785,16 @@ button {
   border-color: rgba(255, 255, 255, 0.03);
 }
 
+/* Hide number spinners globally */
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .input-icon-wrap {
   position: relative;
 }

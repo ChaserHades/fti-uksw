@@ -142,7 +142,15 @@ export default function BarangFormFields({
       <div className="form-grid-3">
         <div className="form-group">
           <label className="form-label">Jumlah</label>
-          <input type="number" className="input" min={1} value={form.jumlah} onChange={e => onChange("jumlah", e.target.value)} />
+          <input 
+            type="text" 
+            className="input" 
+            value={form.jumlah ? Number(form.jumlah).toLocaleString("id-ID") : ""} 
+            onChange={e => {
+              const raw = e.target.value.replace(/[^0-9]/g, "");
+              onChange("jumlah", raw);
+            }} 
+          />
         </div>
         <div className="form-group">
           <label className="form-label">Tgl Datang</label>
@@ -158,7 +166,16 @@ export default function BarangFormFields({
       <div className="form-grid-3">
         <div className="form-group">
           <label className="form-label">Harga (Rp)</label>
-          <input type="number" className="input" placeholder="0" value={form.harga} onChange={e => onChange("harga", e.target.value)} />
+          <input 
+            type="text" 
+            className="input" 
+            placeholder="0" 
+            value={form.harga ? Number(form.harga).toLocaleString("id-ID") : ""} 
+            onChange={e => {
+              const raw = e.target.value.replace(/[^0-9]/g, "");
+              onChange("harga", raw);
+            }} 
+          />
           {form.harga && !isNaN(Number(form.harga)) && Number(form.harga) > 0 && (
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6, fontStyle: "italic" }}>
               {terbilang(Number(form.harga))} Rupiah
