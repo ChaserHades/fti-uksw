@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const dbErrors: { label: string | null; reason: string }[] = [];
     const usedDbIds = new Set<string>();
 
-    // Gunakan loop berurutan untuk hindari bentrok kategori/ruangan
+    // Process sequentially
     for (const row of data) {
       const safeLabel = sanitizeUnique(row.label);
       const safeLabelAset = sanitizeUnique(row.labelAset);
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       try {
         if (!row.kategori) throw new Error("Kategori kosong");
 
-        // 1. Resolve Kategori
+        // Resolve Kategori
         let kategori = await prisma.kategori.findUnique({
           where: { nama: row.kategori }
         });
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
           });
         }
 
-        // 2. Resolve Ruangan
+        // Resolve Ruangan
         let ruanganId: string | null = null;
         if (row.ruangan) {
           const ruanganStr = String(row.ruangan).trim();
@@ -77,17 +77,17 @@ export async function POST(req: Request) {
           ruanganId = ruangan.id;
         }
 
-        // 3. Find Existing with Exact Match (AND logic)
+        // Find Existing with Exact Match
         let existingBarang = null;
 
         if (safeLabel) {
-          // Jika label ada, ini adalah identifier paling kuat (unik). Cari murni berdasarkan label.
+          // Cari berdasarkan label
           existingBarang = await prisma.barang.findUnique({
             where: { label: safeLabel }
           });
           
           if (existingBarang && usedDbIds.has(existingBarang.id)) {
-            // Label ini sudah diproses di baris excel sebelumnya (Duplikat dalam 1 file)
+            // Duplikat dalam 1 file
             dbErrors.push({
               label: itemIdentifier,
               reason: "Data duplikat terdeteksi di dalam file Excel (Label sudah diproses di baris atasnya)"
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
             continue;
           }
         } else {
-          // Jika tidak ada label unik, gunakan pencocokan AND pada field lain
+          // Gunakan pencocokan field lain
           const exactMatchConditions: any = { kategoriId: kategori.id };
           if (safeLabelAset) exactMatchConditions.labelAset = safeLabelAset;
           if (safeSn) exactMatchConditions.sn = safeSn;
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
             where: exactMatchConditions
           });
           
-          // Cari yang belum terpakai di siklus import ini
+          // Filter data yang sudah dipakai
           existingBarang = possibleMatches.find(m => !usedDbIds.has(m.id)) || null;
         }
         
@@ -121,7 +121,7 @@ export async function POST(req: Request) {
 
         if (existingBarang) {
           if (isUpdateMode) {
-            // Update mode: file nama sama, boleh update kalau berubah
+            // Cek perubahan data
             const dtDatangExcel = row.tanggalDatang ? new Date(row.tanggalDatang).getTime() : null;
             const dtDatangDB = existingBarang.tanggalDatang ? existingBarang.tanggalDatang.getTime() : null;
             

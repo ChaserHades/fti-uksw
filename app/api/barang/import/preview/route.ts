@@ -3,19 +3,18 @@ import { getSession } from "@/lib/session";
 import { parseBarangExcel } from "@/lib/excel-parser";
 
 /**
- * Detects values that are anomalous — purely symbols, single non-alpha chars,
- * invisible characters, or otherwise not a meaningful "Kategori" name.
+ * Detects anomalous values (symbols, invisible chars)
  */
 function isAnomalousValue(str: string): boolean {
   if (!str) return true;
   const trimmed = str.trim();
   if (trimmed.length === 0) return true;
 
-  // Strip all non-alphanumeric characters; if nothing remains, it's anomalous
+  // Strip non-alphanumeric chars
   const alphanumericOnly = trimmed.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, "");
   if (alphanumericOnly.length < 2) return true;
 
-  // Detect strings that are just repeated punctuation/symbols
+  // Detect high symbol ratio
   const symbolRatio = (trimmed.length - alphanumericOnly.length) / trimmed.length;
   if (symbolRatio > 0.8 && trimmed.length > 2) return true;
 
@@ -37,7 +36,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Format harus .xlsx, .xls, atau .csv" }, { status: 400 });
     }
 
-    // Extract year from filename (e.g. "DETAIL ASET 2024.xlsx" -> "2024")
+    // Extract year from filename (e.g. "DETAIL ASET 2024.xlsx" to "2024")
     const yearMatch = file.name.match(/\b(19|20)\d{2}\b/);
     const sumberTahun = yearMatch ? yearMatch[0] : "Tanpa Tahun";
 
