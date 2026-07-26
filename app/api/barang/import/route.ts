@@ -38,7 +38,13 @@ export async function POST(req: Request) {
 
     // Gunakan loop berurutan untuk hindari bentrok kategori/ruangan
     for (const row of data) {
-      const itemIdentifier = row.label || row.labelAset || row.sn || row.merek || "Tanpa Nama";
+      const safeLabel = sanitizeUnique(row.label);
+      const safeLabelAset = sanitizeUnique(row.labelAset);
+      const safeSn = sanitizeUnique(row.sn);
+      const safeMerek = sanitizeUnique(row.merek);
+      
+      const itemIdentifier = safeLabel || safeLabelAset || safeSn || safeMerek || "Tanpa Nama";
+
       try {
         if (!row.kategori) throw new Error("Kategori kosong");
 
@@ -71,23 +77,36 @@ export async function POST(req: Request) {
           ruanganId = ruangan.id;
         }
 
-        const safeLabel = sanitizeUnique(row.label);
-        const safeLabelAset = sanitizeUnique(row.labelAset);
-        const safeSn = sanitizeUnique(row.sn);
-
         // 3. Find Existing with Exact Match (AND logic)
-        const exactMatchConditions: any = { kategoriId: kategori.id };
-        if (safeLabel) exactMatchConditions.label = safeLabel;
-        if (safeLabelAset) exactMatchConditions.labelAset = safeLabelAset;
-        if (safeSn) exactMatchConditions.sn = safeSn;
-
         let existingBarang = null;
-        const possibleMatches = await prisma.barang.findMany({
-          where: exactMatchConditions
-        });
-        
-        // Find the first match that hasn't been used in this import run yet
-        existingBarang = possibleMatches.find(m => !usedDbIds.has(m.id)) || null;
+
+        if (safeLabel) {
+          // Jika label ada, ini adalah identifier paling kuat (unik). Cari murni berdasarkan label.
+          existingBarang = await prisma.barang.findUnique({
+            where: { label: safeLabel }
+          });
+          
+          if (existingBarang && usedDbIds.has(existingBarang.id)) {
+            // Label ini sudah diproses di baris excel sebelumnya (Duplikat dalam 1 file)
+            dbErrors.push({
+              label: itemIdentifier,
+              reason: "Data duplikat terdeteksi di dalam file Excel (Label sudah diproses di baris atasnya)"
+            });
+            continue;
+          }
+        } else {
+          // Jika tidak ada label unik, gunakan pencocokan AND pada field lain
+          const exactMatchConditions: any = { kategoriId: kategori.id };
+          if (safeLabelAset) exactMatchConditions.labelAset = safeLabelAset;
+          if (safeSn) exactMatchConditions.sn = safeSn;
+
+          const possibleMatches = await prisma.barang.findMany({
+            where: exactMatchConditions
+          });
+          
+          // Cari yang belum terpakai di siklus import ini
+          existingBarang = possibleMatches.find(m => !usedDbIds.has(m.id)) || null;
+        }
         
         if (existingBarang) {
           usedDbIds.add(existingBarang.id);
