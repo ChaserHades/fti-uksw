@@ -54,18 +54,46 @@ export async function POST(req: Request) {
     // Attach sumberTahun and evaluate valid vs error
     const valid: any[] = [];
     const error: any[] = [];
+    const seenLabels = new Set<string>();
+
+    // Helper to sanitize labels the same way the push route does
+    const sanitizeUnique = (val: any) => {
+      if (!val) return null;
+      const str = String(val).trim();
+      if (str === "-" || str.toLowerCase() === "tanpa nama") return null;
+      return str;
+    };
 
     rawData.forEach((row, index) => {
       const draftRow = { ...row, sumberTahun, _rowNumber: index + 3 }; // +3 is an estimate of excel row
+      const safeLabel = sanitizeUnique(draftRow.label);
+
+      let hasError = false;
 
       if (!draftRow.kategori || draftRow.kategori.trim() === "") {
         error.push({ ...draftRow, _errorReason: "Kolom Kategori tidak boleh kosong atau hilang." });
+        hasError = true;
       } else if (isAnomalousValue(draftRow.kategori)) {
         error.push({
           ...draftRow,
           _errorReason: `Kategori tidak valid: "${draftRow.kategori}" — hanya berisi simbol atau karakter aneh`,
         });
-      } else {
+        hasError = true;
+      }
+      
+      if (!hasError && safeLabel) {
+        if (seenLabels.has(safeLabel)) {
+          error.push({
+            ...draftRow,
+            _errorReason: `Data duplikat terdeteksi di dalam file Excel: Label "${safeLabel}" muncul lebih dari 1 kali.`,
+          });
+          hasError = true;
+        } else {
+          seenLabels.add(safeLabel);
+        }
+      }
+
+      if (!hasError) {
         valid.push(draftRow);
       }
     });
