@@ -401,10 +401,10 @@ export type BarangOrderByWithRelationInput = {
 export type BarangWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   label?: string
-  labelAset?: string
   AND?: Prisma.BarangWhereInput | Prisma.BarangWhereInput[]
   OR?: Prisma.BarangWhereInput[]
   NOT?: Prisma.BarangWhereInput | Prisma.BarangWhereInput[]
+  labelAset?: Prisma.StringNullableFilter<"Barang"> | string | null
   sn?: Prisma.StringNullableFilter<"Barang"> | string | null
   merek?: Prisma.StringNullableFilter<"Barang"> | string | null
   model?: Prisma.StringNullableFilter<"Barang"> | string | null
@@ -428,7 +428,7 @@ export type BarangWhereUniqueInput = Prisma.AtLeast<{
   kategori?: Prisma.XOR<Prisma.KategoriScalarRelationFilter, Prisma.KategoriWhereInput>
   ruangan?: Prisma.XOR<Prisma.RuanganNullableScalarRelationFilter, Prisma.RuanganWhereInput> | null
   peminjaman?: Prisma.PeminjamanListRelationFilter
-}, "id" | "label" | "labelAset">
+}, "id" | "label">
 
 export type BarangOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
