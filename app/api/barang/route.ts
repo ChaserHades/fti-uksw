@@ -69,11 +69,11 @@ export async function GET(req: Request) {
 
   // ── Resolve orderBy ──
   const orderBy = (() => {
-    if (sortBy === "kategoriId") return { kategori: { nama: sortDir } };
-    if (sortBy === "ruanganId") return { ruangan: { kode: sortDir } };
-    if (sortBy === "merek" || sortBy === "harga") return { [sortBy]: sortDir };
-    if (sortBy === "tanggalDatang") return { createdAt: sortDir }; // DB-level sort, refined client-side if needed
-    return { createdAt: "desc" };
+    if (sortBy === "kategoriId") return [{ kategori: { nama: sortDir } }, { id: 'asc' }];
+    if (sortBy === "ruanganId") return [{ ruangan: { kode: sortDir } }, { id: 'asc' }];
+    if (sortBy === "merek" || sortBy === "harga") return [{ [sortBy]: sortDir }, { id: 'asc' }];
+    if (sortBy === "tanggalDatang") return [{ createdAt: sortDir }, { id: 'asc' }]; // DB-level sort, refined client-side if needed
+    return [{ createdAt: "desc" }, { id: 'asc' }];
   })() as any;
 
   // ── Run data query + count in parallel ──

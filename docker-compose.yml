@@ -1,4 +1,21 @@
 services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fti_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://admin:adminpassword@postgres:5432/fti_uksw_db?schema=public
+      - JWT_SECRET=${JWT_SECRET:-"your-32-char-base64-secret-key-here="}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-"http://localhost:3000"}
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+
   postgres:
     image: postgres:15
     container_name: fti_postgres

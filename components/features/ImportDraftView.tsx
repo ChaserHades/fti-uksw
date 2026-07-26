@@ -6,7 +6,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 /* ═══════════════════════════════════════════════════════════
    Types
    ═══════════════════════════════════════════════════════════ */
-interface DraftRow {
+export interface DraftRow {
   _rowNumber: number;
   _errorReason?: string;
   kategori: string;
@@ -266,7 +266,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                 
                 return (
                   <tr key={`${tab}-${r._rowNumber}`}>
-                    <td className="td-sm text-muted" style={{ fontFamily: "monospace" }}>{r._rowNumber}</td>
+                    <td className="td-sm text-muted" style={{ fontFamily: "monospace" }}>{absoluteIdx + 1}</td>
 
                     {/* Error reason */}
                     {tab === "error" && (

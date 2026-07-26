@@ -3,14 +3,15 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import ImportDraftView from "@/components/features/ImportDraftView";
+import type { DraftRow } from "@/components/features/ImportDraftView";
 
 /** Import CSV/Excel section — file upload → preview → push */
 export default function ImportSection() {
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
-  const [draftData, setDraftData] = useState<{ valid: any[]; error: any[]; sumberTahun: string; total: number } | null>(null);
+  const [draftData, setDraftData] = useState<{ valid: DraftRow[]; error: DraftRow[]; sumberTahun: string; total: number } | null>(null);
   const [pushing, setPushing] = useState(false);
-  const [importResult, setImportResult] = useState<{ inserted: string[], updated: string[], skipped: string[], errors: any[] } | null>(null);
+  const [importResult, setImportResult] = useState<{ inserted: string[], updated: string[], skipped: string[], errors: { label?: string, reason?: string }[] } | null>(null);
 
   async function handlePreview() {
     if (!file) { toast.error("Pilih file terlebih dahulu"); return; }
@@ -31,13 +32,13 @@ export default function ImportSection() {
     }
   }
 
-  async function handlePush(validData: any[]) {
+  async function handlePush(validData: DraftRow[]) {
     setPushing(true);
     try {
       const res = await fetch("/api/barang/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: validData }),
+        body: JSON.stringify({ data: validData, fileName: file?.name }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Gagal push ke database");
@@ -118,7 +119,7 @@ export default function ImportSection() {
                 {importResult.errors.length} <span style={{ fontSize: 12, fontWeight: "normal", color: "var(--text-muted)" }}>item</span>
               </div>
               <div style={{ fontSize: 12, color: "var(--text-muted)", maxHeight: 100, overflowY: "auto", paddingRight: 8, lineHeight: 1.5 }}>
-                {importResult.errors.length > 0 ? importResult.errors.map((e: any, i: number) => (
+                {importResult.errors.length > 0 ? importResult.errors.map((e: { label?: string, reason?: string }, i: number) => (
                   <div key={i}><strong>{e.label}:</strong> {e.reason}</div>
                 )) : "-"}
               </div>

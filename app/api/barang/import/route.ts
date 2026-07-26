@@ -2,21 +2,39 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
+const sanitizeUnique = (val: any) => {
+  if (!val) return null;
+  const str = String(val).trim();
+  if (str === "-" || str.toLowerCase() === "tanpa nama") return null;
+  return str;
+};
+
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const { data } = await req.json();
+    const { data, fileName } = await req.json();
     if (!Array.isArray(data) || data.length === 0) {
       return NextResponse.json({ error: "Tidak ada data untuk di-push" }, { status: 400 });
     }
+
+    const safeFileName = fileName || "Unknown-File";
+    const existingLog = await prisma.logAktivitas.findFirst({
+      where: {
+        aksi: "IMPORT",
+        entitas: "BARANG",
+        detail: { startsWith: `Import file: ${safeFileName}` }
+      }
+    });
+    const isUpdateMode = !!existingLog;
 
     const inserted: string[] = [];
     const updated: string[] = [];
     const skipped: string[] = [];
     const dbErrors: { label: string | null; reason: string }[] = [];
+    const usedDbIds = new Set<string>();
 
     // Gunakan loop berurutan untuk hindari bentrok kategori/ruangan
     for (const row of data) {
@@ -43,7 +61,6 @@ export async function POST(req: Request) {
           });
 
           if (!ruangan) {
-            // Extract Lantai (First digit)
             const match = ruanganStr.match(/^(\d)/);
             const lantaiStr = match ? `Lantai ${match[1]}` : null;
 
@@ -54,36 +71,26 @@ export async function POST(req: Request) {
           ruanganId = ruangan.id;
         }
 
-        // 3. Find Existing
-        const orConditions: any[] = [];
-        if (row.label) orConditions.push({ label: row.label });
-        if (row.labelAset) orConditions.push({ labelAset: row.labelAset });
-        if (row.sn) orConditions.push({ sn: row.sn });
+        const safeLabel = sanitizeUnique(row.label);
+        const safeLabelAset = sanitizeUnique(row.labelAset);
+        const safeSn = sanitizeUnique(row.sn);
+
+        // 3. Find Existing with Exact Match (AND logic)
+        const exactMatchConditions: any = { kategoriId: kategori.id };
+        if (safeLabel) exactMatchConditions.label = safeLabel;
+        if (safeLabelAset) exactMatchConditions.labelAset = safeLabelAset;
+        if (safeSn) exactMatchConditions.sn = safeSn;
 
         let existingBarang = null;
-        if (orConditions.length > 0) {
-          existingBarang = await prisma.barang.findFirst({
-            where: { OR: orConditions }
-          });
-        } else {
-          // 4. Fallback matching jika tidak ada SN/Label:
-          // Mencocokkan berdasarkan kombinasi field core (identity)
-          const fallbackMatches = await prisma.barang.findMany({
-            where: {
-              sumberTahun: row.sumberTahun || null,
-              merek: row.merek || null,
-              model: row.model || null,
-              tipe: row.tipe || null,
-              ruanganId: ruanganId,
-              vendor: row.vendor || null,
-            }
-          });
-          
-          if (fallbackMatches.length > 0) {
-            // Pilih match pertama yang paling mirip
-            // (karena ini fallback, kita asumsikan ini barang yang sama jika core identity sama)
-            existingBarang = fallbackMatches[0];
-          }
+        const possibleMatches = await prisma.barang.findMany({
+          where: exactMatchConditions
+        });
+        
+        // Find the first match that hasn't been used in this import run yet
+        existingBarang = possibleMatches.find(m => !usedDbIds.has(m.id)) || null;
+        
+        if (existingBarang) {
+          usedDbIds.add(existingBarang.id);
         }
 
         let kondisi = row.kondisi || "BAIK";
@@ -91,64 +98,70 @@ export async function POST(req: Request) {
         if (ketLower.includes("rusak berat")) kondisi = "RUSAK_BERAT";
         else if (ketLower.includes("rusak")) kondisi = "RUSAK_RINGAN";
 
-        const hasSticker = !!(row.label || row.labelAset || row.sn);
+        const hasSticker = !!(safeLabel || safeLabelAset || safeSn);
 
         if (existingBarang) {
-          // 5. Cek SEMUA kolom apakah ada yang berubah (termasuk tanggal)
-          const dtDatangExcel = row.tanggalDatang ? new Date(row.tanggalDatang).getTime() : null;
-          const dtDatangDB = existingBarang.tanggalDatang ? existingBarang.tanggalDatang.getTime() : null;
-          
-          const dtPindahExcel = row.tanggalPindah ? new Date(row.tanggalPindah).getTime() : null;
-          const dtPindahDB = existingBarang.tanggalPindah ? existingBarang.tanggalPindah.getTime() : null;
+          if (isUpdateMode) {
+            // Update mode: file nama sama, boleh update kalau berubah
+            const dtDatangExcel = row.tanggalDatang ? new Date(row.tanggalDatang).getTime() : null;
+            const dtDatangDB = existingBarang.tanggalDatang ? existingBarang.tanggalDatang.getTime() : null;
+            
+            const dtPindahExcel = row.tanggalPindah ? new Date(row.tanggalPindah).getTime() : null;
+            const dtPindahDB = existingBarang.tanggalPindah ? existingBarang.tanggalPindah.getTime() : null;
 
-          const isChanged =
-            existingBarang.merek !== (row.merek || null) ||
-            existingBarang.model !== (row.model || null) ||
-            existingBarang.tipe !== (row.tipe || null) ||
-            existingBarang.vendor !== (row.vendor || null) ||
-            existingBarang.keterangan !== (row.keterangan || null) ||
-            existingBarang.kondisi !== kondisi ||
-            existingBarang.ruanganId !== ruanganId ||
-            existingBarang.kategoriId !== kategori.id ||
-            existingBarang.harga !== (row.harga || null) ||
-            existingBarang.sumberTahun !== (row.sumberTahun || null) ||
-            existingBarang.label !== (row.label || null) ||
-            existingBarang.labelAset !== (row.labelAset || null) ||
-            existingBarang.sn !== (row.sn || null) ||
-            dtDatangDB !== dtDatangExcel ||
-            dtPindahDB !== dtPindahExcel;
+            const isChanged =
+              existingBarang.merek !== (row.merek || null) ||
+              existingBarang.model !== (row.model || null) ||
+              existingBarang.tipe !== (row.tipe || null) ||
+              existingBarang.vendor !== (row.vendor || null) ||
+              existingBarang.keterangan !== (row.keterangan || null) ||
+              existingBarang.kondisi !== kondisi ||
+              existingBarang.ruanganId !== ruanganId ||
+              existingBarang.kategoriId !== kategori.id ||
+              existingBarang.harga !== (row.harga || null) ||
+              existingBarang.sumberTahun !== (row.sumberTahun || null) ||
+              existingBarang.label !== safeLabel ||
+              existingBarang.labelAset !== safeLabelAset ||
+              existingBarang.sn !== safeSn ||
+              dtDatangDB !== dtDatangExcel ||
+              dtPindahDB !== dtPindahExcel;
 
-          if (!isChanged) {
-            skipped.push(itemIdentifier);
+            if (!isChanged) {
+              skipped.push(itemIdentifier);
+            } else {
+              await prisma.barang.update({
+                where: { id: existingBarang.id },
+                data: {
+                  merek: row.merek || null,
+                  model: row.model || null,
+                  tipe: row.tipe || null,
+                  vendor: row.vendor || null,
+                  keterangan: row.keterangan || null,
+                  kondisi: kondisi as any,
+                  ruanganId: ruanganId,
+                  kategoriId: kategori.id,
+                  harga: row.harga || null,
+                  sumberTahun: row.sumberTahun || null,
+                  label: safeLabel,
+                  labelAset: safeLabelAset,
+                  sn: safeSn,
+                  tanggalDatang: row.tanggalDatang ? new Date(row.tanggalDatang) : null,
+                  tanggalPindah: row.tanggalPindah ? new Date(row.tanggalPindah) : null,
+                }
+              });
+              updated.push(itemIdentifier);
+            }
           } else {
-            await prisma.barang.update({
-              where: { id: existingBarang.id },
-              data: {
-                merek: row.merek || null,
-                model: row.model || null,
-                tipe: row.tipe || null,
-                vendor: row.vendor || null,
-                keterangan: row.keterangan || null,
-                kondisi: kondisi as any,
-                ruanganId: ruanganId,
-                kategoriId: kategori.id,
-                harga: row.harga || null,
-                sumberTahun: row.sumberTahun || null,
-                label: row.label || null,
-                labelAset: row.labelAset || null,
-                sn: row.sn || null,
-                tanggalDatang: row.tanggalDatang ? new Date(row.tanggalDatang) : null,
-                tanggalPindah: row.tanggalPindah ? new Date(row.tanggalPindah) : null,
-              }
-            });
-            updated.push(itemIdentifier);
+            // New File, but found existing item -> Skip
+            skipped.push(itemIdentifier);
           }
         } else {
+          // INSERT
           await prisma.barang.create({
             data: {
-              label: row.label || null,
-              labelAset: row.labelAset || null,
-              sn: row.sn || null,
+              label: safeLabel,
+              labelAset: safeLabelAset,
+              sn: safeSn,
               merek: row.merek || null,
               model: row.model || null,
               tipe: row.tipe || null,
@@ -177,7 +190,7 @@ export async function POST(req: Request) {
       data: {
         aksi: "IMPORT",
         entitas: "BARANG",
-        detail: `Import massal barang. Baru: ${inserted.length}, Diperbarui: ${updated.length}, Dilewati: ${skipped.length}, Error: ${dbErrors.length}`,
+        detail: `Import file: ${safeFileName} - Baru: ${inserted.length}, Diperbarui: ${updated.length}, Dilewati: ${skipped.length}, Error: ${dbErrors.length}`,
         userId: session.id
       }
     });

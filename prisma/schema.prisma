@@ -88,7 +88,7 @@ model Ruangan {
 model Barang {
   id            String        @id @default(cuid())
   label         String?       @unique
-  labelAset     String?       @unique
+  labelAset     String?
   sn            String?
   merek         String?
   model         String?
