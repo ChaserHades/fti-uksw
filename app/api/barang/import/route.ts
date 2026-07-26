@@ -94,7 +94,7 @@ export async function POST(req: Request) {
             });
             continue;
           }
-        } else {
+        } else if (safeLabelAset || safeSn) {
           // Gunakan pencocokan field lain
           const exactMatchConditions: any = { kategoriId: kategori.id };
           if (safeLabelAset) exactMatchConditions.labelAset = safeLabelAset;
@@ -176,7 +176,7 @@ export async function POST(req: Request) {
           }
         } else {
           // INSERT
-          await prisma.barang.create({
+          const newBarang = await prisma.barang.create({
             data: {
               label: safeLabel,
               labelAset: safeLabelAset,
@@ -198,6 +198,7 @@ export async function POST(req: Request) {
               sumberTahun: row.sumberTahun || null,
             }
           });
+          usedDbIds.add(newBarang.id);
           inserted.push(itemIdentifier);
         }
       } catch (err: any) {
