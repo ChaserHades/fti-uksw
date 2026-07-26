@@ -17,7 +17,7 @@ export async function POST(_: Request, { params }: Params) {
   if (!peminjaman || peminjaman.status === "SELESAI")
     return NextResponse.json({ error: "Peminjaman tidak valid" }, { status: 400 });
 
-  // Persisten: jika kembali melewati deadline → terlambat = true
+  // Persisten: jika kembali melewati deadline, terlambat = true
   const now = new Date();
   
   // Ambil tanggal saja dari deadline (yang tersimpan dalam UTC midnight)

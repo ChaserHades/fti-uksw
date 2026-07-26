@@ -291,7 +291,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                         {p.kodePembelian}
                       </span>
                     ) : (
-                      <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
+                      <span style={{ fontSize: 11, color: "var(--text-muted)" }}></span>
                     )}
                   </td>
                   {role === "ADMIN" && (
@@ -397,7 +397,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           <input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => setF("keterangan", e.target.value)} />
         </div>
         <div className="form-group">
-          <label className="form-label">Upload Nota / Invoice <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(jpg, pdf, docx — opsional)</span></label>
+          <label className="form-label">Upload Nota / Invoice <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(jpg, pdf, docx, opsional)</span></label>
           <input type="file" multiple className="input" accept="image/*,.pdf,.doc,.docx" onChange={e => setNotas(Array.from(e.target.files ?? []))} />
         </div>
         <div className="modal-footer">

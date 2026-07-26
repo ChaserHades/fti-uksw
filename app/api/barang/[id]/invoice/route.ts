@@ -26,7 +26,7 @@ export async function GET(_: Request, { params }: Params) {
 
   let pengeluaran = null;
 
-  // Extract kodePembelian from label (e.g. "CADD-BKT-022023-001" → "022023-001")
+  // Extract kodePembelian from label (e.g. "CADD-BKT-022023-001" to "022023-001")
   if (barang.label) {
     // Match pattern: 6-digit date + dash + 3-digit sequence (MMYYYY-NNN)
     const match = barang.label.match(/(\d{6}-\d{3})$/);

@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import ImportDraftView from "@/components/features/ImportDraftView";
 import type { DraftRow } from "@/components/features/ImportDraftView";
 
-/** Import CSV/Excel section — file upload → preview → push */
+/** Import CSV/Excel section: file upload, preview, and push */
 export default function ImportSection() {
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);

@@ -57,7 +57,7 @@ export function initials(name?: string | null): string {
     .toUpperCase();
 }
 
-/** Parse QR payload — handles JSON {id,kode,nama} or plain kode string */
+/** Parse QR payload (handles JSON {id,kode,nama} or plain kode string) */
 export function parseQrPayload(raw: string): string {
   const trimmed = raw.trim();
   try {

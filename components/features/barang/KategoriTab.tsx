@@ -84,7 +84,7 @@ export default function KategoriTab() {
       toast.success("Dihapus");
       load();
     } catch {
-      toast.error("Gagal — mungkin masih ada barang di kategori ini");
+      toast.error("Gagal diproses karena mungkin masih ada barang di kategori ini");
     } finally {
       setIsDeleting(false);
       setConfirmDel(null);

@@ -135,7 +135,7 @@ export default function CashflowUniversitasPage() {
                         ))}
                       </div>
                     ) : (
-                      <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
+                      <span style={{ fontSize: 11, color: "var(--text-muted)" }}></span>
                     )}
                   </td>
                 </tr>

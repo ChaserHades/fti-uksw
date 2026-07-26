@@ -19,7 +19,7 @@ import BarangFormFields from "./BarangFormFields";
 import { fDateShort } from "@/helpers/format";
 
 /* ═══════════════════════════════════════════════════════════
-   DaftarBarangTab — Main CRUD table for Barang
+   DaftarBarangTab (Main CRUD table for Barang)
    ═══════════════════════════════════════════════════════════ */
 export default function DaftarBarangTab({ role }: { role: string }) {
   // Data
@@ -768,7 +768,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         </div>
       </Modal>
 
-      {/* Cek Barang Modal — Detail + Invoice */}
+      {/* Cek Barang Modal (Detail + Invoice) */}
       <Modal open={modal === "cek"} onClose={() => setModal(null)} title={cekBarang ? `Detail: ${cekBarang.kategori?.nama || "Barang"}` : "Detail Barang"}>
         {cekLoading ? (
           <div style={{ textAlign: "center", padding: 32 }}>

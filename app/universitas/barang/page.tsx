@@ -81,7 +81,7 @@ export default function UniversitasBarangPage() {
                   <td><span className={`badge ${kondisiBadge[b.kondisi] ?? "badge-muted"}`}>{b.kondisi.replace("_", " ")}</span></td>
                   <td><span className={`badge ${statusBadge[b.status] ?? "badge-muted"}`}>{b.status}</span></td>
                   <td>{b.jumlah}</td>
-                  <td style={{ fontSize: 12 }}>{b.harga ? fCurrency(b.harga) : "—"}</td>
+                  <td style={{ fontSize: 12 }}>{b.harga ? fCurrency(b.harga) : ""}</td>
                 </tr>
               ))}
             </tbody>

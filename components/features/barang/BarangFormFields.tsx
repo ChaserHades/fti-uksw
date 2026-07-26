@@ -60,7 +60,7 @@ export default function BarangFormFields({
         </div>
       </div>
 
-      {/* Merek / Model / Tipe — skip model in compact */}
+      {/* Merek / Model / Tipe (skip model in compact) */}
       {compact ? (
         <div className="form-grid-2">
           <div className="form-group">
@@ -202,7 +202,7 @@ export default function BarangFormFields({
         </div>
       </div>
 
-      {/* Deskripsi — only in full mode */}
+      {/* Deskripsi (only in full mode) */}
       {!compact && (
         <div className="form-group">
           <label className="form-label">Deskripsi</label>

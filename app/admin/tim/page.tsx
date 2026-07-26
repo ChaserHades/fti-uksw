@@ -357,7 +357,7 @@ export default function TimVerifikasiPage() {
                               </button>
                             </div>
                           ) : (
-                            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>—</span>
+                            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Belum ada tim</span>
                           )}
                         </td>
                       </tr>

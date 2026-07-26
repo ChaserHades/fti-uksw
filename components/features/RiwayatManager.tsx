@@ -70,7 +70,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
     }
   }
 
-  // Badge status — terlambat persisten
+  // Badge status (terlambat persisten)
   function getBadge(t: Peminjaman) {
     if (t.terlambat) return { cls: "badge-danger", label: "Terlambat" };
     if (t.status === "AKTIF") return { cls: "badge-warn", label: "Aktif" };
@@ -179,7 +179,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
                         <td style={{ fontSize: 12 }}>
                           {t.tanggalKembali
                             ? fDateShort(t.tanggalKembali)
-                            : <span style={{ color: "var(--text-muted)" }}>—</span>
+                            : <span style={{ color: "var(--text-muted)" }}>-</span>
                           }
                         </td>
                         <td>

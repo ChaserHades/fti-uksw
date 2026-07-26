@@ -92,7 +92,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
         setLookErr(`Barang "${data.kategori?.nama}" berstatus DIPINJAM tapi peminjaman tidak ditemukan`);
       }
     } else {
-      setLookErr(`Barang "${data.kategori?.nama}" berstatus ${data.status} — tidak dapat diproses.`);
+      setLookErr(`Barang "${data.kategori?.nama}" berstatus ${data.status} dan tidak dapat diproses.`);
     }
   }
 

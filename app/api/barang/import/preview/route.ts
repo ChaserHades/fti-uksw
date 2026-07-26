@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       } else if (isAnomalousValue(draftRow.kategori)) {
         error.push({
           ...draftRow,
-          _errorReason: `Kategori tidak valid: "${draftRow.kategori}" — hanya berisi simbol atau karakter aneh`,
+          _errorReason: `Kategori tidak valid: "${draftRow.kategori}" (hanya berisi simbol atau karakter aneh)`,
         });
         hasError = true;
       }

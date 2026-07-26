@@ -11,7 +11,7 @@ import type { BarangFormData } from "@/constants/barang";
 import type { Barang } from "@/types";
 import BarangFormFields from "./BarangFormFields";
 
-/** Scan QR → lookup DB → register if not found */
+/** Scan QR, lookup DB, register if not found */
 export default function ScanRegisterSection() {
   const [scannedKode, setScannedKode] = useState("");
   const [foundBarang, setFoundBarang] = useState<Barang | null>(null);

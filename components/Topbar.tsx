@@ -53,7 +53,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
   const actionsRef = useRef<HTMLDivElement>(null);
 
 
-  // overflow detection → toggle .topbar-compact class 
+  // overflow detection (toggle .topbar-compact class)
   const checkOverflow = useCallback(() => {
     const header  = headerRef.current;
     const ghost   = ghostRef.current;
@@ -68,7 +68,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
     const brand   = header.children[0] as HTMLElement;
     const brandW  = brand?.offsetWidth ?? 0;
     const actW    = actions.offsetWidth;
-    const navW    = ghost.scrollWidth; // ghost has no flex constraint → natural width
+    const navW    = ghost.scrollWidth; // ghost has no flex constraint (natural width)
 
     setCompact(brandW + gap + navW + gap + actW > avail + 1);
   }, []);
@@ -179,7 +179,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
           ))}
         </nav>
 
-        {/* Ghost nav: always in DOM at natural width, invisible — for measurement */}
+        {/* Ghost nav: always in DOM at natural width, invisible (for measurement) */}
         <div
           ref={ghostRef}
           aria-hidden
@@ -197,7 +197,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
 
         {/* Actions */}
         <div ref={actionsRef} className="topbar-actions">
-          {/* user info — hidden by CSS in compact */}
+          {/* user info (hidden by CSS in compact) */}
           <div className="topbar-user-info">
             <div className="topbar-user-text">
               <span className="topbar-user-name">{userName ?? "User"}</span>
@@ -206,14 +206,14 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
             <div className="topbar-avatar">{initials(userName)}</div>
           </div>
 
-          {/* logout — hidden by CSS in compact (class topbar-logout-form) */}
+          {/* logout (hidden by CSS in compact) */}
           <form action={logoutAction} className="topbar-logout-form">
             <button type="submit" className="topbar-logout" title="Logout">
               <i className="ti ti-logout" />
             </button>
           </form>
 
-          {/* hamburger — shown by CSS in compact */}
+          {/* hamburger (shown by CSS in compact) */}
           <button
             className="topbar-hamburger"
             onMouseEnter={handleMouseEnter}
@@ -225,7 +225,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
         </div>
       </header>
 
-      {/* Dropdown — CSS class controls display, data-hidden controls transform */}
+      {/* Dropdown (CSS class controls display, data-hidden controls transform) */}
       <div
         className="topbar-dropdown"
         data-hidden={String(!open || !compact)}

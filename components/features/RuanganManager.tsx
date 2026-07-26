@@ -99,7 +99,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
     if (!confirmDel) return;
     setIsDeleting(true);
     try { await api.delete(`/api/ruangan/${confirmDel.id}`); toast.success("Ruangan dihapus"); load(); }
-    catch { toast.error("Gagal — mungkin masih ada barang di ruangan ini"); }
+    catch { toast.error("Gagal diproses karena mungkin masih ada barang di ruangan ini"); }
     finally { setIsDeleting(false); setConfirmDel(null); }
   }
 
@@ -142,7 +142,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   async function handlePindah() {
     if (!pindahBarang) return;
     if (!pindahTarget) { toast.error("Pilih ruangan tujuan"); return; }
-    if (pindahTarget === pindahBarang.ruanganId) { toast.error("Ruangan sama — tidak ada perubahan"); return; }
+    if (pindahTarget === pindahBarang.ruanganId) { toast.error("Ruangan tujuan sama dengan saat ini (tidak ada perubahan)"); return; }
     setPindahSaving(true);
     try {
       await api.put(`/api/barang/${pindahBarang.id}`, { ruanganId: pindahTarget });
@@ -323,10 +323,10 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
                 value={pindahTarget}
                 onChange={setPindahTarget}
                 options={[
-                  { value: "", label: "— Pilih ruangan —" },
+                  { value: "", label: "Pilih Ruangan" },
                   ...list.map(r => ({
                     value: r.id,
-                    label: `${r.kode} — ${r.nama} ${r.id === pindahBarang.ruanganId ? "(saat ini)" : ""}`
+                    label: `${r.kode} | ${r.nama} ${r.id === pindahBarang.ruanganId ? "(saat ini)" : ""}`
                   }))
                 ]}
               />
@@ -343,7 +343,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
       </Modal>
 
       {/* Detail Ruangan Modal */}
-      <Modal open={modal === "detail"} onClose={() => setModal(null)} title={selected ? `Detail Barang — ${selected.nama}` : "Detail Barang"}>
+      <Modal open={modal === "detail"} onClose={() => setModal(null)} title={selected ? `Detail Barang: ${selected.nama}` : "Detail Barang"}>
         {loadingDetail ? (
           <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-muted)" }}>
             <div className="spinner" style={{ margin: "0 auto 12px", width: 24, height: 24 }} />

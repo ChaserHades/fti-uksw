@@ -1,6 +1,6 @@
 // helpers/api.ts
 
-// In-memory request deduplication — same URL within 100ms = same promise
+// In-memory request deduplication (same URL within 100ms = same promise)
 const inflight = new Map<string, Promise<unknown>>();
 
 export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
@@ -20,7 +20,7 @@ export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T
   const promise = fetch(url, {
     ...options,
     headers: { "Content-Type": "application/json", ...options?.headers },
-    // Always fetch fresh data — no caching for inventory system
+    // Always fetch fresh data (no caching for inventory system)
     cache: "no-store",
   }).then(async (res) => {
     const text = await res.text();

@@ -9,7 +9,7 @@ import type { BarangFormData } from "@/constants/barang";
 import type { Barang } from "@/types";
 import BarangFormFields from "./BarangFormFields";
 
-/** Manual add section — fill form, auto-generate QR, print */
+/** Manual add section (fill form, auto-generate QR, print) */
 export default function ManualAddSection() {
   const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
   const [saving, setSaving] = useState(false);
