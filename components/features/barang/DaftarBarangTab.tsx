@@ -686,7 +686,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       {bulkQrData && bulkQrData.length > 0 && (
         <div id="bulk-print-area">
           {bulkQrData.map((qr, idx) => (
-            <div key={qr.kode || `qr-${idx}`} className="bulk-qr-item">
+            <div key={`bulk-qr-${idx}`} className="bulk-qr-item">
               <img src={qr.qrCode} alt="QR" />
               <div>{qr.kode}</div>
             </div>

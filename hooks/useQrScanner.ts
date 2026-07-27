@@ -78,6 +78,12 @@ export function useQrScanner(onResult: (data: string) => void) {
 
   const startCamera = useCallback(async () => {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error(window.isSecureContext === false 
+          ? "Kamera diblokir oleh browser karena koneksi tidak aman (bukan HTTPS atau localhost). Gunakan fitur manual input."
+          : "Browser/Perangkat Anda tidak mendukung akses kamera.");
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
       });
@@ -87,8 +93,9 @@ export function useQrScanner(onResult: (data: string) => void) {
       await v.play();
       setScanning(true);
       scanLoop();
-    } catch {
-      throw new Error("Tidak dapat mengakses kamera");
+    } catch (err: any) {
+      const msg = err?.message || "Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan.";
+      alert(`Gagal membuka kamera:\n${msg}`);
     }
   }, [scanLoop]);
 
