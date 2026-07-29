@@ -1021,6 +1021,8 @@ export type RuanganScalarFieldEnum = (typeof RuanganScalarFieldEnum)[keyof typeo
 
 export const BarangScalarFieldEnum = {
   id: 'id',
+  namaBarang: 'namaBarang',
+  progdi: 'progdi',
   label: 'label',
   labelAset: 'labelAset',
   sn: 'sn',
@@ -1036,6 +1038,7 @@ export const BarangScalarFieldEnum = {
   tanggalPindah: 'tanggalPindah',
   harga: 'harga',
   sumberTahun: 'sumberTahun',
+  pembelianKe: 'pembelianKe',
   hasSticker: 'hasSticker',
   qrCode: 'qrCode',
   foto: 'foto',

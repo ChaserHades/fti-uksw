@@ -10,6 +10,8 @@ export interface SessionPayload {
 
 export interface Barang {
   id: string;
+  namaBarang?: string | null;
+  progdi?: string | null;
   label: string | null;
   labelAset: string | null;
   sn?: string | null;
@@ -25,6 +27,7 @@ export interface Barang {
   tanggalPindah?: string | null;
   harga?: number | null;
   sumberTahun?: string | null;
+  pembelianKe?: number | null;
   hasSticker: boolean;
   qrCode?: string | null;
   foto?: string | null;

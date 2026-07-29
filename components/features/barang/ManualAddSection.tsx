@@ -18,18 +18,35 @@ export default function ManualAddSection() {
   const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
 
   async function handleSave() {
-    if (!form.label || !form.kategori) {
-      toast.error("Label dan kategori wajib diisi");
+    if (!form.namaBarang || !form.kategori) {
+      toast.error("Nama Barang dan Kategori wajib diisi");
+      return;
+    }
+    if (!form.merek || !form.tanggalDatang) {
+      toast.error("Merek dan Tanggal Datang wajib diisi agar kode label bisa ter-generate");
       return;
     }
     setSaving(true);
     try {
       const created = await api.post<Barang>("/api/barang", {
-        ...form,
+        namaBarang: form.namaBarang,
+        progdi: form.progdi || null,
+        label: form.label || null,
+        labelAset: form.labelAset || null,
+        sn: form.sn || null,
+        merek: form.merek || null,
+        model: form.model || null,
+        tipe: form.tipe || null,
+        vendor: form.vendor || null,
+        keterangan: form.keterangan || null,
+        kondisi: form.kondisi,
+        status: form.status,
         jumlah: Number(form.jumlah) || 1,
         tanggalDatang: form.tanggalDatang || null,
         tanggalPindah: form.tanggalPindah || null,
         harga: form.harga ? Number(form.harga) : null,
+        pembelianKe: form.pembelianKe ? Number(form.pembelianKe) : null,
+        sumberTahun: form.sumberTahun || null,
         ruanganId: form.ruangan || null,
         kategoriId: form.kategori,
       });

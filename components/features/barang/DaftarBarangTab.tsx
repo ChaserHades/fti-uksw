@@ -156,6 +156,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   function openEdit(b: Barang) {
     setSelected(b);
     setForm({
+      namaBarang: b.namaBarang || "",
+      progdi: b.progdi || "",
       label: b.label || "", labelAset: b.labelAset || "", sn: b.sn || "",
       merek: b.merek || "", model: b.model || "", tipe: b.tipe || "", vendor: b.vendor || "",
       keterangan: b.keterangan || "",
@@ -165,6 +167,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       harga: b.harga?.toString() || "",
       sumberTahun: b.sumberTahun || "",
       status: b.status || "TERSEDIA",
+      pembelianKe: b.pembelianKe?.toString() || "",
       kategori: b.kategori?.nama || b.kategoriId || "",
       ruangan: b.ruangan?.kode || b.ruanganId || "",
     });

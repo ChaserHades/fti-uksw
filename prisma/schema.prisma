@@ -87,6 +87,10 @@ model Ruangan {
 
 model Barang {
   id            String        @id @default(cuid())
+  /// Nama deskriptif aset, misal "MacBook Pro M3 16inch"
+  namaBarang    String?
+  /// Program Studi pemilik aset, misal "Teknik Informatika (S1)"
+  progdi        String?
   label         String?       @unique
   labelAset     String?
   sn            String?
@@ -102,6 +106,8 @@ model Barang {
   tanggalPindah DateTime?
   harga         Float?
   sumberTahun   String?
+  /// Urutan pembelian di bulan/tahun yang sama, untuk generate kode label
+  pembelianKe   Int?
   /// true = barang punya sticker/barcode fisik (diregister via scan)
   hasSticker    Boolean       @default(false)
   /// QR image data URL — hanya ada jika di-generate dari sistem

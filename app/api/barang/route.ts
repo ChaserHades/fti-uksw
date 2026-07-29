@@ -50,11 +50,13 @@ export async function GET(req: Request) {
   // ── Build shared where clause ──
   const where = {
     AND: [
-      // Multi-field search: label, labelAset, kategori.nama
+      // Multi-field search: namaBarang, label, labelAset, merek, kategori.nama
       ...(search ? [{
         OR: [
+          { namaBarang: { contains: search, mode: "insensitive" as const } },
           { label: { contains: search, mode: "insensitive" as const } },
           { labelAset: { contains: search, mode: "insensitive" as const } },
+          { merek: { contains: search, mode: "insensitive" as const } },
           { kategori: { nama: { contains: search, mode: "insensitive" as const } } },
         ],
       }] : []),
@@ -69,11 +71,12 @@ export async function GET(req: Request) {
 
   // ── Resolve orderBy ──
   const orderBy = (() => {
-    if (sortBy === "kategoriId") return [{ kategori: { nama: sortDir } }, { id: 'asc' }];
-    if (sortBy === "ruanganId") return [{ ruangan: { kode: sortDir } }, { id: 'asc' }];
-    if (sortBy === "merek" || sortBy === "harga") return [{ [sortBy]: sortDir }, { id: 'asc' }];
-    if (sortBy === "tanggalDatang") return [{ createdAt: sortDir }, { id: 'asc' }]; // DB-level sort, refined client-side if needed
-    return [{ createdAt: "desc" }, { id: 'asc' }];
+    if (sortBy === "namaBarang") return [{ namaBarang: sortDir }, { id: 'asc' as const }];
+    if (sortBy === "kategoriId") return [{ kategori: { nama: sortDir } }, { id: 'asc' as const }];
+    if (sortBy === "ruanganId") return [{ ruangan: { kode: sortDir } }, { id: 'asc' as const }];
+    if (sortBy === "merek" || sortBy === "harga") return [{ [sortBy]: sortDir }, { id: 'asc' as const }];
+    if (sortBy === "tanggalDatang") return [{ createdAt: sortDir }, { id: 'asc' as const }];
+    return [{ createdAt: "desc" as const }, { id: 'asc' as const }];
   })() as any;
 
   // ── Run data query + count in parallel ──
@@ -134,7 +137,9 @@ export async function POST(req: Request) {
   try {
     const item = await prisma.barang.create({
       data: {
-        label: body.label,
+        namaBarang: body.namaBarang || null,
+        progdi: body.progdi || null,
+        label: body.label || null,
         labelAset: body.labelAset || null,
         sn: body.sn || null,
         merek: body.merek || null,
@@ -148,6 +153,7 @@ export async function POST(req: Request) {
         tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
         tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
         harga: harga,
+        pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
         hasSticker: body.hasSticker ?? false,
         sumberTahun: body.sumberTahun || null,
         ruanganId,
@@ -161,7 +167,7 @@ export async function POST(req: Request) {
         aksi: "CREATE",
         entitas: "BARANG",
         entitasId: item.id,
-        detail: `Menambahkan barang baru: ${item.label || item.labelAset || item.merek || "Tanpa Nama"}`,
+        detail: `Menambahkan barang baru: ${item.namaBarang || item.label || item.merek || "Tanpa Nama"}`,
         userId: session.id
       }
     });
