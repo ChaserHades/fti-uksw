@@ -125,9 +125,12 @@ export default function BarangFormFields({
 
   return (
     <>
+      <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 16, padding: "10px 14px", background: "var(--glass-bg)", borderRadius: 6, borderLeft: "3px solid var(--accent-primary)" }}>
+        Isi minimal Nama Barang, Label, atau Label Aset.
+      </div>
       {/* ── Row 1 (Priority): Nama Barang ── */}
       <div className="form-group">
-        <label className="form-label">Nama Barang *</label>
+        <label className="form-label">Nama Barang</label>
         <input
           className="input"
           placeholder="MacBook Pro M3 16 inch"
@@ -139,7 +142,7 @@ export default function BarangFormFields({
       {/* ── Row 2 (Priority): Kategori + Progdi ── */}
       <div className={compact ? "form-grid-2" : "form-grid-2"}>
         <div className="form-group">
-          <label className="form-label">Kategori *</label>
+          <label className="form-label">Kategori</label>
           <AsyncAutocomplete
             value={form.kategori}
             onChange={val => {
@@ -171,7 +174,7 @@ export default function BarangFormFields({
       {/* ── Row 3 (Priority): Merek + Tanggal Datang ── */}
       <div className="form-grid-2">
         <div className="form-group">
-          <label className="form-label">Merek *</label>
+          <label className="form-label">Merek</label>
           <input
             className="input"
             placeholder="Apple, HP, Lenovo"
@@ -180,7 +183,7 @@ export default function BarangFormFields({
           />
         </div>
         <div className="form-group">
-          <label className="form-label">Tanggal Datang *</label>
+          <label className="form-label">Tanggal Datang</label>
           <input
             type="date"
             max="9999-12-31"

@@ -9,6 +9,7 @@ import { useQrScanner } from "@/hooks/useQrScanner";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
 import type { Barang } from "@/types";
+import { assessBarangIdentity } from "@/lib/barang-identity";
 import BarangFormFields from "./BarangFormFields";
 
 /** Scan QR, lookup DB, register if not found */
@@ -23,12 +24,21 @@ export default function ScanRegisterSection() {
     const kode = parseQrPayload(raw);
     setScannedKode(kode);
     try {
-      const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode)}`);
-      setFoundBarang(data);
-      toast.success(`Barang "${data.kategori?.nama}" sudah terdaftar di database`);
+      const res = await fetch(`/api/barang?kode=${encodeURIComponent(kode)}`);
+      const data = await res.json();
+      if (res.ok) {
+        setFoundBarang(data);
+        toast.success(`Barang "${data.kategori?.nama || data.namaBarang || data.label}" sudah terdaftar di database`);
+      } else if (res.status === 404) {
+        setForm({ ...BARANG_FORM_EMPTY, label: kode });
+        setRegisterModal(true);
+      } else if (res.status === 409) {
+        toast.error("Kode ambigu: ditemukan beberapa barang dengan identitas ini.");
+      } else {
+        toast.error(data.error || "Gagal memproses QR");
+      }
     } catch {
-      setForm({ ...BARANG_FORM_EMPTY, label: kode });
-      setRegisterModal(true);
+      toast.error("Terjadi kesalahan jaringan.");
     }
   }
 
@@ -37,8 +47,14 @@ export default function ScanRegisterSection() {
   const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
 
   async function handleRegister() {
-
-    if (!form.kategori) { toast.error("Jenis barang wajib dipilih"); return; }
+    const identity = assessBarangIdentity({
+      ...form,
+      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang) : null
+    });
+    if (!identity.isValid) {
+      toast.error(identity.error || "Data barang belum memiliki identitas yang cukup. Isi minimal Nama Barang, Label, atau Label Aset.");
+      return;
+    }
     setSaving(true);
     try {
       await api.post("/api/barang", {

@@ -15,6 +15,7 @@ import { parseQrPayload } from "@/helpers/format";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
 import type { Barang, Kategori, Ruangan, Pengeluaran } from "@/types";
+import { assessBarangIdentity } from "@/lib/barang-identity";
 import BarangFormFields from "./BarangFormFields";
 import { fDateShort } from "@/helpers/format";
 
@@ -34,12 +35,17 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     setSearch(code);
     setScanModalOpen(false);
     try {
-      const data = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(code)}`);
-      if (data && data.id) {
+      const res = await fetch(`/api/barang?kode=${encodeURIComponent(code)}`);
+      const data = await res.json();
+      if (res.ok && data && data.id) {
         openCekBarang(data);
+      } else if (res.status === 409) {
+        toast.error("Kode ambigu: ditemukan beberapa barang dengan identitas ini. Menampilkan hasil di tabel.");
+      } else if (res.status !== 404) {
+        toast.error(data.error || "Gagal memproses kode.");
       }
     } catch {
-
+      toast.error("Terjadi kesalahan jaringan.");
     }
   };
   const { videoRef, canvasRef, scanning, startCamera, stopCamera } = useQrScanner(handleScanResult);
@@ -262,10 +268,15 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }
 
   async function handleSave() {
-    if (!form.namaBarang || !form.kategori) {
-      toast.error("Nama Barang dan Kategori wajib diisi");
+    const identity = assessBarangIdentity({
+      ...form,
+      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang) : null
+    });
+    if (!identity.isValid) {
+      toast.error(identity.error || "Data barang belum memiliki identitas yang cukup. Isi minimal Nama Barang, Label, atau Label Aset.");
       return;
     }
+
     setSaving(true);
     const body = {
       ...form,

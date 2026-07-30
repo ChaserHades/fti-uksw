@@ -7,6 +7,7 @@ import { api } from "@/helpers/api";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
 import type { Barang } from "@/types";
+import { assessBarangIdentity } from "@/lib/barang-identity";
 import BarangFormFields from "./BarangFormFields";
 
 /** Manual add section (fill form, auto-generate QR, print) */
@@ -18,14 +19,15 @@ export default function ManualAddSection() {
   const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
 
   async function handleSave() {
-    if (!form.namaBarang || !form.kategori) {
-      toast.error("Nama Barang dan Kategori wajib diisi");
+    const identity = assessBarangIdentity({
+      ...form,
+      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang) : null
+    });
+    if (!identity.isValid) {
+      toast.error(identity.error || "Data barang belum memiliki identitas yang cukup. Isi minimal Nama Barang, Label, atau Label Aset.");
       return;
     }
-    if (!form.merek || !form.tanggalDatang) {
-      toast.error("Merek dan Tanggal Datang wajib diisi agar kode label bisa ter-generate");
-      return;
-    }
+
     setSaving(true);
     try {
       const created = await api.post<Barang>("/api/barang", {

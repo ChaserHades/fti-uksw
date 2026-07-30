@@ -130,12 +130,19 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   async function lookupBarang(kode: string) {
     if (!kode.trim()) return;
     try {
-      const b = await api.get<Barang>(`/api/barang?kode=${encodeURIComponent(kode.trim())}`);
-      setPindahBarang(b);
-      setPindahTarget(b.ruanganId ?? "");
-      toast.success(`Ditemukan: ${b.kategori?.nama}`);
+      const res = await fetch(`/api/barang?kode=${encodeURIComponent(kode.trim())}`);
+      const data = await res.json();
+      if (res.ok) {
+        setPindahBarang(data);
+        setPindahTarget(data.ruanganId ?? "");
+        toast.success(`Ditemukan: ${data.kategori?.nama}`);
+      } else if (res.status === 409) {
+        toast.error("Kode ambigu: ditemukan beberapa barang dengan identitas ini.");
+      } else {
+        toast.error(`Barang dengan kode "${kode}" tidak ditemukan`);
+      }
     } catch {
-      toast.error(`Barang dengan kode "${kode}" tidak ditemukan`);
+      toast.error("Terjadi kesalahan jaringan");
     }
   }
 
