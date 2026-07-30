@@ -10,6 +10,7 @@ export async function GET(req: Request) {
 
   const searchParams = new URL(req.url).searchParams;
   const jenis = searchParams.get("jenis");
+  const search = searchParams.get("search") || "";
   
   const limit  = parseInt(searchParams.get("limit") || "50", 10);
   const cursor = searchParams.get("cursor");
@@ -18,6 +19,14 @@ export async function GET(req: Request) {
   const where: any = {};
   if (jenis && ["PEMBELIAN_ASET", "MAINTENANCE", "LAINNYA"].includes(jenis)) {
     where.jenis = jenis;
+  }
+  
+  if (search) {
+    where.OR = [
+      { judul: { contains: search, mode: "insensitive" } },
+      { kodePembelian: { contains: search, mode: "insensitive" } },
+      { nomorBukti: { contains: search, mode: "insensitive" } },
+    ];
   }
 
   const list = await prisma.pengeluaran.findMany({
@@ -47,12 +56,16 @@ export async function POST(req: Request) {
   if (session.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const formData = await req.formData();
-  const judul     = formData.get("judul") as string;
-  const deskripsi = formData.get("deskripsi") as string | null;
-  const nominal   = parseFloat(formData.get("nominal") as string);
-  const tanggal   = formData.get("tanggal") as string;
-  const jenis     = formData.get("jenis") as string;
-  const notas     = formData.getAll("nota") as File[];
+  const judul        = formData.get("judul") as string;
+  const namaBarang   = (formData.get("namaBarang") as string | null) || null;
+  const progdi       = (formData.get("progdi") as string | null) || null;
+  const deskripsi    = (formData.get("deskripsi") as string | null) || null;
+  const nominal      = parseFloat(formData.get("nominal") as string);
+  const tanggal      = formData.get("tanggal") as string;
+  const jenis        = formData.get("jenis") as string;
+  const jenisBukti   = (formData.get("jenisBukti") as string | null) || null;
+  const nomorBukti   = (formData.get("nomorBukti") as string | null) || null;
+  const notas        = formData.getAll("nota") as File[];
   const pembelianKeRaw = formData.get("pembelianKe") as string | null;
 
   if (!judul?.trim()) return NextResponse.json({ error: "Judul wajib diisi" }, { status: 400 });
@@ -61,7 +74,7 @@ export async function POST(req: Request) {
   if (!["PEMBELIAN_ASET", "MAINTENANCE", "LAINNYA"].includes(jenis))
     return NextResponse.json({ error: "Jenis tidak valid" }, { status: 400 });
 
-  // --- Generate kodePembelian from tanggal + pembelianKe ---
+  // Generate kodePembelian: mmyyyy-nnn (Sebagai wadah/kelompok pembelian)
   let kodePembelian: string | null = null;
   let pembelianKe: number | null = null;
 
@@ -139,10 +152,14 @@ export async function POST(req: Request) {
   const pengeluaran = await prisma.pengeluaran.create({
     data: {
       judul: judul.trim(),
+      namaBarang,
+      progdi,
       deskripsi: deskripsi?.trim() || null,
       nominal,
       tanggal: new Date(tanggal),
       jenis: jenis as "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA",
+      jenisBukti: jenisBukti || null,
+      nomorBukti: nomorBukti || null,
       notaUrls: uploadedUrls,
       kodePembelian,
       pembelianKe,

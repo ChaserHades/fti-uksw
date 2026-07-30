@@ -7,6 +7,7 @@ export const BARANG_FORM_EMPTY = {
   label: "", labelAset: "", sn: "", merek: "", model: "", tipe: "", vendor: "", keterangan: "",
   kondisi: "BAIK", jumlah: 1, tanggalDatang: "", tanggalPindah: "", harga: "", kategori: "", ruangan: "",
   sumberTahun: "", status: "TERSEDIA", pembelianKe: "" as string | number,
+  pengeluaranId: "",
 };
 
 export type BarangFormData = typeof BARANG_FORM_EMPTY;

@@ -26,10 +26,10 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
     { key: "daftar", icon: "ti-list", label: "Daftar Barang" },
   ];
   if (role === "ADMIN") {
-    availableTabs.push({ key: "add", icon: "ti-plus", label: "Add Item" });
     availableTabs.push({ key: "kategori", icon: "ti-category", label: "Kategori" });
   }
   if (role === "ADMIN" || role === "TEKNISI") {
+    availableTabs.push({ key: "add", icon: "ti-plus", label: "Add Item" });
     availableTabs.push({ key: "ruangan", icon: "ti-building", label: "Ruangan / Ruangan" });
   }
 

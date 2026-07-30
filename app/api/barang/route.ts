@@ -63,8 +63,11 @@ export async function GET(req: Request) {
       ...(kategoriId ? [{ kategoriId }] : []),
       ...(ruanganId ? [{ ruanganId }] : []),
       ...(tersedia === "true" ? [{ status: "TERSEDIA" as const }] : []),
+      ...(searchParams.get("status") === "deleted" 
+          ? [{ deletedAt: { not: null } }] 
+          : [{ deletedAt: null }]),
     ],
-  };
+  } as any;
 
   const sortBy = searchParams.get("sortBy");
   const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
@@ -74,7 +77,7 @@ export async function GET(req: Request) {
     if (sortBy === "namaBarang") return [{ namaBarang: sortDir }, { id: 'asc' as const }];
     if (sortBy === "kategoriId") return [{ kategori: { nama: sortDir } }, { id: 'asc' as const }];
     if (sortBy === "ruanganId") return [{ ruangan: { kode: sortDir } }, { id: 'asc' as const }];
-    if (sortBy === "merek" || sortBy === "harga") return [{ [sortBy]: sortDir }, { id: 'asc' as const }];
+    if (sortBy === "merek" || sortBy === "harga" || sortBy === "pengeluaranId") return [{ [sortBy]: sortDir }, { id: 'asc' as const }];
     if (sortBy === "tanggalDatang") return [{ createdAt: sortDir }, { id: 'asc' as const }];
     return [{ createdAt: "desc" as const }, { id: 'asc' as const }];
   })() as any;
@@ -120,7 +123,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const { session, error } = await checkApiAuth();
   if (error) return error;
-  if (session.role !== "ADMIN")
+  if (session.role !== "ADMIN" && session.role !== "TEKNISI")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
@@ -158,6 +161,7 @@ export async function POST(req: Request) {
         sumberTahun: body.sumberTahun || null,
         ruanganId,
         kategoriId,
+        pengeluaranId: body.pengeluaranId || null,
       },
       include: { kategori: true, ruangan: true },
     });

@@ -10,11 +10,23 @@ import { api } from "@/helpers/api";
 import { fDateShort, terbilang } from "@/helpers/format";
 import ConfirmModal from "@/components/ConfirmModal";
 import UnifiedExportModal from "@/components/features/UnifiedExportModal";
+import { PROGDI_OPTIONS } from "@/constants/barang";
 import type { Pengeluaran } from "@/types";
 
 type JenisFilter = "" | "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
 
-const EMPTY = { judul: "", keterangan: "", nominal: "", tanggal: "", jenis: "PEMBELIAN_ASET", pembelianKe: "" };
+const EMPTY = {
+  judul: "",
+  namaBarang: "",
+  progdi: "",
+  keterangan: "",
+  nominal: "",
+  tanggal: "",
+  jenis: "PEMBELIAN_ASET",
+  jenisBukti: "",   // SPB | KWITANSI | NOTA
+  nomorBukti: "",   // bebas karakter: 03/290-12, dll
+  pembelianKe: "",
+};
 const jenisLabel: Record<string, string> = {
   PEMBELIAN_ASET: "Pembelian Aset",
   MAINTENANCE: "Maintenance",
@@ -34,15 +46,18 @@ function getFileType(url: string): "image" | "pdf" | "other" {
   return "other";
 }
 
-/** Generate kode pembelian preview from tanggal + pembelianKe */
-function generateKodePreview(tanggal: string, pembelianKe: string): string {
+/** Generate kode preview from jenisBukti, nomorBukti, tanggal, pembelianKe */
+function generateKodePreview(tanggal: string, pembelianKe: string, jenisBukti: string, nomorBukti: string): string {
   if (!tanggal || !pembelianKe || isNaN(parseInt(pembelianKe, 10))) return "";
   const d = new Date(tanggal);
   if (isNaN(d.getTime())) return "";
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = String(d.getFullYear());
   const nnn = String(parseInt(pembelianKe, 10)).padStart(3, "0");
-  return `${mm}${yyyy}-${nnn}`;
+  const basePart = `${mm}${yyyy}-${nnn}`;
+  if (jenisBukti && nomorBukti) return `${jenisBukti}-${nomorBukti}-${basePart}`;
+  if (jenisBukti) return `${jenisBukti}-${basePart}`;
+  return basePart;
 }
 
 export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
@@ -96,7 +111,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
   const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   // Live kode preview
-  const kodePreview = generateKodePreview(form.tanggal, form.pembelianKe);
+  const kodePreview = generateKodePreview(form.tanggal, form.pembelianKe, form.jenisBukti, form.nomorBukti);
 
   async function handleSave() {
     if (!form.judul.trim()) { toast.error("Judul wajib diisi"); return; }
@@ -107,10 +122,14 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
     try {
       const fd = new FormData();
       fd.append("judul", form.judul);
+      if (form.namaBarang) fd.append("namaBarang", form.namaBarang);
+      if (form.progdi) fd.append("progdi", form.progdi);
       fd.append("keterangan", form.keterangan);
       fd.append("nominal", form.nominal);
       fd.append("tanggal", form.tanggal);
       fd.append("jenis", form.jenis);
+      if (form.jenisBukti) fd.append("jenisBukti", form.jenisBukti);
+      if (form.nomorBukti) fd.append("nomorBukti", form.nomorBukti);
       if (form.pembelianKe) fd.append("pembelianKe", form.pembelianKe);
       notas.forEach(n => fd.append("nota", n));
 
@@ -136,10 +155,14 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
     setSelectedId(p.id);
     setForm({
       judul: p.judul,
+      namaBarang: p.namaBarang ?? "",
+      progdi: p.progdi ?? "",
       keterangan: p.keterangan ?? "",
       nominal: p.nominal.toString(),
       tanggal: new Date(p.tanggal).toISOString().split("T")[0],
       jenis: p.jenis,
+      jenisBukti: p.jenisBukti ?? "",
+      nomorBukti: p.nomorBukti ?? "",
       pembelianKe: p.pembelianKe ? String(p.pembelianKe) : "",
     });
     setNotas([]);
@@ -345,13 +368,14 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
 
       {/* Modal Input/Edit Pengeluaran */}
       <Modal open={modal} onClose={() => setModal(false)} title={selectedId ? "Edit Pengeluaran" : "Catat Pengeluaran Baru"}>
+        {/* Row 1: Judul + Jenis Pengeluaran */}
         <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Judul *</label>
             <input className="input" placeholder="Pembelian Keyboard" value={form.judul} onChange={e => setF("judul", e.target.value)} />
           </div>
           <div className="form-group">
-            <label className="form-label">Jenis *</label>
+            <label className="form-label">Jenis Pengeluaran *</label>
             <LiquidSelect
               value={form.jenis}
               onChange={val => setF("jenis", val)}
@@ -363,6 +387,24 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
             />
           </div>
         </div>
+
+        {/* Row 1b: Nama Barang + Progdi (baru) */}
+        <div className="form-grid-2">
+          <div className="form-group">
+            <label className="form-label">Nama Barang <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>
+            <input className="input" placeholder="Laptop Asus ROG" value={form.namaBarang} onChange={e => setF("namaBarang", e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Progdi <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>
+            <LiquidSelect
+              value={form.progdi}
+              onChange={val => setF("progdi", val)}
+              options={[{ value: "", label: "— Pilih Progdi —" }, ...PROGDI_OPTIONS]}
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Nominal + Tanggal */}
         <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Nominal (Rp) *</label>
@@ -378,6 +420,34 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
             <input type="date" max="9999-12-31" className="input" value={form.tanggal} onChange={e => setF("tanggal", e.target.value)} />
           </div>
         </div>
+
+        {/* Row 3: Jenis Bukti + Nomor Bukti */}
+        <div className="form-grid-2">
+          <div className="form-group">
+            <label className="form-label">Jenis Bukti Pembayaran <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>
+            <LiquidSelect
+              value={form.jenisBukti}
+              onChange={val => setF("jenisBukti", val)}
+              options={[
+                { value: "", label: "— Pilih Jenis Bukti —" },
+                { value: "SPB", label: "SPB" },
+                { value: "KWITANSI", label: "Kwitansi" },
+                { value: "NOTA", label: "Nota" },
+              ]}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Nomor Bukti <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional, misal: 03/290-12)</span></label>
+            <input
+              className="input"
+              placeholder="03/290-12"
+              value={form.nomorBukti}
+              onChange={e => setF("nomorBukti", e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Row 4: Pembelian ke + Preview Kode */}
         <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Pembelian ke-? <span style={{ fontSize: 10, color: "var(--text-muted)" }}>(opsional)</span></label>
@@ -386,12 +456,13 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
           <div className="form-group" style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
             {kodePreview && (
               <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Kode:</span>
-                <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: 700, fontSize: 14, color: "var(--color-info)", letterSpacing: "0.5px" }}>{kodePreview}</span>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Preview Kode:</span>
+                <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: 700, fontSize: 13, color: "var(--color-info)", letterSpacing: "0.5px", wordBreak: "break-all" }}>{kodePreview}</span>
               </div>
             )}
           </div>
         </div>
+
         <div className="form-group">
           <label className="form-label">Deskripsi</label>
           <input className="input" placeholder="Keterangan opsional" value={form.keterangan} onChange={e => setF("keterangan", e.target.value)} />
@@ -435,14 +506,34 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
               )}
             </div>
 
-            {/* File viewer (Multiple) */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+                        {/* File viewer — horizontal scroll kalau > 1 nota */}
+            <div
+              style={{
+                borderTop: "1px solid rgba(255,255,255,0.1)",
+                paddingTop: 16,
+                display: "flex",
+                flexDirection: "row",
+                gap: 16,
+                overflowX: "auto",
+                paddingBottom: 8,
+              }}
+            >
               {viewInvoice.notaUrls.map((url, idx) => (
-                <div key={idx} style={{ position: "relative", padding: 12, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, background: "rgba(255,255,255,0.02)" }}>
+                <div
+                  key={idx}
+                  style={{
+                    flex: "0 0 320px",
+                    position: "relative",
+                    padding: 12,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 8,
+                    background: "rgba(255,255,255,0.02)",
+                  }}
+                >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Nota #{idx + 1}</span>
                     {role === "ADMIN" && (
-                      <button 
+                      <button
                         className="btn btn-danger btn-sm"
                         onClick={async () => {
                           if (!confirm("Hapus nota ini?")) return;
@@ -464,13 +555,13 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                     <img
                       src={url}
                       alt={`Nota ${idx + 1}`}
-                      style={{ width: "100%", maxHeight: 500, objectFit: "contain", borderRadius: 8, background: "rgba(255,255,255,0.03)" }}
+                      style={{ width: "100%", maxHeight: 400, objectFit: "contain", borderRadius: 8, background: "rgba(255,255,255,0.03)" }}
                     />
                   ) : getFileType(url) === "pdf" ? (
                     <iframe
                       src={url}
                       title={`Nota PDF ${idx + 1}`}
-                      style={{ width: "100%", height: 500, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}
+                      style={{ width: "100%", height: 400, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}
                     />
                   ) : (
                     <div style={{ textAlign: "center", padding: 32 }}>
@@ -482,46 +573,46 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                   )}
                 </div>
               ))}
-
-              {/* Add New Nota Inline */}
-              {role === "ADMIN" && (
-                <div style={{ marginTop: 8, padding: 16, border: "1px dashed rgba(255,255,255,0.2)", borderRadius: 8, background: "rgba(255,255,255,0.01)" }}>
-                  <label className="form-label" style={{ marginBottom: 8, display: "block" }}>Tambah Nota Baru</label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input 
-                      type="file" 
-                      className="input" 
-                      accept="image/*,.pdf,.doc,.docx"
-                      style={{ flex: 1 }}
-                      id={`add-nota-${viewInvoice.id}`}
-                    />
-                    <button 
-                      className="btn btn-primary"
-                      onClick={async () => {
-                        const input = document.getElementById(`add-nota-${viewInvoice.id}`) as HTMLInputElement;
-                        const file = input.files?.[0];
-                        if (!file) return toast.error("Pilih file terlebih dahulu");
-                        const fd = new FormData();
-                        fd.append("nota", file);
-                        try {
-                          const res = await fetch(`/api/pengeluaran/${viewInvoice.id}/nota`, { method: "POST", body: fd });
-                          if (!res.ok) throw new Error("Gagal mengunggah nota");
-                          toast.success("Nota ditambahkan");
-                          input.value = "";
-                          load();
-                          const updated = await res.json();
-                          setViewInvoice(updated);
-                        } catch (e: any) {
-                          toast.error(e.message || "Gagal mengunggah nota");
-                        }
-                      }}
-                    >
-                      <i className="ti ti-upload" /> Upload
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
+
+            {/* Add New Nota Inline */}
+            {role === "ADMIN" && (
+              <div style={{ marginTop: 8, padding: 16, border: "1px dashed rgba(255,255,255,0.2)", borderRadius: 8, background: "rgba(255,255,255,0.01)" }}>
+                <label className="form-label" style={{ marginBottom: 8, display: "block" }}>Tambah Nota Baru</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input 
+                    type="file" 
+                    className="input" 
+                    accept="image/*,.pdf,.doc,.docx"
+                    style={{ flex: 1 }}
+                    id={`add-nota-${viewInvoice.id}`}
+                  />
+                  <button 
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      const input = document.getElementById(`add-nota-${viewInvoice.id}`) as HTMLInputElement;
+                      const file = input.files?.[0];
+                      if (!file) return toast.error("Pilih file terlebih dahulu");
+                      const fd = new FormData();
+                      fd.append("nota", file);
+                      try {
+                        const res = await fetch(`/api/pengeluaran/${viewInvoice.id}/nota`, { method: "POST", body: fd });
+                        if (!res.ok) throw new Error("Gagal mengunggah nota");
+                        toast.success("Nota ditambahkan");
+                        input.value = "";
+                        load();
+                        const updated = await res.json();
+                        setViewInvoice(updated);
+                      } catch (e: any) {
+                        toast.error(e.message || "Gagal mengunggah nota");
+                      }
+                    }}
+                  >
+                    <i className="ti ti-upload" /> Upload
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
         {viewInvoice && (!viewInvoice.notaUrls || viewInvoice.notaUrls.length === 0) && (

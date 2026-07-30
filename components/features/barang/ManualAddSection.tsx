@@ -49,6 +49,7 @@ export default function ManualAddSection() {
         sumberTahun: form.sumberTahun || null,
         ruanganId: form.ruangan || null,
         kategoriId: form.kategori,
+        pengeluaranId: form.pengeluaranId || null,
       });
       const qr = await api.get<{ qrCode: string; kode: string }>(`/api/barang/${created.id}/qr`);
       setQrResult(qr);

@@ -137,6 +137,19 @@ export default function ImportSection() {
             <div className="scan-sub">Unggah file aset. Data akan masuk ke draf (Pre-flight Check) sebelum disimpan permanen.</div>
           </div>
 
+          <div className="alert alert-info mb-16" style={{ alignItems: "flex-start" }}>
+            <i className="ti ti-info-circle" style={{ marginTop: 2 }} />
+            <div>
+              <strong style={{ display: "block", marginBottom: 4 }}>Panduan Import Data</strong>
+              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 13, lineHeight: 1.6 }}>
+                <li><strong>Format Kolom:</strong> <code>Nama Barang</code>, <code>Kategori</code>, <code>Merek</code>, <code>Tipe</code>, <code>No. Seri</code>, <code>Kondisi</code>, <code>Ruangan</code>, <code>Keterangan</code>.</li>
+                <li><strong>Ruangan Tidak Dikenali:</strong> Jika nama ruangan pada file tidak cocok dengan database, ruangan akan diabaikan (dikosongkan), data tetap masuk.</li>
+                <li><strong>Stiker Rusak/Hilang:</strong> Untuk barang yang stikernya terkelupas, biarkan kolom tertentu kosong agar sistem men-generate kode baru untuk dicetak ulang.</li>
+                <li><strong>Tahun Aset:</strong> Ekstraksi tahun dilakukan otomatis dari nama file (contoh: <code>Aset_2026.csv</code>).</li>
+              </ul>
+            </div>
+          </div>
+
           <div className="form-group">
             <label className="form-label">Pilih File CSV / Excel</label>
             <input

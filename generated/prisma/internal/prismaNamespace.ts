@@ -1044,6 +1044,8 @@ export const BarangScalarFieldEnum = {
   foto: 'foto',
   kategoriId: 'kategoriId',
   ruanganId: 'ruanganId',
+  pengeluaranId: 'pengeluaranId',
+  deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1073,10 +1075,14 @@ export type PeminjamanScalarFieldEnum = (typeof PeminjamanScalarFieldEnum)[keyof
 export const PengeluaranScalarFieldEnum = {
   id: 'id',
   judul: 'judul',
+  namaBarang: 'namaBarang',
+  progdi: 'progdi',
   deskripsi: 'deskripsi',
   nominal: 'nominal',
   tanggal: 'tanggal',
   jenis: 'jenis',
+  jenisBukti: 'jenisBukti',
+  nomorBukti: 'nomorBukti',
   notaUrls: 'notaUrls',
   kodePembelian: 'kodePembelian',
   pembelianKe: 'pembelianKe',

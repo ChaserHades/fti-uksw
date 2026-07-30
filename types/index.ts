@@ -33,10 +33,13 @@ export interface Barang {
   foto?: string | null;
   kategoriId: string;
   ruanganId?: string | null;
+  pengeluaranId?: string | null;
+  deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   kategori: Kategori;
   ruangan?: Ruangan | null;
+  pengeluaran?: Pengeluaran | null;
 }
 
 export interface Kategori {
@@ -111,10 +114,14 @@ export interface DashboardStats {
 export interface Pengeluaran {
   id: string;
   judul: string;
+  namaBarang?: string | null;
+  progdi?: string | null;
   keterangan?: string | null;
   nominal: number;
   tanggal: string;
   jenis: "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA";
+  jenisBukti?: string | null;
+  nomorBukti?: string | null;
   notaUrls: string[];
   kodePembelian?: string | null;
   pembelianKe?: number | null;

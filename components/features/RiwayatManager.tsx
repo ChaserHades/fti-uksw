@@ -9,6 +9,7 @@ import { fDateShort } from "@/helpers/format";
 import type { Peminjaman } from "@/types";
 import UnifiedExportModal from "@/components/features/UnifiedExportModal";
 import LogAktivitasView from "@/components/features/LogAktivitasView";
+import RecentlyDeletedView from "@/components/features/RecentlyDeletedView";
 
 type StatusFilter = "" | "AKTIF" | "SELESAI" | "TERLAMBAT";
 
@@ -77,7 +78,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
     return { cls: "badge-ok", label: "Selesai" };
   }
 
-  const [subTab, setSubTab] = useState<"peminjaman" | "aktivitas">("peminjaman");
+  const [subTab, setSubTab] = useState<"peminjaman" | "aktivitas" | "terhapus">("peminjaman");
 
   return (
     <div className="animate-fade-in">
@@ -94,10 +95,18 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
         >
           Aktivitas (Log)
         </button>
+        <button 
+          className={`btn ${subTab === "terhapus" ? "btn-primary" : "btn-ghost"}`} 
+          onClick={() => setSubTab("terhapus")}
+        >
+          Barang Terhapus
+        </button>
       </div>
 
       {subTab === "aktivitas" ? (
         <LogAktivitasView />
+      ) : subTab === "terhapus" ? (
+        <RecentlyDeletedView role={role} />
       ) : (
         <>
           {/* Summary */}

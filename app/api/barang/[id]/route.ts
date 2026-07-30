@@ -20,7 +20,7 @@ export async function PUT(req: Request, { params }: Params) {
   const { id } = await params;
   const { session, error } = await checkApiAuth();
   if (error) return error;
-  if (session.role !== "ADMIN")
+  if (session.role !== "ADMIN" && session.role !== "TEKNISI")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
@@ -38,6 +38,8 @@ export async function PUT(req: Request, { params }: Params) {
     const item = await prisma.barang.update({
       where: { id },
       data: {
+        namaBarang: body.namaBarang || null,
+        progdi: body.progdi || null,
         label: body.label,
         labelAset: body.labelAset || null,
         sn: body.sn || null,
@@ -52,8 +54,10 @@ export async function PUT(req: Request, { params }: Params) {
         tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
         harga: harga,
         sumberTahun: body.sumberTahun || null,
+        pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
         kategoriId,
         ruanganId,
+        pengeluaranId: body.pengeluaranId || null,
       },
       include: { kategori: true, ruangan: true },
     });
@@ -88,7 +92,7 @@ export async function DELETE(_: Request, { params }: Params) {
     const barangToDelete = await prisma.barang.findUnique({ where: { id } });
     if (!barangToDelete) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    await prisma.barang.delete({ where: { id } });
+    await prisma.barang.update({ where: { id }, data: { deletedAt: new Date() } });
     
     await prisma.logAktivitas.create({
       data: {

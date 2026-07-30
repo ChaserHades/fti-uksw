@@ -92,6 +92,13 @@ export default function BarangFormFields({
     fetchPembelianKe(val);
   };
 
+  // Helper to format Cashflow preview code
+  const formatKodePengeluaran = (p: any) => {
+    if (p.jenisBukti && p.nomorBukti) return `${p.jenisBukti}-${p.nomorBukti}-${p.kodePembelian}`;
+    if (p.jenisBukti) return `${p.jenisBukti}-${p.kodePembelian}`;
+    return p.kodePembelian || p.judul;
+  };
+
   return (
     <>
       {/* ── Row 1 (Priority): Nama Barang ── */}
@@ -196,6 +203,21 @@ export default function BarangFormFields({
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
             Kode ini otomatis ter-generate dan disimpan sebagai label barang
           </div>
+        </div>
+      </div>
+
+      {/* ── Row 4b: Tautkan ke Cashflow / Bukti Pembayaran ── */}
+      <div className="form-group">
+        <label className="form-label">Bukti Pembayaran / Cashflow <span style={{ fontSize: 11, color: "var(--text-muted)" }}>(opsional)</span></label>
+        <AsyncAutocomplete
+          value={form.pengeluaranId || ""}
+          onChange={val => onChange("pengeluaranId", val)}
+          fetchUrl="/api/pengeluaran"
+          placeholder="Cari kode (misal: SPB-03/290...) atau judul..."
+          mapOption={item => ({ value: item.id, label: formatKodePengeluaran(item) })}
+        />
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+          Tautkan barang ini ke bukti pembayaran/nota di fitur Cashflow
         </div>
       </div>
 

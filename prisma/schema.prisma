@@ -115,10 +115,13 @@ model Barang {
   foto          String?
   kategoriId    String
   ruanganId     String?
+  pengeluaranId String?
+  deletedAt     DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   kategori      Kategori      @relation(fields: [kategoriId], references: [id])
   ruangan       Ruangan?      @relation(fields: [ruanganId], references: [id])
+  pengeluaran   Pengeluaran?  @relation(fields: [pengeluaranId], references: [id])
   peminjaman    Peminjaman[]
 
   @@map("barang")
@@ -150,13 +153,19 @@ model Peminjaman {
 model Pengeluaran {
   id             String           @id @default(cuid())
   judul          String
+  namaBarang     String?
+  progdi         String?
   deskripsi      String?
   nominal        Float
   tanggal        DateTime
   jenis          JenisPengeluaran
+  /// Jenis dokumen bukti pembayaran: SPB, KWITANSI, NOTA
+  jenisBukti     String?
+  /// Nomor dokumen bukti pembayaran, bebas karakter (e.g. "03/290-12")
+  nomorBukti     String?
   /// Path ke file nota/receipt (opsional — jpg, pdf, docx)
   notaUrls       String[]         @default([])
-  /// Kode pembelian auto-generated: mmyyyy-nnn (e.g. 022023-001)
+  /// Kode pembelian auto-generated: {JENIS}-{NOMOR}-mmyyyy-nnn
   kodePembelian  String?
   /// Urutan pembelian ke-berapa di bulan tersebut
   pembelianKe    Int?
@@ -164,6 +173,7 @@ model Pengeluaran {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   user           User             @relation(fields: [userId], references: [id])
+  barang         Barang[]
 
   @@map("pengeluaran")
 }

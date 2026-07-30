@@ -170,6 +170,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       pembelianKe: b.pembelianKe?.toString() || "",
       kategori: b.kategori?.nama || b.kategoriId || "",
       ruangan: b.ruangan?.kode || b.ruanganId || "",
+      pengeluaranId: b.pengeluaranId || "",
     });
     setModal("form");
   }
@@ -394,7 +395,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
-            {role === "ADMIN" && (
+            {role !== "UNIVERSITAS" && (
               <>
                 <button className="btn btn-ghost" onClick={() => setModal("print_options")} title="Print QR Semua Barang (Bulk)">
                   <i className="ti ti-printer" /> Bulk Print
@@ -432,6 +433,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                 { value: "merek", label: "Merek" },
                 { value: "kategoriId", label: "Jenis Kategori" },
                 { value: "ruanganId", label: "Ruangan" },
+                { value: "pengeluaranId", label: "Cashflow (Nota)" },
               ]}
             />
           </div>
@@ -503,15 +505,13 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openQR(b)} title="QR Code">
                         <i className="ti ti-qrcode" />
                       </button>
+                      <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit">
+                        <i className="ti ti-edit" />
+                      </button>
                       {role === "ADMIN" && (
-                        <>
-                          <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit">
-                            <i className="ti ti-edit" />
-                          </button>
-                          <button className="btn btn-danger btn-icon btn-sm" onClick={() => setConfirmDel({ id: b.id, nama: b.namaBarang || b.kategori?.nama || "Barang" })} title="Hapus">
-                            <i className="ti ti-trash" />
-                          </button>
-                        </>
+                        <button className="btn btn-danger btn-icon btn-sm" onClick={() => setConfirmDel({ id: b.id, nama: b.namaBarang || b.kategori?.nama || "Barang" })} title="Hapus">
+                          <i className="ti ti-trash" />
+                        </button>
                       )}
                     </div>
                   </td>
