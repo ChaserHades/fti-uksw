@@ -58,42 +58,46 @@ export async function PUT(req: Request, { params }: Params) {
   }
 
   try {
-    const item = await prisma.barang.update({
-      where: { id },
-      data: {
-        ...(kelompokPembelianId !== undefined && { kelompokPembelianId }),
-        namaBarang: body.namaBarang || null,
-        progdi: body.progdi || null,
-        label: body.label,
-        labelAset: body.labelAset || null,
-        sn: body.sn || null,
-        merek: body.merek || null,
-        model: body.model || null,
-        tipe: body.tipe || null,
-        vendor: body.vendor || null,
-        keterangan: body.keterangan ?? null,
-        kondisi: body.kondisi,
-        jumlah: jumlah,
-        tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
-        tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
-        harga: harga,
-        sumberTahun: body.sumberTahun || null,
-        pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
-        kategoriId,
-        ruanganId,
-        pengeluaranId: body.pengeluaranId || null,
-      },
-      include: { kategori: true, ruangan: true },
-    });
+    const item = await prisma.$transaction(async (tx) => {
+      const updated = await tx.barang.update({
+        where: { id },
+        data: {
+          ...(kelompokPembelianId !== undefined && { kelompokPembelianId }),
+          namaBarang: body.namaBarang || null,
+          progdi: body.progdi || null,
+          label: body.label,
+          labelAset: body.labelAset || null,
+          sn: body.sn || null,
+          merek: body.merek || null,
+          model: body.model || null,
+          tipe: body.tipe || null,
+          vendor: body.vendor || null,
+          keterangan: body.keterangan ?? null,
+          kondisi: body.kondisi,
+          jumlah: jumlah,
+          tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
+          tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
+          harga: harga,
+          sumberTahun: body.sumberTahun || null,
+          pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
+          kategoriId,
+          ruanganId,
+          pengeluaranId: body.pengeluaranId || null,
+        },
+        include: { kategori: true, ruangan: true },
+      });
 
-    await prisma.logAktivitas.create({
-      data: {
-        aksi: "UPDATE",
-        entitas: "BARANG",
-        entitasId: item.id,
-        detail: `Memperbarui barang: ${item.label || item.labelAset || item.merek || "Tanpa Nama"}`,
-        userId: session.id
-      }
+      await tx.logAktivitas.create({
+        data: {
+          aksi: "UPDATE",
+          entitas: "BARANG",
+          entitasId: updated.id,
+          detail: `Memperbarui barang: ${updated.label || updated.labelAset || updated.merek || "Tanpa Nama"}`,
+          userId: session.id,
+        },
+      });
+
+      return updated;
     });
 
     return NextResponse.json(item);

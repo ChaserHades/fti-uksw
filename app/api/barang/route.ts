@@ -4,6 +4,70 @@ import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
 
+/**
+ * Mencari label aset berikutnya yang unik untuk satu base label.
+ * Format: {baseLabel}-{NNN}, e.g. LAP-APP-072026-001-001
+ * Aman terhadap gap, berbasis MAX suffix + 1.
+ */
+async function findNextUniqueLabel(baseLabel: string): Promise<string> {
+  const prefix = `${baseLabel}-`;
+  const existing = await prisma.barang.findMany({
+    where: { label: { startsWith: prefix } },
+    select: { label: true },
+  });
+
+  let maxSeq = 0;
+  for (const b of existing) {
+    if (!b.label) continue;
+    const suffix = b.label.slice(prefix.length);
+    if (/^\d{3}$/.test(suffix)) {
+      const n = parseInt(suffix, 10);
+      if (n > maxSeq) maxSeq = n;
+    }
+  }
+
+  return `${prefix}${String(maxSeq + 1).padStart(3, "0")}`;
+}
+
+/**
+ * Membangun data Barang dari body request.
+ * Reusable untuk POST dan retry P2002.
+ */
+function buildBarangData(body: any, options: {
+  finalLabel: string | null | undefined;
+  kategoriId: string;
+  ruanganId: string | null;
+  kelompokPembelianId: string | null;
+  jumlah: number;
+  harga: number | null;
+}) {
+  return {
+    kelompokPembelianId: options.kelompokPembelianId,
+    namaBarang: body.namaBarang || null,
+    progdi: body.progdi || null,
+    label: options.finalLabel || null,
+    labelAset: body.labelAset || null,
+    sn: body.sn || null,
+    merek: body.merek || null,
+    model: body.model || null,
+    tipe: body.tipe || null,
+    vendor: body.vendor || null,
+    keterangan: body.keterangan || null,
+    kondisi: body.kondisi || "BAIK",
+    status: body.status || "TERSEDIA",
+    jumlah: options.jumlah,
+    tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
+    tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
+    harga: options.harga,
+    pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
+    hasSticker: body.hasSticker ?? false,
+    sumberTahun: body.sumberTahun || null,
+    ruanganId: options.ruanganId,
+    kategoriId: options.kategoriId,
+    pengeluaranId: body.pengeluaranId || null,
+  };
+}
+
 export async function GET(req: Request) {
   const { session, error } = await checkApiAuth();
   if (error) return error;
@@ -137,7 +201,20 @@ export async function POST(req: Request) {
   if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
   if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
-  let kelompokPembelianId = null;
+  // ── Hitung label unik di luar transaction ──
+  // Format baru: PREFIX-MMYYYY-NNN-NNN (e.g. LAP-APP-072026-001-001)
+  // Format lama: PREFIX-MMYYYY-NNN (e.g. LAP-APP-072026-001)
+  // Backend selalu menambah suffix -NNN jika belum ada.
+  let finalLabel = body.label as string | null | undefined;
+  if (finalLabel) {
+    const hasAssetSuffix = /^.+-\d{6}-\d{3}-\d{3}$/.test(finalLabel);
+    if (!hasAssetSuffix) {
+      finalLabel = await findNextUniqueLabel(finalLabel);
+    }
+  }
+
+  // ── Resolve KelompokPembelian (upsert) ──
+  let kelompokPembelianId: string | null = null;
   if (body.tanggalDatang && body.pembelianKe) {
     const d = new Date(body.tanggalDatang);
     const pk = Number(body.pembelianKe);
@@ -154,48 +231,45 @@ export async function POST(req: Request) {
     }
   }
 
+  // ── Buat Barang + Log dalam satu transaction (atomic) ──
+  // Jika salah satu gagal, keduanya di-rollback.
+  const attemptCreate = async (label: string | null | undefined) => {
+    const data = buildBarangData(body, { finalLabel: label, kategoriId, ruanganId, kelompokPembelianId, jumlah, harga });
+    return prisma.$transaction(async (tx) => {
+      const item = await tx.barang.create({
+        data,
+        include: { kategori: true, ruangan: true },
+      });
+      await tx.logAktivitas.create({
+        data: {
+          aksi: "CREATE",
+          entitas: "BARANG",
+          entitasId: item.id,
+          detail: `Menambahkan barang baru: ${item.namaBarang || item.label || item.merek || "Tanpa Nama"}`,
+          userId: session.id,
+        },
+      });
+      return item;
+    });
+  };
+
   try {
-    const item = await prisma.barang.create({
-      data: {
-        kelompokPembelianId,
-        namaBarang: body.namaBarang || null,
-        progdi: body.progdi || null,
-        label: body.label || null,
-        labelAset: body.labelAset || null,
-        sn: body.sn || null,
-        merek: body.merek || null,
-        model: body.model || null,
-        tipe: body.tipe || null,
-        vendor: body.vendor || null,
-        keterangan: body.keterangan || null,
-        kondisi: body.kondisi || "BAIK",
-        status: body.status || "TERSEDIA",
-        jumlah: jumlah,
-        tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
-        tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
-        harga: harga,
-        pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
-        hasSticker: body.hasSticker ?? false,
-        sumberTahun: body.sumberTahun || null,
-        ruanganId,
-        kategoriId,
-        pengeluaranId: body.pengeluaranId || null,
-      },
-      include: { kategori: true, ruangan: true },
-    });
-
-    await prisma.logAktivitas.create({
-      data: {
-        aksi: "CREATE",
-        entitas: "BARANG",
-        entitasId: item.id,
-        detail: `Menambahkan barang baru: ${item.namaBarang || item.label || item.merek || "Tanpa Nama"}`,
-        userId: session.id
-      }
-    });
-
+    const item = await attemptCreate(finalLabel);
     return NextResponse.json(item, { status: 201 });
   } catch (e: any) {
+    // P2002 pada kolom label → race condition, recompute dan retry sekali
+    if (e.code === "P2002" && finalLabel && e.meta?.target?.includes?.("label")) {
+      try {
+        const retryLabel = await findNextUniqueLabel(body.label as string);
+        const item = await attemptCreate(retryLabel);
+        return NextResponse.json(item, { status: 201 });
+      } catch (e2: any) {
+        if (e2.code === "P2002") {
+          return NextResponse.json({ error: "Kode label konflik, coba lagi." }, { status: 409 });
+        }
+        return NextResponse.json({ error: e2.message || "Terjadi kesalahan" }, { status: 500 });
+      }
+    }
     if (e.code === "P2002") {
       return NextResponse.json({ error: "Kode Barang (Label) sudah digunakan, gunakan label lain." }, { status: 400 });
     }

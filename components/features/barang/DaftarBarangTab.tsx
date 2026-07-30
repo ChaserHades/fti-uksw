@@ -76,6 +76,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   // Cek Barang state
   const [cekBarang, setCekBarang] = useState<Barang | null>(null);
   const [cekInvoice, setCekInvoice] = useState<Pengeluaran | null>(null);
+  const [cekInvoices, setCekInvoices] = useState<Pengeluaran[]>([]);
   const [cekLoading, setCekLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -353,14 +354,18 @@ export default function DaftarBarangTab({ role }: { role: string }) {
     setSelected(b);
     setCekBarang(b);
     setCekInvoice(null);
+    setCekInvoices([]);
     setCekLoading(true);
     setModal("cek");
     try {
-      const res = await api.get<{ barang: Barang; pengeluaran: Pengeluaran | null }>(`/api/barang/${b.id}/invoice`);
+      const res = await api.get<{ barang: Barang; pengeluaran: Pengeluaran | null; pengeluarans: Pengeluaran[] }>(`/api/barang/${b.id}/invoice`);
       setCekBarang(res.barang);
-      setCekInvoice(res.pengeluaran);
+      // Gunakan pengeluarans (array) sebagai sumber utama
+      const invoices = res.pengeluarans && res.pengeluarans.length > 0 ? res.pengeluarans : (res.pengeluaran ? [res.pengeluaran] : []);
+      setCekInvoices(invoices);
+      setCekInvoice(invoices[0] ?? null);
     } catch {
-      // Invoice not found is fine, we still show barang detail
+      // Invoice tidak ditemukan, tampilkan detail barang saja
     } finally {
       setCekLoading(false);
     }
@@ -818,61 +823,109 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               </div>
             )}
 
-            {/* Invoice / Nota Section */}
+            {/* Invoice / Nota Section - tampilkan semua evidence */}
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <i className="ti ti-receipt" style={{ fontSize: 18, color: "var(--color-info)" }} />
-                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>Nota Pembelian / Invoice</span>
+                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>Bukti Pembayaran</span>
+                {cekInvoices.length > 0 && (
+                  <span className="badge badge-info" style={{ fontSize: 11 }}>{cekInvoices.length} dokumen</span>
+                )}
               </div>
-              {cekInvoice ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "12px 16px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                    <div>
-                      <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Judul</span>
-                      <span style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 13 }}>{cekInvoice.judul}</span>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Nominal</span>
-                      <span style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 13 }}>Rp {cekInvoice.nominal.toLocaleString("id-ID")}</span>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Tanggal</span>
-                      <span style={{ color: "var(--text-primary)", fontSize: 13 }}>{fDateShort(cekInvoice.tanggal)}</span>
-                    </div>
-                    {cekInvoice.kodePembelian && (
-                      <div>
-                        <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Kode Pembelian</span>
-                        <span className="badge badge-info" style={{ fontSize: 12, fontFamily: "var(--font-mono, monospace)" }}>{cekInvoice.kodePembelian}</span>
-                      </div>
-                    )}
-                  </div>
-                  {cekInvoice.notaUrls && cekInvoice.notaUrls.length > 0 && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      {cekInvoice.notaUrls.map((url, idx) => {
-                        const ext = url.split(".").pop()?.toLowerCase() ?? "";
-                        return (
-                          <div key={idx} style={{ borderRadius: 8, overflow: "hidden" }}>
-                            {["jpg", "jpeg", "png", "gif", "webp"].includes(ext) ? (
-                              <img src={url} alt={`Nota ${idx + 1}`} style={{ width: "100%", maxHeight: 400, objectFit: "contain", background: "rgba(255,255,255,0.03)" }} />
-                            ) : ext === "pdf" ? (
-                              <iframe src={url} title={`Nota PDF ${idx + 1}`} style={{ width: "100%", height: 400, border: "1px solid rgba(255,255,255,0.1)" }} />
-                            ) : (
-                              <div style={{ textAlign: "center", padding: 24, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
-                                <a href={url} download className="btn btn-primary" target="_blank" rel="noopener">
-                                  <i className="ti ti-download" /> Download File Nota {idx + 1}
-                                </a>
-                              </div>
-                            )}
+              {cekInvoices.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {cekInvoices.map((inv, evIdx) => {
+                    const fullCode = [inv.jenisBukti, inv.nomorBukti, inv.kodePembelian].filter(Boolean).join("-");
+                    return (
+                      <div key={inv.id} style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden" }}>
+                        {/* Header evidence */}
+                        <div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.04)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                          {inv.jenisBukti && (
+                            <div>
+                              <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Jenis Bukti</span>
+                              <span className="badge badge-info" style={{ fontSize: 11 }}>{inv.jenisBukti}</span>
+                            </div>
+                          )}
+                          {inv.nomorBukti && (
+                            <div>
+                              <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Nomor Bukti</span>
+                              <span style={{ fontWeight: 500, fontSize: 12, color: "var(--text-primary)" }}>{inv.nomorBukti}</span>
+                            </div>
+                          )}
+                          {fullCode && (
+                            <div>
+                              <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Kode Lengkap</span>
+                              <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-primary)" }}>{fullCode}</span>
+                            </div>
+                          )}
+                          <div>
+                            <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Nominal</span>
+                            <span style={{ fontWeight: 600, fontSize: 12, color: "var(--text-primary)" }}>Rp {inv.nominal.toLocaleString("id-ID")}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                          <div>
+                            <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Tanggal</span>
+                            <span style={{ fontSize: 12, color: "var(--text-primary)" }}>{fDateShort(inv.tanggal)}</span>
+                          </div>
+                          <div>
+                            <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Judul</span>
+                            <span style={{ fontSize: 12, color: "var(--text-primary)" }}>{inv.judul}</span>
+                          </div>
+                        </div>
+                        {/* File evidence - horizontal scroll jika > 1 */}
+                        {inv.notaUrls && inv.notaUrls.length > 0 && (
+                          <div style={{
+                            overflowX: inv.notaUrls.length > 1 ? "auto" : "visible",
+                            display: "flex",
+                            gap: 12,
+                            padding: 12,
+                            scrollbarWidth: "thin",
+                          }}>
+                            {inv.notaUrls.map((url, fIdx) => {
+                              // Deteksi tipe file berdasarkan data URL atau ekstensi
+                              let fileType: "image" | "pdf" | "other" = "other";
+                              if (url.startsWith("data:image/")) {
+                                fileType = "image";
+                              } else if (url.startsWith("data:application/pdf")) {
+                                fileType = "pdf";
+                              } else {
+                                const ext = url.split(".").pop()?.toLowerCase() ?? "";
+                                if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) fileType = "image";
+                                else if (ext === "pdf") fileType = "pdf";
+                              }
+                              const minW = inv.notaUrls.length > 1 ? 280 : "100%";
+                              return (
+                                <div key={fIdx} style={{ minWidth: minW, flex: inv.notaUrls.length > 1 ? "0 0 280px" : "1", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
+                                  {fileType === "image" ? (
+                                    <img src={url} alt={`Bukti ${evIdx + 1}-${fIdx + 1}`} style={{ width: "100%", maxHeight: 320, objectFit: "contain", display: "block", background: "rgba(255,255,255,0.03)" }} />
+                                  ) : fileType === "pdf" ? (
+                                    <>
+                                      <iframe src={url} title={`PDF ${evIdx + 1}-${fIdx + 1}`} style={{ width: "100%", height: 320, border: "none" }} />
+                                      <div style={{ textAlign: "center", padding: "8px 0" }}>
+                                        <a href={url} download={`nota-${evIdx + 1}-${fIdx + 1}.pdf`} className="btn btn-ghost btn-sm">
+                                          <i className="ti ti-download" /> Unduh PDF
+                                        </a>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div style={{ textAlign: "center", padding: 24, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
+                                      <a href={url} download className="btn btn-primary" target="_blank" rel="noopener">
+                                        <i className="ti ti-download" /> Unduh File {fIdx + 1}
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div style={{ textAlign: "center", padding: 20, color: "var(--text-muted)", fontSize: 13, background: "rgba(255,255,255,0.02)", borderRadius: 8 }}>
                   <i className="ti ti-file-off" style={{ fontSize: 28, display: "block", marginBottom: 8 }} />
-                  Tidak ada invoice/nota yang terhubung dengan barang ini.
+                  Tidak ada bukti pembayaran yang terhubung dengan aset ini.
                 </div>
               )}
             </div>

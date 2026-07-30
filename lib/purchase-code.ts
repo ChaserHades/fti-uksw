@@ -35,16 +35,21 @@ export function buildEvidenceDisplayCode(
 }
 
 /**
- * Extracts the purchase group code from an asset label.
- * Example: extractPurchaseCodeFromAssetLabel("LAP-MAC-072026-001") -> "072026-001"
+ * Mengekstrak kode Purchase Group dari label aset.
+ * Mendukung format lama (LAP-APP-072026-001) dan format baru (LAP-APP-072026-001-002).
+ * Selalu mengambil MMYYYY-NNN (bukan asset-sequence suffix).
+ * Contoh:
+ *   LAP-APP-072026-001     → 072026-001
+ *   LAP-APP-072026-001-002 → 072026-001
  */
 export function extractPurchaseCodeFromAssetLabel(label: string | null | undefined): string | null {
   if (!label) return null;
   const parts = label.split("-");
-  if (parts.length >= 2) {
-    const suffix = `${parts[parts.length - 2]}-${parts[parts.length - 1]}`;
-    if (suffix.match(/^\d{6}-\d{3}$/)) {
-      return suffix;
+  // Cari indeks bagian MMYYYY (6 digit angka)
+  for (let i = parts.length - 1; i >= 1; i--) {
+    const candidate = `${parts[i - 1]}-${parts[i]}`;
+    if (candidate.match(/^\d{6}-\d{3}$/)) {
+      return candidate;
     }
   }
   return null;

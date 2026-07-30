@@ -12,29 +12,28 @@ interface BarangFormFieldsProps {
   onChange: (key: string, value: unknown) => void;
   /** Read-only jika kode didapat dari mode recovery scan */
   readOnlyLabel?: boolean;
-  /** If true, show fewer fields (register modal from scan) */
+  /** Jika true, tampilkan lebih sedikit field (dari scan register modal) */
   compact?: boolean;
 }
 
-/** Generate kode label from kategori name, merek, date and purchase order */
-function generateKode(kategoriNama: string, merek: string, tanggal: string, pembelianKe: string | number): string {
+/** Generate base label dari kategori, merek, tanggal, dan pembelianKe */
+function generateBaseLabel(kategoriNama: string, merek: string, tanggal: string, pembelianKe: string | number): string {
   if (!kategoriNama || !merek || !tanggal) return "";
 
-  // Take first 3 chars (or all if < 3) uppercase, remove spaces
   const katPart = kategoriNama.replace(/\s+/g, "").slice(0, 3).toUpperCase();
   const merkPart = merek.replace(/\s+/g, "").slice(0, 3).toUpperCase();
 
-  // Parse month+year from date string "YYYY-MM-DD"
   const dateObj = new Date(tanggal);
   if (isNaN(dateObj.getTime())) return "";
   const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
   const yyyy = dateObj.getFullYear();
 
-  // Purchase sequence, zero-padded to 3 digits
   const seq = String(Number(pembelianKe) || 1).padStart(3, "0");
 
   return `${katPart}-${merkPart}-${mm}${yyyy}-${seq}`;
 }
+
+
 
 /**
  * Shared form fields for creating/editing a Barang.
@@ -50,19 +49,43 @@ export default function BarangFormFields({
   readOnlyLabel = false,
   compact = false,
 }: BarangFormFieldsProps) {
-  // Store selected kategori name for label generation
+  // Nama kategori untuk generate label (diset dari typed input atau dari onSelect)
   const [kategoriNama, setKategoriNama] = useState("");
   const [isFetchingPembelianKe, setIsFetchingPembelianKe] = useState(false);
+  // Preview label dengan suffix urutan aset dari backend
+  const [previewLabelWithSeq, setPreviewLabelWithSeq] = useState("");
 
-  // Auto-generated preview kode
-  const previewKode = generateKode(kategoriNama, form.merek, form.tanggalDatang, form.pembelianKe);
+  // Base label tanpa suffix (untuk preview dan untuk dikirim ke backend)
+  const baseLabel = generateBaseLabel(kategoriNama, form.merek, form.tanggalDatang, form.pembelianKe);
 
-  // Sync generated label into form so it gets saved to DB
+  // Fetch next label sequence dari backend setiap kali base label berubah
   useEffect(() => {
-    if (!readOnlyLabel && previewKode) {
-      onChange("label", previewKode);
+    if (!baseLabel || readOnlyLabel) {
+      setPreviewLabelWithSeq(baseLabel);
+      return;
     }
-  }, [previewKode, readOnlyLabel]);
+    let cancelled = false;
+    fetch(`/api/barang/next-label-sequence?baseLabel=${encodeURIComponent(baseLabel)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled && data?.nextLabel) {
+          setPreviewLabelWithSeq(data.nextLabel);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setPreviewLabelWithSeq(baseLabel + "-001");
+      });
+    return () => { cancelled = true; };
+  }, [baseLabel, readOnlyLabel]);
+
+  // Sinkronkan base label ke form (backend akan hitung suffix final)
+  useEffect(() => {
+    if (!readOnlyLabel && baseLabel) {
+      onChange("label", baseLabel);
+    }
+  }, [baseLabel, readOnlyLabel]);
+
+
 
 
   useEffect(() => {
@@ -141,8 +164,15 @@ export default function BarangFormFields({
           <label className="form-label">Kategori *</label>
           <AsyncAutocomplete
             value={form.kategori}
-            onChange={val => onChange("kategori", val)}
-            onSelect={opt => setKategoriNama(opt.label)}
+            onChange={val => {
+              onChange("kategori", val);
+              // Gunakan nilai yang diketik sebagai nama kategori jika tidak ada onSelect
+              setKategoriNama(val);
+            }}
+            onSelect={opt => {
+              // Saat memilih dari dropdown, gunakan label yang tepat
+              setKategoriNama(opt.label);
+            }}
             fetchUrl="/api/kategori"
             placeholder="Laptop"
             mapOption={item => ({ value: item.id, label: item.nama })}
@@ -214,17 +244,17 @@ export default function BarangFormFields({
             className="input"
             style={{
               background: "var(--glass-bg)",
-              opacity: previewKode ? 1 : 0.5,
+              opacity: previewLabelWithSeq ? 1 : 0.5,
               fontFamily: "monospace",
               letterSpacing: "1px",
               cursor: "default",
               userSelect: "all",
             }}
           >
-            {previewKode || "- isi Kategori, Merek, dan Tanggal -"}
+            {previewLabelWithSeq || "- isi Kategori, Merek, dan Tanggal -"}
           </div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
-            Kode ini otomatis ter-generate dan disimpan sebagai label barang
+            Kode dibuat otomatis. Nomor aset unik ditentukan saat menyimpan.
           </div>
         </div>
       </div>

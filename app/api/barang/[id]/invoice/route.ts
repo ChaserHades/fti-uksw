@@ -7,11 +7,9 @@ type Params = { params: Promise<{ id: string }> };
 
 /**
  * GET /api/barang/:id/invoice
- * 
- * Looks up the Pengeluaran (invoice) linked to this barang via its label code.
- * Label format: PREFIX-MMYYYY-NNN (e.g. CADD-BKT-022023-001)
- * We extract the last segment matching pattern MMYYYY-NNN and search
- * Pengeluaran.kodePembelian for a match.
+ *
+ * Mengambil Pengeluaran yang terhubung dengan aset ini via KelompokPembelian.
+ * Fallback: ekstrak kodePembelian dari label (mendukung format lama dan baru).
  */
 export async function GET(_: Request, { params }: Params) {
   const { id } = await params;
@@ -36,10 +34,12 @@ export async function GET(_: Request, { params }: Params) {
   if (barang.kelompokPembelian && barang.kelompokPembelian.pengeluaran.length > 0) {
     pengeluarans = barang.kelompokPembelian.pengeluaran;
   } else if (barang.label) {
-    // Fallback: Extract kodePembelian from label (e.g. "CADD-BKT-022023-001" to "022023-001")
-    const match = barang.label.match(/(\d{6}-\d{3})$/);
-    if (match) {
-      const kodePembelian = match[1];
+    // Fallback: ekstrak kodePembelian dari label
+    // Format lama: LAP-APP-072026-001 → 072026-001
+    // Format baru: LAP-APP-072026-001-002 → 072026-001
+    const { extractPurchaseCodeFromAssetLabel } = await import("@/lib/purchase-code");
+    const kodePembelian = extractPurchaseCodeFromAssetLabel(barang.label);
+    if (kodePembelian) {
       pengeluarans = await prisma.pengeluaran.findMany({
         where: { kodePembelian },
         include: { user: true },
