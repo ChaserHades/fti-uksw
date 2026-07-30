@@ -259,8 +259,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }
 
   async function handleSave() {
-    if (!form.label || !form.kategori) {
-      toast.error("Label dan kategori wajib diisi");
+    if (!form.namaBarang || !form.kategori) {
+      toast.error("Nama Barang dan Kategori wajib diisi");
       return;
     }
     setSaving(true);
@@ -426,7 +426,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               value={sortBy}
               onChange={setSortBy}
               options={[
-                { value: "", label: "Default" },
+                { value: "", label: "Default (Terbaru)" },
+                { value: "namaBarang", label: "Nama Barang" },
                 { value: "tanggalDatang", label: "Tanggal Datang" },
                 { value: "merek", label: "Merek" },
                 { value: "kategoriId", label: "Jenis Kategori" },
@@ -460,17 +461,17 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         <div className="table-wrap">
           <table className="table" style={{ minWidth: 600 }}>
             <thead>
-              <tr>
-                <th style={{ width: "6%" }}>No</th>
-                <th>Kategori</th>
-                <th style={{ width: "15%" }}>Label</th>
-                <th style={{ width: "15%" }}>Label Aset</th>
-                <th style={{ width: "10%" }}>Status</th>
+                          <tr>
+                <th style={{ width: "5%" }}>No</th>
+                <th>Nama Barang</th>
+                <th style={{ width: "14%" }}>Kategori</th>
+                <th style={{ width: "14%" }}>Label</th>
+                <th style={{ width: "14%" }}>Label Aset</th>
                 <th style={{ width: "15%" }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {barang.length === 0 ? (
+                            {barang.length === 0 ? (
                 <tr>
                   <td colSpan={6}>
                     <div className="empty-state">
@@ -482,14 +483,18 @@ export default function DaftarBarangTab({ role }: { role: string }) {
               ) : barang.map((b, i) => (
                 <tr key={b.id}>
                   <td className="td-sm text-muted">{i + 1}</td>
-                  <td className="td-sm font-medium">{b.kategori.nama}</td>
-                  <td className="td-code">{b.label || ""}</td>
-                  <td className="td-code">{b.labelAset || ""}</td>
                   <td>
-                    {b.status === "TERSEDIA" && <span className="badge badge-ok">Tersedia</span>}
-                    {b.status === "DIPINJAM" && <span className="badge badge-warn">Dipinjam</span>}
-                    {b.status === "MAINTENANCE" && <span className="badge badge-info">Mainten.</span>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontWeight: 500 }}>{b.namaBarang || <span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>Tanpa Nama</span>}</span>
+                      {b.status === "TERSEDIA" && <span className="badge badge-ok" style={{ fontSize: 10, padding: "2px 6px" }}>Tersedia</span>}
+                      {b.status === "DIPINJAM" && <span className="badge badge-warn" style={{ fontSize: 10, padding: "2px 6px" }}>Dipinjam</span>}
+                      {b.status === "MAINTENANCE" && <span className="badge badge-muted" style={{ fontSize: 10, padding: "2px 6px" }}>Mainte.</span>}
+                    </div>
+                    {b.progdi && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{b.progdi}</div>}
                   </td>
+                  <td className="td-sm font-medium">{b.kategori.nama}</td>
+                  <td className="td-code">{b.label || <span style={{ color: "var(--text-muted)" }}>—</span>}</td>
+                  <td className="td-code">{b.labelAset || <span style={{ color: "var(--text-muted)" }}>—</span>}</td>
                   <td>
                     <div className="action-row">
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openCekBarang(b)} title="Cek Barang">
@@ -503,7 +508,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                           <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit">
                             <i className="ti ti-edit" />
                           </button>
-                          <button className="btn btn-danger btn-icon btn-sm" onClick={() => setConfirmDel({ id: b.id, nama: b.kategori?.nama || "Barang" })} title="Hapus">
+                          <button className="btn btn-danger btn-icon btn-sm" onClick={() => setConfirmDel({ id: b.id, nama: b.namaBarang || b.kategori?.nama || "Barang" })} title="Hapus">
                             <i className="ti ti-trash" />
                           </button>
                         </>
