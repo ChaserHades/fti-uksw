@@ -62,10 +62,5 @@ Lanjutkan maintenance web app ini berdasarkan arsitektur dan pola kode yang suda
 * Penyesuain Data monitor di Univ dashboard, Prioritaskan barang rusak. Tujuannya apa? Supaya lebih di noticed, jadi jika perlu pengadaan barang, lebih dilihat oleh Univ bahwa barang yang rusak ini perlu dana berapa, keterangannya apa untuk sebab kerusakan. Jadi dari fakultas ingin Univ bisa langsung notice barang rusak.
 
 
-
-
-
-
-
 Pertahankan flow dan fitur lain yang sudah berjalan. Sebelum mengubah kode, identifikasi file yang terdampak dan kemungkinan regresinya. Setelah implementasi, jalankan test, lint, typecheck, dan build yang tersedia. Jangan melakukan refactor di luar scope.
 

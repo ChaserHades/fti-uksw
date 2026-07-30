@@ -51,7 +51,7 @@ export default function ScanRegisterSection() {
         kategoriId: form.kategori,
         hasSticker: true,
       });
-      toast.success(`Barang berhasil diregistrasi!`);
+      toast.success(`Barang berhasil diregistrasi.`);
       setRegisterModal(false);
       setScannedKode("");
       setForm(BARANG_FORM_EMPTY);

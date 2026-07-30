@@ -1,4 +1,4 @@
-// app/api/pengeluaran/route.ts
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
@@ -77,17 +77,32 @@ export async function POST(req: Request) {
   // Generate kodePembelian: mmyyyy-nnn (Sebagai wadah/kelompok pembelian)
   let kodePembelian: string | null = null;
   let pembelianKe: number | null = null;
+  let kelompokPembelianId: string | null = null;
 
   if (pembelianKeRaw && !isNaN(parseInt(pembelianKeRaw, 10))) {
     pembelianKe = parseInt(pembelianKeRaw, 10);
-    const d = new Date(tanggal);
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const yyyy = String(d.getFullYear());
-    const nnn = String(pembelianKe).padStart(3, "0");
-    kodePembelian = `${mm}${yyyy}-${nnn}`;
+    const { buildPurchaseCode } = await import("@/lib/purchase-code");
+    kodePembelian = buildPurchaseCode(tanggal, pembelianKe);
+    
+    // Find or create KelompokPembelian
+    let kelompok = await prisma.kelompokPembelian.findUnique({
+      where: { kode: kodePembelian }
+    });
+    if (!kelompok) {
+      kelompok = await prisma.kelompokPembelian.create({
+        data: {
+          kode: kodePembelian,
+          tanggal: new Date(tanggal),
+          pembelianKe
+        }
+      });
+    }
+    kelompokPembelianId = kelompok.id;
   }
 
-  // --- Handle files upload (Base64 for Vercel support) ---
+  const barangIdsStr = formData.get("barangIds") as string | null;
+  const barangIds: string[] = barangIdsStr ? JSON.parse(barangIdsStr) : [];
+
   const uploadedUrls: string[] = [];
   if (notas && notas.length > 0) {
     for (const nota of notas) {
@@ -116,39 +131,6 @@ export async function POST(req: Request) {
     }
   }
 
-  // Jika ada kodePembelian, cek apakah sudah ada record dengan kode tersebut
-  if (kodePembelian) {
-    const existing = await prisma.pengeluaran.findFirst({
-      where: { kodePembelian }
-    });
-
-    if (existing) {
-      // Append notas to existing record
-      const updated = await prisma.pengeluaran.update({
-        where: { id: existing.id },
-        data: {
-          notaUrls: {
-            push: uploadedUrls
-          }
-        },
-        include: { user: true },
-      });
-
-      await prisma.logAktivitas.create({
-        data: {
-          aksi: "UPDATE",
-          entitas: "PENGELUARAN",
-          entitasId: existing.id,
-          detail: `Menambahkan nota ke pengeluaran: ${existing.judul}`,
-          userId: session.id
-        }
-      });
-
-      return NextResponse.json(updated, { status: 200 }); // 200 OK because we updated
-    }
-  }
-
-  // Jika tidak ada kodePembelian atau belum ada record, create baru
   const pengeluaran = await prisma.pengeluaran.create({
     data: {
       judul: judul.trim(),
@@ -164,16 +146,25 @@ export async function POST(req: Request) {
       kodePembelian,
       pembelianKe,
       userId: session.id,
+      kelompokPembelianId,
+      ...(barangIds.length > 0 ? { barang: { connect: barangIds.map(id => ({ id })) } } : {})
     },
     include: { user: true },
   });
+
+  if (kelompokPembelianId && barangIds.length > 0) {
+    await prisma.barang.updateMany({
+      where: { id: { in: barangIds } },
+      data: { kelompokPembelianId }
+    });
+  }
 
   await prisma.logAktivitas.create({
     data: {
       aksi: "CREATE",
       entitas: "PENGELUARAN",
       entitasId: pengeluaran.id,
-      detail: `Menambahkan pengeluaran baru: ${pengeluaran.judul}`,
+      detail: `Menambahkan cashflow baru: ${pengeluaran.judul}`,
       userId: session.id
     }
   });

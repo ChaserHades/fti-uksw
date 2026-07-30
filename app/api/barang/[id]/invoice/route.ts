@@ -20,24 +20,36 @@ export async function GET(_: Request, { params }: Params) {
 
   const barang = await prisma.barang.findUnique({
     where: { id },
-    include: { kategori: true, ruangan: true },
+    include: { 
+      kategori: true, 
+      ruangan: true,
+      kelompokPembelian: {
+        include: { pengeluaran: { include: { user: true } } }
+      }
+    },
   });
   if (!barang) return NextResponse.json({ error: "Barang tidak ditemukan" }, { status: 404 });
 
-  let pengeluaran = null;
+  let pengeluarans: any[] = [];
 
-  // Extract kodePembelian from label (e.g. "CADD-BKT-022023-001" to "022023-001")
-  if (barang.label) {
-    // Match pattern: 6-digit date + dash + 3-digit sequence (MMYYYY-NNN)
+  // Prioritize KelompokPembelian relation
+  if (barang.kelompokPembelian && barang.kelompokPembelian.pengeluaran.length > 0) {
+    pengeluarans = barang.kelompokPembelian.pengeluaran;
+  } else if (barang.label) {
+    // Fallback: Extract kodePembelian from label (e.g. "CADD-BKT-022023-001" to "022023-001")
     const match = barang.label.match(/(\d{6}-\d{3})$/);
     if (match) {
       const kodePembelian = match[1];
-      pengeluaran = await prisma.pengeluaran.findFirst({
+      pengeluarans = await prisma.pengeluaran.findMany({
         where: { kodePembelian },
         include: { user: true },
       });
     }
   }
 
-  return NextResponse.json({ barang, pengeluaran });
+  return NextResponse.json({ 
+    barang, 
+    pengeluaran: pengeluarans.length > 0 ? pengeluarans[0] : null,
+    pengeluarans 
+  });
 }

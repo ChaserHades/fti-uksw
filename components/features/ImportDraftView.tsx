@@ -139,7 +139,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
       onPush([...valids, ...errorAsLainnya]);
     } else if (confirmAction === "skip-delete") {
       if (valids.length === 0) {
-        toast.error("Tidak ada data valid untuk di-push");
+        toast.error("Belum ada data valid untuk disimpan.");
         setConfirmAction(null);
         return;
       }
@@ -256,8 +256,8 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                     <div className="empty-state">
                       <i className="ti ti-mood-empty" style={{ fontSize: 30 }} />
                       {tab === "error"
-                        ? "Tidak ada data error. Semua data valid!"
-                        : "Tidak ada data valid di tab ini."}
+                        ? "Semua data valid."
+                        : "Belum ada data valid di tab ini."}
                     </div>
                   </td>
                 </tr>

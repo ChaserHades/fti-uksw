@@ -89,7 +89,7 @@ export default function TimVerifikasiPage() {
         setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         try {
           await api.delete(`/api/users/${id}`);
-          toast.success("User berhasil dihapus");
+          toast.success("User berhasil dihapus.");
           load();
         } catch (e: any) {
           toast.error(e.message || "Gagal menghapus user");
@@ -108,7 +108,7 @@ export default function TimVerifikasiPage() {
         setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         try {
           const res = await api.post<{message: string, newPassword: string}>(`/api/users/${id}/reset-password`, {});
-          toast.success("Password direset. Silakan copy dari tabel.");
+          toast.success("Password direset. Copy dari tabel.");
           setResetPasswords(prev => ({ ...prev, [id]: res.newPassword }));
           load();
         } catch (e: any) {

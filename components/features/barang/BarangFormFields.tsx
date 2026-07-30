@@ -64,6 +64,29 @@ export default function BarangFormFields({
     }
   }, [previewKode, readOnlyLabel]);
 
+  // If we have pengeluaranId but no display code (e.g. from openEdit), fetch it once
+  useEffect(() => {
+    if (form.pengeluaranId && !form.pengeluaranDisplayCode) {
+      // Avoid infinite loop if fetch fails, by setting a placeholder first
+      onChange("pengeluaranDisplayCode", "Memuat data...");
+      fetch(`/api/pengeluaran/${form.pengeluaranId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.error) {
+            const formatKodePengeluaran = (p: any) => {
+              if (p.jenisBukti && p.nomorBukti) return `${p.jenisBukti}-${p.nomorBukti}-${p.kodePembelian}`;
+              if (p.jenisBukti) return `${p.jenisBukti}-${p.kodePembelian}`;
+              return p.kodePembelian || p.judul;
+            };
+            onChange("pengeluaranDisplayCode", formatKodePengeluaran(data));
+          } else {
+            onChange("pengeluaranDisplayCode", form.pengeluaranId);
+          }
+        })
+        .catch(() => onChange("pengeluaranDisplayCode", form.pengeluaranId));
+    }
+  }, [form.pengeluaranId, form.pengeluaranDisplayCode]);
+
   // Fetch next pembelianKe when tanggalDatang changes
   const fetchPembelianKe = useCallback(async (tanggal: string) => {
     if (!tanggal) return;
@@ -211,7 +234,16 @@ export default function BarangFormFields({
         <label className="form-label">Bukti Pembayaran / Cashflow <span style={{ fontSize: 11, color: "var(--text-muted)" }}>(opsional)</span></label>
         <AsyncAutocomplete
           value={form.pengeluaranId || ""}
-          onChange={val => onChange("pengeluaranId", val)}
+          displayValue={form.pengeluaranDisplayCode || form.pengeluaranId || ""}
+          onChange={val => {
+            // If they type, clear the ID but keep the typed text in displayCode so they can see what they type
+            onChange("pengeluaranDisplayCode", val);
+            if (!val) onChange("pengeluaranId", "");
+          }}
+          onSelect={opt => {
+            onChange("pengeluaranId", opt.value);
+            onChange("pengeluaranDisplayCode", opt.label);
+          }}
           fetchUrl="/api/pengeluaran"
           placeholder="Cari kode (misal: SPB-03/290...) atau judul..."
           mapOption={item => ({ value: item.id, label: formatKodePengeluaran(item) })}

@@ -76,3 +76,8 @@ export type Pengeluaran = Prisma.PengeluaranModel
  * 
  */
 export type LogAktivitas = Prisma.LogAktivitasModel
+/**
+ * Model KelompokPembelian
+ * 
+ */
+export type KelompokPembelian = Prisma.KelompokPembelianModel

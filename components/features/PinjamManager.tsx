@@ -137,7 +137,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
         deadlineKembali: form.deadlineKembali,
         catatan: form.catatan || null,
       });
-      toast.success("Barang berhasil dipinjamkan!");
+      toast.success("Barang berhasil dipinjamkan.");
       setModalPinjam(false); setBarang(null);
       loadAktif();
     } catch (e) {
@@ -149,7 +149,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
     setProcessing(true);
     try {
       await api.post(`/api/peminjaman/${trxId}/kembali`, {});
-      toast.success("Barang berhasil dikembalikan!");
+      toast.success("Barang berhasil dikembalikan.");
       setModalKembali(false); setPeminjamanAktif(null); setBarang(null);
       loadAktif();
     } catch (e) {

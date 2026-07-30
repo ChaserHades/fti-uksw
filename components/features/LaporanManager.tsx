@@ -26,6 +26,7 @@ const EMPTY = {
   jenisBukti: "",   // SPB | KWITANSI | NOTA
   nomorBukti: "",   // bebas karakter: 03/290-12, dll
   pembelianKe: "",
+  barangIds: [] as string[],
 };
 const jenisLabel: Record<string, string> = {
   PEMBELIAN_ASET: "Pembelian Aset",
@@ -108,10 +109,36 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
     }
   }, [searchParams, role]);
 
-  const setF = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const setF = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
 
   // Live kode preview
   const kodePreview = generateKodePreview(form.tanggal, form.pembelianKe, form.jenisBukti, form.nomorBukti);
+  const generalKodePreview = generateKodePreview(form.tanggal, form.pembelianKe, "", "");
+
+  const [candidates, setCandidates] = useState<any[]>([]);
+  const [candidatesLoading, setCandidatesLoading] = useState(false);
+
+  useEffect(() => {
+    if (modal && generalKodePreview && form.tanggal && form.pembelianKe) {
+      setCandidatesLoading(true);
+      fetch(`/api/pengeluaran/candidates?kodePembelian=${generalKodePreview}`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.data) {
+            setCandidates(res.data);
+            // Gabungkan aset yang sudah berelasi dengan aset yang dipilih saat ini.
+            const linkedIds = res.data.filter((b: any) => b.kelompokPembelianId === res.kelompokPembelianId && res.kelompokPembelianId !== null).map((b: any) => b.id);
+            setForm(f => {
+              const newIds = new Set([...f.barangIds, ...linkedIds]);
+              return { ...f, barangIds: Array.from(newIds) };
+            });
+          }
+        })
+        .finally(() => setCandidatesLoading(false));
+    } else {
+      setCandidates([]);
+    }
+  }, [modal, generalKodePreview, form.tanggal, form.pembelianKe]);
 
   async function handleSave() {
     if (!form.judul.trim()) { toast.error("Judul wajib diisi"); return; }
@@ -131,6 +158,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       if (form.jenisBukti) fd.append("jenisBukti", form.jenisBukti);
       if (form.nomorBukti) fd.append("nomorBukti", form.nomorBukti);
       if (form.pembelianKe) fd.append("pembelianKe", form.pembelianKe);
+      if (form.barangIds && form.barangIds.length > 0) fd.append("barangIds", JSON.stringify(form.barangIds));
       notas.forEach(n => fd.append("nota", n));
 
       const method = selectedId ? "PUT" : "POST";
@@ -164,7 +192,20 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       jenisBukti: p.jenisBukti ?? "",
       nomorBukti: p.nomorBukti ?? "",
       pembelianKe: p.pembelianKe ? String(p.pembelianKe) : "",
+      barangIds: [],
     });
+
+    const fetchBarangLinked = async () => {
+      try {
+        const res = await fetch(`/api/pengeluaran/${p.id}`);
+        const data = await res.json();
+        if (data.barang) {
+          setF("barangIds", data.barang.map((b: any) => b.id));
+        }
+      } catch (e) {}
+    };
+    fetchBarangLinked();
+
     setNotas([]);
     setModal(true);
   }
@@ -191,7 +232,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
     if (format === "pdf") {
       try {
         const query = mode === "TODAY" ? "?jenis=TODAY&limit=10000" : "?limit=10000";
-        // We will hijack the existing endpoint to return all by high limit
+        // Tampilkan semua data saat eksport PDF
         const res = await api.get<{ data: Pengeluaran[] }>(`/api/pengeluaran${query}`);
         setPrintData(res.data);
         toast.success("Siap dicetak!", { id: toastId });
@@ -222,7 +263,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       a.remove();
       window.URL.revokeObjectURL(url);
       
-      toast.success("Berhasil di-export", { id: toastId });
+      toast.success("Data berhasil di-export", { id: toastId });
     } catch (e: any) {
       toast.error(e.message || "Gagal export", { id: toastId });
     }
@@ -462,6 +503,57 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
             )}
           </div>
         </div>
+
+        {/* Row 4b: Candidate Assets (Aset Terkait) */}
+        {(candidates.length > 0 || candidatesLoading) && (
+          <div className="form-group" style={{ marginTop: 16 }}>
+            <label className="form-label" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span>Aset Terkait Pembelian Ini ({generalKodePreview})</span>
+              {candidatesLoading && <span className="spinner spinner-sm" style={{ width: 14, height: 14 }}></span>}
+            </label>
+            <div style={{
+              maxHeight: 200, overflowY: "auto", 
+              background: "rgba(255,255,255,0.02)", 
+              border: "1px solid rgba(255,255,255,0.1)", 
+              borderRadius: 8, padding: 12, display: "flex", flexDirection: "column", gap: 8
+            }}>
+              {candidates.map(c => {
+                const isSelected = form.barangIds.includes(c.id);
+                return (
+                  <label key={c.id} style={{
+                    display: "flex", alignItems: "flex-start", gap: 12, cursor: "pointer",
+                    padding: "8px", borderRadius: 6,
+                    background: isSelected ? "rgba(var(--color-primary-rgb), 0.1)" : "transparent",
+                    border: isSelected ? "1px solid var(--color-primary)" : "1px solid transparent",
+                    transition: "all 0.2s ease"
+                  }}>
+                    <input 
+                      type="checkbox"
+                      style={{ marginTop: 4 }}
+                      checked={isSelected}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setForm(f => ({
+                          ...f,
+                          barangIds: checked 
+                            ? [...f.barangIds, c.id]
+                            : f.barangIds.filter(id => id !== c.id)
+                        }));
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>{c.namaBarang}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{c.label || "Tanpa Label"} • {fDateShort(c.tanggalDatang)}</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6 }}>
+              Centang aset yang dibeli dengan cashflow/invoice ini. Bila aset belum ada, tambahkan dulu di menu Aset.
+            </div>
+          </div>
+        )}
 
         <div className="form-group">
           <label className="form-label">Deskripsi</label>

@@ -181,6 +181,6 @@ export async function POST(req: Request) {
     if (e.code === "P2002") {
       return NextResponse.json({ error: "Kode Barang (Label) sudah digunakan, gunakan label lain." }, { status: 400 });
     }
-    return NextResponse.json({ error: e.message || "Terjadi kesalahan pada server" }, { status: 500 });
+    return NextResponse.json({ error: e.message || "Terjadi kesalahan" }, { status: 500 });
   }
 }

@@ -31,7 +31,7 @@ export default function RegisterPage() {
         setError(result.error);
         toast.error(result.error);
       } else {
-        toast.success(result.success ?? "Registrasi berhasil!");
+        toast.success(result.success ?? "Registrasi berhasil.");
         router.push("/login");
       }
     });

@@ -10,7 +10,7 @@ export default function PendingPage() {
           <i className="ti ti-clock status-icon status-icon-warn" />
           <h2 className="status-heading">Menunggu Verifikasi</h2>
           <p className="status-text">
-            Akun kamu sedang dalam proses verifikasi oleh Admin. Silakan cek kembali setelah beberapa saat.
+            Akun sedang diverifikasi oleh Admin. Cek kembali nanti.
           </p>
           <form action={logoutAction}>
             <button type="submit" className="btn btn-ghost btn-full">

@@ -171,6 +171,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       kategori: b.kategori?.nama || b.kategoriId || "",
       ruangan: b.ruangan?.kode || b.ruanganId || "",
       pengeluaranId: b.pengeluaranId || "",
+      pengeluaranDisplayCode: "",
     });
     setModal("form");
   }
@@ -253,7 +254,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       a.remove();
       window.URL.revokeObjectURL(url);
       
-      toast.success("Berhasil di-export", { id: toastId });
+      toast.success("Data berhasil di-export", { id: toastId });
     } catch (e: any) {
       toast.error(e.message || "Gagal export", { id: toastId });
     }
@@ -478,7 +479,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                   <td colSpan={6}>
                     <div className="empty-state">
                       <i className="ti ti-box-off" style={{ fontSize: 30 }} />
-                      Tidak ada data barang
+                      Belum ada data barang
                     </div>
                   </td>
                 </tr>

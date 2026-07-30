@@ -34,7 +34,26 @@ export async function GET(req: Request) {
   const startDate = new Date(tahunInt, bulanInt - 1, 1);
   const endDate = new Date(tahunInt, bulanInt, 1); // exclusive upper bound
 
-  const count = await prisma.barang.count({
+  // Aggregate max pembelianKe from KelompokPembelian
+  const agg = await prisma.kelompokPembelian.aggregate({
+    _max: {
+      pembelianKe: true,
+    },
+    where: {
+      tanggal: {
+        gte: startDate,
+        lt: endDate,
+      },
+    },
+  });
+
+  const maxPembelianKe = agg._max.pembelianKe || 0;
+
+  // Fallback to max from Barang in case there is unmigrated data, just to be safe
+  const aggBarang = await prisma.barang.aggregate({
+    _max: {
+      pembelianKe: true,
+    },
     where: {
       tanggalDatang: {
         gte: startDate,
@@ -42,6 +61,9 @@ export async function GET(req: Request) {
       },
     },
   });
+  
+  const maxBarang = aggBarang._max.pembelianKe || 0;
+  const currentMax = Math.max(maxPembelianKe, maxBarang);
 
-  return NextResponse.json({ pembelianKe: count + 1 });
+  return NextResponse.json({ pembelianKe: currentMax + 1 });
 }

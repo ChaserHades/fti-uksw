@@ -113,16 +113,18 @@ model Barang {
   /// QR image data URL — hanya ada jika di-generate dari sistem
   qrCode        String?
   foto          String?
-  kategoriId    String
-  ruanganId     String?
-  pengeluaranId String?
-  deletedAt     DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  kategori      Kategori      @relation(fields: [kategoriId], references: [id])
-  ruangan       Ruangan?      @relation(fields: [ruanganId], references: [id])
-  pengeluaran   Pengeluaran?  @relation(fields: [pengeluaranId], references: [id])
-  peminjaman    Peminjaman[]
+  kategoriId          String
+  ruanganId           String?
+  pengeluaranId       String?
+  kelompokPembelianId String?
+  deletedAt           DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  kategori            Kategori      @relation(fields: [kategoriId], references: [id])
+  ruangan             Ruangan?      @relation(fields: [ruanganId], references: [id])
+  pengeluaran         Pengeluaran?  @relation(fields: [pengeluaranId], references: [id])
+  kelompokPembelian   KelompokPembelian? @relation(fields: [kelompokPembelianId], references: [id])
+  peminjaman          Peminjaman[]
 
   @@map("barang")
 }
@@ -169,11 +171,13 @@ model Pengeluaran {
   kodePembelian  String?
   /// Urutan pembelian ke-berapa di bulan tersebut
   pembelianKe    Int?
-  userId         String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  user           User             @relation(fields: [userId], references: [id])
-  barang         Barang[]
+  userId              String
+  kelompokPembelianId String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  user                User             @relation(fields: [userId], references: [id])
+  barang              Barang[]
+  kelompokPembelian   KelompokPembelian? @relation(fields: [kelompokPembelianId], references: [id])
 
   @@map("pengeluaran")
 }
@@ -196,4 +200,18 @@ model LogAktivitas {
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("log_aktivitas")
+}
+
+model KelompokPembelian {
+  id          String   @id @default(cuid())
+  kode        String   @unique
+  tanggal     DateTime
+  pembelianKe Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  barang      Barang[]
+  pengeluaran Pengeluaran[]
+
+  @@map("kelompok_pembelian")
 }

@@ -31,6 +31,6 @@ export async function PUT(_: Request, { params }: Params) {
 
     return NextResponse.json(restored);
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Terjadi kesalahan pada server" }, { status: 500 });
+    return NextResponse.json({ error: e.message || "Terjadi kesalahan" }, { status: 500 });
   }
 }

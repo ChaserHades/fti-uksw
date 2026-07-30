@@ -8,6 +8,7 @@ export const BARANG_FORM_EMPTY = {
   kondisi: "BAIK", jumlah: 1, tanggalDatang: "", tanggalPindah: "", harga: "", kategori: "", ruangan: "",
   sumberTahun: "", status: "TERSEDIA", pembelianKe: "" as string | number,
   pengeluaranId: "",
+  pengeluaranDisplayCode: "",
 };
 
 export type BarangFormData = typeof BARANG_FORM_EMPTY;

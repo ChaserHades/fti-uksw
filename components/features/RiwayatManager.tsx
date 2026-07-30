@@ -65,7 +65,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
       a.remove();
       window.URL.revokeObjectURL(url);
       
-      toast.success("Berhasil di-export", { id: toastId });
+      toast.success("Data berhasil di-export", { id: toastId });
     } catch (e: any) {
       toast.error(e.message || "Gagal export", { id: toastId });
     }
@@ -163,7 +163,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
                       <td colSpan={8}>
                         <div className="empty-state">
                           <i className="ti ti-file-off" style={{ fontSize: 28 }} />
-                          Tidak ada data peminjaman
+                          Belum ada data peminjaman
                         </div>
                       </td>
                     </tr>

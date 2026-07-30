@@ -63,7 +63,7 @@ export default function ImportSection() {
             Laporan Hasil Import (Transparan)
           </h3>
           <p style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 24 }}>
-            Berikut adalah rincian data yang berhasil diproses ke database. Kami memisahkan data baru, data yang diperbarui, dan data yang tidak mengalami perubahan.
+            Rincian data yang berhasil diproses:
           </p>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
@@ -71,7 +71,7 @@ export default function ImportSection() {
             <div style={{ background: "rgba(255,255,255,0.03)", padding: 16, borderRadius: 12, border: "1px solid rgba(125,212,168,0.2)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <i className="ti ti-plus" style={{ color: "var(--color-ok)" }} />
-                <span style={{ fontWeight: 600 }}>Data Baru (Berhasil Ditambah)</span>
+                <span style={{ fontWeight: 600 }}>Data Baru</span>
               </div>
               <div style={{ fontSize: 24, fontWeight: "bold", color: "var(--color-ok)", marginBottom: 8 }}>
                 {importResult.inserted.length} <span style={{ fontSize: 12, fontWeight: "normal", color: "var(--text-muted)" }}>item</span>
@@ -85,7 +85,7 @@ export default function ImportSection() {
             <div style={{ background: "rgba(255,255,255,0.03)", padding: 16, borderRadius: 12, border: "1px solid rgba(100,180,255,0.2)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <i className="ti ti-refresh" style={{ color: "var(--color-info)" }} />
-                <span style={{ fontWeight: 600 }}>Data Lama (Berhasil Diperbarui)</span>
+                <span style={{ fontWeight: 600 }}>Data Diperbarui</span>
               </div>
               <div style={{ fontSize: 24, fontWeight: "bold", color: "var(--color-info)", marginBottom: 8 }}>
                 {importResult.updated.length} <span style={{ fontSize: 12, fontWeight: "normal", color: "var(--text-muted)" }}>item</span>

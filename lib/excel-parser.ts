@@ -40,14 +40,14 @@ const COL = {
 export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<ParsedBarang[]> {
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffer as ExcelJS.Buffer);
-  
+
   const worksheet = workbook.worksheets[0];
   if (!worksheet) {
     throw new Error("Worksheet tidak ditemukan di file Excel");
   }
 
   const results: ParsedBarang[] = [];
-  
+
   // We assume the header is in row 2 (due to merged headers in row 1 possibly)
   // Let's start reading from row 3 or the first row with a number in NO column
   // Helper: check if a value has real substance (not just symbols/punctuation)
@@ -60,13 +60,13 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
   worksheet.eachRow((row, rowNumber) => {
     // Skip header rows (we assume data starts when NO column has a value or row > 2)
     if (rowNumber < 3) return;
-    
+
     // Check if the row has a "kategori" or "nama" (they might be merged but we get value)
     const jenisValue = getCellValue(worksheet, rowNumber, COL.JENIS_BARANG);
     const labelValue = getCellValue(worksheet, rowNumber, COL.LABEL);
     const labelAsetValue = getCellValue(worksheet, rowNumber, COL.LABEL_ASET);
     const snValue = getCellValue(worksheet, rowNumber, COL.SN);
-    
+
     // If no unique keys are present at all and no type, skip it
     if (!jenisValue && !labelValue && !labelAsetValue && !snValue) {
       return;
@@ -104,12 +104,12 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
 
 function getCellValue(worksheet: ExcelJS.Worksheet, row: number, col: number): string | null {
   const cell = worksheet.getCell(row, col);
-  // If the cell is merged, its value comes from the master cell
+  // buat merged cell
   let val = cell.value;
   if (cell.isMerged && cell.master) {
     val = cell.master.value;
   }
-  
+
   if (val === null || val === undefined) return null;
   if (typeof val === "object" && "richText" in val) {
     return val.richText.map(rt => rt.text).join("").trim() || null;
@@ -134,7 +134,7 @@ function parseDateValue(val: ExcelJS.CellValue): Date | null {
 function parseNumberValue(val: ExcelJS.CellValue): number | null {
   if (typeof val === "number") return val;
   if (typeof val === "string") {
-    const parsed = parseFloat(val.replace(/[^0-9.-]+/g,""));
+    const parsed = parseFloat(val.replace(/[^0-9.-]+/g, ""));
     if (!isNaN(parsed)) return parsed;
   }
   return null;

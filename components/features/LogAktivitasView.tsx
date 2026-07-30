@@ -67,7 +67,7 @@ export default function LogAktivitasView() {
                   <td colSpan={5}>
                     <div className="empty-state">
                       <i className="ti ti-activity" style={{ fontSize: 28 }} />
-                      Tidak ada data log aktivitas
+                      Belum ada data aktivitas
                     </div>
                   </td>
                 </tr>

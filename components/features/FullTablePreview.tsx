@@ -215,7 +215,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
           </thead>
           <tbody>
             {filteredAndSorted.length === 0 ? (
-              <tr><td colSpan={16} className="text-center py-10 text-muted">Tidak ada data yang cocok dengan pencarian</td></tr>
+              <tr><td colSpan={16} className="text-center py-10 text-muted">Belum ada data yang cocok dengan pencarian</td></tr>
             ) : filteredAndSorted.map((b, i) => (
               <tr key={b.id}>
                 <td className="td-sm text-muted">{i + 1}</td>

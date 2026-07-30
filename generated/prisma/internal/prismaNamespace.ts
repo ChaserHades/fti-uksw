@@ -403,7 +403,8 @@ export const ModelName = {
   Barang: 'Barang',
   Peminjaman: 'Peminjaman',
   Pengeluaran: 'Pengeluaran',
-  LogAktivitas: 'LogAktivitas'
+  LogAktivitas: 'LogAktivitas',
+  KelompokPembelian: 'KelompokPembelian'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "kategori" | "ruangan" | "barang" | "peminjaman" | "pengeluaran" | "logAktivitas"
+    modelProps: "user" | "kategori" | "ruangan" | "barang" | "peminjaman" | "pengeluaran" | "logAktivitas" | "kelompokPembelian"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -941,6 +942,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KelompokPembelian: {
+      payload: Prisma.$KelompokPembelianPayload<ExtArgs>
+      fields: Prisma.KelompokPembelianFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KelompokPembelianFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KelompokPembelianFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>
+        }
+        findFirst: {
+          args: Prisma.KelompokPembelianFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KelompokPembelianFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>
+        }
+        findMany: {
+          args: Prisma.KelompokPembelianFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>[]
+        }
+        create: {
+          args: Prisma.KelompokPembelianCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>
+        }
+        createMany: {
+          args: Prisma.KelompokPembelianCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KelompokPembelianCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>[]
+        }
+        delete: {
+          args: Prisma.KelompokPembelianDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>
+        }
+        update: {
+          args: Prisma.KelompokPembelianUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>
+        }
+        deleteMany: {
+          args: Prisma.KelompokPembelianDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KelompokPembelianUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KelompokPembelianUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>[]
+        }
+        upsert: {
+          args: Prisma.KelompokPembelianUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KelompokPembelianPayload>
+        }
+        aggregate: {
+          args: Prisma.KelompokPembelianAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKelompokPembelian>
+        }
+        groupBy: {
+          args: Prisma.KelompokPembelianGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KelompokPembelianGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KelompokPembelianCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KelompokPembelianCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1045,6 +1120,7 @@ export const BarangScalarFieldEnum = {
   kategoriId: 'kategoriId',
   ruanganId: 'ruanganId',
   pengeluaranId: 'pengeluaranId',
+  kelompokPembelianId: 'kelompokPembelianId',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1087,6 +1163,7 @@ export const PengeluaranScalarFieldEnum = {
   kodePembelian: 'kodePembelian',
   pembelianKe: 'pembelianKe',
   userId: 'userId',
+  kelompokPembelianId: 'kelompokPembelianId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1105,6 +1182,18 @@ export const LogAktivitasScalarFieldEnum = {
 } as const
 
 export type LogAktivitasScalarFieldEnum = (typeof LogAktivitasScalarFieldEnum)[keyof typeof LogAktivitasScalarFieldEnum]
+
+
+export const KelompokPembelianScalarFieldEnum = {
+  id: 'id',
+  kode: 'kode',
+  tanggal: 'tanggal',
+  pembelianKe: 'pembelianKe',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KelompokPembelianScalarFieldEnum = (typeof KelompokPembelianScalarFieldEnum)[keyof typeof KelompokPembelianScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1455,6 +1544,7 @@ export type GlobalOmitConfig = {
   peminjaman?: Prisma.PeminjamanOmit
   pengeluaran?: Prisma.PengeluaranOmit
   logAktivitas?: Prisma.LogAktivitasOmit
+  kelompokPembelian?: Prisma.KelompokPembelianOmit
 }
 
 /* Types for Logging */

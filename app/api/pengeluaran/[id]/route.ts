@@ -7,6 +7,20 @@ const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "
 
 type Params = { params: Promise<{ id: string }> };
 
+export async function GET(req: Request, { params }: Params) {
+  const { id } = await params;
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const item = await prisma.pengeluaran.findUnique({
+    where: { id },
+    include: { user: true, kelompokPembelian: true, barang: true }
+  });
+
+  if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(item);
+}
+
 export async function PUT(req: Request, { params }: Params) {
   const { id } = await params;
   const session = await getSession();
@@ -17,10 +31,16 @@ export async function PUT(req: Request, { params }: Params) {
     const formData = await req.formData();
     const judul = formData.get("judul") as string;
     const keterangan = formData.get("keterangan") as string | null;
+    const namaBarang = formData.get("namaBarang") as string | null;
+    const progdi = formData.get("progdi") as string | null;
     const nominal = Number(formData.get("nominal"));
     const tanggalStr = formData.get("tanggal") as string;
     const jenis = formData.get("jenis") as string;
+    const jenisBukti = formData.get("jenisBukti") as string | null;
+    const nomorBukti = formData.get("nomorBukti") as string | null;
     const pembelianKe = formData.get("pembelianKe") ? Number(formData.get("pembelianKe")) : null;
+    const barangIdsRaw = formData.get("barangIds") as string | null;
+    const barangIds: string[] = barangIdsRaw ? JSON.parse(barangIdsRaw) : [];
     
     const notas = formData.getAll("nota") as File[];
     const uploadedUrls: string[] = [];
@@ -53,13 +73,27 @@ export async function PUT(req: Request, { params }: Params) {
     }
 
     let kodePembelian = null;
+    let kelompokPembelianId = null;
+
     if (pembelianKe && tanggalStr) {
       const d = new Date(tanggalStr);
       if (!isNaN(d.getTime())) {
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const yyyy = String(d.getFullYear());
-        const nnn = String(pembelianKe).padStart(3, "0");
-        kodePembelian = `${mm}${yyyy}-${nnn}`;
+        const { buildPurchaseCode } = await import("@/lib/purchase-code");
+        kodePembelian = buildPurchaseCode(d, pembelianKe);
+
+        let kelompok = await prisma.kelompokPembelian.findUnique({
+          where: { kode: kodePembelian }
+        });
+        if (!kelompok) {
+          kelompok = await prisma.kelompokPembelian.create({
+            data: {
+              kode: kodePembelian,
+              tanggal: d,
+              pembelianKe
+            }
+          });
+        }
+        kelompokPembelianId = kelompok.id;
       }
     }
 
@@ -67,19 +101,32 @@ export async function PUT(req: Request, { params }: Params) {
       where: { id },
       data: {
         judul,
+        namaBarang,
+        progdi,
         deskripsi: keterangan || null,
         nominal,
         tanggal: new Date(tanggalStr),
         jenis: jenis as "PEMBELIAN_ASET" | "MAINTENANCE" | "LAINNYA",
+        jenisBukti,
+        nomorBukti,
         pembelianKe,
         kodePembelian,
+        kelompokPembelianId,
         ...(uploadedUrls.length > 0 && {
           notaUrls: {
             push: uploadedUrls
           }
-        })
+        }),
+        barang: { set: barangIds.map(bId => ({ id: bId })) }
       }
     });
+
+    if (kelompokPembelianId && barangIds.length > 0) {
+      await prisma.barang.updateMany({
+        where: { id: { in: barangIds } },
+        data: { kelompokPembelianId }
+      });
+    }
 
     await prisma.logAktivitas.create({
       data: {

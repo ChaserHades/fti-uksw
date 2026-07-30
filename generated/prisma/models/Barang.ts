@@ -64,6 +64,7 @@ export type BarangMinAggregateOutputType = {
   kategoriId: string | null
   ruanganId: string | null
   pengeluaranId: string | null
+  kelompokPembelianId: string | null
   deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -95,6 +96,7 @@ export type BarangMaxAggregateOutputType = {
   kategoriId: string | null
   ruanganId: string | null
   pengeluaranId: string | null
+  kelompokPembelianId: string | null
   deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -126,6 +128,7 @@ export type BarangCountAggregateOutputType = {
   kategoriId: number
   ruanganId: number
   pengeluaranId: number
+  kelompokPembelianId: number
   deletedAt: number
   createdAt: number
   updatedAt: number
@@ -171,6 +174,7 @@ export type BarangMinAggregateInputType = {
   kategoriId?: true
   ruanganId?: true
   pengeluaranId?: true
+  kelompokPembelianId?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -202,6 +206,7 @@ export type BarangMaxAggregateInputType = {
   kategoriId?: true
   ruanganId?: true
   pengeluaranId?: true
+  kelompokPembelianId?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -233,6 +238,7 @@ export type BarangCountAggregateInputType = {
   kategoriId?: true
   ruanganId?: true
   pengeluaranId?: true
+  kelompokPembelianId?: true
   deletedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -351,6 +357,7 @@ export type BarangGroupByOutputType = {
   kategoriId: string
   ruanganId: string | null
   pengeluaranId: string | null
+  kelompokPembelianId: string | null
   deletedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -405,12 +412,14 @@ export type BarangWhereInput = {
   kategoriId?: Prisma.StringFilter<"Barang"> | string
   ruanganId?: Prisma.StringNullableFilter<"Barang"> | string | null
   pengeluaranId?: Prisma.StringNullableFilter<"Barang"> | string | null
+  kelompokPembelianId?: Prisma.StringNullableFilter<"Barang"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Barang"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
   kategori?: Prisma.XOR<Prisma.KategoriScalarRelationFilter, Prisma.KategoriWhereInput>
   ruangan?: Prisma.XOR<Prisma.RuanganNullableScalarRelationFilter, Prisma.RuanganWhereInput> | null
   pengeluaran?: Prisma.XOR<Prisma.PengeluaranNullableScalarRelationFilter, Prisma.PengeluaranWhereInput> | null
+  kelompokPembelian?: Prisma.XOR<Prisma.KelompokPembelianNullableScalarRelationFilter, Prisma.KelompokPembelianWhereInput> | null
   peminjaman?: Prisma.PeminjamanListRelationFilter
 }
 
@@ -440,12 +449,14 @@ export type BarangOrderByWithRelationInput = {
   kategoriId?: Prisma.SortOrder
   ruanganId?: Prisma.SortOrderInput | Prisma.SortOrder
   pengeluaranId?: Prisma.SortOrderInput | Prisma.SortOrder
+  kelompokPembelianId?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   kategori?: Prisma.KategoriOrderByWithRelationInput
   ruangan?: Prisma.RuanganOrderByWithRelationInput
   pengeluaran?: Prisma.PengeluaranOrderByWithRelationInput
+  kelompokPembelian?: Prisma.KelompokPembelianOrderByWithRelationInput
   peminjaman?: Prisma.PeminjamanOrderByRelationAggregateInput
 }
 
@@ -478,12 +489,14 @@ export type BarangWhereUniqueInput = Prisma.AtLeast<{
   kategoriId?: Prisma.StringFilter<"Barang"> | string
   ruanganId?: Prisma.StringNullableFilter<"Barang"> | string | null
   pengeluaranId?: Prisma.StringNullableFilter<"Barang"> | string | null
+  kelompokPembelianId?: Prisma.StringNullableFilter<"Barang"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Barang"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
   kategori?: Prisma.XOR<Prisma.KategoriScalarRelationFilter, Prisma.KategoriWhereInput>
   ruangan?: Prisma.XOR<Prisma.RuanganNullableScalarRelationFilter, Prisma.RuanganWhereInput> | null
   pengeluaran?: Prisma.XOR<Prisma.PengeluaranNullableScalarRelationFilter, Prisma.PengeluaranWhereInput> | null
+  kelompokPembelian?: Prisma.XOR<Prisma.KelompokPembelianNullableScalarRelationFilter, Prisma.KelompokPembelianWhereInput> | null
   peminjaman?: Prisma.PeminjamanListRelationFilter
 }, "id" | "label">
 
@@ -513,6 +526,7 @@ export type BarangOrderByWithAggregationInput = {
   kategoriId?: Prisma.SortOrder
   ruanganId?: Prisma.SortOrderInput | Prisma.SortOrder
   pengeluaranId?: Prisma.SortOrderInput | Prisma.SortOrder
+  kelompokPembelianId?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -552,6 +566,7 @@ export type BarangScalarWhereWithAggregatesInput = {
   kategoriId?: Prisma.StringWithAggregatesFilter<"Barang"> | string
   ruanganId?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
   pengeluaranId?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
+  kelompokPembelianId?: Prisma.StringNullableWithAggregatesFilter<"Barang"> | string | null
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Barang"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Barang"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Barang"> | Date | string
@@ -586,6 +601,7 @@ export type BarangCreateInput = {
   kategori: Prisma.KategoriCreateNestedOneWithoutBarangInput
   ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
   pengeluaran?: Prisma.PengeluaranCreateNestedOneWithoutBarangInput
+  kelompokPembelian?: Prisma.KelompokPembelianCreateNestedOneWithoutBarangInput
   peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
 }
 
@@ -615,6 +631,7 @@ export type BarangUncheckedCreateInput = {
   kategoriId: string
   ruanganId?: string | null
   pengeluaranId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -650,6 +667,7 @@ export type BarangUpdateInput = {
   kategori?: Prisma.KategoriUpdateOneRequiredWithoutBarangNestedInput
   ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
   pengeluaran?: Prisma.PengeluaranUpdateOneWithoutBarangNestedInput
+  kelompokPembelian?: Prisma.KelompokPembelianUpdateOneWithoutBarangNestedInput
   peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
 }
 
@@ -679,6 +697,7 @@ export type BarangUncheckedUpdateInput = {
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -711,6 +730,7 @@ export type BarangCreateManyInput = {
   kategoriId: string
   ruanganId?: string | null
   pengeluaranId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -770,6 +790,7 @@ export type BarangUncheckedUpdateManyInput = {
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -811,6 +832,7 @@ export type BarangCountOrderByAggregateInput = {
   kategoriId?: Prisma.SortOrder
   ruanganId?: Prisma.SortOrder
   pengeluaranId?: Prisma.SortOrder
+  kelompokPembelianId?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -848,6 +870,7 @@ export type BarangMaxOrderByAggregateInput = {
   kategoriId?: Prisma.SortOrder
   ruanganId?: Prisma.SortOrder
   pengeluaranId?: Prisma.SortOrder
+  kelompokPembelianId?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -879,6 +902,7 @@ export type BarangMinOrderByAggregateInput = {
   kategoriId?: Prisma.SortOrder
   ruanganId?: Prisma.SortOrder
   pengeluaranId?: Prisma.SortOrder
+  kelompokPembelianId?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1071,6 +1095,48 @@ export type BarangUncheckedUpdateManyWithoutPengeluaranNestedInput = {
   deleteMany?: Prisma.BarangScalarWhereInput | Prisma.BarangScalarWhereInput[]
 }
 
+export type BarangCreateNestedManyWithoutKelompokPembelianInput = {
+  create?: Prisma.XOR<Prisma.BarangCreateWithoutKelompokPembelianInput, Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput> | Prisma.BarangCreateWithoutKelompokPembelianInput[] | Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput[]
+  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput | Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput[]
+  createMany?: Prisma.BarangCreateManyKelompokPembelianInputEnvelope
+  connect?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+}
+
+export type BarangUncheckedCreateNestedManyWithoutKelompokPembelianInput = {
+  create?: Prisma.XOR<Prisma.BarangCreateWithoutKelompokPembelianInput, Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput> | Prisma.BarangCreateWithoutKelompokPembelianInput[] | Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput[]
+  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput | Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput[]
+  createMany?: Prisma.BarangCreateManyKelompokPembelianInputEnvelope
+  connect?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+}
+
+export type BarangUpdateManyWithoutKelompokPembelianNestedInput = {
+  create?: Prisma.XOR<Prisma.BarangCreateWithoutKelompokPembelianInput, Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput> | Prisma.BarangCreateWithoutKelompokPembelianInput[] | Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput[]
+  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput | Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput[]
+  upsert?: Prisma.BarangUpsertWithWhereUniqueWithoutKelompokPembelianInput | Prisma.BarangUpsertWithWhereUniqueWithoutKelompokPembelianInput[]
+  createMany?: Prisma.BarangCreateManyKelompokPembelianInputEnvelope
+  set?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  disconnect?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  delete?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  connect?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  update?: Prisma.BarangUpdateWithWhereUniqueWithoutKelompokPembelianInput | Prisma.BarangUpdateWithWhereUniqueWithoutKelompokPembelianInput[]
+  updateMany?: Prisma.BarangUpdateManyWithWhereWithoutKelompokPembelianInput | Prisma.BarangUpdateManyWithWhereWithoutKelompokPembelianInput[]
+  deleteMany?: Prisma.BarangScalarWhereInput | Prisma.BarangScalarWhereInput[]
+}
+
+export type BarangUncheckedUpdateManyWithoutKelompokPembelianNestedInput = {
+  create?: Prisma.XOR<Prisma.BarangCreateWithoutKelompokPembelianInput, Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput> | Prisma.BarangCreateWithoutKelompokPembelianInput[] | Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput[]
+  connectOrCreate?: Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput | Prisma.BarangCreateOrConnectWithoutKelompokPembelianInput[]
+  upsert?: Prisma.BarangUpsertWithWhereUniqueWithoutKelompokPembelianInput | Prisma.BarangUpsertWithWhereUniqueWithoutKelompokPembelianInput[]
+  createMany?: Prisma.BarangCreateManyKelompokPembelianInputEnvelope
+  set?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  disconnect?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  delete?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  connect?: Prisma.BarangWhereUniqueInput | Prisma.BarangWhereUniqueInput[]
+  update?: Prisma.BarangUpdateWithWhereUniqueWithoutKelompokPembelianInput | Prisma.BarangUpdateWithWhereUniqueWithoutKelompokPembelianInput[]
+  updateMany?: Prisma.BarangUpdateManyWithWhereWithoutKelompokPembelianInput | Prisma.BarangUpdateManyWithWhereWithoutKelompokPembelianInput[]
+  deleteMany?: Prisma.BarangScalarWhereInput | Prisma.BarangScalarWhereInput[]
+}
+
 export type BarangCreateWithoutKategoriInput = {
   id?: string
   namaBarang?: string | null
@@ -1099,6 +1165,7 @@ export type BarangCreateWithoutKategoriInput = {
   updatedAt?: Date | string
   ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
   pengeluaran?: Prisma.PengeluaranCreateNestedOneWithoutBarangInput
+  kelompokPembelian?: Prisma.KelompokPembelianCreateNestedOneWithoutBarangInput
   peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
 }
 
@@ -1127,6 +1194,7 @@ export type BarangUncheckedCreateWithoutKategoriInput = {
   foto?: string | null
   ruanganId?: string | null
   pengeluaranId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1188,6 +1256,7 @@ export type BarangScalarWhereInput = {
   kategoriId?: Prisma.StringFilter<"Barang"> | string
   ruanganId?: Prisma.StringNullableFilter<"Barang"> | string | null
   pengeluaranId?: Prisma.StringNullableFilter<"Barang"> | string | null
+  kelompokPembelianId?: Prisma.StringNullableFilter<"Barang"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Barang"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Barang"> | Date | string
@@ -1221,6 +1290,7 @@ export type BarangCreateWithoutRuanganInput = {
   updatedAt?: Date | string
   kategori: Prisma.KategoriCreateNestedOneWithoutBarangInput
   pengeluaran?: Prisma.PengeluaranCreateNestedOneWithoutBarangInput
+  kelompokPembelian?: Prisma.KelompokPembelianCreateNestedOneWithoutBarangInput
   peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
 }
 
@@ -1249,6 +1319,7 @@ export type BarangUncheckedCreateWithoutRuanganInput = {
   foto?: string | null
   kategoriId: string
   pengeluaranId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1310,6 +1381,7 @@ export type BarangCreateWithoutPeminjamanInput = {
   kategori: Prisma.KategoriCreateNestedOneWithoutBarangInput
   ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
   pengeluaran?: Prisma.PengeluaranCreateNestedOneWithoutBarangInput
+  kelompokPembelian?: Prisma.KelompokPembelianCreateNestedOneWithoutBarangInput
 }
 
 export type BarangUncheckedCreateWithoutPeminjamanInput = {
@@ -1338,6 +1410,7 @@ export type BarangUncheckedCreateWithoutPeminjamanInput = {
   kategoriId: string
   ruanganId?: string | null
   pengeluaranId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1388,6 +1461,7 @@ export type BarangUpdateWithoutPeminjamanInput = {
   kategori?: Prisma.KategoriUpdateOneRequiredWithoutBarangNestedInput
   ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
   pengeluaran?: Prisma.PengeluaranUpdateOneWithoutBarangNestedInput
+  kelompokPembelian?: Prisma.KelompokPembelianUpdateOneWithoutBarangNestedInput
 }
 
 export type BarangUncheckedUpdateWithoutPeminjamanInput = {
@@ -1416,6 +1490,7 @@ export type BarangUncheckedUpdateWithoutPeminjamanInput = {
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1449,6 +1524,7 @@ export type BarangCreateWithoutPengeluaranInput = {
   updatedAt?: Date | string
   kategori: Prisma.KategoriCreateNestedOneWithoutBarangInput
   ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
+  kelompokPembelian?: Prisma.KelompokPembelianCreateNestedOneWithoutBarangInput
   peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
 }
 
@@ -1477,6 +1553,7 @@ export type BarangUncheckedCreateWithoutPengeluaranInput = {
   foto?: string | null
   kategoriId: string
   ruanganId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1509,6 +1586,96 @@ export type BarangUpdateManyWithWhereWithoutPengeluaranInput = {
   data: Prisma.XOR<Prisma.BarangUpdateManyMutationInput, Prisma.BarangUncheckedUpdateManyWithoutPengeluaranInput>
 }
 
+export type BarangCreateWithoutKelompokPembelianInput = {
+  id?: string
+  namaBarang?: string | null
+  progdi?: string | null
+  label?: string | null
+  labelAset?: string | null
+  sn?: string | null
+  merek?: string | null
+  model?: string | null
+  tipe?: string | null
+  vendor?: string | null
+  keterangan?: string | null
+  kondisi?: $Enums.KondisiBarang
+  status?: $Enums.StatusBarang
+  jumlah?: number
+  tanggalDatang?: Date | string | null
+  tanggalPindah?: Date | string | null
+  harga?: number | null
+  sumberTahun?: string | null
+  pembelianKe?: number | null
+  hasSticker?: boolean
+  qrCode?: string | null
+  foto?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  kategori: Prisma.KategoriCreateNestedOneWithoutBarangInput
+  ruangan?: Prisma.RuanganCreateNestedOneWithoutBarangInput
+  pengeluaran?: Prisma.PengeluaranCreateNestedOneWithoutBarangInput
+  peminjaman?: Prisma.PeminjamanCreateNestedManyWithoutBarangInput
+}
+
+export type BarangUncheckedCreateWithoutKelompokPembelianInput = {
+  id?: string
+  namaBarang?: string | null
+  progdi?: string | null
+  label?: string | null
+  labelAset?: string | null
+  sn?: string | null
+  merek?: string | null
+  model?: string | null
+  tipe?: string | null
+  vendor?: string | null
+  keterangan?: string | null
+  kondisi?: $Enums.KondisiBarang
+  status?: $Enums.StatusBarang
+  jumlah?: number
+  tanggalDatang?: Date | string | null
+  tanggalPindah?: Date | string | null
+  harga?: number | null
+  sumberTahun?: string | null
+  pembelianKe?: number | null
+  hasSticker?: boolean
+  qrCode?: string | null
+  foto?: string | null
+  kategoriId: string
+  ruanganId?: string | null
+  pengeluaranId?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  peminjaman?: Prisma.PeminjamanUncheckedCreateNestedManyWithoutBarangInput
+}
+
+export type BarangCreateOrConnectWithoutKelompokPembelianInput = {
+  where: Prisma.BarangWhereUniqueInput
+  create: Prisma.XOR<Prisma.BarangCreateWithoutKelompokPembelianInput, Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput>
+}
+
+export type BarangCreateManyKelompokPembelianInputEnvelope = {
+  data: Prisma.BarangCreateManyKelompokPembelianInput | Prisma.BarangCreateManyKelompokPembelianInput[]
+  skipDuplicates?: boolean
+}
+
+export type BarangUpsertWithWhereUniqueWithoutKelompokPembelianInput = {
+  where: Prisma.BarangWhereUniqueInput
+  update: Prisma.XOR<Prisma.BarangUpdateWithoutKelompokPembelianInput, Prisma.BarangUncheckedUpdateWithoutKelompokPembelianInput>
+  create: Prisma.XOR<Prisma.BarangCreateWithoutKelompokPembelianInput, Prisma.BarangUncheckedCreateWithoutKelompokPembelianInput>
+}
+
+export type BarangUpdateWithWhereUniqueWithoutKelompokPembelianInput = {
+  where: Prisma.BarangWhereUniqueInput
+  data: Prisma.XOR<Prisma.BarangUpdateWithoutKelompokPembelianInput, Prisma.BarangUncheckedUpdateWithoutKelompokPembelianInput>
+}
+
+export type BarangUpdateManyWithWhereWithoutKelompokPembelianInput = {
+  where: Prisma.BarangScalarWhereInput
+  data: Prisma.XOR<Prisma.BarangUpdateManyMutationInput, Prisma.BarangUncheckedUpdateManyWithoutKelompokPembelianInput>
+}
+
 export type BarangCreateManyKategoriInput = {
   id?: string
   namaBarang?: string | null
@@ -1534,6 +1701,7 @@ export type BarangCreateManyKategoriInput = {
   foto?: string | null
   ruanganId?: string | null
   pengeluaranId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1567,6 +1735,7 @@ export type BarangUpdateWithoutKategoriInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
   pengeluaran?: Prisma.PengeluaranUpdateOneWithoutBarangNestedInput
+  kelompokPembelian?: Prisma.KelompokPembelianUpdateOneWithoutBarangNestedInput
   peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
 }
 
@@ -1595,6 +1764,7 @@ export type BarangUncheckedUpdateWithoutKategoriInput = {
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1626,6 +1796,7 @@ export type BarangUncheckedUpdateManyWithoutKategoriInput = {
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1656,6 +1827,7 @@ export type BarangCreateManyRuanganInput = {
   foto?: string | null
   kategoriId: string
   pengeluaranId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1689,6 +1861,7 @@ export type BarangUpdateWithoutRuanganInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kategori?: Prisma.KategoriUpdateOneRequiredWithoutBarangNestedInput
   pengeluaran?: Prisma.PengeluaranUpdateOneWithoutBarangNestedInput
+  kelompokPembelian?: Prisma.KelompokPembelianUpdateOneWithoutBarangNestedInput
   peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
 }
 
@@ -1717,6 +1890,7 @@ export type BarangUncheckedUpdateWithoutRuanganInput = {
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1748,6 +1922,7 @@ export type BarangUncheckedUpdateManyWithoutRuanganInput = {
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1778,6 +1953,7 @@ export type BarangCreateManyPengeluaranInput = {
   foto?: string | null
   kategoriId: string
   ruanganId?: string | null
+  kelompokPembelianId?: string | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1811,6 +1987,7 @@ export type BarangUpdateWithoutPengeluaranInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   kategori?: Prisma.KategoriUpdateOneRequiredWithoutBarangNestedInput
   ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
+  kelompokPembelian?: Prisma.KelompokPembelianUpdateOneWithoutBarangNestedInput
   peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
 }
 
@@ -1839,6 +2016,7 @@ export type BarangUncheckedUpdateWithoutPengeluaranInput = {
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1870,6 +2048,133 @@ export type BarangUncheckedUpdateManyWithoutPengeluaranInput = {
   foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
   ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kelompokPembelianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BarangCreateManyKelompokPembelianInput = {
+  id?: string
+  namaBarang?: string | null
+  progdi?: string | null
+  label?: string | null
+  labelAset?: string | null
+  sn?: string | null
+  merek?: string | null
+  model?: string | null
+  tipe?: string | null
+  vendor?: string | null
+  keterangan?: string | null
+  kondisi?: $Enums.KondisiBarang
+  status?: $Enums.StatusBarang
+  jumlah?: number
+  tanggalDatang?: Date | string | null
+  tanggalPindah?: Date | string | null
+  harga?: number | null
+  sumberTahun?: string | null
+  pembelianKe?: number | null
+  hasSticker?: boolean
+  qrCode?: string | null
+  foto?: string | null
+  kategoriId: string
+  ruanganId?: string | null
+  pengeluaranId?: string | null
+  deletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BarangUpdateWithoutKelompokPembelianInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  namaBarang?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progdi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tipe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kondisi?: Prisma.EnumKondisiBarangFieldUpdateOperationsInput | $Enums.KondisiBarang
+  status?: Prisma.EnumStatusBarangFieldUpdateOperationsInput | $Enums.StatusBarang
+  jumlah?: Prisma.IntFieldUpdateOperationsInput | number
+  tanggalDatang?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tanggalPindah?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  sumberTahun?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pembelianKe?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  kategori?: Prisma.KategoriUpdateOneRequiredWithoutBarangNestedInput
+  ruangan?: Prisma.RuanganUpdateOneWithoutBarangNestedInput
+  pengeluaran?: Prisma.PengeluaranUpdateOneWithoutBarangNestedInput
+  peminjaman?: Prisma.PeminjamanUpdateManyWithoutBarangNestedInput
+}
+
+export type BarangUncheckedUpdateWithoutKelompokPembelianInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  namaBarang?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progdi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tipe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kondisi?: Prisma.EnumKondisiBarangFieldUpdateOperationsInput | $Enums.KondisiBarang
+  status?: Prisma.EnumStatusBarangFieldUpdateOperationsInput | $Enums.StatusBarang
+  jumlah?: Prisma.IntFieldUpdateOperationsInput | number
+  tanggalDatang?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tanggalPindah?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  sumberTahun?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pembelianKe?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  peminjaman?: Prisma.PeminjamanUncheckedUpdateManyWithoutBarangNestedInput
+}
+
+export type BarangUncheckedUpdateManyWithoutKelompokPembelianInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  namaBarang?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  progdi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  labelAset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  merek?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tipe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kondisi?: Prisma.EnumKondisiBarangFieldUpdateOperationsInput | $Enums.KondisiBarang
+  status?: Prisma.EnumStatusBarangFieldUpdateOperationsInput | $Enums.StatusBarang
+  jumlah?: Prisma.IntFieldUpdateOperationsInput | number
+  tanggalDatang?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tanggalPindah?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  harga?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  sumberTahun?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pembelianKe?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hasSticker?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kategoriId?: Prisma.StringFieldUpdateOperationsInput | string
+  ruanganId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pengeluaranId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1932,12 +2237,14 @@ export type BarangSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   kategoriId?: boolean
   ruanganId?: boolean
   pengeluaranId?: boolean
+  kelompokPembelianId?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   kategori?: boolean | Prisma.KategoriDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.Barang$pengeluaranArgs<ExtArgs>
+  kelompokPembelian?: boolean | Prisma.Barang$kelompokPembelianArgs<ExtArgs>
   peminjaman?: boolean | Prisma.Barang$peminjamanArgs<ExtArgs>
   _count?: boolean | Prisma.BarangCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["barang"]>
@@ -1968,12 +2275,14 @@ export type BarangSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   kategoriId?: boolean
   ruanganId?: boolean
   pengeluaranId?: boolean
+  kelompokPembelianId?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   kategori?: boolean | Prisma.KategoriDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.Barang$pengeluaranArgs<ExtArgs>
+  kelompokPembelian?: boolean | Prisma.Barang$kelompokPembelianArgs<ExtArgs>
 }, ExtArgs["result"]["barang"]>
 
 export type BarangSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2002,12 +2311,14 @@ export type BarangSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   kategoriId?: boolean
   ruanganId?: boolean
   pengeluaranId?: boolean
+  kelompokPembelianId?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   kategori?: boolean | Prisma.KategoriDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.Barang$pengeluaranArgs<ExtArgs>
+  kelompokPembelian?: boolean | Prisma.Barang$kelompokPembelianArgs<ExtArgs>
 }, ExtArgs["result"]["barang"]>
 
 export type BarangSelectScalar = {
@@ -2036,16 +2347,18 @@ export type BarangSelectScalar = {
   kategoriId?: boolean
   ruanganId?: boolean
   pengeluaranId?: boolean
+  kelompokPembelianId?: boolean
   deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BarangOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "namaBarang" | "progdi" | "label" | "labelAset" | "sn" | "merek" | "model" | "tipe" | "vendor" | "keterangan" | "kondisi" | "status" | "jumlah" | "tanggalDatang" | "tanggalPindah" | "harga" | "sumberTahun" | "pembelianKe" | "hasSticker" | "qrCode" | "foto" | "kategoriId" | "ruanganId" | "pengeluaranId" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["barang"]>
+export type BarangOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "namaBarang" | "progdi" | "label" | "labelAset" | "sn" | "merek" | "model" | "tipe" | "vendor" | "keterangan" | "kondisi" | "status" | "jumlah" | "tanggalDatang" | "tanggalPindah" | "harga" | "sumberTahun" | "pembelianKe" | "hasSticker" | "qrCode" | "foto" | "kategoriId" | "ruanganId" | "pengeluaranId" | "kelompokPembelianId" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["barang"]>
 export type BarangInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kategori?: boolean | Prisma.KategoriDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.Barang$pengeluaranArgs<ExtArgs>
+  kelompokPembelian?: boolean | Prisma.Barang$kelompokPembelianArgs<ExtArgs>
   peminjaman?: boolean | Prisma.Barang$peminjamanArgs<ExtArgs>
   _count?: boolean | Prisma.BarangCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -2053,11 +2366,13 @@ export type BarangIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   kategori?: boolean | Prisma.KategoriDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.Barang$pengeluaranArgs<ExtArgs>
+  kelompokPembelian?: boolean | Prisma.Barang$kelompokPembelianArgs<ExtArgs>
 }
 export type BarangIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kategori?: boolean | Prisma.KategoriDefaultArgs<ExtArgs>
   ruangan?: boolean | Prisma.Barang$ruanganArgs<ExtArgs>
   pengeluaran?: boolean | Prisma.Barang$pengeluaranArgs<ExtArgs>
+  kelompokPembelian?: boolean | Prisma.Barang$kelompokPembelianArgs<ExtArgs>
 }
 
 export type $BarangPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2066,6 +2381,7 @@ export type $BarangPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     kategori: Prisma.$KategoriPayload<ExtArgs>
     ruangan: Prisma.$RuanganPayload<ExtArgs> | null
     pengeluaran: Prisma.$PengeluaranPayload<ExtArgs> | null
+    kelompokPembelian: Prisma.$KelompokPembelianPayload<ExtArgs> | null
     peminjaman: Prisma.$PeminjamanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2109,6 +2425,7 @@ export type $BarangPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     kategoriId: string
     ruanganId: string | null
     pengeluaranId: string | null
+    kelompokPembelianId: string | null
     deletedAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -2509,6 +2826,7 @@ export interface Prisma__BarangClient<T, Null = never, ExtArgs extends runtime.T
   kategori<T extends Prisma.KategoriDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.KategoriDefaultArgs<ExtArgs>>): Prisma.Prisma__KategoriClient<runtime.Types.Result.GetResult<Prisma.$KategoriPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ruangan<T extends Prisma.Barang$ruanganArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Barang$ruanganArgs<ExtArgs>>): Prisma.Prisma__RuanganClient<runtime.Types.Result.GetResult<Prisma.$RuanganPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   pengeluaran<T extends Prisma.Barang$pengeluaranArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Barang$pengeluaranArgs<ExtArgs>>): Prisma.Prisma__PengeluaranClient<runtime.Types.Result.GetResult<Prisma.$PengeluaranPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  kelompokPembelian<T extends Prisma.Barang$kelompokPembelianArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Barang$kelompokPembelianArgs<ExtArgs>>): Prisma.Prisma__KelompokPembelianClient<runtime.Types.Result.GetResult<Prisma.$KelompokPembelianPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   peminjaman<T extends Prisma.Barang$peminjamanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Barang$peminjamanArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PeminjamanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2564,6 +2882,7 @@ export interface BarangFieldRefs {
   readonly kategoriId: Prisma.FieldRef<"Barang", 'String'>
   readonly ruanganId: Prisma.FieldRef<"Barang", 'String'>
   readonly pengeluaranId: Prisma.FieldRef<"Barang", 'String'>
+  readonly kelompokPembelianId: Prisma.FieldRef<"Barang", 'String'>
   readonly deletedAt: Prisma.FieldRef<"Barang", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Barang", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Barang", 'DateTime'>
@@ -3003,6 +3322,25 @@ export type Barang$pengeluaranArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   include?: Prisma.PengeluaranInclude<ExtArgs> | null
   where?: Prisma.PengeluaranWhereInput
+}
+
+/**
+ * Barang.kelompokPembelian
+ */
+export type Barang$kelompokPembelianArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KelompokPembelian
+   */
+  select?: Prisma.KelompokPembelianSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KelompokPembelian
+   */
+  omit?: Prisma.KelompokPembelianOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KelompokPembelianInclude<ExtArgs> | null
+  where?: Prisma.KelompokPembelianWhereInput
 }
 
 /**

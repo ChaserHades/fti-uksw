@@ -9,6 +9,7 @@ interface Option {
 
 interface AsyncAutocompleteProps {
   value: string;
+  displayValue?: string; // Optional: what to display in the input box when value is an ID
   onChange: (val: string) => void;
   onSelect?: (opt: Option) => void;
   fetchUrl: string;
@@ -21,6 +22,7 @@ interface AsyncAutocompleteProps {
 
 export default function AsyncAutocomplete({
   value,
+  displayValue,
   onChange,
   onSelect,
   fetchUrl,
@@ -35,17 +37,19 @@ export default function AsyncAutocomplete({
   const [cursor, setCursor] = useState<string | null>(null);
 
   // Local state for the input text (so they can type freely)
-  const [inputValue, setInputValue] = useState(value);
+  const [inputValue, setInputValue] = useState(displayValue !== undefined ? displayValue : value);
 
   const ref = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>(null);
 
   // Sync external value to internal if it changes from outside
   useEffect(() => {
-    if (value !== inputValue) {
-      setInputValue(value);
+    if (displayValue !== undefined) {
+      if (displayValue !== inputValue) setInputValue(displayValue);
+    } else {
+      if (value !== inputValue) setInputValue(value);
     }
-  }, [value]);
+  }, [value, displayValue]);
 
   useEffect(() => {
     function clickOutside(e: MouseEvent) {

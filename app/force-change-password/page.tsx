@@ -19,7 +19,7 @@ export default function ForceChangePasswordPage() {
         setError(res.error);
         toast.error(res.error);
       } else {
-        toast.success("Password berhasil diganti!");
+        toast.success("Password berhasil diganti.");
         // The middleware and requireAuth check will now pass since mustChangePassword is false.
         // Let's redirect to root to let the normal auth flow route them to their dashboard
         router.push("/");
