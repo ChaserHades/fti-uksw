@@ -215,3 +215,4 @@ model KelompokPembelian {
 
   @@map("kelompok_pembelian")
 }
+

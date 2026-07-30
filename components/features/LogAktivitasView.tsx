@@ -33,7 +33,7 @@ export default function LogAktivitasView() {
     switch (aksi) {
       case "CREATE": return <span className="badge badge-ok">Create</span>;
       case "UPDATE": return <span className="badge badge-info">Update</span>;
-      case "DELETE": return <span className="badge badge-danger">Delete</span>;
+      case "DELETE": return <span className="badge badge-danger">Hapus</span>;
       case "IMPORT": return <span className="badge badge-warn">Import</span>;
       default: return <span className="badge">{aksi}</span>;
     }

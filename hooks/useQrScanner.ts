@@ -9,7 +9,7 @@ const SCRIPT_ID = "jsqr-script";
  * Reusable QR scanner hook.
  * Handles jsQR script loading, camera access, scan loop, and cleanup.
  *
- * @param onResult (called once when a QR code is successfully decoded)
+ * @param onResult (called once when a QR code is berhasil decoded)
  */
 export function useQrScanner(onResult: (data: string) => void) {
   const videoRef = useRef<HTMLVideoElement>(null);
