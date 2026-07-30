@@ -18,6 +18,7 @@ export type ParsedBarang = {
   tanggalPindah: Date | null;
   harga: number | null;
   jumlah: number;
+  conflictError?: string;
 };
 
 export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<ParsedBarang[]> {
@@ -32,7 +33,8 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
   // Semantic Column Mapping
   const colMap = {
     namaBarang: -1,
-    kategori: -1,
+    kategori1: -1,
+    kategori2: -1,
     label: -1,
     labelAset: -1,
     sn: -1,
@@ -56,8 +58,10 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
 
       if (val === "nama barang" || val === "nama" || val === "nama aset") {
         colMap.namaBarang = colNumber;
-      } else if (val === "kategori" || val === "jenis barang") {
-        colMap.kategori = colNumber;
+      } else if (val === "kategori") {
+        colMap.kategori1 = colNumber;
+      } else if (val === "jenis barang") {
+        colMap.kategori2 = colNumber;
       } else if (val === "label" || val === "kode aset" || val === "kode label") {
         colMap.label = colNumber;
       } else if (val === "label aset" || val === "kode inventaris") {
@@ -85,14 +89,14 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
       }
     });
     // If we found at least some key columns, stop searching for headers
-    if (colMap.kategori !== -1 || colMap.namaBarang !== -1 || colMap.label !== -1) {
+    if (colMap.kategori1 !== -1 || colMap.kategori2 !== -1 || colMap.namaBarang !== -1 || colMap.label !== -1) {
       break;
     }
   }
 
   // Fallback to hardcoded format if totally failed to find headers (legacy support)
-  if (colMap.kategori === -1 && colMap.namaBarang === -1) {
-    colMap.kategori = 2;
+  if (colMap.kategori1 === -1 && colMap.kategori2 === -1 && colMap.namaBarang === -1) {
+    colMap.kategori1 = 2;
     colMap.label = 3;
     colMap.sn = 4;
     colMap.labelAset = 5;
@@ -118,10 +122,20 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
     if (rowNumber < 3) return; // Skip potential header rows
 
     const namaValue = colMap.namaBarang !== -1 ? getCellValue(worksheet, rowNumber, colMap.namaBarang) : null;
-    const kategoriValue = colMap.kategori !== -1 ? getCellValue(worksheet, rowNumber, colMap.kategori) : null;
+    const kat1Value = colMap.kategori1 !== -1 ? getCellValue(worksheet, rowNumber, colMap.kategori1) : null;
+    const kat2Value = colMap.kategori2 !== -1 ? getCellValue(worksheet, rowNumber, colMap.kategori2) : null;
     const labelValue = colMap.label !== -1 ? getCellValue(worksheet, rowNumber, colMap.label) : null;
     const labelAsetValue = colMap.labelAset !== -1 ? getCellValue(worksheet, rowNumber, colMap.labelAset) : null;
     const snValue = colMap.sn !== -1 ? getCellValue(worksheet, rowNumber, colMap.sn) : null;
+
+    let kategoriValue = kat1Value || kat2Value;
+    let conflictError: string | undefined = undefined;
+
+    if (kat1Value && kat2Value) {
+      if (kat1Value.toLowerCase() !== kat2Value.toLowerCase()) {
+        conflictError = "Kategori dan Jenis Barang pada baris ini berbeda. Periksa kembali data sumber.";
+      }
+    }
 
     if (!namaValue && !kategoriValue && !labelValue && !labelAsetValue && !snValue) {
       return;
@@ -144,6 +158,7 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
       kondisi: "BAIK",
       status: "TERSEDIA",
       kategori: kategoriValue,
+      conflictError,
       ruangan: colMap.ruangan !== -1 ? getCellValue(worksheet, rowNumber, colMap.ruangan) : null,
       tanggalDatang: colMap.tanggalDatang !== -1 ? parseDateValue(worksheet.getCell(rowNumber, colMap.tanggalDatang).value) : null,
       tanggalPindah: colMap.tanggalPindah !== -1 ? parseDateValue(worksheet.getCell(rowNumber, colMap.tanggalPindah).value) : null,

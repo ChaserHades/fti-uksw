@@ -36,6 +36,9 @@ export async function POST(req: Request) {
       let itemIdentifier = "Tanpa Identitas";
 
       try {
+        if (row.conflictError) {
+          throw new Error(row.conflictError);
+        }
         const identity = assessBarangIdentity(row);
         if (!identity.isValid) {
           throw new Error(identity.error || "Data tidak valid");

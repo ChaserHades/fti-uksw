@@ -62,10 +62,10 @@ export function parseQrPayload(raw: string): string {
   const trimmed = raw.trim();
   try {
     const parsed = JSON.parse(trimmed);
-    // Prefer kode (the unique identifier used in DB)
-    if (parsed?.kode && typeof parsed.kode === "string") return parsed.kode;
-    // Fallback to id
+    // Prefer id for exact match
     if (parsed?.id && typeof parsed.id === "string") return parsed.id;
+    // Fallback to kode for legacy QR
+    if (parsed?.kode && typeof parsed.kode === "string") return parsed.kode;
   } catch { /* plain string */ }
   return trimmed;
 }
