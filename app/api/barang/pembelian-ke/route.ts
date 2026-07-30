@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * GET /api/barang/pembelian-ke?bulan=07&tahun=2026
- * Returns { pembelianKe: number } — the next auto-increment for the given month+year.
+ * Returns { pembelianKe: number } the next auto-increment for the given month+year.
  * Logic: count barang where tanggalDatang falls within the month/year, then return count+1.
  */
 export async function GET(req: Request) {

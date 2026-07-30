@@ -108,7 +108,7 @@ export default function TimVerifikasiPage() {
         setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         try {
           const res = await api.post<{message: string, newPassword: string}>(`/api/users/${id}/reset-password`, {});
-          toast.success("Password direset. Copy dari tabel.");
+          toast.success("Password direset. Salin dari tabel.");
           setResetPasswords(prev => ({ ...prev, [id]: res.newPassword }));
           load();
         } catch (e: any) {
@@ -243,7 +243,7 @@ export default function TimVerifikasiPage() {
                             <button className="btn btn-ghost btn-sm" onClick={() => {
                               navigator.clipboard.writeText(resetPasswords[u.id]);
                               toast.success("Tersalin!");
-                            }} style={{ padding: "4px 8px" }} title="Copy">
+                            }} style={{ padding: "4px 8px" }} title="Salin">
                               <i className="ti ti-copy" />
                             </button>
                           </div>

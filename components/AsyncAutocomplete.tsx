@@ -9,7 +9,7 @@ interface Option {
 
 interface AsyncAutocompleteProps {
   value: string;
-  displayValue?: string; // Optional: what to display in the input box when value is an ID
+  displayValue?: string;
   onChange: (val: string) => void;
   onSelect?: (opt: Option) => void;
   fetchUrl: string;
@@ -92,7 +92,7 @@ export default function AsyncAutocomplete({
     loadData(inputValue, true);
   };
 
-  // Handle typing
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInputValue(val);

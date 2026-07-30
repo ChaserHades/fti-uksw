@@ -39,7 +39,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
         openCekBarang(data);
       }
     } catch {
-      // If not found by kode, just leave it in the search bar
+
     }
   };
   const { videoRef, canvasRef, scanning, startCamera, stopCamera } = useQrScanner(handleScanResult);
@@ -61,7 +61,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [isSearchingPrint, setIsSearchingPrint] = useState(false);
 
   // Note: we can remove exportFormat state since it's inside the modal, but handleBulkExport expects it to be passed.
-  // Actually, we'll refactor handleBulkExport to accept format: string as parameter.
+
   // Export Selection state
   const [exportFormat, setExportFormat] = useState<"xlsx" | "csv">("xlsx");
   const [exportSearch, setExportSearch] = useState("");
@@ -254,7 +254,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       a.remove();
       window.URL.revokeObjectURL(url);
       
-      toast.success("Data berhasil di-export", { id: toastId });
+      toast.success("Data diekspor", { id: toastId });
     } catch (e: any) {
       toast.error(e.message || "Gagal export", { id: toastId });
     }
@@ -496,8 +496,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                     {b.progdi && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{b.progdi}</div>}
                   </td>
                   <td className="td-sm font-medium">{b.kategori.nama}</td>
-                  <td className="td-code">{b.label || <span style={{ color: "var(--text-muted)" }}>—</span>}</td>
-                  <td className="td-code">{b.labelAset || <span style={{ color: "var(--text-muted)" }}>—</span>}</td>
+                  <td className="td-code">{b.label || <span style={{ color: "var(--text-muted)" }}>-</span>}</td>
+                  <td className="td-code">{b.labelAset || <span style={{ color: "var(--text-muted)" }}>-</span>}</td>
                   <td>
                     <div className="action-row">
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openCekBarang(b)} title="Cek Barang">
@@ -718,7 +718,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       />
 
       {/* Export Select Modal */}
-      <Modal open={modal === "export_select"} onClose={() => { setModal(null); setSelectedExportIds(new Set()); setExportSearch(""); }} title="Pilih Barang untuk di-Export">
+      <Modal open={modal === "export_select"} onClose={() => { setModal(null); setSelectedExportIds(new Set()); setExportSearch(""); }} title="Pilih Barang untuk Diekspor">
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", minHeight: 300 }}>
           <div className="search-wrap" style={{ margin: 0 }}>
             <i className="ti ti-search search-icon" />

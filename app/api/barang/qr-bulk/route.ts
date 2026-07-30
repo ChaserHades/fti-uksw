@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       })
     );
 
-    // If NOT_PRINTED was selected, update their status so they aren't printed again
+
     if (mode === "NOT_PRINTED") {
       const generatedIds = barangs.map(b => b.id);
       await prisma.barang.updateMany({

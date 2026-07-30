@@ -34,10 +34,34 @@ export async function PUT(req: Request, { params }: Params) {
   if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
   if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
+  let kelompokPembelianId = undefined;
+  if (body.tanggalDatang !== undefined || body.pembelianKe !== undefined) {
+    if (body.tanggalDatang && body.pembelianKe) {
+      const d = new Date(body.tanggalDatang);
+      const pk = Number(body.pembelianKe);
+      if (!isNaN(d.getTime()) && !isNaN(pk)) {
+        const { buildPurchaseCode } = await import("@/lib/purchase-code");
+        const kode = buildPurchaseCode(d, pk);
+        let kelompok = await prisma.kelompokPembelian.findUnique({ where: { kode } });
+        if (!kelompok) {
+          kelompok = await prisma.kelompokPembelian.create({
+            data: { kode, tanggal: d, pembelianKe: pk }
+          });
+        }
+        kelompokPembelianId = kelompok.id;
+      } else {
+        kelompokPembelianId = null;
+      }
+    } else {
+      kelompokPembelianId = null;
+    }
+  }
+
   try {
     const item = await prisma.barang.update({
       where: { id },
       data: {
+        ...(kelompokPembelianId !== undefined && { kelompokPembelianId }),
         namaBarang: body.namaBarang || null,
         progdi: body.progdi || null,
         label: body.label,

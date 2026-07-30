@@ -48,7 +48,7 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
 
   const results: ParsedBarang[] = [];
 
-  // We assume the header is in row 2 (due to merged headers in row 1 possibly)
+
   // Let's start reading from row 3 or the first row with a number in NO column
   // Helper: check if a value has real substance (not just symbols/punctuation)
   const isSubstantive = (v: string | null): boolean => {
@@ -67,7 +67,7 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
     const labelAsetValue = getCellValue(worksheet, rowNumber, COL.LABEL_ASET);
     const snValue = getCellValue(worksheet, rowNumber, COL.SN);
 
-    // If no unique keys are present at all and no type, skip it
+
     if (!jenisValue && !labelValue && !labelAsetValue && !snValue) {
       return;
     }

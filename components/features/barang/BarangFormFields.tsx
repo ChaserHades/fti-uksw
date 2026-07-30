@@ -10,7 +10,7 @@ import type { BarangFormData } from "@/constants/barang";
 interface BarangFormFieldsProps {
   form: BarangFormData;
   onChange: (key: string, value: unknown) => void;
-  /** If true, the label/kode field is read-only (e.g. from QR scan — recovery mode) */
+  /** Read-only jika kode didapat dari mode recovery scan */
   readOnlyLabel?: boolean;
   /** If true, show fewer fields (register modal from scan) */
   compact?: boolean;
@@ -64,10 +64,10 @@ export default function BarangFormFields({
     }
   }, [previewKode, readOnlyLabel]);
 
-  // If we have pengeluaranId but no display code (e.g. from openEdit), fetch it once
+
   useEffect(() => {
     if (form.pengeluaranId && !form.pengeluaranDisplayCode) {
-      // Avoid infinite loop if fetch fails, by setting a placeholder first
+
       onChange("pengeluaranDisplayCode", "Memuat data...");
       fetch(`/api/pengeluaran/${form.pengeluaranId}`)
         .then(res => res.json())
@@ -104,7 +104,7 @@ export default function BarangFormFields({
         onChange("pembelianKe", data.pembelianKe);
       }
     } catch {
-      // Silently fail — user can still set manually
+
     } finally {
       setIsFetchingPembelianKe(false);
     }
@@ -154,7 +154,7 @@ export default function BarangFormFields({
             <LiquidSelect
               value={form.progdi}
               onChange={val => onChange("progdi", val)}
-              options={[{ value: "", label: "— Pilih Progdi —" }, ...PROGDI_OPTIONS]}
+              options={[{ value: "", label: "- Pilih Progdi -" }, ...PROGDI_OPTIONS]}
             />
           </div>
         )}
@@ -207,7 +207,7 @@ export default function BarangFormFields({
           </div>
         </div>
 
-        {/* Label Preview — read-only, auto-generated */}
+        {/* Label Preview (read-only, auto-generated) */}
         <div className="form-group">
           <label className="form-label">Kode Label (Auto)</label>
           <div
@@ -221,7 +221,7 @@ export default function BarangFormFields({
               userSelect: "all",
             }}
           >
-            {previewKode || "— isi Kategori, Merek, dan Tanggal —"}
+            {previewKode || "- isi Kategori, Merek, dan Tanggal -"}
           </div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
             Kode ini otomatis ter-generate dan disimpan sebagai label barang
@@ -236,7 +236,7 @@ export default function BarangFormFields({
           value={form.pengeluaranId || ""}
           displayValue={form.pengeluaranDisplayCode || form.pengeluaranId || ""}
           onChange={val => {
-            // If they type, clear the ID but keep the typed text in displayCode so they can see what they type
+
             onChange("pengeluaranDisplayCode", val);
             if (!val) onChange("pengeluaranId", "");
           }}

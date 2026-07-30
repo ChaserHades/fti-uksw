@@ -56,7 +56,7 @@ export async function GET(req: Request) {
     }
   }
 
-  // Handle Sort Order relation
+
   let orderBy: any = {};
   if (sortBy === "kategori") {
     orderBy = { kategori: { nama: sortDir } };

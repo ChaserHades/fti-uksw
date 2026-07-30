@@ -65,7 +65,7 @@ export default function RiwayatManager({ role = "ADMIN" }: { role?: string }) {
       a.remove();
       window.URL.revokeObjectURL(url);
       
-      toast.success("Data berhasil di-export", { id: toastId });
+      toast.success("Data diekspor", { id: toastId });
     } catch (e: any) {
       toast.error(e.message || "Gagal export", { id: toastId });
     }

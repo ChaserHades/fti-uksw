@@ -263,7 +263,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
       a.remove();
       window.URL.revokeObjectURL(url);
       
-      toast.success("Data berhasil di-export", { id: toastId });
+      toast.success("Data diekspor", { id: toastId });
     } catch (e: any) {
       toast.error(e.message || "Gagal export", { id: toastId });
     }
@@ -440,7 +440,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
             <LiquidSelect
               value={form.progdi}
               onChange={val => setF("progdi", val)}
-              options={[{ value: "", label: "— Pilih Progdi —" }, ...PROGDI_OPTIONS]}
+              options={[{ value: "", label: "- Pilih Progdi -" }, ...PROGDI_OPTIONS]}
             />
           </div>
         </div>
@@ -470,7 +470,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
               value={form.jenisBukti}
               onChange={val => setF("jenisBukti", val)}
               options={[
-                { value: "", label: "— Pilih Jenis Bukti —" },
+                { value: "", label: "- Pilih Jenis Bukti -" },
                 { value: "SPB", label: "SPB" },
                 { value: "KWITANSI", label: "Kwitansi" },
                 { value: "NOTA", label: "Nota" },
@@ -598,7 +598,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
               )}
             </div>
 
-                        {/* File viewer — horizontal scroll kalau > 1 nota */}
+                        {/* File viewer (horizontal scroll kalau > 1 nota) */}
             <div
               style={{
                 borderTop: "1px solid rgba(255,255,255,0.1)",

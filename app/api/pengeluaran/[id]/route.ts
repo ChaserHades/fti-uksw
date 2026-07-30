@@ -39,6 +39,7 @@ export async function PUT(req: Request, { params }: Params) {
     const jenisBukti = formData.get("jenisBukti") as string | null;
     const nomorBukti = formData.get("nomorBukti") as string | null;
     const pembelianKe = formData.get("pembelianKe") ? Number(formData.get("pembelianKe")) : null;
+    const hasBarangIds = formData.has("barangIds");
     const barangIdsRaw = formData.get("barangIds") as string | null;
     const barangIds: string[] = barangIdsRaw ? JSON.parse(barangIdsRaw) : [];
     
@@ -117,11 +118,13 @@ export async function PUT(req: Request, { params }: Params) {
             push: uploadedUrls
           }
         }),
-        barang: { set: barangIds.map(bId => ({ id: bId })) }
+        ...(hasBarangIds && {
+          barang: { set: barangIds.map(bId => ({ id: bId })) }
+        })
       }
     });
 
-    if (kelompokPembelianId && barangIds.length > 0) {
+    if (hasBarangIds && kelompokPembelianId && barangIds.length > 0) {
       await prisma.barang.updateMany({
         where: { id: { in: barangIds } },
         data: { kelompokPembelianId }

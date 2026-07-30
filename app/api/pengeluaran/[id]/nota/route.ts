@@ -62,7 +62,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     include: { user: true }
   });
 
-  // We no longer attempt to delete physical files since we use Base64 strings in DB
+
 
   return NextResponse.json(updated);
 }

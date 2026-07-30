@@ -119,7 +119,7 @@ export default function Topbar({ items, role, userName }: TopbarProps) {
   }, []);
 
   const isActive = (href: string) => {
-    // If href has a query param, we must match pathname AND the specific tab param
+
     if (href.includes("?")) {
       const [path, query] = href.split("?");
       if (pathname !== path) return false;
