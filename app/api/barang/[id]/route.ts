@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
-
+import { assessBarangIdentity } from "@/lib/barang-identity";
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_: Request, { params }: Params) {
@@ -24,8 +24,28 @@ export async function PUT(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
-  const kategoriId = await resolveKategori(body.kategoriId);
-  if (!kategoriId) return NextResponse.json({ error: "Kategori wajib diisi" }, { status: 400 });
+
+  const existingItem = await prisma.barang.findUnique({ where: { id } });
+  if (!existingItem) return NextResponse.json({ error: "Barang tidak ditemukan" }, { status: 404 });
+
+  // Merge incoming body with existing values to validate final state
+  const mergedState = {
+    namaBarang: body.namaBarang !== undefined ? body.namaBarang : existingItem.namaBarang,
+    label: body.label !== undefined ? body.label : existingItem.label,
+    labelAset: body.labelAset !== undefined ? body.labelAset : existingItem.labelAset,
+  };
+
+  const identity = assessBarangIdentity(mergedState);
+  if (!identity.isValid) {
+    return NextResponse.json({ error: "Setelah update, barang harus memiliki minimal Nama Barang, Label, atau Label Aset." }, { status: 400 });
+  }
+
+  let kategoriId = await resolveKategori(body.kategoriId !== undefined ? body.kategoriId : existingItem.kategoriId);
+  if (!kategoriId) {
+    kategoriId = await resolveKategori("Belum Dikategorikan");
+    if (!kategoriId) return NextResponse.json({ error: "Gagal memproses kategori fallback" }, { status: 500 });
+  }
+
   const ruanganId = await resolveRuangan(body.ruanganId);
 
   const jumlah = body.jumlah ? Number(body.jumlah) : 1;
@@ -63,10 +83,10 @@ export async function PUT(req: Request, { params }: Params) {
         where: { id },
         data: {
           ...(kelompokPembelianId !== undefined && { kelompokPembelianId }),
-          namaBarang: body.namaBarang || null,
-          progdi: body.progdi || null,
-          label: body.label,
-          labelAset: body.labelAset || null,
+          namaBarang: body.namaBarang !== undefined ? (body.namaBarang || null) : existingItem.namaBarang,
+          progdi: body.progdi !== undefined ? (body.progdi || null) : existingItem.progdi,
+          label: identity.normalizedData.label,
+          labelAset: identity.normalizedData.labelAset,
           sn: body.sn || null,
           merek: body.merek || null,
           model: body.model || null,
@@ -103,7 +123,7 @@ export async function PUT(req: Request, { params }: Params) {
     return NextResponse.json(item);
   } catch (e: any) {
     if (e.code === "P2002") {
-      return NextResponse.json({ error: "Kode Barang (Label) sudah digunakan, gunakan label lain." }, { status: 400 });
+      return NextResponse.json({ error: "Data gagal disimpan, terdapat duplikasi unique (contoh: id)." }, { status: 400 });
     }
     return NextResponse.json({ error: e.message || "Terjadi kesalahan" }, { status: 500 });
   }

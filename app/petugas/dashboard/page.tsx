@@ -101,10 +101,6 @@ export default function TeknisiDashboard() {
         <div className="bento-card bento-span-8" style={{ padding: 32, display: "flex", flexDirection: "column" }}>
           <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 24 }}>Aktivitas Peminjaman Anda</span>
           <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 120 }}>
-              <div style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.04em", color: "var(--color-warn)", marginBottom: 8 }}>{aktif}</div>
-              <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Sedang Dipinjam</span>
-            </div>
             {[
               { label: "Sedang Dipinjam", value: aktif, color: "var(--color-warn)", href: "/petugas/manajemen?tab=riwayat" },
               { label: "Sudah Kembali", value: selesai, color: "var(--color-ok)", href: "/petugas/manajemen?tab=riwayat" },

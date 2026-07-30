@@ -1,7 +1,8 @@
 import ExcelJS from "exceljs";
 
 export type ParsedBarang = {
-  label: string;
+  namaBarang: string | null;
+  label: string | null;
   labelAset: string | null;
   sn: string | null;
   merek: string | null;
@@ -11,30 +12,12 @@ export type ParsedBarang = {
   keterangan: string | null;
   kondisi: string;
   status: string;
-  kategori: string;
+  kategori: string | null;
   ruangan: string | null;
   tanggalDatang: Date | null;
   tanggalPindah: Date | null;
   harga: number | null;
   jumlah: number;
-};
-
-// Map columns to standard index based on expected template
-const COL = {
-  NO: 1,
-  JENIS_BARANG: 2,
-  LABEL: 3,
-  SN: 4,
-  LABEL_ASET: 5,
-  MERK: 6,
-  MODEL: 7,
-  TYPE: 8,
-  RUANGAN: 9,
-  KETERANGAN: 10,
-  VENDOR: 11,
-  HARGA: 12,
-  TGL_DATANG: 13,
-  TGL_PINDAH: 14,
 };
 
 export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<ParsedBarang[]> {
@@ -46,55 +29,125 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
     throw new Error("Worksheet tidak ditemukan di file Excel");
   }
 
+  // Semantic Column Mapping
+  const colMap = {
+    namaBarang: -1,
+    kategori: -1,
+    label: -1,
+    labelAset: -1,
+    sn: -1,
+    merek: -1,
+    model: -1,
+    tipe: -1,
+    ruangan: -1,
+    keterangan: -1,
+    vendor: -1,
+    harga: -1,
+    tanggalDatang: -1,
+    tanggalPindah: -1,
+  };
+
+  // Find headers in the first 3 rows
+  for (let r = 1; r <= 3; r++) {
+    const row = worksheet.getRow(r);
+    row.eachCell((cell, colNumber) => {
+      const val = String(cell.value || "").toLowerCase().trim();
+      if (!val) return;
+
+      if (val === "nama barang" || val === "nama" || val === "nama aset") {
+        colMap.namaBarang = colNumber;
+      } else if (val === "kategori" || val === "jenis barang") {
+        colMap.kategori = colNumber;
+      } else if (val === "label" || val === "kode aset" || val === "kode label") {
+        colMap.label = colNumber;
+      } else if (val === "label aset" || val === "kode inventaris") {
+        colMap.labelAset = colNumber;
+      } else if (val === "sn" || val === "serial number") {
+        colMap.sn = colNumber;
+      } else if (val === "merk" || val === "merek") {
+        colMap.merek = colNumber;
+      } else if (val === "model") {
+        colMap.model = colNumber;
+      } else if (val === "type" || val === "tipe") {
+        colMap.tipe = colNumber;
+      } else if (val === "ruangan" || val === "lokasi") {
+        colMap.ruangan = colNumber;
+      } else if (val === "keterangan" || val === "deskripsi") {
+        colMap.keterangan = colNumber;
+      } else if (val === "vendor" || val === "supplier") {
+        colMap.vendor = colNumber;
+      } else if (val === "harga" || val === "nilai") {
+        colMap.harga = colNumber;
+      } else if (val === "tgl datang" || val === "tanggal datang" || val === "tahun" || val.includes("datang")) {
+        colMap.tanggalDatang = colNumber;
+      } else if (val === "tgl pindah" || val === "tanggal pindah" || val.includes("pindah")) {
+        colMap.tanggalPindah = colNumber;
+      }
+    });
+    // If we found at least some key columns, stop searching for headers
+    if (colMap.kategori !== -1 || colMap.namaBarang !== -1 || colMap.label !== -1) {
+      break;
+    }
+  }
+
+  // Fallback to hardcoded format if totally failed to find headers (legacy support)
+  if (colMap.kategori === -1 && colMap.namaBarang === -1) {
+    colMap.kategori = 2;
+    colMap.label = 3;
+    colMap.sn = 4;
+    colMap.labelAset = 5;
+    colMap.merek = 6;
+    colMap.model = 7;
+    colMap.tipe = 8;
+    colMap.ruangan = 9;
+    colMap.keterangan = 10;
+    colMap.vendor = 11;
+    colMap.harga = 12;
+    colMap.tanggalDatang = 13;
+    colMap.tanggalPindah = 14;
+  }
+
   const results: ParsedBarang[] = [];
 
-
-  // Let's start reading from row 3 or the first row with a number in NO column
-  // Helper: check if a value has real substance (not just symbols/punctuation)
   const isSubstantive = (v: string | null): boolean => {
     if (!v) return false;
-    // Must have at least 2 alphanumeric characters
     return (v.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, "").length >= 2);
   };
 
   worksheet.eachRow((row, rowNumber) => {
-    // Skip header rows (we assume data starts when NO column has a value or row > 2)
-    if (rowNumber < 3) return;
+    if (rowNumber < 3) return; // Skip potential header rows
 
-    // Check if the row has a "kategori" or "nama" (they might be merged but we get value)
-    const jenisValue = getCellValue(worksheet, rowNumber, COL.JENIS_BARANG);
-    const labelValue = getCellValue(worksheet, rowNumber, COL.LABEL);
-    const labelAsetValue = getCellValue(worksheet, rowNumber, COL.LABEL_ASET);
-    const snValue = getCellValue(worksheet, rowNumber, COL.SN);
+    const namaValue = colMap.namaBarang !== -1 ? getCellValue(worksheet, rowNumber, colMap.namaBarang) : null;
+    const kategoriValue = colMap.kategori !== -1 ? getCellValue(worksheet, rowNumber, colMap.kategori) : null;
+    const labelValue = colMap.label !== -1 ? getCellValue(worksheet, rowNumber, colMap.label) : null;
+    const labelAsetValue = colMap.labelAset !== -1 ? getCellValue(worksheet, rowNumber, colMap.labelAset) : null;
+    const snValue = colMap.sn !== -1 ? getCellValue(worksheet, rowNumber, colMap.sn) : null;
 
-
-    if (!jenisValue && !labelValue && !labelAsetValue && !snValue) {
+    if (!namaValue && !kategoriValue && !labelValue && !labelAsetValue && !snValue) {
       return;
     }
 
-    // Skip rows where ALL columns are just anomalous symbols (no substantive data)
-    if (!isSubstantive(jenisValue) && !isSubstantive(labelValue) && !isSubstantive(labelAsetValue) && !isSubstantive(snValue)) {
+    if (!isSubstantive(namaValue) && !isSubstantive(kategoriValue) && !isSubstantive(labelValue) && !isSubstantive(labelAsetValue) && !isSubstantive(snValue)) {
       return;
     }
-
-    const kategori = jenisValue || "";
 
     results.push({
-      label: labelValue || "",
-      labelAset: labelAsetValue || null,
-      sn: snValue || null,
-      merek: getCellValue(worksheet, rowNumber, COL.MERK) || null,
-      model: getCellValue(worksheet, rowNumber, COL.MODEL) || null,
-      tipe: getCellValue(worksheet, rowNumber, COL.TYPE) || null,
-      vendor: getCellValue(worksheet, rowNumber, COL.VENDOR) || null,
-      keterangan: getCellValue(worksheet, rowNumber, COL.KETERANGAN) || null,
+      namaBarang: namaValue,
+      label: labelValue,
+      labelAset: labelAsetValue,
+      sn: snValue,
+      merek: colMap.merek !== -1 ? getCellValue(worksheet, rowNumber, colMap.merek) : null,
+      model: colMap.model !== -1 ? getCellValue(worksheet, rowNumber, colMap.model) : null,
+      tipe: colMap.tipe !== -1 ? getCellValue(worksheet, rowNumber, colMap.tipe) : null,
+      vendor: colMap.vendor !== -1 ? getCellValue(worksheet, rowNumber, colMap.vendor) : null,
+      keterangan: colMap.keterangan !== -1 ? getCellValue(worksheet, rowNumber, colMap.keterangan) : null,
       kondisi: "BAIK",
       status: "TERSEDIA",
-      kategori: kategori,
-      ruangan: getCellValue(worksheet, rowNumber, COL.RUANGAN) || null,
-      tanggalDatang: parseDateValue(worksheet.getCell(rowNumber, COL.TGL_DATANG).value),
-      tanggalPindah: parseDateValue(worksheet.getCell(rowNumber, COL.TGL_PINDAH).value),
-      harga: parseNumberValue(worksheet.getCell(rowNumber, COL.HARGA).value),
+      kategori: kategoriValue,
+      ruangan: colMap.ruangan !== -1 ? getCellValue(worksheet, rowNumber, colMap.ruangan) : null,
+      tanggalDatang: colMap.tanggalDatang !== -1 ? parseDateValue(worksheet.getCell(rowNumber, colMap.tanggalDatang).value) : null,
+      tanggalPindah: colMap.tanggalPindah !== -1 ? parseDateValue(worksheet.getCell(rowNumber, colMap.tanggalPindah).value) : null,
+      harga: colMap.harga !== -1 ? parseNumberValue(worksheet.getCell(rowNumber, colMap.harga).value) : null,
       jumlah: 1,
     });
   });
@@ -104,7 +157,6 @@ export async function parseBarangExcel(buffer: Buffer | ArrayBuffer): Promise<Pa
 
 function getCellValue(worksheet: ExcelJS.Worksheet, row: number, col: number): string | null {
   const cell = worksheet.getCell(row, col);
-  // buat merged cell
   let val = cell.value;
   if (cell.isMerged && cell.master) {
     val = cell.master.value;
@@ -124,8 +176,6 @@ function parseDateValue(val: ExcelJS.CellValue): Date | null {
     if (!isNaN(d.getTime())) return d;
   }
   if (typeof val === "number") {
-    // Excel dates are number of days since Jan 1 1900
-    // roughly...
     return new Date(Math.round((val - 25569) * 86400 * 1000));
   }
   return null;

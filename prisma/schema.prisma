@@ -91,7 +91,7 @@ model Barang {
   namaBarang    String?
   /// Program Studi pemilik aset, misal "Teknik Informatika (S1)"
   progdi        String?
-  label         String?       @unique
+  label         String?
   labelAset     String?
   sn            String?
   merek         String?

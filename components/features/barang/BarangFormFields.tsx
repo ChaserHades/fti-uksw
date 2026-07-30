@@ -52,32 +52,10 @@ export default function BarangFormFields({
   // Nama kategori untuk generate label (diset dari typed input atau dari onSelect)
   const [kategoriNama, setKategoriNama] = useState("");
   const [isFetchingPembelianKe, setIsFetchingPembelianKe] = useState(false);
-  // Preview label dengan suffix urutan aset dari backend
-  const [previewLabelWithSeq, setPreviewLabelWithSeq] = useState("");
 
-  // Base label tanpa suffix (untuk preview dan untuk dikirim ke backend)
+  // Base label (untuk preview dan untuk dikirim ke backend)
   const baseLabel = generateBaseLabel(kategoriNama, form.merek, form.tanggalDatang, form.pembelianKe);
-
-  // Fetch next label sequence dari backend setiap kali base label berubah
-  useEffect(() => {
-    if (!baseLabel || readOnlyLabel) {
-      setPreviewLabelWithSeq(baseLabel);
-      return;
-    }
-    let cancelled = false;
-    fetch(`/api/barang/next-label-sequence?baseLabel=${encodeURIComponent(baseLabel)}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!cancelled && data?.nextLabel) {
-          setPreviewLabelWithSeq(data.nextLabel);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setPreviewLabelWithSeq(baseLabel + "-001");
-      });
-    return () => { cancelled = true; };
-  }, [baseLabel, readOnlyLabel]);
-
+  
   // Sinkronkan base label ke form (backend akan hitung suffix final)
   useEffect(() => {
     if (!readOnlyLabel && baseLabel) {
@@ -244,14 +222,14 @@ export default function BarangFormFields({
             className="input"
             style={{
               background: "var(--glass-bg)",
-              opacity: previewLabelWithSeq ? 1 : 0.5,
+              opacity: baseLabel ? 1 : 0.5,
               fontFamily: "monospace",
               letterSpacing: "1px",
               cursor: "default",
               userSelect: "all",
             }}
           >
-            {previewLabelWithSeq || "- isi Kategori, Merek, dan Tanggal -"}
+            {baseLabel || "- isi Kategori, Merek, dan Tanggal -"}
           </div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
             Kode dibuat otomatis. Nomor aset unik ditentukan saat menyimpan.

@@ -2,12 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
-const sanitizeUnique = (val: any) => {
-  if (!val) return null;
-  const str = String(val).trim();
-  if (str === "-" || str.toLowerCase() === "tanpa nama") return null;
-  return str;
-};
+import { assessBarangIdentity } from "@/lib/barang-identity";
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -38,24 +33,32 @@ export async function POST(req: Request) {
 
     // Process sequentially
     for (const row of data) {
-      const safeLabel = sanitizeUnique(row.label);
-      const safeLabelAset = sanitizeUnique(row.labelAset);
-      const safeSn = sanitizeUnique(row.sn);
-      const safeMerek = sanitizeUnique(row.merek);
-      
-      const itemIdentifier = safeLabel || safeLabelAset || safeSn || safeMerek || "Tanpa Nama";
+      let itemIdentifier = "Tanpa Identitas";
 
       try {
-        if (!row.kategori) throw new Error("Kategori kosong");
+        const identity = assessBarangIdentity(row);
+        if (!identity.isValid) {
+          throw new Error(identity.error || "Data tidak valid");
+        }
+        
+        const norm = identity.normalizedData;
+        itemIdentifier = norm.namaBarang || norm.label || norm.labelAset || "Tanpa Nama";
+        const hasSticker = !!(norm.label || norm.labelAset || norm.sn);
 
-        // Resolve Kategori
-        let kategori = await prisma.kategori.findUnique({
-          where: { nama: row.kategori }
-        });
-        if (!kategori) {
-          kategori = await prisma.kategori.create({
-            data: { nama: row.kategori }
-          });
+        let kategoriId: string;
+        if (norm.kategori) {
+          let kategori = await prisma.kategori.findUnique({ where: { nama: norm.kategori } });
+          if (!kategori) {
+            kategori = await prisma.kategori.create({ data: { nama: norm.kategori } });
+          }
+          kategoriId = kategori.id;
+        } else {
+          // If valid anchor but empty category
+          let kategori = await prisma.kategori.findUnique({ where: { nama: "Belum Dikategorikan" } });
+          if (!kategori) {
+            kategori = await prisma.kategori.create({ data: { nama: "Belum Dikategorikan" } });
+          }
+          kategoriId = kategori.id;
         }
 
         // Resolve Ruangan
@@ -69,7 +72,6 @@ export async function POST(req: Request) {
           if (!ruangan) {
             const match = ruanganStr.match(/^(\d)/);
             const lantaiStr = match ? `Lantai ${match[1]}` : null;
-
             ruangan = await prisma.ruangan.create({
               data: { kode: ruanganStr, nama: ruanganStr, lantai: lantaiStr }
             });
@@ -77,35 +79,28 @@ export async function POST(req: Request) {
           ruanganId = ruangan.id;
         }
 
-        // Find Existing with Exact Match
+        // Conservative Duplicate Matching
+        // Never auto-merge on 'namaBarang' alone. Need at least label, labelAset, or sn.
         let existingBarang = null;
-
-        if (safeLabel) {
-          // Cari berdasarkan label
-          existingBarang = await prisma.barang.findUnique({
-            where: { label: safeLabel }
-          });
-          
-          if (existingBarang && usedDbIds.has(existingBarang.id)) {
-            // Duplikat dalam 1 file
-            dbErrors.push({
-              label: itemIdentifier,
-              reason: "Data duplikat terdeteksi di dalam file Excel (Label sudah diproses di baris atasnya)"
-            });
-            continue;
-          }
-        } else if (safeLabelAset || safeSn) {
-          // Gunakan pencocokan field lain
-          const exactMatchConditions: any = { kategoriId: kategori.id };
-          if (safeLabelAset) exactMatchConditions.labelAset = safeLabelAset;
-          if (safeSn) exactMatchConditions.sn = safeSn;
+        
+        if (norm.label || norm.labelAset || norm.sn) {
+          const conditions: any = {};
+          if (norm.label) conditions.label = norm.label;
+          if (norm.labelAset) conditions.labelAset = norm.labelAset;
+          if (norm.sn) conditions.sn = norm.sn;
+          if (norm.namaBarang) conditions.namaBarang = norm.namaBarang; // strengthen if available
 
           const possibleMatches = await prisma.barang.findMany({
-            where: exactMatchConditions
+            where: conditions
           });
           
-          // Filter data yang sudah dipakai
-          existingBarang = possibleMatches.find(m => !usedDbIds.has(m.id)) || null;
+          const availableMatches = possibleMatches.filter(m => !usedDbIds.has(m.id));
+          
+          if (availableMatches.length === 1) {
+             existingBarang = availableMatches[0];
+          } else if (availableMatches.length > 1) {
+             throw new Error("Ambigu: Terdapat beberapa barang dengan identitas yang sama, gagal merge otomatis.");
+          }
         }
         
         if (existingBarang) {
@@ -117,8 +112,6 @@ export async function POST(req: Request) {
         if (ketLower.includes("rusak berat")) kondisi = "RUSAK_BERAT";
         else if (ketLower.includes("rusak")) kondisi = "RUSAK_RINGAN";
 
-        const hasSticker = !!(safeLabel || safeLabelAset || safeSn);
-
         if (existingBarang) {
           if (isUpdateMode) {
             // Cek perubahan data
@@ -129,19 +122,20 @@ export async function POST(req: Request) {
             const dtPindahDB = existingBarang.tanggalPindah ? existingBarang.tanggalPindah.getTime() : null;
 
             const isChanged =
-              existingBarang.merek !== (row.merek || null) ||
+              existingBarang.merek !== norm.merek ||
               existingBarang.model !== (row.model || null) ||
               existingBarang.tipe !== (row.tipe || null) ||
               existingBarang.vendor !== (row.vendor || null) ||
               existingBarang.keterangan !== (row.keterangan || null) ||
               existingBarang.kondisi !== kondisi ||
               existingBarang.ruanganId !== ruanganId ||
-              existingBarang.kategoriId !== kategori.id ||
+              existingBarang.kategoriId !== kategoriId ||
               existingBarang.harga !== (row.harga || null) ||
               existingBarang.sumberTahun !== (row.sumberTahun || null) ||
-              existingBarang.label !== safeLabel ||
-              existingBarang.labelAset !== safeLabelAset ||
-              existingBarang.sn !== safeSn ||
+              existingBarang.label !== norm.label ||
+              existingBarang.labelAset !== norm.labelAset ||
+              existingBarang.sn !== (norm.sn || null) ||
+              existingBarang.namaBarang !== norm.namaBarang ||
               dtDatangDB !== dtDatangExcel ||
               dtPindahDB !== dtPindahExcel;
 
@@ -151,20 +145,21 @@ export async function POST(req: Request) {
               await prisma.barang.update({
                 where: { id: existingBarang.id },
                 data: {
-                  merek: row.merek || null,
+                  namaBarang: norm.namaBarang,
+                  merek: norm.merek,
                   model: row.model || null,
                   tipe: row.tipe || null,
                   vendor: row.vendor || null,
                   keterangan: row.keterangan || null,
                   kondisi: kondisi as any,
                   ruanganId: ruanganId,
-                  kategoriId: kategori.id,
+                  kategoriId: kategoriId,
                   harga: row.harga || null,
                   sumberTahun: row.sumberTahun || null,
-                  label: safeLabel,
-                  labelAset: safeLabelAset,
-                  sn: safeSn,
-                  tanggalDatang: row.tanggalDatang ? new Date(row.tanggalDatang) : null,
+                  label: norm.label,
+                  labelAset: norm.labelAset,
+                  sn: norm.sn || null,
+                  tanggalDatang: norm.tanggalDatang,
                   tanggalPindah: row.tanggalPindah ? new Date(row.tanggalPindah) : null,
                 }
               });
@@ -178,10 +173,11 @@ export async function POST(req: Request) {
           // INSERT
           const newBarang = await prisma.barang.create({
             data: {
-              label: safeLabel,
-              labelAset: safeLabelAset,
-              sn: safeSn,
-              merek: row.merek || null,
+              namaBarang: norm.namaBarang,
+              label: norm.label,
+              labelAset: norm.labelAset,
+              sn: norm.sn || null,
+              merek: norm.merek,
               model: row.model || null,
               tipe: row.tipe || null,
               vendor: row.vendor || null,
@@ -191,8 +187,8 @@ export async function POST(req: Request) {
               jumlah: 1,
               hasSticker: hasSticker,
               ruanganId: ruanganId,
-              kategoriId: kategori.id,
-              tanggalDatang: row.tanggalDatang ? new Date(row.tanggalDatang) : null,
+              kategoriId: kategoriId,
+              tanggalDatang: norm.tanggalDatang,
               tanggalPindah: row.tanggalPindah ? new Date(row.tanggalPindah) : null,
               harga: row.harga || null,
               sumberTahun: row.sumberTahun || null,

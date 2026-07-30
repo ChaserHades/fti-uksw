@@ -4,30 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
 
-/**
- * Mencari label aset berikutnya yang unik untuk satu base label.
- * Format: {baseLabel}-{NNN}, e.g. LAP-APP-072026-001-001
- * Aman terhadap gap, berbasis MAX suffix + 1.
- */
-async function findNextUniqueLabel(baseLabel: string): Promise<string> {
-  const prefix = `${baseLabel}-`;
-  const existing = await prisma.barang.findMany({
-    where: { label: { startsWith: prefix } },
-    select: { label: true },
-  });
-
-  let maxSeq = 0;
-  for (const b of existing) {
-    if (!b.label) continue;
-    const suffix = b.label.slice(prefix.length);
-    if (/^\d{3}$/.test(suffix)) {
-      const n = parseInt(suffix, 10);
-      if (n > maxSeq) maxSeq = n;
-    }
-  }
-
-  return `${prefix}${String(maxSeq + 1).padStart(3, "0")}`;
-}
+import { assessBarangIdentity } from "@/lib/barang-identity";
 
 /**
  * Membangun data Barang dari body request.
@@ -60,7 +37,7 @@ function buildBarangData(body: any, options: {
     tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
     harga: options.harga,
     pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
-    hasSticker: body.hasSticker ?? false,
+    hasSticker: !!(options.finalLabel || body.labelAset || body.sn),
     sumberTahun: body.sumberTahun || null,
     ruanganId: options.ruanganId,
     kategoriId: options.kategoriId,
@@ -85,30 +62,41 @@ export async function GET(req: Request) {
 
   // ── Single-item lookup by kode (QR scan, etc.) ──
   if (kode) {
-    // Try exact match first
+    // Try exact match first (by internal ID)
     let item = await prisma.barang.findUnique({
+      where: { id: kode },
+      include: { kategori: true, ruangan: true },
+    });
+
+    if (item) {
+      return NextResponse.json(item);
+    }
+
+    // Legacy lookup by label
+    const legacyMatches = await prisma.barang.findMany({
       where: { label: kode },
       include: { kategori: true, ruangan: true },
     });
 
+    if (legacyMatches.length === 1) {
+      return NextResponse.json(legacyMatches[0]);
+    } else if (legacyMatches.length > 1) {
+      return NextResponse.json({ error: "Ambigu: Beberapa aset menggunakan label legacy ini. Scan QR terbaru untuk keakuratan." }, { status: 409 });
+    }
+
     // Fallback: case-insensitive search (handles slight differences)
-    if (!item) {
-      item = await prisma.barang.findFirst({
-        where: { label: { equals: kode, mode: "insensitive" } },
-        include: { kategori: true, ruangan: true },
-      });
+    const fallbackMatches = await prisma.barang.findMany({
+      where: { label: { equals: kode, mode: "insensitive" } },
+      include: { kategori: true, ruangan: true },
+    });
+    
+    if (fallbackMatches.length === 1) {
+      return NextResponse.json(fallbackMatches[0]);
+    } else if (fallbackMatches.length > 1) {
+      return NextResponse.json({ error: "Ambigu: Beberapa aset menggunakan label legacy ini." }, { status: 409 });
     }
 
-    // Fallback: maybe the QR contains the database ID directly
-    if (!item) {
-      item = await prisma.barang.findUnique({
-        where: { id: kode },
-        include: { kategori: true, ruangan: true },
-      });
-    }
-
-    if (!item) return NextResponse.json({ error: "Barang tidak ditemukan" }, { status: 404 });
-    return NextResponse.json(item);
+    return NextResponse.json({ error: "Barang tidak ditemukan" }, { status: 404 });
   }
 
   // ── Build shared where clause ──
@@ -191,8 +179,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
-  const kategoriId = await resolveKategori(body.kategoriId);
-  if (!kategoriId) return NextResponse.json({ error: "Kategori wajib diisi" }, { status: 400 });
+
+  const identity = assessBarangIdentity(body);
+  if (!identity.isValid) {
+    return NextResponse.json({ error: identity.error }, { status: 400 });
+  }
+
+  let kategoriId = await resolveKategori(body.kategoriId);
+  if (!kategoriId) {
+    // Kategori is empty but Anchor is valid -> fallback to Belum Dikategorikan
+    kategoriId = await resolveKategori("Belum Dikategorikan");
+    if (!kategoriId) return NextResponse.json({ error: "Gagal memproses kategori fallback" }, { status: 500 });
+  }
+
   const ruanganId = await resolveRuangan(body.ruanganId);
 
   const jumlah = body.jumlah ? Number(body.jumlah) : 1;
@@ -201,17 +200,8 @@ export async function POST(req: Request) {
   if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
   if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
-  // ── Hitung label unik di luar transaction ──
-  // Format baru: PREFIX-MMYYYY-NNN-NNN (e.g. LAP-APP-072026-001-001)
-  // Format lama: PREFIX-MMYYYY-NNN (e.g. LAP-APP-072026-001)
-  // Backend selalu menambah suffix -NNN jika belum ada.
-  let finalLabel = body.label as string | null | undefined;
-  if (finalLabel) {
-    const hasAssetSuffix = /^.+-\d{6}-\d{3}-\d{3}$/.test(finalLabel);
-    if (!hasAssetSuffix) {
-      finalLabel = await findNextUniqueLabel(finalLabel);
-    }
-  }
+  // Use normalized labels
+  const finalLabel = identity.normalizedData.label;
 
   // ── Resolve KelompokPembelian (upsert) ──
   let kelompokPembelianId: string | null = null;
@@ -257,22 +247,11 @@ export async function POST(req: Request) {
     const item = await attemptCreate(finalLabel);
     return NextResponse.json(item, { status: 201 });
   } catch (e: any) {
-    // P2002 pada kolom label → race condition, recompute dan retry sekali
-    if (e.code === "P2002" && finalLabel && e.meta?.target?.includes?.("label")) {
-      try {
-        const retryLabel = await findNextUniqueLabel(body.label as string);
-        const item = await attemptCreate(retryLabel);
-        return NextResponse.json(item, { status: 201 });
-      } catch (e2: any) {
-        if (e2.code === "P2002") {
-          return NextResponse.json({ error: "Kode label konflik, coba lagi." }, { status: 409 });
-        }
-        return NextResponse.json({ error: e2.message || "Terjadi kesalahan" }, { status: 500 });
-      }
-    }
     if (e.code === "P2002") {
-      return NextResponse.json({ error: "Kode Barang (Label) sudah digunakan, gunakan label lain." }, { status: 400 });
+      // With label unique constraint removed, P2002 on label shouldn't happen.
+      // But if there's any other unique constraint, report it.
+      return NextResponse.json({ error: "Data gagal disimpan, terdapat duplikasi unique (contoh: id)." }, { status: 400 });
     }
-    return NextResponse.json({ error: e.message || "Terjadi kesalahan" }, { status: 500 });
+    return NextResponse.json({ error: e.message || "Terjadi kesalahan saat menyimpan barang" }, { status: 500 });
   }
 }
