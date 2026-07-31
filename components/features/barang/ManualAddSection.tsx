@@ -7,7 +7,6 @@ import { api } from "@/helpers/api";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
 import type { Barang } from "@/types";
-import { assessBarangIdentity } from "@/lib/barang-identity";
 import BarangFormFields from "./BarangFormFields";
 
 /** Manual add section (fill form, auto-generate QR, print) */
@@ -19,12 +18,8 @@ export default function ManualAddSection() {
   const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
 
   async function handleSave() {
-    const identity = assessBarangIdentity({
-      ...form,
-      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang) : null
-    });
-    if (!identity.isValid) {
-      toast.error(identity.error || "Data barang belum memiliki identitas yang cukup. Isi minimal Nama Barang, Label, atau Label Aset.");
+    if (!form.namaBarang || !form.kategori || !form.merek || !form.tanggalDatang || !form.pembelianKe) {
+      toast.error("Nama Barang, Kategori, Merek, Tanggal Datang, dan Pembelian Ke wajib diisi.");
       return;
     }
 
@@ -71,7 +66,7 @@ export default function ManualAddSection() {
           <div className="scan-title">Input Manual Barang Baru</div>
         </div>
 
-        <BarangFormFields form={form} onChange={handleFieldChange} />
+        <BarangFormFields form={form} onChange={handleFieldChange} mode="create" />
 
         <div className="modal-footer" style={{ marginTop: 24 }}>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>

@@ -15,7 +15,6 @@ import { parseQrPayload } from "@/helpers/format";
 import { BARANG_FORM_EMPTY } from "@/constants/barang";
 import type { BarangFormData } from "@/constants/barang";
 import type { Barang, Kategori, Ruangan, Pengeluaran } from "@/types";
-import { assessBarangIdentity } from "@/lib/barang-identity";
 import BarangFormFields from "./BarangFormFields";
 import { fDateShort } from "@/helpers/format";
 
@@ -268,30 +267,69 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }
 
   async function handleSave() {
-    const identity = assessBarangIdentity({
-      ...form,
-      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang) : null
-    });
-    if (!identity.isValid) {
-      toast.error(identity.error || "Data barang belum memiliki identitas yang cukup. Isi minimal Nama Barang, Label, atau Label Aset.");
-      return;
-    }
-
     setSaving(true);
-    const body = {
-      ...form,
-      jumlah: Number(form.jumlah),
-      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang).toISOString() : null,
-      tanggalPindah: form.tanggalPindah ? new Date(form.tanggalPindah).toISOString() : null,
-      harga: form.harga ? Number(form.harga) : null,
-      ruanganId: form.ruangan || null,
-      kategoriId: form.kategori,
-    };
+
     try {
       if (selected) {
-        await api.put(`/api/barang/${selected.id}`, body);
+        const diff: any = {};
+
+        if (form.namaBarang !== (selected.namaBarang || "")) diff.namaBarang = form.namaBarang;
+        if (form.progdi !== (selected.progdi || "")) diff.progdi = form.progdi;
+        if (form.label !== (selected.label || "")) diff.label = form.label;
+        if (form.labelAset !== (selected.labelAset || "")) diff.labelAset = form.labelAset;
+        if (form.sn !== (selected.sn || "")) diff.sn = form.sn;
+        if (form.merek !== (selected.merek || "")) diff.merek = form.merek;
+        if (form.model !== (selected.model || "")) diff.model = form.model;
+        if (form.tipe !== (selected.tipe || "")) diff.tipe = form.tipe;
+        if (form.vendor !== (selected.vendor || "")) diff.vendor = form.vendor;
+        if (form.keterangan !== (selected.keterangan || "")) diff.keterangan = form.keterangan;
+        if (form.kondisi !== selected.kondisi) diff.kondisi = form.kondisi;
+        if (form.status !== selected.status) diff.status = form.status;
+        if (Number(form.jumlah) !== (selected.jumlah || 1)) diff.jumlah = Number(form.jumlah);
+
+        const currentTglDatang = selected.tanggalDatang ? new Date(selected.tanggalDatang).toISOString().split("T")[0] : "";
+        if (form.tanggalDatang !== currentTglDatang) diff.tanggalDatang = form.tanggalDatang ? new Date(form.tanggalDatang).toISOString() : null;
+
+        const currentTglPindah = selected.tanggalPindah ? new Date(selected.tanggalPindah).toISOString().split("T")[0] : "";
+        if (form.tanggalPindah !== currentTglPindah) diff.tanggalPindah = form.tanggalPindah ? new Date(form.tanggalPindah).toISOString() : null;
+
+        if (form.harga !== (selected.harga?.toString() || "")) diff.harga = form.harga ? Number(form.harga) : null;
+        if (form.pembelianKe !== (selected.pembelianKe?.toString() || "")) diff.pembelianKe = form.pembelianKe ? Number(form.pembelianKe) : null;
+        if (form.sumberTahun !== (selected.sumberTahun || "")) diff.sumberTahun = form.sumberTahun;
+
+        const currentKategori = selected.kategori?.nama || selected.kategoriId || "";
+        if (form.kategori !== currentKategori) diff.kategoriId = form.kategori;
+
+        const currentRuangan = selected.ruangan?.kode || selected.ruanganId || "";
+        if (form.ruangan !== currentRuangan) diff.ruanganId = form.ruangan || null;
+
+        if (form.pengeluaranId !== (selected.pengeluaranId || "")) diff.pengeluaranId = form.pengeluaranId || null;
+
+        if (Object.keys(diff).length === 0) {
+          toast.success("Tidak ada perubahan");
+          setModal(null);
+          setSaving(false);
+          return;
+        }
+
+        await api.put(`/api/barang/${selected.id}`, diff);
         toast.success("Barang diperbarui");
       } else {
+        if (!form.namaBarang || !form.kategori || !form.merek || !form.tanggalDatang || !form.pembelianKe) {
+          toast.error("Nama Barang, Kategori, Merek, Tanggal Datang, dan Pembelian Ke wajib diisi.");
+          setSaving(false);
+          return;
+        }
+
+        const body = {
+          ...form,
+          jumlah: Number(form.jumlah),
+          tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang).toISOString() : null,
+          tanggalPindah: form.tanggalPindah ? new Date(form.tanggalPindah).toISOString() : null,
+          harga: form.harga ? Number(form.harga) : null,
+          ruanganId: form.ruangan || null,
+          kategoriId: form.kategori,
+        };
         await api.post("/api/barang", body);
         toast.success("Barang ditambahkan");
       }
@@ -595,7 +633,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
 
       {/* Edit/Add Modal */}
       <Modal open={modal === "form"} onClose={() => setModal(null)} title={selected ? "Edit Barang" : "Tambah Barang"}>
-        <BarangFormFields form={form} onChange={handleFieldChange} />
+        <BarangFormFields form={form} onChange={handleFieldChange} mode={selected ? "edit" : "create"} />
         <div className="modal-footer">
           <button className="btn btn-ghost" onClick={() => setModal(null)}>Batal</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>

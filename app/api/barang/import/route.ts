@@ -83,22 +83,19 @@ export async function POST(req: Request) {
         }
 
         // Conservative Duplicate Matching
-        // Never auto-merge on 'namaBarang' alone. Need at least label, labelAset, or sn.
+        // Never auto-merge on 'namaBarang', 'label', or 'sn' alone. Need exactly 'labelAset'.
         let existingBarang = null;
-        
-        if (norm.label || norm.labelAset || norm.sn) {
-          const conditions: any = {};
-          if (norm.label) conditions.label = norm.label;
-          if (norm.labelAset) conditions.labelAset = norm.labelAset;
-          if (norm.sn) conditions.sn = norm.sn;
+
+        if (norm.labelAset) {
+          const conditions: any = { labelAset: norm.labelAset };
           if (norm.namaBarang) conditions.namaBarang = norm.namaBarang; // strengthen if available
 
           const possibleMatches = await prisma.barang.findMany({
             where: conditions
           });
-          
+
           const availableMatches = possibleMatches.filter(m => !usedDbIds.has(m.id));
-          
+
           if (availableMatches.length === 1) {
              existingBarang = availableMatches[0];
           } else if (availableMatches.length > 1) {

@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
-import { assessBarangIdentity } from "@/lib/barang-identity";
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_: Request, { params }: Params) {
@@ -34,11 +33,6 @@ export async function PUT(req: Request, { params }: Params) {
     label: body.label !== undefined ? body.label : existingItem.label,
     labelAset: body.labelAset !== undefined ? body.labelAset : existingItem.labelAset,
   };
-
-  const identity = assessBarangIdentity(mergedState);
-  if (!identity.isValid) {
-    return NextResponse.json({ error: "Setelah update, barang harus memiliki minimal Nama Barang, Label, atau Label Aset." }, { status: 400 });
-  }
 
   let kategoriId = await resolveKategori(body.kategoriId !== undefined ? body.kategoriId : existingItem.kategoriId);
   if (!kategoriId) {
@@ -85,24 +79,24 @@ export async function PUT(req: Request, { params }: Params) {
           ...(kelompokPembelianId !== undefined && { kelompokPembelianId }),
           namaBarang: body.namaBarang !== undefined ? (body.namaBarang || null) : existingItem.namaBarang,
           progdi: body.progdi !== undefined ? (body.progdi || null) : existingItem.progdi,
-          label: identity.normalizedData.label,
-          labelAset: identity.normalizedData.labelAset,
-          sn: body.sn || null,
-          merek: body.merek || null,
-          model: body.model || null,
-          tipe: body.tipe || null,
-          vendor: body.vendor || null,
-          keterangan: body.keterangan ?? null,
-          kondisi: body.kondisi,
-          jumlah: jumlah,
-          tanggalDatang: body.tanggalDatang ? new Date(body.tanggalDatang) : null,
-          tanggalPindah: body.tanggalPindah ? new Date(body.tanggalPindah) : null,
-          harga: harga,
-          sumberTahun: body.sumberTahun || null,
-          pembelianKe: body.pembelianKe ? Number(body.pembelianKe) : null,
+          label: body.label !== undefined ? (body.label ? body.label.trim() : null) : existingItem.label,
+          labelAset: body.labelAset !== undefined ? (body.labelAset ? body.labelAset.trim() : null) : existingItem.labelAset,
+          sn: body.sn !== undefined ? (body.sn || null) : existingItem.sn,
+          merek: body.merek !== undefined ? (body.merek || null) : existingItem.merek,
+          model: body.model !== undefined ? (body.model || null) : existingItem.model,
+          tipe: body.tipe !== undefined ? (body.tipe || null) : existingItem.tipe,
+          vendor: body.vendor !== undefined ? (body.vendor || null) : existingItem.vendor,
+          keterangan: body.keterangan !== undefined ? (body.keterangan ?? null) : existingItem.keterangan,
+          kondisi: body.kondisi !== undefined ? body.kondisi : existingItem.kondisi,
+          jumlah: body.jumlah !== undefined ? jumlah : existingItem.jumlah,
+          tanggalDatang: body.tanggalDatang !== undefined ? (body.tanggalDatang ? new Date(body.tanggalDatang) : null) : existingItem.tanggalDatang,
+          tanggalPindah: body.tanggalPindah !== undefined ? (body.tanggalPindah ? new Date(body.tanggalPindah) : null) : existingItem.tanggalPindah,
+          harga: body.harga !== undefined ? harga : existingItem.harga,
+          sumberTahun: body.sumberTahun !== undefined ? (body.sumberTahun || null) : existingItem.sumberTahun,
+          pembelianKe: body.pembelianKe !== undefined ? (body.pembelianKe ? Number(body.pembelianKe) : null) : existingItem.pembelianKe,
           kategoriId,
           ruanganId,
-          pengeluaranId: body.pengeluaranId || null,
+          pengeluaranId: body.pengeluaranId !== undefined ? (body.pengeluaranId || null) : existingItem.pengeluaranId,
         },
         include: { kategori: true, ruangan: true },
       });

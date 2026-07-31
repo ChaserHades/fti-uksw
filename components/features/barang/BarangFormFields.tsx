@@ -14,6 +14,7 @@ interface BarangFormFieldsProps {
   readOnlyLabel?: boolean;
   /** Jika true, tampilkan lebih sedikit field (dari scan register modal) */
   compact?: boolean;
+  mode?: "create" | "edit";
 }
 
 /** Generate base label dari kategori, merek, tanggal, dan pembelianKe */
@@ -48,6 +49,7 @@ export default function BarangFormFields({
   onChange,
   readOnlyLabel = false,
   compact = false,
+  mode = "create",
 }: BarangFormFieldsProps) {
   // Nama kategori untuk generate label (diset dari typed input atau dari onSelect)
   const [kategoriNama, setKategoriNama] = useState("");
@@ -136,6 +138,7 @@ export default function BarangFormFields({
           placeholder="MacBook Pro M3 16 inch"
           value={form.namaBarang}
           onChange={e => onChange("namaBarang", e.target.value)}
+          required={mode === "create"}
         />
       </div>
 
@@ -180,6 +183,7 @@ export default function BarangFormFields({
             placeholder="Apple, HP, Lenovo"
             value={form.merek}
             onChange={e => onChange("merek", e.target.value)}
+            required={mode === "create"}
           />
         </div>
         <div className="form-group">
@@ -190,6 +194,7 @@ export default function BarangFormFields({
             className="input"
             value={form.tanggalDatang}
             onChange={e => handleTanggalChange(e.target.value)}
+            required={mode === "create"}
           />
         </div>
       </div>
@@ -212,6 +217,7 @@ export default function BarangFormFields({
             placeholder="1"
             value={form.pembelianKe === "" ? "" : Number(form.pembelianKe)}
             onChange={e => onChange("pembelianKe", e.target.value)}
+            required={mode === "create"}
           />
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
             Urutan pembelian dalam bulan/tahun yang dipilih (auto, bisa diubah)

@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { resolveKategori, resolveRuangan } from "@/lib/resolveRelations";
 
-import { assessBarangIdentity } from "@/lib/barang-identity";
-
 /**
  * Membangun data Barang dari body request.
  * Reusable untuk POST dan retry P2002.
@@ -180,16 +178,13 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
-  const identity = assessBarangIdentity(body);
-  if (!identity.isValid) {
-    return NextResponse.json({ error: identity.error }, { status: 400 });
+  if (!body.namaBarang || !body.kategoriId || !body.merek || !body.tanggalDatang || !body.pembelianKe) {
+    return NextResponse.json({ error: "Nama Barang, Kategori, Merek, Tanggal Datang, dan Pembelian Ke wajib diisi." }, { status: 400 });
   }
 
-  let kategoriId = await resolveKategori(body.kategoriId);
+  const kategoriId = await resolveKategori(body.kategoriId);
   if (!kategoriId) {
-    // Kategori is empty but Anchor is valid -> fallback to Belum Dikategorikan
-    kategoriId = await resolveKategori("Belum Dikategorikan");
-    if (!kategoriId) return NextResponse.json({ error: "Gagal memproses kategori fallback" }, { status: 500 });
+    return NextResponse.json({ error: "Kategori tidak valid" }, { status: 400 });
   }
 
   const ruanganId = await resolveRuangan(body.ruanganId);
@@ -200,8 +195,19 @@ export async function POST(req: Request) {
   if (jumlah < 1) return NextResponse.json({ error: "Jumlah barang tidak valid (minimal 1)" }, { status: 400 });
   if (harga !== null && harga < 0) return NextResponse.json({ error: "Harga barang tidak valid (tidak boleh minus)" }, { status: 400 });
 
-  // Use normalized labels
-  const finalLabel = identity.normalizedData.label;
+  let finalLabel = body.label ? body.label.trim() : null;
+  if (!finalLabel) {
+    const d = new Date(body.tanggalDatang);
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    const seq = String(Number(body.pembelianKe)).padStart(3, "0");
+
+    const kat = await prisma.kategori.findUnique({ where: { id: kategoriId }});
+    const katPart = kat ? kat.nama.replace(/\s+/g, "").slice(0, 3).toUpperCase() : "XXX";
+    const merkPart = body.merek.replace(/\s+/g, "").slice(0, 3).toUpperCase();
+
+    finalLabel = `${katPart}-${merkPart}-${mm}${yyyy}-${seq}`;
+  }
 
   // ── Resolve KelompokPembelian (upsert) ──
   let kelompokPembelianId: string | null = null;
@@ -222,7 +228,6 @@ export async function POST(req: Request) {
   }
 
   // ── Buat Barang + Log dalam satu transaction (atomic) ──
-  // Jika salah satu gagal, keduanya di-rollback.
   const attemptCreate = async (label: string | null | undefined) => {
     const data = buildBarangData(body, { finalLabel: label, kategoriId, ruanganId, kelompokPembelianId, jumlah, harga });
     return prisma.$transaction(async (tx) => {
@@ -248,8 +253,6 @@ export async function POST(req: Request) {
     return NextResponse.json(item, { status: 201 });
   } catch (e: any) {
     if (e.code === "P2002") {
-      // With label unique constraint removed, P2002 on label shouldn't happen.
-      // But if there's any other unique constraint, report it.
       return NextResponse.json({ error: "Data gagal disimpan, terdapat duplikasi unique (contoh: id)." }, { status: 400 });
     }
     return NextResponse.json({ error: e.message || "Terjadi kesalahan saat menyimpan barang" }, { status: 500 });
