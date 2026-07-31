@@ -105,12 +105,17 @@ export async function PUT(req: Request, { params }: Params) {
         include: { kategori: true, ruangan: true },
       });
 
+      let detailMsg = `Memperbarui barang: ${updated.label || updated.labelAset || updated.merek || "Tanpa Nama"}`;
+      if (existingItem.ruanganId !== updated.ruanganId) {
+        detailMsg = `Memindahkan ${updated.label || updated.labelAset || updated.merek || "barang"} ke ${updated.ruangan?.nama || "Ruangan Baru"}`;
+      }
+
       await tx.logAktivitas.create({
         data: {
           aksi: "UPDATE",
           entitas: "BARANG",
           entitasId: updated.id,
-          detail: `Memperbarui barang: ${updated.label || updated.labelAset || updated.merek || "Tanpa Nama"}`,
+          detail: detailMsg,
           userId: session.id,
         },
       });

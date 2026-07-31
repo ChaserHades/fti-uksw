@@ -83,8 +83,8 @@ export async function POST(req: Request) {
   if (barang.status !== "TERSEDIA")
     return NextResponse.json({ error: "Barang tidak tersedia" }, { status: 400 });
 
-  const [peminjaman] = await prisma.$transaction([
-    prisma.peminjaman.create({
+  const peminjaman = await prisma.$transaction(async (tx) => {
+    const p = await tx.peminjaman.create({
       data: {
         barangId,
         userId:          session.id,
@@ -99,9 +99,22 @@ export async function POST(req: Request) {
         barang: { include: { kategori: true, ruangan: true } },
         user: true,
       },
-    }),
-    prisma.barang.update({ where: { id: barangId }, data: { status: "DIPINJAM" } }),
-  ]);
+    });
+
+    await tx.barang.update({ where: { id: barangId }, data: { status: "DIPINJAM" } });
+
+    await tx.logAktivitas.create({
+      data: {
+        aksi: "CREATE",
+        entitas: "PEMINJAMAN",
+        entitasId: p.id,
+        detail: `Meminjamkan ${barang.label || barang.labelAset || barang.merek || "barang"} kepada ${p.namaPeminjam}`,
+        userId: session.id,
+      }
+    });
+
+    return p;
+  });
 
   return NextResponse.json(peminjaman, { status: 201 });
 }

@@ -46,6 +46,18 @@ export async function POST(_: Request, { params }: Params) {
     );
   }
 
+  transactions.push(
+    prisma.logAktivitas.create({
+      data: {
+        aksi: "UPDATE",
+        entitas: "PEMINJAMAN",
+        entitasId: peminjaman.id,
+        detail: `Pengembalian barang ${barang?.label || barang?.labelAset || barang?.merek || "barang"} dari ${peminjaman.namaPeminjam}`,
+        userId: session.id,
+      }
+    })
+  );
+
   const results = await prisma.$transaction(transactions);
   const updated = results[0];
 
