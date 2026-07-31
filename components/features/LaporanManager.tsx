@@ -324,7 +324,7 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                 <th style={{ width: "12%" }}>Tanggal</th>
                 <th style={{ width: "14%" }}>Pencatat</th>
                 <th style={{ width: "8%" }}>Nota</th>
-                {role === "ADMIN" && <th style={{ width: "14%" }}>Aksi</th>}
+                {(role === "ADMIN" || (role === "UNIVERSITAS")) && <th style={{ width: "14%" }}>Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -376,6 +376,23 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                         <button className="btn btn-danger btn-icon btn-sm" onClick={() => handleDelete(p.id, p.judul)} title="Hapus">
                           <i className="ti ti-trash" />
                         </button>
+                      </div>
+                    </td>
+                  )}
+                  {role === "UNIVERSITAS" && (
+                    <td>
+                      <div className="action-row">
+                        {p.notaUrls && p.notaUrls.length > 0 ? (
+                          <button
+                            className="btn btn-ghost btn-icon btn-sm"
+                            onClick={() => setViewInvoice(p)}
+                            title={`Lihat ${p.notaUrls.length} Nota`}
+                          >
+                            <i className="ti ti-eye" />
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Tidak ada</span>
+                        )}
                       </div>
                     </td>
                   )}
