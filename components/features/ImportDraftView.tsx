@@ -3,12 +3,16 @@ import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import ConfirmModal from "@/components/ConfirmModal";
 
+import { assessImportBarangIdentity } from "@/lib/import-barang-identity";
+
 /* ═══════════════════════════════════════════════════════════
    Types
    ═══════════════════════════════════════════════════════════ */
 export interface DraftRow {
   _rowNumber: number;
   _errorReason?: string;
+  conflictError?: string;
+  namaBarang?: string;
   kategori: string;
   label?: string;
   labelAset?: string;
@@ -37,13 +41,28 @@ interface ImportDraftViewProps {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Validation
+/* ═══════════════════════════════════════════════════════════
+   Validation Helpers
    ═══════════════════════════════════════════════════════════ */
-function isValidKategori(str: string | undefined | null): boolean {
-  if (!str) return false;
-  if (str === "Lainnya") return false;
-  const alphanumeric = str.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, "");
-  return alphanumeric.length >= 2;
+function revalidateRow(row: DraftRow): { isValid: boolean; error?: string } {
+  if (row.conflictError) return { isValid: false, error: row.conflictError };
+
+  const parsedDate = row.tanggalDatang
+    ? (row.tanggalDatang instanceof Date ? row.tanggalDatang : new Date(row.tanggalDatang))
+    : null;
+
+  const assessment = assessImportBarangIdentity({
+    namaBarang: row.namaBarang,
+    label: row.label,
+    labelAset: row.labelAset,
+    sn: row.sn,
+    kategori: row.kategori,
+    merek: row.merek,
+    tanggalDatang: parsedDate,
+  });
+
+  if (!assessment.isValid) return { isValid: false, error: assessment.error };
+  return { isValid: true };
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -57,7 +76,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   // Pagination (Next/Prev)
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
-  
+
   useEffect(() => {
     setCurrentPage(0);
   }, [tab]);
@@ -91,10 +110,17 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   /* ── Per-row validate (explicit button click) ── */
   const handleValidateRow = (index: number) => {
     const row = errors[index];
-    if (!isValidKategori(row.kategori)) {
-      toast.error("Kategori harus minimal 2 karakter alfanumerik");
+    const validation = revalidateRow(row);
+
+    if (!validation.isValid) {
+      toast.error(validation.error || "Data belum valid");
+      // Update the error reason visibly
+      const updated = [...errors];
+      updated[index] = { ...row, _errorReason: validation.error };
+      setErrors(updated);
       return;
     }
+
     const fixed = { ...row };
     delete fixed._errorReason;
 
@@ -103,7 +129,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
 
     setValids(prev => [...prev, fixed]);
     setErrors(newErrors);
-    toast.success(`Baris ${row._rowNumber} dipindah ke Valid`);
+    toast.success(`Baris ${row._rowNumber} dipindah ke Siap Diimpor`);
     if (newErrors.length === 0) setTab("valid");
   };
 
@@ -120,23 +146,40 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   /* ── Confirmed actions ── */
   const executeConfirmedAction = () => {
     if (confirmAction === "bulk-validate") {
-      const fixedErrors = errors.map(e => {
-        const r = { ...e };
-        delete r._errorReason;
-        return r;
+      const stillErrors: DraftRow[] = [];
+      const newValids: DraftRow[] = [];
+      let movedCount = 0;
+
+      errors.forEach(e => {
+        const validation = revalidateRow(e);
+        if (validation.isValid) {
+          const r = { ...e };
+          delete r._errorReason;
+          newValids.push(r);
+          movedCount++;
+        } else {
+          stillErrors.push({ ...e, _errorReason: validation.error });
+        }
       });
-      setValids(prev => [...prev, ...fixedErrors]);
-      setErrors([]);
-      setTab("valid");
-      toast.success("Semua data error dipindahkan ke Valid");
+
+      setValids(prev => [...prev, ...newValids]);
+      setErrors(stillErrors);
+
+      if (stillErrors.length === 0) {
+        setTab("valid");
+        toast.success("Semua data error berhasil divalidasi & dipindah.");
+      } else if (movedCount > 0) {
+        toast.success(`${movedCount} data berhasil dipindah. Sisa ${stillErrors.length} error.`);
+      } else {
+        toast.error("Tidak ada data yang valid.");
+      }
     } else if (confirmAction === "skip-push-all") {
-      const errorAsLainnya = errors.map(e => {
+      const forcedPush = errors.map(e => {
         const row = { ...e };
-        if (!isValidKategori(row.kategori)) row.kategori = "Lainnya";
         delete row._errorReason;
         return row;
       });
-      onPush([...valids, ...errorAsLainnya]);
+      onPush([...valids, ...forcedPush]);
     } else if (confirmAction === "skip-delete") {
       if (valids.length === 0) {
         toast.error("Belum ada data valid untuk disimpan.");
@@ -152,29 +195,29 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
 
   const hasErrors = errors.length > 0;
   const currentList = tab === "error" ? errors : valids;
-  
+
   const totalPages = Math.ceil(currentList.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
   const visibleList = currentList.slice(startIndex, startIndex + itemsPerPage);
   /* ── Confirmation modal messages ── */
   const confirmMessages: Record<string, { title: string; message: React.ReactNode; danger: boolean; label: string }> = {
     "bulk-validate": {
-      title: "Validasi Semua Error?",
+      title: "Validasi Ulang Semua Error?",
       message: (
         <div>
-          <div style={{ marginBottom: 8 }}><strong>{errors.length} baris</strong> akan dipindahkan ke tab Valid.</div>
-          <div style={{ fontSize: 13, opacity: 0.7 }}>Pastikan Anda sudah memperbaiki kolom-kolom yang diperlukan.</div>
+          <div style={{ marginBottom: 8 }}>Mengecek ulang <strong>{errors.length} baris</strong> error.</div>
+          <div style={{ fontSize: 13, opacity: 0.7 }}>Hanya baris yang memenuhi kriteria identitas yang akan dipindah ke Siap Diimpor. Sisanya akan tetap di tab Perlu Diperbaiki.</div>
         </div>
       ),
       danger: false,
-      label: "Ya, Validasi & Pindahkan",
+      label: "Ya, Validasi Ulang",
     },
     "skip-push-all": {
-      title: "Push Semua Data?",
+      title: "Push Semua Data Paksa?",
       message: (
         <div>
-          <div style={{ marginBottom: 8 }}><strong>{errors.length} data error</strong> akan masuk ke database dengan Kategori = "Lainnya".</div>
-          <div style={{ fontSize: 13, opacity: 0.7 }}>Data tersebut tetap akan tampil di Daftar Barang dan bisa diedit manual nanti.</div>
+          <div style={{ marginBottom: 8 }}><strong>{errors.length} data error</strong> akan tetap di-push ke database.</div>
+          <div style={{ fontSize: 13, opacity: 0.7 }}>Data yang tidak lengkap akan disimpan apa adanya. Anda harus memperbaikinya secara manual di Daftar Barang.</div>
         </div>
       ),
       danger: false,
@@ -221,7 +264,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
             style={{ gap: 6 }}
           >
             <i className="ti ti-alert-triangle" style={{ fontSize: 15 }} />
-            Error ({errors.length})
+            Perlu Diperbaiki ({errors.length})
           </button>
           <button
             className={`btn btn-sm ${tab === "valid" ? "btn-ok" : "btn-ghost"}`}
@@ -229,24 +272,30 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
             style={{ gap: 6 }}
           >
             <i className="ti ti-circle-check" style={{ fontSize: 15 }} />
-            Valid ({valids.length})
+            Siap Diimpor ({valids.length})
           </button>
         </div>
       </div>
 
       {/* ── Table ── */}
       <div className="glass">
-        <div className="table-wrap">
-          <table className="table" style={{ width: "100%", tableLayout: "fixed" }}>
+        <div className="table-wrap overflow-x-auto">
+          <table className="table" style={{ minWidth: 1400, tableLayout: "auto" }}>
             <thead>
               <tr>
-                <th style={{ width: "5%" }}>Baris</th>
-                {tab === "error" && <th style={{ width: "15%" }}>Alasan Error</th>}
-                <th style={{ width: tab === "error" ? "20%" : "25%" }}>Kategori *</th>
-                <th style={{ width: "20%" }}>Label Aset</th>
-                <th style={{ width: "15%" }}>Label</th>
-                <th style={{ width: "10%" }}>Tahun</th>
-                {tab === "error" && <th style={{ width: "15%" }}>Aksi</th>}
+                <th style={{ width: 60 }}>Baris</th>
+                {tab === "error" && <th style={{ minWidth: 200 }}>Status / Alasan</th>}
+                <th style={{ minWidth: 200 }}>Nama Barang</th>
+                <th style={{ minWidth: 200 }}>Kategori / Jenis Barang</th>
+                <th style={{ minWidth: 150 }}>Merek</th>
+                <th style={{ minWidth: 150 }}>Label Aset</th>
+                <th style={{ minWidth: 150 }}>Label</th>
+                <th style={{ minWidth: 150 }}>SN</th>
+                <th style={{ minWidth: 120 }}>Tanggal Datang</th>
+                <th style={{ minWidth: 100 }}>Tahun File</th>
+                <th style={{ minWidth: 100 }}>Kondisi</th>
+                <th style={{ minWidth: 150 }}>Ruangan</th>
+                {tab === "error" && <th style={{ width: 100, position: "sticky", right: 0, background: "var(--ds-void)", zIndex: 1 }}>Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -263,7 +312,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                 </tr>
               ) : visibleList.map((r) => {
                 const absoluteIdx = currentList.findIndex(item => item._rowNumber === r._rowNumber);
-                
+
                 return (
                   <tr key={`${tab}-${r._rowNumber}`}>
                     <td className="td-sm text-muted" style={{ fontFamily: "monospace" }}>{absoluteIdx + 1}</td>
@@ -284,6 +333,21 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                       </td>
                     )}
 
+                    {/* Nama Barang */}
+                    <td>
+                      {tab === "error" ? (
+                        <input
+                          type="text"
+                          className="input"
+                          style={{ width: "100%", height: 36, fontSize: 13 }}
+                          value={r.namaBarang || ""}
+                          onChange={(e) => handleEdit(absoluteIdx, "namaBarang", e.target.value)}
+                        />
+                      ) : (
+                        <span className="td-name">{r.namaBarang || "-"}</span>
+                      )}
+                    </td>
+
                     {/* Kategori */}
                     <td>
                       {tab === "error" ? (
@@ -292,15 +356,27 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                           className="input"
                           style={{
                             width: "100%", height: 36, fontSize: 13,
-                            borderColor: isValidKategori(r.kategori) ? "rgba(125,212,168,0.4)" : "rgba(240,128,112,0.4)",
-                            transition: "border-color 0.2s",
                           }}
                           value={r.kategori || ""}
                           onChange={(e) => handleEdit(absoluteIdx, "kategori", e.target.value)}
-                          placeholder="Min 2 karakter alfanumerik"
                         />
                       ) : (
-                        <span className="td-name">{r.kategori}</span>
+                        <span className="td-name">{r.kategori || "-"}</span>
+                      )}
+                    </td>
+
+                    {/* Merek */}
+                    <td>
+                      {tab === "error" ? (
+                        <input
+                          type="text"
+                          className="input"
+                          style={{ width: "100%", height: 36, fontSize: 13 }}
+                          value={r.merek || ""}
+                          onChange={(e) => handleEdit(absoluteIdx, "merek", e.target.value)}
+                        />
+                      ) : (
+                        <span className="td-sm">{r.merek || "-"}</span>
                       )}
                     </td>
 
@@ -315,7 +391,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                           onChange={(e) => handleEdit(absoluteIdx, "labelAset", e.target.value)}
                         />
                       ) : (
-                        <span className="td-code">{r.labelAset || r.label || ""}</span>
+                        <span className="td-code">{r.labelAset || "-"}</span>
                       )}
                     </td>
 
@@ -330,8 +406,28 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                           onChange={(e) => handleEdit(absoluteIdx, "label", e.target.value)}
                         />
                       ) : (
-                        <span className="td-code">{r.label || ""}</span>
+                        <span className="td-code">{r.label || "-"}</span>
                       )}
+                    </td>
+
+                    {/* SN */}
+                    <td>
+                      {tab === "error" ? (
+                        <input
+                          type="text"
+                          className="input"
+                          style={{ width: "100%", height: 36, fontSize: 13 }}
+                          value={r.sn || ""}
+                          onChange={(e) => handleEdit(absoluteIdx, "sn", e.target.value)}
+                        />
+                      ) : (
+                        <span className="td-code">{r.sn || "-"}</span>
+                      )}
+                    </td>
+
+                    {/* Tanggal Datang */}
+                    <td>
+                      <span className="td-sm">{r.tanggalDatang ? new Date(r.tanggalDatang).toLocaleDateString("id-ID") : "-"}</span>
                     </td>
 
                     {/* Tahun */}
@@ -345,18 +441,27 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                           onChange={(e) => handleEdit(absoluteIdx, "sumberTahun", e.target.value)}
                         />
                       ) : (
-                        <span className="td-sm">{r.sumberTahun || ""}</span>
+                        <span className="td-sm">
+                          {r.sumberTahun || "-"}
+                          {r.sumberTahun && <span className="opacity-50 text-xs block mt-1">(Dari nama file)</span>}
+                        </span>
                       )}
                     </td>
 
+                    {/* Kondisi */}
+                    <td><span className="td-sm">{r.kondisi || "BAIK"}</span></td>
+
+                    {/* Ruangan */}
+                    <td><span className="td-sm">{r.ruangan || "-"}</span></td>
+
                     {/* Actions (error only) */}
                     {tab === "error" && (
-                      <td>
+                      <td style={{ position: "sticky", right: 0, background: "var(--ds-void)", zIndex: 1 }}>
                         <div className="action-row">
                           <button
                             className="btn btn-ghost btn-icon btn-sm"
                             onClick={() => handleValidateRow(absoluteIdx)}
-                            title="Validasi & pindah ke Valid"
+                            title="Cek & pindah ke Siap Diimpor"
                             style={{ color: "var(--color-ok)" }}
                           >
                             <i className="ti ti-check" />
@@ -383,15 +488,15 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                 Halaman {currentPage + 1} dari {totalPages} (Total {currentList.length} data)
               </span>
               <div style={{ display: "flex", gap: 8 }}>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  className="btn btn-ghost btn-sm"
                   disabled={currentPage === 0}
                   onClick={() => setCurrentPage(p => p - 1)}
                 >
                   <i className="ti ti-chevron-left" /> Sebelumnya
                 </button>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  className="btn btn-ghost btn-sm"
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setCurrentPage(p => p + 1)}
                 >
@@ -425,8 +530,8 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
         <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
           <i className="ti ti-info-circle" style={{ fontSize: 15 }} />
           {errors.length > 0
-            ? `${errors.length} data error perlu diperbaiki atau di-skip`
-            : "Semua data sudah valid"}
+            ? `${errors.length} data perlu diperbaiki atau di-skip`
+            : "Semua data siap diimpor"}
         </div>
 
         {/* Right: buttons */}
@@ -477,9 +582,9 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                   >
                     <i className="ti ti-upload" style={{ fontSize: 16, color: "var(--color-info)", marginTop: 2, flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>Push semua, edit error nanti</div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>Push semua secara paksa</div>
                       <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.4 }}>
-                        Data error masuk DB sebagai "Lainnya". Bisa diedit manual di Daftar Barang.
+                        Data akan disimpan apa adanya. Bisa diedit manual di Daftar Barang.
                       </div>
                     </div>
                   </button>
@@ -501,9 +606,9 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
                   >
                     <i className="ti ti-trash" style={{ fontSize: 16, color: "var(--color-err)", marginTop: 2, flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>Hapus error, push valid saja</div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>Hapus yang error, push Siap Diimpor saja</div>
                       <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.4 }}>
-                        {errors.length} data error dibuang. Hanya {valids.length} data valid yang disimpan.
+                        {errors.length} data dibuang. Hanya {valids.length} data valid yang disimpan.
                       </div>
                     </div>
                   </button>
@@ -519,7 +624,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
               onClick={() => setConfirmAction("bulk-validate")}
               style={{ gap: 8 }}
             >
-              <i className="ti ti-checks" /> Validasi & Pindahkan Ke Valid
+              <i className="ti ti-checks" /> Validasi Ulang & Pindahkan Ke Siap Diimpor
             </button>
           ) : (
             <button

@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { parseBarangExcel } from "@/lib/excel-parser";
+import { assessImportBarangIdentity } from "@/lib/import-barang-identity";
 
 /**
  * Detects anomalous values (symbols, invisible chars)
  */
 function isAnomalousValue(str: string): boolean {
-  if (!str) return true;
+  if (!str) return false;
   const trimmed = str.trim();
   if (trimmed.length === 0) return true;
 
@@ -32,8 +33,8 @@ export async function POST(req: Request) {
     if (!file) return NextResponse.json({ error: "File wajib diupload" }, { status: 400 });
 
     const ext = file.name.split(".").pop()?.toLowerCase();
-    if (!["xlsx", "xls", "csv"].includes(ext ?? "")) {
-      return NextResponse.json({ error: "Format harus .xlsx, .xls, atau .csv" }, { status: 400 });
+    if (ext !== "xlsx") {
+      return NextResponse.json({ error: "Format harus Excel (.xlsx)" }, { status: 400 });
     }
 
     // Extract year from filename (e.g. "DETAIL ASET 2024.xlsx" to "2024")
@@ -50,49 +51,37 @@ export async function POST(req: Request) {
       );
     }
 
-    // Attach sumberTahun and evaluate valid vs error
     const valid: any[] = [];
     const error: any[] = [];
-    const seenLabels = new Set<string>();
-
-    // Helper to sanitize labels the same way the push route does
-    const sanitizeUnique = (val: any) => {
-      if (!val) return null;
-      const str = String(val).trim();
-      if (str === "-" || str.toLowerCase() === "tanpa nama") return null;
-      return str;
-    };
 
     rawData.forEach((row, index) => {
       const draftRow = { ...row, sumberTahun, _rowNumber: index + 3 }; // +3 is an estimate of excel row
-      const safeLabel = sanitizeUnique(draftRow.label);
 
       let hasError = false;
+      let errorReason = "";
 
-      if (!draftRow.kategori || draftRow.kategori.trim() === "") {
-        error.push({ ...draftRow, _errorReason: "Kolom Kategori tidak boleh kosong atau hilang." });
+      // 1. Preserve conflict error from parser
+      if (draftRow.conflictError) {
         hasError = true;
-      } else if (isAnomalousValue(draftRow.kategori)) {
-        error.push({
-          ...draftRow,
-          _errorReason: `Kategori tidak valid: "${draftRow.kategori}" (hanya berisi simbol atau karakter aneh)`,
-        });
-        hasError = true;
+        errorReason = draftRow.conflictError;
       }
-      
-      if (!hasError && safeLabel) {
-        if (seenLabels.has(safeLabel)) {
-          error.push({
-            ...draftRow,
-            _errorReason: `Data duplikat terdeteksi di dalam file Excel: Label "${safeLabel}" muncul lebih dari 1 kali.`,
-          });
+      // 2. Check for anomalous kategori (if present)
+      else if (draftRow.kategori && isAnomalousValue(draftRow.kategori)) {
+        hasError = true;
+        errorReason = `Kategori tidak valid: "${draftRow.kategori}" (hanya berisi simbol atau karakter aneh)`;
+      }
+      // 3. Identity validation
+      else {
+        const assessment = assessImportBarangIdentity(draftRow);
+        if (!assessment.isValid) {
           hasError = true;
-        } else {
-          seenLabels.add(safeLabel);
+          errorReason = assessment.error || "Identitas barang tidak valid.";
         }
       }
 
-      if (!hasError) {
+      if (hasError) {
+        error.push({ ...draftRow, _errorReason: errorReason });
+      } else {
         valid.push(draftRow);
       }
     });

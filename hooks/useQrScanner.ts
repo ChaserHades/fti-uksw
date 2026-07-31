@@ -1,6 +1,7 @@
 // hooks/useQrScanner.ts
 "use client";
 import { useRef, useEffect, useState, useCallback } from "react";
+import toast from "react-hot-toast";
 
 const JSQR_CDN = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js";
 const SCRIPT_ID = "jsqr-script";
@@ -95,7 +96,7 @@ export function useQrScanner(onResult: (data: string) => void) {
       scanLoop();
     } catch (err: any) {
       const msg = err?.message || "Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan.";
-      alert(`Gagal membuka kamera:\n${msg}`);
+      toast.error(`Gagal membuka kamera:\n${msg}`);
     }
   }, [scanLoop]);
 

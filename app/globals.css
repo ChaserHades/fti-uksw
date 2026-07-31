@@ -2482,6 +2482,34 @@ summary {
   .mobile-scroll-x>* {
     flex-shrink: 0 !important;
   }
+
+  /* Topbar responsive */
+  .topbar {
+    left: 8px;
+    right: 8px;
+    padding: 0 12px;
+  }
+
+  .topbar-brand-name {
+    display: none;
+  }
+
+  .topbar-dropdown {
+    left: 8px;
+    right: 8px;
+  }
+
+  /* Make all table wraps scrollable */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Modals viewport constraint */
+  .modal-box {
+    max-width: calc(100vw - 16px);
+    margin: 8px;
+  }
 }
 
 /* Mobile layout for Dynamic Island */

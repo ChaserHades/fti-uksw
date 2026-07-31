@@ -42,7 +42,7 @@ export default function ImportSection() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Gagal push ke database");
-      
+
       toast.success("Import selesai");
       setImportResult(data.stats);
       setDraftData(null);
@@ -59,7 +59,7 @@ export default function ImportSection() {
       {importResult ? (
         <div className="glass" style={{ padding: 24 }}>
           <h3 style={{ fontSize: 18, marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-            <i className="ti ti-check" style={{ color: "var(--color-ok)" }} /> 
+            <i className="ti ti-check" style={{ color: "var(--color-ok)" }} />
             Laporan Hasil Import (Transparan)
           </h3>
           <p style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 24 }}>
@@ -133,29 +133,62 @@ export default function ImportSection() {
       ) : !draftData ? (
         <div className="glass" style={{ padding: 24, maxWidth: 800 }}>
           <div className="scan-heading" style={{ marginBottom: 16 }}>
-            <div className="scan-title">Import CSV / Excel</div>
-            <div className="scan-sub">Unggah file aset. Data akan masuk ke draf (Pre-flight Check) sebelum disimpan permanen.</div>
+            <div className="scan-title">Import Excel</div>
+            <div className="scan-sub">Unggah file aset. Data akan masuk ke draf (Pemeriksaan Data Import) sebelum disimpan permanen.</div>
           </div>
 
-          <div className="alert alert-info mb-16" style={{ alignItems: "flex-start" }}>
-            <i className="ti ti-info-circle" style={{ marginTop: 2 }} />
-            <div>
-              <strong style={{ display: "block", marginBottom: 4 }}>Panduan Import Data</strong>
+          <details className="alert alert-info mb-16" style={{ alignItems: "flex-start", cursor: "pointer", display: "block" }}>
+            <summary style={{ display: "flex", alignItems: "center", gap: 8, outline: "none", userSelect: "none" }}>
+              <i className="ti ti-info-circle" style={{ marginTop: 2 }} />
+              <strong style={{ display: "block", cursor: "pointer" }}>Panduan Format Import (Klik untuk buka)</strong>
+            </summary>
+            <div style={{ marginTop: 12, paddingLeft: 24 }}>
               <ul style={{ margin: 0, paddingLeft: 16, fontSize: 13, lineHeight: 1.6 }}>
-                <li><strong>Format Kolom:</strong> <code>Nama Barang</code>, <code>Kategori</code>, <code>Merek</code>, <code>Tipe</code>, <code>No. Seri</code>, <code>Kondisi</code>, <code>Ruangan</code>, <code>Keterangan</code>.</li>
-                <li><strong>Ruangan Tidak Dikenali:</strong> Jika nama ruangan pada file tidak cocok dengan database, ruangan akan diabaikan (dikosongkan), data tetap masuk.</li>
-                <li><strong>Stiker Rusak/Hilang:</strong> Untuk barang yang stikernya terkelupas, biarkan kolom tertentu kosong agar sistem men-generate kode baru untuk dicetak ulang.</li>
-                <li><strong>Tahun Aset:</strong> Ekstraksi tahun dilakukan otomatis dari nama file (contoh: <code>Aset_2026.csv</code>).</li>
+                <li><strong>Kolom Didukung (bisa gunakan alias):</strong></li>
+                <ul style={{ paddingLeft: 16, marginBottom: 8 }}>
+                  <li><code>Nama Barang</code> (atau Nama, Nama Aset)</li>
+                  <li><code>Kategori</code> / <code>Jenis Barang</code></li>
+                  <li><code>Label</code> (atau Kode Aset, Kode Label)</li>
+                  <li><code>Label Aset</code> (atau Kode Inventaris)</li>
+                  <li><code>SN</code> (atau Serial Number)</li>
+                  <li><code>Merek</code> (atau Merk)</li>
+                  <li><code>Model</code></li>
+                  <li><code>Tipe</code> (atau Type)</li>
+                  <li><code>Ruangan</code> (atau Lokasi)</li>
+                  <li><code>Vendor</code> (atau Supplier)</li>
+                  <li><code>Harga</code> (atau Nilai)</li>
+                  <li><code>Tanggal Datang</code> (atau Tgl Datang, format tanggal Excel)</li>
+                  <li><code>Tanggal Pindah</code> (atau Tgl Pindah)</li>
+                  <li><code>Keterangan</code> (atau Deskripsi)</li>
+                </ul>
+
+                <li><strong>Tahun Aset:</strong> Dibaca dari nama file (contoh: <code>Aset_2026.xlsx</code> mengekstrak 2026).</li>
+
+                <li style={{ marginTop: 8 }}><strong>Contoh Baris VALID (Siap Diimpor):</strong></li>
+                <ul style={{ paddingLeft: 16, marginBottom: 8 }}>
+                  <li>Lengkap: Nama Barang + Kategori + Merek + dll.</li>
+                  <li>Minimal historis: <code>Nama Barang</code> saja.</li>
+                  <li>Minimal fisik: <code>Label Aset</code> saja.</li>
+                  <li>Kombinasi fisik: <code>Label</code> + <code>Kategori</code> atau <code>Label</code> + <code>Merek</code>.</li>
+                  <li><em>Catatan:</em> Baris valid tanpa Kategori akan otomatis menjadi "Belum Dikategorikan".</li>
+                </ul>
+
+                <li style={{ marginTop: 8 }}><strong>Contoh Baris INVALID (Perlu Diperbaiki):</strong></li>
+                <ul style={{ paddingLeft: 16 }}>
+                  <li><code>Label</code> saja.</li>
+                  <li><code>SN</code> saja.</li>
+                  <li><code>Kategori</code> + <code>Merek</code> + <code>Tanggal</code> tanpa Nama/Label/LabelAset.</li>
+                </ul>
               </ul>
             </div>
-          </div>
+          </details>
 
           <div className="form-group">
-            <label className="form-label">Pilih File CSV / Excel</label>
+            <label className="form-label">Pilih File Excel (.xlsx)</label>
             <input
               type="file"
               className="input"
-              accept=".csv,.xlsx,.xls"
+              accept=".xlsx"
               onChange={e => { setFile(e.target.files?.[0] ?? null); setDraftData(null); }}
             />
           </div>
@@ -173,7 +206,7 @@ export default function ImportSection() {
           <button className="btn btn-primary" onClick={handlePreview} disabled={importing || !file}>
             {importing
               ? <><div className="spinner" style={{ width: 14, height: 14 }} />Memproses…</>
-              : <><i className="ti ti-file-search" />Review Draft</>}
+              : <><i className="ti ti-file-search" />Pemeriksaan Data Import</>}
           </button>
         </div>
       ) : (

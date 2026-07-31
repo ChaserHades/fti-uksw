@@ -73,6 +73,8 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
 
   const [confirmDel, setConfirmDel] = useState<{ id: string, judul: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDelNota, setConfirmDelNota] = useState<{ id: string, url: string } | null>(null);
+  const [isDeletingNota, setIsDeletingNota] = useState(false);
 
   const [cursor, setCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -414,14 +416,55 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
         </div>
       </div>
 
+      {/* Confirm Delete Transaksi */}
       <ConfirmModal
         isOpen={!!confirmDel}
-        title="Hapus Laporan"
-        message={`Apakah Anda yakin ingin menghapus laporan "${confirmDel?.judul}"?`}
+        title="Hapus Transaksi?"
+        message={`Apakah Anda yakin ingin menghapus transaksi "${confirmDel?.judul}"? Seluruh data yang terkait akan terpengaruh.`}
+        confirmLabel="Ya, Hapus"
         danger
         isLoading={isDeleting}
-        onConfirm={performDelete}
+        onConfirm={async () => {
+          if (!confirmDel) return;
+          setIsDeleting(true);
+          try {
+            await api.delete(`/api/pengeluaran/${confirmDel.id}`);
+            toast.success("Transaksi dihapus");
+            load();
+            setConfirmDel(null);
+          } catch (e: any) {
+            toast.error(e.message || "Gagal menghapus");
+          } finally {
+            setIsDeleting(false);
+          }
+        }}
         onCancel={() => setConfirmDel(null)}
+      />
+
+      {/* Confirm Delete Nota */}
+      <ConfirmModal
+        isOpen={!!confirmDelNota}
+        title="Hapus Nota?"
+        message="Apakah Anda yakin ingin menghapus nota ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Ya, Hapus"
+        danger
+        isLoading={isDeletingNota}
+        onConfirm={async () => {
+          if (!confirmDelNota) return;
+          setIsDeletingNota(true);
+          try {
+            await api.delete(`/api/pengeluaran/${confirmDelNota.id}/nota`, { url: confirmDelNota.url });
+            toast.success("Nota dihapus");
+            load();
+            setViewInvoice(prev => prev ? { ...prev, notaUrls: prev.notaUrls.filter(u => u !== confirmDelNota.url) } : null);
+            setConfirmDelNota(null);
+          } catch {
+            toast.error("Gagal menghapus nota");
+          } finally {
+            setIsDeletingNota(false);
+          }
+        }}
+        onCancel={() => setConfirmDelNota(null)}
       />
 
       {/* Modal Input/Edit Pengeluaran */}
@@ -644,16 +687,8 @@ export default function LaporanManager({ role = "ADMIN" }: { role?: string }) {
                     {role === "ADMIN" && (
                       <button
                         className="btn btn-danger btn-sm"
-                        onClick={async () => {
-                          if (!confirm("Hapus nota ini?")) return;
-                          try {
-                            await api.delete(`/api/pengeluaran/${viewInvoice.id}/nota`, { url });
-                            toast.success("Nota dihapus");
-                            load();
-                            setViewInvoice(prev => prev ? { ...prev, notaUrls: prev.notaUrls.filter(u => u !== url) } : null);
-                          } catch {
-                            toast.error("Gagal menghapus nota");
-                          }
+                        onClick={() => {
+                          setConfirmDelNota({ id: viewInvoice.id, url });
                         }}
                       >
                         <i className="ti ti-trash" /> Hapus

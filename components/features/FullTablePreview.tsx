@@ -196,6 +196,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
           >
             <tr>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("id")}>No {renderSortIcon("id")}</th>
+              <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("namaBarang")}>Nama Barang {renderSortIcon("namaBarang")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("kategoriId")}>Kategori {renderSortIcon("kategoriId")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("label")}>Label {renderSortIcon("label")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("sn")}>SN {renderSortIcon("sn")}</th>
@@ -203,9 +204,11 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("merek")}>Merk {renderSortIcon("merek")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("model")}>Model {renderSortIcon("model")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("tipe")}>Type {renderSortIcon("tipe")}</th>
+              <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("progdi")}>Progdi {renderSortIcon("progdi")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("ruanganId")}>Ruangan {renderSortIcon("ruanganId")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("harga")}>Harga {renderSortIcon("harga")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("sumberTahun")}>Tahun File {renderSortIcon("sumberTahun")}</th>
+              <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("pembelianKe")}>Pembelian Ke {renderSortIcon("pembelianKe")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("tanggalDatang")}>Tgl Datang {renderSortIcon("tanggalDatang")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("tanggalPindah")}>Tgl Pindah {renderSortIcon("tanggalPindah")}</th>
               <th className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => handleSort("kondisi")}>Kondisi {renderSortIcon("kondisi")}</th>
@@ -219,6 +222,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
             ) : filteredAndSorted.map((b, i) => (
               <tr key={b.id}>
                 <td className="td-sm text-muted">{i + 1}</td>
+                <td className="td-name font-medium">{b.namaBarang || "-"}</td>
                 <td className="td-sm font-medium">{b.kategori?.nama || ""}</td>
                 <td className="td-code">{b.label || ""}</td>
                 <td className="td-code">{b.sn || ""}</td>
@@ -226,9 +230,11 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
                 <td className="td-sm">{b.merek || ""}</td>
                 <td className="td-sm">{b.model || ""}</td>
                 <td className="td-sm">{b.tipe || ""}</td>
+                <td className="td-sm">{b.progdi || ""}</td>
                 <td className="td-sm font-medium text-info">{b.ruangan?.kode || ""}</td>
                 <td className="td-sm">{b.harga ? `Rp ${b.harga.toLocaleString("id-ID")}` : ""}</td>
                 <td className="td-sm">{b.sumberTahun || ""}</td>
+                <td className="td-sm">{b.pembelianKe || ""}</td>
                 <td className="td-sm text-muted">{b.tanggalDatang ? new Date(b.tanggalDatang).toLocaleDateString("id-ID") : ""}</td>
                 <td className="td-sm text-muted">{b.tanggalPindah ? new Date(b.tanggalPindah).toLocaleDateString("id-ID") : ""}</td>
                 <td><span className={`badge ${b.kondisi === "BAIK" ? "badge-ok" : "badge-warn"}`}>{b.kondisi.replace(/_/g, " ")}</span></td>
