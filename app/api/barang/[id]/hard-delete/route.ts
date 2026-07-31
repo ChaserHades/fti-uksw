@@ -19,6 +19,14 @@ export async function DELETE(_: Request, { params }: Params) {
     if (!barangToDelete) return NextResponse.json({ error: "Not found" }, { status: 404 });
     if (!barangToDelete.deletedAt) return NextResponse.json({ error: "Barang belum di-soft delete" }, { status: 400 });
 
+    const historyCount = await prisma.peminjaman.count({ where: { barangId: id } });
+    if (historyCount > 0) {
+      return NextResponse.json(
+        { error: "Aset tidak bisa dihapus permanen karena masih terikat dengan riwayat peminjaman. Hapus riwayat peminjaman terlebih dahulu." },
+        { status: 409 } // 409 Conflict is more semantic for this
+      );
+    }
+
     await prisma.barang.delete({ where: { id } });
 
     await prisma.logAktivitas.create({

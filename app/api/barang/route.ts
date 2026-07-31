@@ -61,8 +61,8 @@ export async function GET(req: Request) {
   // ── Single-item lookup by kode (QR scan, etc.) ──
   if (kode) {
     // Try exact match first (by internal ID)
-    let item = await prisma.barang.findUnique({
-      where: { id: kode },
+    let item = await prisma.barang.findFirst({
+      where: { id: kode, deletedAt: null },
       include: { kategori: true, ruangan: true },
     });
 
@@ -72,7 +72,7 @@ export async function GET(req: Request) {
 
     // Legacy lookup by label
     const legacyMatches = await prisma.barang.findMany({
-      where: { label: kode },
+      where: { label: kode, deletedAt: null },
       include: { kategori: true, ruangan: true },
     });
 
@@ -84,10 +84,10 @@ export async function GET(req: Request) {
 
     // Fallback: case-insensitive search (handles slight differences)
     const fallbackMatches = await prisma.barang.findMany({
-      where: { label: { equals: kode, mode: "insensitive" } },
+      where: { label: { equals: kode, mode: "insensitive" }, deletedAt: null },
       include: { kategori: true, ruangan: true },
     });
-    
+
     if (fallbackMatches.length === 1) {
       return NextResponse.json(fallbackMatches[0]);
     } else if (fallbackMatches.length > 1) {
@@ -113,8 +113,8 @@ export async function GET(req: Request) {
       ...(kategoriId ? [{ kategoriId }] : []),
       ...(ruanganId ? [{ ruanganId }] : []),
       ...(tersedia === "true" ? [{ status: "TERSEDIA" as const }] : []),
-      ...(searchParams.get("status") === "deleted" 
-          ? [{ deletedAt: { not: null } }] 
+      ...(searchParams.get("status") === "deleted"
+          ? [{ deletedAt: { gte: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) } }]
           : [{ deletedAt: null }]),
     ],
   } as any;

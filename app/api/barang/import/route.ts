@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
-import { assessBarangIdentity } from "@/lib/barang-identity";
+import { assessImportBarangIdentity } from "@/lib/import-barang-identity";
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         if (row.conflictError) {
           throw new Error(row.conflictError);
         }
-        const identity = assessBarangIdentity(row);
+        const identity = assessImportBarangIdentity(row);
         if (!identity.isValid) {
           throw new Error(identity.error || "Data tidak valid");
         }

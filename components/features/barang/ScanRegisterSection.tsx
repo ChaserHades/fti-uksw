@@ -1,39 +1,38 @@
-// components/features/barang/ScanRegisterSection.tsx
 "use client";
 import { useEffect, useState } from "react";
-import Modal from "@/components/Modal";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
 import { parseQrPayload } from "@/helpers/format";
 import { useQrScanner } from "@/hooks/useQrScanner";
-import { BARANG_FORM_EMPTY } from "@/constants/barang";
-import type { BarangFormData } from "@/constants/barang";
 import type { Barang } from "@/types";
-import { assessBarangIdentity } from "@/lib/barang-identity";
-import BarangFormFields from "./BarangFormFields";
+import ConfirmModal from "@/components/ConfirmModal";
 
-/** Scan QR, lookup DB, register if not found */
+/** Scan QR untuk recovery dan read-only */
 export default function ScanRegisterSection() {
   const [scannedKode, setScannedKode] = useState("");
+  const [scanState, setScanState] = useState<"ACTIVE" | "RECOVERABLE" | "EXPIRED" | "AMBIGUOUS" | "NOT_FOUND" | null>(null);
   const [foundBarang, setFoundBarang] = useState<Barang | null>(null);
-  const [registerModal, setRegisterModal] = useState(false);
-  const [form, setForm] = useState<BarangFormData>(BARANG_FORM_EMPTY);
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmRestore, setConfirmRestore] = useState(false);
 
   async function handleScanResult(raw: string) {
     const kode = parseQrPayload(raw);
     setScannedKode(kode);
     try {
-      const res = await fetch(`/api/barang?kode=${encodeURIComponent(kode)}`);
+      const res = await fetch(`/api/barang/recovery?kode=${encodeURIComponent(kode)}`);
       const data = await res.json();
+
       if (res.ok) {
-        setFoundBarang(data);
-        toast.success(`Barang "${data.kategori?.nama || data.namaBarang || data.label}" sudah terdaftar di database`);
-      } else if (res.status === 404) {
-        setForm({ ...BARANG_FORM_EMPTY, label: kode });
-        setRegisterModal(true);
-      } else if (res.status === 409) {
-        toast.error("Kode ambigu: ditemukan beberapa barang dengan identitas ini.");
+        setScanState(data.state);
+        setFoundBarang(data.item || null);
+        setDeadline(data.deadline || null);
+
+        if (data.state === "ACTIVE") {
+          toast.success(`Barang "${data.item.kategori?.nama || data.item.namaBarang || data.item.label}" masih terdaftar.`);
+        } else if (data.state === "RECOVERABLE") {
+          toast.success("Barang terhapus ditemukan (dapat dipulihkan).");
+        }
       } else {
         toast.error(data.error || "Gagal memproses QR");
       }
@@ -44,48 +43,46 @@ export default function ScanRegisterSection() {
 
   const { videoRef, canvasRef, scanning, startCamera, stopCamera } = useQrScanner(handleScanResult);
 
-  const handleFieldChange = (key: string, value: unknown) => setForm(f => ({ ...f, [key]: value }));
-
-  async function handleRegister() {
-    const identity = assessBarangIdentity({
-      ...form,
-      tanggalDatang: form.tanggalDatang ? new Date(form.tanggalDatang) : null
-    });
-    if (!identity.isValid) {
-      toast.error(identity.error || "Data barang belum memiliki identitas yang cukup. Isi minimal Nama Barang, Label, atau Label Aset.");
-      return;
-    }
-    setSaving(true);
-    try {
-      await api.post("/api/barang", {
-        ...form,
-        jumlah: Number(form.jumlah) || 1,
-        tanggalDatang: form.tanggalDatang || null,
-        tanggalPindah: form.tanggalPindah || null,
-        harga: form.harga ? Number(form.harga) : null,
-        ruanganId: form.ruangan || null,
-        kategoriId: form.kategori,
-        hasSticker: true,
-      });
-      toast.success(`Barang berhasil diregistrasi.`);
-      setRegisterModal(false);
-      setScannedKode("");
-      setForm(BARANG_FORM_EMPTY);
-    } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Gagal registrasi");
-    } finally {
-      setSaving(false);
-    }
-  }
-
   const handleStartCamera = async () => {
     setScannedKode("");
     setFoundBarang(null);
+    setScanState(null);
+    setDeadline(null);
     try {
       await startCamera();
     } catch {
       toast.error("Tidak dapat mengakses kamera");
     }
+  };
+
+  const handleRestore = async () => {
+    if (!foundBarang) return;
+    setSaving(true);
+    const toastId = toast.loading("Memulihkan...");
+    try {
+      await api.put(`/api/barang/${foundBarang.id}/restore`, {});
+      toast.success("Barang berhasil dipulihkan", { id: toastId });
+      setScanState("ACTIVE"); // Update local state so it appears active again
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || "Gagal memulihkan", { id: toastId });
+    } finally {
+      setSaving(false);
+      setConfirmRestore(false);
+    }
+  };
+
+  const renderRemainingTime = () => {
+    if (!deadline) return null;
+    const now = Date.now();
+    const diffMs = deadline - now;
+    if (diffMs <= 0) return "Batas pemulihan berakhir";
+
+    const d = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (d > 0) return `${d} hari ${h} jam`;
+    return `${h} jam ${m} menit`;
   };
 
   return (
@@ -118,43 +115,62 @@ export default function ScanRegisterSection() {
             ? <button className="btn btn-primary" onClick={handleStartCamera}><i className="ti ti-camera" /> Buka Kamera</button>
             : <button className="btn btn-ghost" onClick={stopCamera}><i className="ti ti-camera-off" /> Stop Kamera</button>}
           {scannedKode && !scanning && (
-            <button className="btn btn-ghost" onClick={() => { setScannedKode(""); setFoundBarang(null); handleStartCamera(); }}>
+            <button className="btn btn-ghost" onClick={() => { setScannedKode(""); setFoundBarang(null); setScanState(null); handleStartCamera(); }}>
               <i className="ti ti-refresh" /> Scan Ulang
             </button>
           )}
         </div>
 
         {/* Found result */}
-        {scannedKode && !scanning && foundBarang && (
-          <div className="alert alert-warn" style={{ marginTop: 14 }}>
-            <i className="ti ti-check" /> Barang <strong>{foundBarang.kategori?.nama}</strong> ({foundBarang.label}) sudah terdaftar.
+        {scannedKode && !scanning && (
+          <div style={{ marginTop: 14 }}>
+            {scanState === "ACTIVE" && foundBarang && (
+              <div className="alert alert-info">
+                <i className="ti ti-check" /> Barang <strong>{foundBarang.kategori?.nama || foundBarang.namaBarang}</strong> ({foundBarang.labelAset || foundBarang.label}) masih terdaftar.
+              </div>
+            )}
+
+            {scanState === "RECOVERABLE" && foundBarang && (
+              <div className="alert alert-warn" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div><i className="ti ti-alert-triangle" /> Barang ini telah dihapus tetapi masih dapat dipulihkan.</div>
+                <div><strong>Nama:</strong> {foundBarang.namaBarang}</div>
+                <div><strong>Sisa Waktu:</strong> {renderRemainingTime()}</div>
+                <button className="btn btn-primary" onClick={() => setConfirmRestore(true)} style={{ alignSelf: 'flex-start', marginTop: 8 }}>
+                  Pulihkan Barang
+                </button>
+              </div>
+            )}
+
+            {scanState === "EXPIRED" && foundBarang && (
+              <div className="alert alert-error">
+                <i className="ti ti-x" /> Periode pemulihan untuk barang ini telah berakhir. Barang tidak dapat dipulihkan lagi.
+              </div>
+            )}
+
+            {scanState === "AMBIGUOUS" && (
+              <div className="alert alert-error">
+                <i className="ti ti-alert-circle" /> Terdapat beberapa barang yang menggunakan label ini di riwayat. Tidak dapat memulihkan secara otomatis.
+              </div>
+            )}
+
+            {scanState === "NOT_FOUND" && (
+              <div className="alert alert-error">
+                <i className="ti ti-x" /> QR tidak dikenali sebagai data barang yang pernah tersimpan.
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Register Modal */}
-      <Modal open={registerModal} onClose={() => { setRegisterModal(false); setForm(BARANG_FORM_EMPTY); }} title="Register Barang Baru">
-        <div className="alert alert-warn mb-16">
-          <i className="ti ti-alert-triangle" style={{ flexShrink: 0 }} />
-          Kode <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{scannedKode}</span> belum terdaftar.
-        </div>
-
-        <BarangFormFields
-          form={form}
-          onChange={handleFieldChange}
-          readOnlyLabel
-          compact
-        />
-
-        <div className="modal-footer">
-          <button className="btn btn-ghost" onClick={() => { setRegisterModal(false); setForm(BARANG_FORM_EMPTY); }}>Batal</button>
-          <button className="btn btn-primary" onClick={handleRegister} disabled={saving}>
-            {saving
-              ? <><div className="spinner" style={{ width: 14, height: 14 }} />Menyimpan…</>
-              : <><i className="ti ti-plus" />Register Barang</>}
-          </button>
-        </div>
-      </Modal>
+      <ConfirmModal
+        isOpen={confirmRestore}
+        title="Pulihkan Barang"
+        message={`Apakah Anda yakin ingin memulihkan barang "${foundBarang?.namaBarang || foundBarang?.label}"?`}
+        confirmLabel="Pulihkan Barang"
+        onConfirm={handleRestore}
+        onCancel={() => setConfirmRestore(false)}
+        isLoading={saving}
+      />
     </div>
   );
 }
