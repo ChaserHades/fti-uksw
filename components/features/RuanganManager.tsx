@@ -10,6 +10,7 @@ import { parseQrPayload } from "@/helpers/format";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useQrScanner } from "@/hooks/useQrScanner";
 import type { Ruangan, Barang } from "@/types";
+import BarangDetailModal from "./barang/BarangDetailModal";
 
 const EMPTY = { kode: "", nama: "", lantai: "" };
 const LIMIT = 50;
@@ -32,6 +33,7 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
   // Detail state
   const [detailList, setDetailList] = useState<Barang[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [cekBarang, setCekBarang] = useState<Barang | null>(null);
 
   // Pindah barang state
   const [pindahBarang, setPindahBarang] = useState<Barang | null>(null);
@@ -183,9 +185,11 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
             />
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
-            <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={openPindah}>
-              <i className="ti ti-arrows-exchange" /> Pindah Barang
-            </button>
+            {role !== "UNIVERSITAS" && (
+              <button className="btn btn-ghost" style={{ border: "1px solid rgba(255,255,255,0.1)" }} onClick={openPindah}>
+                <i className="ti ti-arrows-exchange" /> Pindah Barang
+              </button>
+            )}
             {role === "ADMIN" && (
               <button className="btn btn-primary" onClick={openAdd}>
                 <i className="ti ti-plus" /> Tambah Ruangan
@@ -365,23 +369,40 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
               </div>
             ) : (
               <div className="table-wrap">
-                <table className="table" style={{ margin: 0 }}>
+                <table className="table" style={{ margin: 0, minWidth: 480 }}>
                   <thead>
                     <tr>
-                      <th>Kode</th>
-                      <th>Kategori Barang</th>
+                      <th>Nama Barang</th>
+                      <th>Kategori</th>
+                      <th>Label / Label Aset</th>
+                      <th>Status</th>
                       <th>Kondisi</th>
+                      <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
                     {detailList.map(b => (
                       <tr key={b.id}>
-                        <td className="td-mono">{b.label ?? b.sn ?? ""}</td>
-                        <td className="td-name">{b.kategori?.nama}</td>
+                        <td className="td-name">{b.namaBarang || <span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>Tanpa Nama</span>}</td>
+                        <td className="td-sm">{b.kategori?.nama}</td>
+                        <td>
+                          <div className="td-code">{b.label || "-"}</div>
+                          {b.labelAset && <div className="td-code" style={{ marginTop: 2, opacity: 0.7 }}>{b.labelAset}</div>}
+                        </td>
+                        <td>
+                          {b.status === "TERSEDIA" && <span className="badge badge-ok" style={{ fontSize: 10 }}>Tersedia</span>}
+                          {b.status === "DIPINJAM" && <span className="badge badge-warn" style={{ fontSize: 10 }}>Dipinjam</span>}
+                          {b.status === "MAINTENANCE" && <span className="badge badge-muted" style={{ fontSize: 10 }}>Mainte.</span>}
+                        </td>
                         <td>
                           {b.kondisi === "BAIK" && <span className="badge badge-success">Baik</span>}
                           {b.kondisi === "RUSAK_RINGAN" && <span className="badge badge-warn">Rusak Ringan</span>}
                           {b.kondisi === "RUSAK_BERAT" && <span className="badge badge-danger">Rusak Berat</span>}
+                        </td>
+                        <td>
+                          <button className="btn btn-ghost btn-sm" onClick={() => setCekBarang(b)} title="Lihat Detail Barang">
+                            <i className="ti ti-eye" /> Detail
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -392,6 +413,9 @@ export default function RuanganManager({ role = "ADMIN" }: { role?: string }) {
           </div>
         )}
       </Modal>
+
+      {/* Shared Barang Detail Modal */}
+      <BarangDetailModal barang={cekBarang} onClose={() => setCekBarang(null)} />
     </div>
   );
 }

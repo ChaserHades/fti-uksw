@@ -61,7 +61,7 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
       </div>
 
       {tab === "daftar" && <DaftarBarangTab role={role} />}
-      {tab === "add" && role === "ADMIN" && <AddItemTab />}
+      {tab === "add" && (role === "ADMIN" || role === "TEKNISI") && <AddItemTab />}
       {tab === "kategori" && role === "ADMIN" && <KategoriTab />}
       {tab === "ruangan" && (role === "ADMIN" || role === "TEKNISI") && <RuanganManager role={role} />}
     </div>

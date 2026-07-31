@@ -2,29 +2,45 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import StatCard from "@/components/StatCard";
-import QuickActionCard from "@/components/QuickActionCard";
-import ProgressList from "@/components/ProgressList";
 import { api } from "@/helpers/api";
-import { fCurrency, terbilang } from "@/helpers/format";
+import BarangDetailModal from "@/components/features/barang/BarangDetailModal";
+import { fCurrency, terbilang, fDateShort } from "@/helpers/format";
 import type { DashboardStats, Barang, Pengeluaran } from "@/types";
-
-interface KategoriStat { nama: string; total: number; }
 
 export default function UniversitasDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [barang, setBarang] = useState<Barang[]>([]);
-  const [pengeluaran, setPengeluaran] = useState<Pengeluaran[]>([]);
+  const [damaged, setDamaged] = useState<Barang[]>([]);
+  const [damagedLoading, setDamagedLoading] = useState(true);
+
+  // Detail modal state
+  const [detailBarang, setDetailBarang] = useState<Barang | null>(null);
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 
   useEffect(() => {
-    api.get<DashboardStats>("/api/dashboard/stats").then(setStats);
-    api.get<{ data: Pengeluaran[] }>("/api/pengeluaran?limit=8").then(d => setPengeluaran(d.data));
-    api.get<{ data: Barang[] }>("/api/barang?limit=8").then(d => setBarang(d.data));
+    api.get<DashboardStats>("/api/dashboard/stats").then(setStats).catch(() => {});
+    api.get<{ data: Barang[] }>("/api/barang?limit=8").then(d => setBarang(d.data)).catch(() => {});
+    // Fetch all barang to filter damaged — use a large limit then sort client-side
+    api.get<{ data: Barang[] }>("/api/barang?limit=all")
+      .then(d => {
+        const rusak = d.data
+          .filter(b => b.kondisi === "RUSAK_BERAT" || b.kondisi === "RUSAK_RINGAN")
+          .sort((a, b) => {
+            if (a.kondisi === b.kondisi) return 0;
+            return a.kondisi === "RUSAK_BERAT" ? -1 : 1;
+          });
+        setDamaged(rusak);
+      })
+      .catch(() => {})
+      .finally(() => setDamagedLoading(false));
   }, []);
+
+  function openDetail(b: Barang) {
+    setDetailBarang(b);
+  }
 
   const kondisiBadge: Record<string, string> = {
     BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger",
@@ -75,6 +91,20 @@ export default function UniversitasDashboard() {
         .bento-row:hover {
           background: rgba(255,255,255,0.06);
         }
+        .perhatian-section {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 16px;
+          overflow: hidden;
+          margin-bottom: 32px;
+        }
+        .perhatian-header {
+          padding: 20px 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
         @media (max-width: 1024px) {
           .bento-dashboard { gap: 16px; }
           .bento-span-8, .bento-span-4 { grid-column: span 12; }
@@ -82,6 +112,7 @@ export default function UniversitasDashboard() {
         @media (max-width: 640px) {
           .bento-card { padding: 24px; }
           .bento-row { padding: 16px; }
+          .perhatian-header { padding: 16px; }
         }
       `}} />
 
@@ -143,11 +174,11 @@ export default function UniversitasDashboard() {
 
           <div style={{ display: "flex", flexDirection: "column" }}>
             {barang.length === 0 ? (
-              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Kosong</div>
+              <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Belum ada data</div>
             ) : barang.slice(0, 5).map((b, idx) => (
               <div key={b.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{b.kategori?.nama}</div>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>{b.namaBarang || b.kategori?.nama}</div>
                   <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{b.label}</div>
                 </div>
                 <span className={`badge ${kondisiBadge[b.kondisi]}`} style={{ padding: "4px 10px", fontSize: 11, borderRadius: 20 }}>
@@ -165,7 +196,7 @@ export default function UniversitasDashboard() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {kategoriStat.length === 0 ? (
               <div style={{ color: "var(--text-muted)" }}>Tidak ada data</div>
-            ) : kategoriStat.map((k, idx) => {
+            ) : kategoriStat.map((k) => {
               const maxKat = Math.max(...kategoriStat.map(x => x.total), 1);
               return (
                 <div key={k.nama} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -183,6 +214,98 @@ export default function UniversitasDashboard() {
         </div>
 
       </div>
+
+      {/* 3. ASET PERLU PERHATIAN */}
+      <div className="perhatian-section">
+        <div className="perhatian-header">
+          <i className="ti ti-alert-triangle" style={{ fontSize: 20, color: "var(--color-err)" }} />
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-primary)" }}>Aset Perlu Perhatian</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+              Aset dalam kondisi Rusak Berat atau Rusak Ringan yang memerlukan tindak lanjut
+            </div>
+          </div>
+          {!damagedLoading && (
+            <span className="badge badge-danger" style={{ marginLeft: "auto", fontSize: 12 }}>
+              {damaged.length} aset
+            </span>
+          )}
+        </div>
+
+        {damagedLoading ? (
+          <div style={{ padding: "40px 24px", textAlign: "center", color: "var(--text-muted)" }}>
+            <div className="spinner" style={{ margin: "0 auto 12px", width: 24, height: 24 }} />
+            <div style={{ fontSize: 13 }}>Memuat data aset...</div>
+          </div>
+        ) : damaged.length === 0 ? (
+          <div style={{ padding: "40px 24px", textAlign: "center", color: "var(--text-muted)" }}>
+            <i className="ti ti-circle-check" style={{ fontSize: 32, display: "block", marginBottom: 10, color: "var(--color-ok)" }} />
+            <div style={{ fontSize: 14, fontWeight: 500 }}>Tidak ada aset yang memerlukan perhatian.</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>Semua aset tercatat dalam kondisi baik.</div>
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table className="table" style={{ minWidth: 720 }}>
+              <thead>
+                <tr>
+                  <th>Nama Barang</th>
+                  <th style={{ width: "10%" }}>Kondisi</th>
+                  <th style={{ width: "10%" }}>Status</th>
+                  <th style={{ width: "14%" }}>Label</th>
+                  <th style={{ width: "14%" }}>Label Aset</th>
+                  <th style={{ width: "18%" }}>Keterangan / Ruangan</th>
+                  <th style={{ width: "8%" }}>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {damaged.map(b => (
+                  <tr key={b.id}>
+                    <td>
+                      <div style={{ fontWeight: 500, color: "var(--text-primary)", fontSize: 14 }}>{b.namaBarang || <span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>Tanpa Nama</span>}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{b.kategori?.nama}</div>
+                    </td>
+                    <td>
+                      {b.kondisi === "RUSAK_BERAT" && (
+                        <span className="badge badge-danger" style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}>
+                          <i className="ti ti-alert-circle" style={{ fontSize: 12 }} /> Rusak Berat
+                        </span>
+                      )}
+                      {b.kondisi === "RUSAK_RINGAN" && (
+                        <span className="badge badge-warn" style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}>
+                          <i className="ti ti-alert-triangle" style={{ fontSize: 12 }} /> Rusak Ringan
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {b.status === "TERSEDIA" && <span className="badge badge-ok" style={{ fontSize: 10 }}>Tersedia</span>}
+                      {b.status === "DIPINJAM" && <span className="badge badge-warn" style={{ fontSize: 10 }}>Dipinjam</span>}
+                      {b.status === "MAINTENANCE" && <span className="badge badge-muted" style={{ fontSize: 10 }}>Mainte.</span>}
+                    </td>
+                    <td className="td-code">{b.label || <span style={{ color: "var(--text-muted)" }}>-</span>}</td>
+                    <td className="td-code">{b.labelAset || <span style={{ color: "var(--text-muted)" }}>-</span>}</td>
+                    <td>
+                      {b.keterangan && <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}>{b.keterangan}</div>}
+                      {b.ruangan && <div style={{ fontSize: 11, color: "var(--text-muted)" }}><i className="ti ti-building" style={{ marginRight: 4 }} />{b.ruangan.nama}</div>}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => openDetail(b)}
+                        style={{ fontSize: 12 }}
+                      >
+                        <i className="ti ti-eye" /> Lihat Detail
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Detail Modal (read-only) */}
+      <BarangDetailModal barang={detailBarang} onClose={() => setDetailBarang(null)} />
     </div>
   );
 }

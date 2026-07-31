@@ -6,7 +6,7 @@ import UnifiedExportModal from "@/components/features/UnifiedExportModal";
 import LiquidSelect from "@/components/LiquidSelect";
 import LiquidSelectAsync from "@/components/LiquidSelectAsync";
 import ConfirmModal from "@/components/ConfirmModal";
-
+import BarangDetailModal from "./BarangDetailModal";
 import FullTablePreview from "@/components/features/FullTablePreview";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
@@ -78,11 +78,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   const [confirmUnprintedCount, setConfirmUnprintedCount] = useState<number | null>(null);
   const [isCheckingUnprinted, setIsCheckingUnprinted] = useState(false);
 
-  // Cek Barang state
+  // Cek / Detail Barang — shared modal
   const [cekBarang, setCekBarang] = useState<Barang | null>(null);
-  const [cekInvoice, setCekInvoice] = useState<Pengeluaran | null>(null);
-  const [cekInvoices, setCekInvoices] = useState<Pengeluaran[]>([]);
-  const [cekLoading, setCekLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Delete confirm
@@ -399,25 +396,8 @@ export default function DaftarBarangTab({ role }: { role: string }) {
   }
 
   /* ── Cek Barang handler ── */
-  async function openCekBarang(b: Barang) {
-    setSelected(b);
+  function openCekBarang(b: Barang) {
     setCekBarang(b);
-    setCekInvoice(null);
-    setCekInvoices([]);
-    setCekLoading(true);
-    setModal("cek");
-    try {
-      const res = await api.get<{ barang: Barang; pengeluaran: Pengeluaran | null; pengeluarans: Pengeluaran[] }>(`/api/barang/${b.id}/invoice`);
-      setCekBarang(res.barang);
-      // Gunakan pengeluarans (array) sebagai sumber utama
-      const invoices = res.pengeluarans && res.pengeluarans.length > 0 ? res.pengeluarans : (res.pengeluaran ? [res.pengeluaran] : []);
-      setCekInvoices(invoices);
-      setCekInvoice(invoices[0] ?? null);
-    } catch {
-      // Invoice tidak ditemukan, tampilkan detail barang saja
-    } finally {
-      setCekLoading(false);
-    }
   }
 
   return (
@@ -560,9 +540,11 @@ export default function DaftarBarangTab({ role }: { role: string }) {
                       <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openQR(b)} title="QR Code">
                         <i className="ti ti-qrcode" />
                       </button>
-                      <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit">
-                        <i className="ti ti-edit" />
-                      </button>
+                      {role !== "UNIVERSITAS" && (
+                        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(b)} title="Edit">
+                          <i className="ti ti-edit" />
+                        </button>
+                      )}
                       {role === "ADMIN" && (
                         <button className="btn btn-danger btn-icon btn-sm" onClick={() => setConfirmDel({ id: b.id, nama: b.namaBarang || b.kategori?.nama || "Barang" })} title="Hapus">
                           <i className="ti ti-trash" />
@@ -832,155 +814,7 @@ export default function DaftarBarangTab({ role }: { role: string }) {
       </Modal>
 
       {/* Cek Barang Modal (Detail + Invoice) */}
-      <Modal open={modal === "cek"} onClose={() => setModal(null)} title={cekBarang ? `Detail: ${cekBarang.kategori?.nama || "Barang"}` : "Detail Barang"}>
-        {cekLoading ? (
-          <div style={{ textAlign: "center", padding: 32 }}>
-            <div className="spinner" style={{ margin: "0 auto 12px" }} />
-            <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>Mengambil data…</span>
-          </div>
-        ) : cekBarang && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {/* Barang Detail Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {[
-                { label: "Label", value: cekBarang.label },
-                { label: "Label Aset", value: cekBarang.labelAset },
-                { label: "Kategori", value: cekBarang.kategori?.nama },
-                { label: "Merek", value: cekBarang.merek },
-                { label: "Model", value: cekBarang.model },
-                { label: "Tipe", value: cekBarang.tipe },
-                { label: "SN", value: cekBarang.sn },
-                { label: "Vendor", value: cekBarang.vendor },
-                { label: "Kondisi", value: cekBarang.kondisi },
-                { label: "Status", value: cekBarang.status },
-                { label: "Jumlah", value: String(cekBarang.jumlah) },
-                { label: "Ruangan", value: cekBarang.ruangan ? `${cekBarang.ruangan.nama} (${cekBarang.ruangan.kode})` : null },
-                { label: "Harga", value: cekBarang.harga ? `Rp ${cekBarang.harga.toLocaleString("id-ID")}` : null },
-                { label: "Tanggal Datang", value: cekBarang.tanggalDatang ? fDateShort(cekBarang.tanggalDatang) : null },
-                { label: "Sumber/Tahun", value: cekBarang.sumberTahun },
-              ].filter(r => r.value).map(r => (
-                <div key={r.label}>
-                  <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>{r.label}</span>
-                  <span style={{ fontWeight: 500, color: "var(--text-primary)", fontSize: 13 }}>{r.value}</span>
-                </div>
-              ))}
-            </div>
-            {cekBarang.keterangan && (
-              <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-secondary)", display: "block" }}>Keterangan</span>
-                <span style={{ color: "var(--text-primary)", fontSize: 13 }}>{cekBarang.keterangan}</span>
-              </div>
-            )}
-
-            {/* Invoice / Nota Section - tampilkan semua evidence */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                <i className="ti ti-receipt" style={{ fontSize: 18, color: "var(--color-info)" }} />
-                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>Bukti Pembayaran</span>
-                {cekInvoices.length > 0 && (
-                  <span className="badge badge-info" style={{ fontSize: 11 }}>{cekInvoices.length} dokumen</span>
-                )}
-              </div>
-              {cekInvoices.length > 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {cekInvoices.map((inv, evIdx) => {
-                    const fullCode = [inv.jenisBukti, inv.nomorBukti, inv.kodePembelian].filter(Boolean).join("-");
-                    return (
-                      <div key={inv.id} style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                        {/* Header evidence */}
-                        <div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.04)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                          {inv.jenisBukti && (
-                            <div>
-                              <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Jenis Bukti</span>
-                              <span className="badge badge-info" style={{ fontSize: 11 }}>{inv.jenisBukti}</span>
-                            </div>
-                          )}
-                          {inv.nomorBukti && (
-                            <div>
-                              <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Nomor Bukti</span>
-                              <span style={{ fontWeight: 500, fontSize: 12, color: "var(--text-primary)" }}>{inv.nomorBukti}</span>
-                            </div>
-                          )}
-                          {fullCode && (
-                            <div>
-                              <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Kode Lengkap</span>
-                              <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-primary)" }}>{fullCode}</span>
-                            </div>
-                          )}
-                          <div>
-                            <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Nominal</span>
-                            <span style={{ fontWeight: 600, fontSize: 12, color: "var(--text-primary)" }}>Rp {inv.nominal.toLocaleString("id-ID")}</span>
-                          </div>
-                          <div>
-                            <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Tanggal</span>
-                            <span style={{ fontSize: 12, color: "var(--text-primary)" }}>{fDateShort(inv.tanggal)}</span>
-                          </div>
-                          <div>
-                            <span style={{ fontSize: 10, color: "var(--text-secondary)", display: "block" }}>Judul</span>
-                            <span style={{ fontSize: 12, color: "var(--text-primary)" }}>{inv.judul}</span>
-                          </div>
-                        </div>
-                        {/* File evidence - horizontal scroll jika > 1 */}
-                        {inv.notaUrls && inv.notaUrls.length > 0 && (
-                          <div style={{
-                            overflowX: inv.notaUrls.length > 1 ? "auto" : "visible",
-                            display: "flex",
-                            gap: 12,
-                            padding: 12,
-                            scrollbarWidth: "thin",
-                          }}>
-                            {inv.notaUrls.map((url, fIdx) => {
-                              // Deteksi tipe file berdasarkan data URL atau ekstensi
-                              let fileType: "image" | "pdf" | "other" = "other";
-                              if (url.startsWith("data:image/")) {
-                                fileType = "image";
-                              } else if (url.startsWith("data:application/pdf")) {
-                                fileType = "pdf";
-                              } else {
-                                const ext = url.split(".").pop()?.toLowerCase() ?? "";
-                                if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) fileType = "image";
-                                else if (ext === "pdf") fileType = "pdf";
-                              }
-                              const minW = inv.notaUrls.length > 1 ? 280 : "100%";
-                              return (
-                                <div key={fIdx} style={{ minWidth: minW, flex: inv.notaUrls.length > 1 ? "0 0 280px" : "1", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
-                                  {fileType === "image" ? (
-                                    <img src={url} alt={`Bukti ${evIdx + 1}-${fIdx + 1}`} style={{ width: "100%", maxHeight: 320, objectFit: "contain", display: "block", background: "rgba(255,255,255,0.03)" }} />
-                                  ) : fileType === "pdf" ? (
-                                    <>
-                                      <iframe src={url} title={`PDF ${evIdx + 1}-${fIdx + 1}`} style={{ width: "100%", height: 320, border: "none" }} />
-                                      <div style={{ textAlign: "center", padding: "8px 0" }}>
-                                        <a href={url} download={`nota-${evIdx + 1}-${fIdx + 1}.pdf`} className="btn btn-ghost btn-sm">
-                                          <i className="ti ti-download" /> Unduh PDF
-                                        </a>
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <div style={{ textAlign: "center", padding: 24, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
-                                      <a href={url} download className="btn btn-primary" target="_blank" rel="noopener">
-                                        <i className="ti ti-download" /> Unduh File {fIdx + 1}
-                                      </a>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div style={{ textAlign: "center", padding: 20, color: "var(--text-muted)", fontSize: 13, background: "rgba(255,255,255,0.02)", borderRadius: 8 }}>
-                  <i className="ti ti-file-off" style={{ fontSize: 28, display: "block", marginBottom: 8 }} />
-                  Tidak ada bukti pembayaran yang terhubung dengan aset ini.
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
+      <BarangDetailModal barang={cekBarang} onClose={() => setCekBarang(null)} />
     </>
   );
 }
