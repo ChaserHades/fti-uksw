@@ -27,6 +27,10 @@ export async function PUT(req: Request, { params }: Params) {
   const existingItem = await prisma.barang.findUnique({ where: { id } });
   if (!existingItem) return NextResponse.json({ error: "Barang tidak ditemukan" }, { status: 404 });
 
+  if (existingItem.deletedAt !== null && body.ruanganId !== undefined && body.ruanganId !== existingItem.ruanganId) {
+    return NextResponse.json({ error: "Barang yang dihapus tidak dapat dipindahkan ke ruangan lain" }, { status: 400 });
+  }
+
   // Merge incoming body with existing values to validate final state
   const mergedState = {
     namaBarang: body.namaBarang !== undefined ? body.namaBarang : existingItem.namaBarang,

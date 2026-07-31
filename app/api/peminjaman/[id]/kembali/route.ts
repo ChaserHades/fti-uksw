@@ -28,16 +28,26 @@ export async function POST(_: Request, { params }: Params) {
   
   const wasLate = peminjaman.terlambat || now > targetTime;
 
-  const [updated] = await prisma.$transaction([
+  const barang = await prisma.barang.findUnique({ where: { id: peminjaman.barangId } });
+
+  const transactions: any[] = [
     prisma.peminjaman.update({
       where: { id },
       data: { status: "SELESAI", tanggalKembali: now, terlambat: wasLate },
-    }),
-    prisma.barang.update({
-      where: { id: peminjaman.barangId },
-      data: { status: "TERSEDIA" },
-    }),
-  ]);
+    })
+  ];
+
+  if (barang && barang.deletedAt === null) {
+    transactions.push(
+      prisma.barang.update({
+        where: { id: peminjaman.barangId },
+        data: { status: "TERSEDIA" },
+      })
+    );
+  }
+
+  const results = await prisma.$transaction(transactions);
+  const updated = results[0];
 
   return NextResponse.json(updated);
 }

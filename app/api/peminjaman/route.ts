@@ -77,7 +77,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Deadline kembali wajib diisi" }, { status: 400 });
 
   const barang = await prisma.barang.findUnique({ where: { id: barangId } });
-  if (!barang || barang.status !== "TERSEDIA")
+  if (!barang || barang.deletedAt !== null) {
+    return NextResponse.json({ error: "Barang tidak ditemukan atau sudah dihapus" }, { status: 400 });
+  }
+  if (barang.status !== "TERSEDIA")
     return NextResponse.json({ error: "Barang tidak tersedia" }, { status: 400 });
 
   const [peminjaman] = await prisma.$transaction([

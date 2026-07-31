@@ -14,20 +14,21 @@ export async function GET() {
     katGroupBy,
     pengeluaranAgg
   ] = await Promise.all([
-    prisma.barang.count(),
+    prisma.barang.count({ where: { deletedAt: null } }),
     prisma.ruangan.count(),
     prisma.user.count(),
     prisma.user.count({ where: { statusVerifikasi: "PENDING" } }),
     prisma.peminjaman.count({ where: { status: "AKTIF" } }),
     prisma.peminjaman.count({ where: { status: "AKTIF", deadlineKembali: { lt: new Date() } } }),
-    prisma.barang.count({ where: { status: "TERSEDIA" } }),
-    prisma.barang.count({ where: { status: "DIPINJAM" } }),
-    prisma.barang.count({ where: { status: "MAINTENANCE" } }),
-    prisma.barang.count({ where: { kondisi: "BAIK" } }),
-    prisma.barang.count({ where: { kondisi: "RUSAK_RINGAN" } }),
-    prisma.barang.count({ where: { kondisi: "RUSAK_BERAT" } }),
+    prisma.barang.count({ where: { status: "TERSEDIA", deletedAt: null } }),
+    prisma.barang.count({ where: { status: "DIPINJAM", deletedAt: null } }),
+    prisma.barang.count({ where: { status: "MAINTENANCE", deletedAt: null } }),
+    prisma.barang.count({ where: { kondisi: "BAIK", deletedAt: null } }),
+    prisma.barang.count({ where: { kondisi: "RUSAK_RINGAN", deletedAt: null } }),
+    prisma.barang.count({ where: { kondisi: "RUSAK_BERAT", deletedAt: null } }),
     prisma.barang.groupBy({
       by: ['kategoriId'],
+      where: { deletedAt: null },
       _count: { id: true }
     }),
     prisma.pengeluaran.aggregate({

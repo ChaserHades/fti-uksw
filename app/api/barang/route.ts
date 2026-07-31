@@ -127,7 +127,8 @@ export async function GET(req: Request) {
     if (sortBy === "namaBarang") return [{ namaBarang: sortDir }, { id: 'asc' as const }];
     if (sortBy === "kategoriId") return [{ kategori: { nama: sortDir } }, { id: 'asc' as const }];
     if (sortBy === "ruanganId") return [{ ruangan: { kode: sortDir } }, { id: 'asc' as const }];
-    if (sortBy === "merek" || sortBy === "harga" || sortBy === "pengeluaranId") return [{ [sortBy]: sortDir }, { id: 'asc' as const }];
+    if (sortBy === "merek" || sortBy === "harga") return [{ [sortBy]: sortDir }, { id: 'asc' as const }];
+    if (sortBy === "pengeluaranId") return [{ kelompokPembelian: { kode: sortDir } }, { id: 'asc' as const }];
     if (sortBy === "tanggalDatang") return [{ createdAt: sortDir }, { id: 'asc' as const }];
     return [{ createdAt: "desc" as const }, { id: 'asc' as const }];
   })() as any;
