@@ -9,7 +9,7 @@ export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const session = await getSession();
   
-  if (!session || (session.role !== "ADMIN" && session.role !== "SPV")) {
+  if (!session || session.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

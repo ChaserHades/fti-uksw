@@ -29,14 +29,17 @@ export async function GET(req: Request) {
     ];
   }
 
-  const list = await prisma.pengeluaran.findMany({
-    take: limit + 1,
-    skip: cursor ? 1 : 0,
-    cursor: cursor ? { id: cursor } : undefined,
-    where,
-    orderBy: { tanggal: "desc" },
-    include: { user: true },
-  });
+  const [list, totalCount] = await Promise.all([
+    prisma.pengeluaran.findMany({
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      where,
+      orderBy: { tanggal: "desc" },
+      include: { user: true },
+    }),
+    prisma.pengeluaran.count({ where }),
+  ]);
 
   let nextCursor: string | null = null;
   if (list.length > limit) {
@@ -44,7 +47,7 @@ export async function GET(req: Request) {
     nextCursor = list[list.length - 1].id;
   }
 
-  return NextResponse.json({ data: list, nextCursor });
+  return NextResponse.json({ data: list, nextCursor, totalCount });
 }
 
 /** Allowed file extensions for nota/invoice upload */

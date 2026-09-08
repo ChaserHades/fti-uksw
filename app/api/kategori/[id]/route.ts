@@ -34,6 +34,15 @@ export async function DELETE(_: Request, { params }: Params) {
   const kategoriToDelete = await prisma.kategori.findUnique({ where: { id } });
   if (!kategoriToDelete) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  // BUG-009 fix: Cek apakah masih ada barang aktif yang menggunakan kategori ini
+  const barangCount = await prisma.barang.count({ where: { kategoriId: id, deletedAt: null } });
+  if (barangCount > 0) {
+    return NextResponse.json(
+      { error: `Kategori tidak bisa dihapus karena masih digunakan oleh ${barangCount} aset aktif. Ubah kategori aset tersebut terlebih dahulu.` },
+      { status: 409 }
+    );
+  }
+
   await prisma.kategori.delete({ where: { id } });
 
   await prisma.logAktivitas.create({

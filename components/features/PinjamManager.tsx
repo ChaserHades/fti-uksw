@@ -1,6 +1,6 @@
 // components/features/PinjamManager.tsx
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
@@ -38,8 +38,12 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
   const [processing, setProcessing] = useState(false);
 
   // ── Load aktif ──
+  const cursorRef = useRef<string | null>(null);
+  // Sync cursor state ke ref agar loadAktif(false) tidak stale
+  useEffect(() => { cursorRef.current = cursor; }, [cursor]);
+
   const loadAktif = useCallback((reset = true) => {
-    const cur = reset ? null : cursor;
+    const cur = reset ? null : cursorRef.current;
     const params = new URLSearchParams();
     params.set("status", "AKTIF");
     params.set("limit", "50");
@@ -56,7 +60,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       .catch(console.error)
       .finally(() => { if (!reset) setLoadingMore(false); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, cursor]);
+  }, [search]);
 
   useEffect(() => { 
     loadAktif(true); 
@@ -80,7 +84,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
       stopCamera();
       setModalPinjam(true);
     } else if (data.status === "DIPINJAM") {
-      const res = await api.get<{ data: Peminjaman[]; nextCursor: string | null }>("/api/peminjaman?status=AKTIF");
+      const res = await api.get<{ data: Peminjaman[]; nextCursor: string | null }>("/api/peminjaman?status=AKTIF&limit=500");
       const trxList = res.data;
       const found = trxList.find(t => t.barangId === data.id);
       if (found) {

@@ -30,7 +30,7 @@ export default function BarangManager({ role = "ADMIN" }: { role?: string }) {
   }
   if (role === "ADMIN" || role === "TEKNISI") {
     availableTabs.push({ key: "add", icon: "ti-plus", label: "Add Item" });
-    availableTabs.push({ key: "ruangan", icon: "ti-building", label: "Ruangan / Ruangan" });
+    availableTabs.push({ key: "ruangan", icon: "ti-building", label: "Ruangan" });
   }
 
   return (

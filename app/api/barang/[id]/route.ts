@@ -7,6 +7,9 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_: Request, { params }: Params) {
   const { id } = await params;
+  const { error } = await checkApiAuth();
+  if (error) return error;
+
   const item = await prisma.barang.findUnique({
     where: { id },
     include: { kategori: true, ruangan: true },
@@ -44,7 +47,9 @@ export async function PUT(req: Request, { params }: Params) {
     if (!kategoriId) return NextResponse.json({ error: "Gagal memproses kategori fallback" }, { status: 500 });
   }
 
-  const ruanganId = await resolveRuangan(body.ruanganId);
+  const ruanganId = body.ruanganId !== undefined
+    ? await resolveRuangan(body.ruanganId)
+    : existingItem.ruanganId;
 
   const jumlah = body.jumlah ? Number(body.jumlah) : 1;
   const harga = body.harga ? Number(body.harga) : null;

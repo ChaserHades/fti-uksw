@@ -37,6 +37,15 @@ export async function DELETE(_: Request, { params }: Params) {
   const ruanganToDelete = await prisma.ruangan.findUnique({ where: { id } });
   if (!ruanganToDelete) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  // BUG-008 fix: Cek apakah masih ada barang aktif di ruangan ini
+  const barangCount = await prisma.barang.count({ where: { ruanganId: id, deletedAt: null } });
+  if (barangCount > 0) {
+    return NextResponse.json(
+      { error: `Ruangan tidak bisa dihapus karena masih memiliki ${barangCount} aset aktif. Pindahkan atau hapus aset tersebut terlebih dahulu.` },
+      { status: 409 }
+    );
+  }
+
   await prisma.ruangan.delete({ where: { id } });
 
   await prisma.logAktivitas.create({

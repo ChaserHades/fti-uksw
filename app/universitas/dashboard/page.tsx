@@ -21,8 +21,8 @@ export default function UniversitasDashboard() {
   });
 
   useEffect(() => {
-    api.get<DashboardStats>("/api/dashboard/stats").then(setStats).catch(() => {});
-    api.get<{ data: Barang[] }>("/api/barang?limit=8").then(d => setBarang(d.data)).catch(() => {});
+    api.get<DashboardStats>("/api/dashboard/stats").then(setStats).catch(() => { });
+    api.get<{ data: Barang[] }>("/api/barang?limit=8").then(d => setBarang(d.data)).catch(() => { });
     // Fetch all barang to filter damaged — use a large limit then sort client-side
     api.get<{ data: Barang[] }>("/api/barang?limit=all")
       .then(d => {
@@ -34,7 +34,7 @@ export default function UniversitasDashboard() {
           });
         setDamaged(rusak);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setDamagedLoading(false));
   }, []);
 

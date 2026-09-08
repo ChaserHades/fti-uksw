@@ -39,8 +39,16 @@ const jenisBadge: Record<string, string> = {
   LAINNYA: "badge-muted",
 };
 
-/** Determine how to display a file by its extension */
+/** Determine how to display a file by its MIME type (data URL) or extension */
 function getFileType(url: string): "image" | "pdf" | "other" {
+  // Handle data URLs: "data:image/jpeg;base64,..."
+  if (url.startsWith("data:")) {
+    const mime = url.split(";")[0].replace("data:", "");
+    if (mime.startsWith("image/")) return "image";
+    if (mime === "application/pdf") return "pdf";
+    return "other";
+  }
+  // Fallback: extension-based for regular URLs
   const ext = url.split(".").pop()?.toLowerCase() ?? "";
   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "image";
   if (ext === "pdf") return "pdf";

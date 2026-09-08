@@ -82,13 +82,15 @@ export async function POST(req: Request) {
           ruanganId = ruangan.id;
         }
 
-        // Conservative Duplicate Matching
-        // Never auto-merge on 'namaBarang', 'label', or 'sn' alone. Need exactly 'labelAset'.
+        // ── Duplicate Matching ──
+        // Priority 1: labelAset (paling reliable — identitas fisik unik)
+        // Priority 2: label + namaBarang (dikombinasikan untuk menghindari false positive)
         let existingBarang = null;
 
         if (norm.labelAset) {
+          // Match via labelAset (paling kuat)
           const conditions: any = { labelAset: norm.labelAset };
-          if (norm.namaBarang) conditions.namaBarang = norm.namaBarang; // strengthen if available
+          if (norm.namaBarang) conditions.namaBarang = norm.namaBarang;
 
           const possibleMatches = await prisma.barang.findMany({
             where: conditions
@@ -97,9 +99,29 @@ export async function POST(req: Request) {
           const availableMatches = possibleMatches.filter(m => !usedDbIds.has(m.id));
 
           if (availableMatches.length === 1) {
-             existingBarang = availableMatches[0];
+            existingBarang = availableMatches[0];
           } else if (availableMatches.length > 1) {
-             throw new Error("Ambigu: Terdapat beberapa barang dengan identitas yang sama, gagal merge otomatis.");
+            throw new Error("Ambigu: Terdapat beberapa barang dengan identitas yang sama, gagal merge otomatis.");
+          }
+        } else if (norm.label) {
+          // Fallback: match via label — harus dikuatkan dengan namaBarang untuk menghindari false positive
+          // label saja tidak cukup karena bisa tidak unik antar kategori berbeda
+          const conditions: any = { label: norm.label };
+          if (norm.namaBarang) conditions.namaBarang = norm.namaBarang;
+          else if (norm.merek) conditions.merek = norm.merek; // fallback kedua jika tidak ada namaBarang
+
+          const possibleMatches = await prisma.barang.findMany({
+            where: conditions
+          });
+
+          const availableMatches = possibleMatches.filter(m => !usedDbIds.has(m.id));
+
+          if (availableMatches.length === 1) {
+            existingBarang = availableMatches[0];
+          } else if (availableMatches.length > 1) {
+            // Ambigu — jangan auto-merge, lewati tanpa insert ulang untuk keamanan
+            skipped.push(itemIdentifier);
+            continue;
           }
         }
         

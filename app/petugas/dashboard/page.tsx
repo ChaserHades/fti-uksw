@@ -21,17 +21,19 @@ export default function TeknisiDashboard() {
   useEffect(() => {
     fetch("/api/me").then(r => r.json()).then((d: Me) => {
       setMe(d);
+      // Riwayat pribadi tetap di-load per-user untuk tabel bawah
       api.get<{ data: Peminjaman[] }>(`/api/peminjaman?userId=${d.id}`).then(res => setMyTrx(res.data));
     });
-    api.get<{ data: Peminjaman[] }>("/api/peminjaman?status=AKTIF&limit=5").then(d => setAllAktif(d.data));
+    // Ambil semua peminjaman aktif (limit besar) untuk statistik sistem
+    api.get<{ data: Peminjaman[] }>("/api/peminjaman?status=AKTIF&limit=500").then(d => setAllAktif(d.data));
     api.get<{ data: Barang[] }>("/api/barang?tersedia=true&limit=5").then(d =>
       setTersedia(d.data)
     );
   }, []);
 
-  const aktif = myTrx.filter(t => t.status === "AKTIF").length;
-  const selesai = myTrx.filter(t => t.status === "SELESAI").length;
-  const terlambat = myTrx.filter(t => t.status === "AKTIF" && isOverdue(t.deadlineKembali)).length;
+  // Statistik sistem (bukan hanya milik teknisi ini)
+  const aktif     = allAktif.length;
+  const terlambat = allAktif.filter(t => isOverdue(t.deadlineKembali)).length;
 
   const statusBadge: Record<string, string> = { AKTIF: "badge-warn", SELESAI: "badge-ok" };
   const kondisiBadge: Record<string, string> = { BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger" };
@@ -97,13 +99,13 @@ export default function TeknisiDashboard() {
       {/* 2. BENTO COCKPIT GRID */}
       <div className="bento-dashboard">
 
-        {/* STATS PRIBADI (Span 8) */}
+        {/* STATS SISTEM (Span 8) */}
         <div className="bento-card bento-span-8" style={{ padding: 32, display: "flex", flexDirection: "column" }}>
-          <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 24 }}>Aktivitas Peminjaman Anda</span>
+          <span style={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 1, fontSize: 12, fontWeight: 600, marginBottom: 24 }}>Ringkasan Peminjaman Sistem</span>
           <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
             {[
-              { label: "Sedang Dipinjam", value: aktif, color: "var(--color-warn)", href: "/petugas/manajemen?tab=riwayat" },
-              { label: "Sudah Kembali", value: selesai, color: "var(--color-ok)", href: "/petugas/manajemen?tab=riwayat" },
+              { label: "Sedang Dipinjam", value: aktif, color: "var(--color-warn)", href: "/petugas/manajemen?tab=pinjam" },
+              { label: "Riwayat Saya", value: myTrx.length, color: "var(--color-ok)", href: "/petugas/manajemen?tab=riwayat" },
               { label: "Terlambat", value: terlambat, color: "var(--color-err)", href: "/petugas/manajemen?tab=pinjam" },
             ].map(s => (
               <Link key={s.label} href={s.href} style={{ flex: 1, minWidth: 120, textDecoration: "none" }}>
