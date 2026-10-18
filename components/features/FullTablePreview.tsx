@@ -115,7 +115,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
       className="fixed inset-0 z-[9999] flex flex-col animate-in fade-in zoom-in-95 duration-200"
       style={{ background: "rgba(5,5,8,0.97)", backdropFilter: "blur(24px)" }}
     >
-      {/* ─── Dynamic Island Search ─── */}
+      {/* Dynamic Island Search */}
       <div
         className="w-full flex justify-center shrink-0 relative group"
         style={{ paddingTop: 28, paddingBottom: 20, paddingLeft: 16, paddingRight: 16 }}
@@ -183,7 +183,7 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
         </div>
       </div>
 
-      {/* ─── Spreadsheet Table ─── */}
+      {/* Spreadsheet Table */}
       <div className="flex-1 overflow-auto" style={{ padding: "0 16px 24px" }}>
         <table className="table" style={{ minWidth: 2000 }}>
           <thead
@@ -245,17 +245,17 @@ export default function FullTablePreview({ isOpen, onClose }: FullTablePreviewPr
           </tbody>
         </table>
         <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-              Menampilkan {data.length} dari {totalCount} data
-            </span>
-            {cursor ? (
-              <button className="btn btn-ghost btn-sm" onClick={() => load(false)} disabled={loadingMore}>
-                {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : <>Muat Lebih Banyak <i className="ti ti-chevron-down" /></>}
-              </button>
-            ) : (
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Semua data ditampilkan</span>
-            )}
-          </div>
+          <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            Menampilkan {data.length} dari {totalCount} data
+          </span>
+          {cursor ? (
+            <button className="btn btn-ghost btn-sm" onClick={() => load(false)} disabled={loadingMore}>
+              {loadingMore ? <><div className="spinner spinner-sm" /> Memuat...</> : <>Muat Lebih Banyak <i className="ti ti-chevron-down" /></>}
+            </button>
+          ) : (
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Semua data ditampilkan</span>
+          )}
+        </div>
       </div>
 
       {/* Hide back button hint & show real button on group hover via CSS */}

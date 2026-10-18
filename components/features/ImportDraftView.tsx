@@ -99,7 +99,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showSkipMenu]);
 
-  /* ── Inline edit: data stays in error tab ── */
+  /* Inline edit: data stays in error tab */
   const handleEdit = (index: number, field: keyof DraftRow, value: string) => {
     const updated = [...errors];
     // Convert undefined to empty string to keep controlled input warning away if needed
@@ -107,7 +107,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
     setErrors(updated);
   };
 
-  /* ── Per-row validate (explicit button click) ── */
+  /* Per-row validate (explicit button click) */
   const handleValidateRow = (index: number) => {
     const row = errors[index];
     const validation = revalidateRow(row);
@@ -133,7 +133,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
     if (newErrors.length === 0) setTab("valid");
   };
 
-  /* ── Per-row delete ── */
+  /* Per-row delete */
   const handleDeleteRow = (index: number) => {
     const row = errors[index];
     const newErrors = [...errors];
@@ -143,7 +143,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
     if (newErrors.length === 0) setTab("valid");
   };
 
-  /* ── Confirmed actions ── */
+  /* Confirmed actions */
   const executeConfirmedAction = () => {
     if (confirmAction === "bulk-validate") {
       const stillErrors: DraftRow[] = [];
@@ -199,7 +199,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
   const totalPages = Math.ceil(currentList.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
   const visibleList = currentList.slice(startIndex, startIndex + itemsPerPage);
-  /* ── Confirmation modal messages ── */
+  /* Confirmation modal messages */
   const confirmMessages: Record<string, { title: string; message: React.ReactNode; danger: boolean; label: string }> = {
     "bulk-validate": {
       title: "Validasi Ulang Semua Error?",
@@ -246,7 +246,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
 
   return (
     <div style={{ marginTop: 24, paddingBottom: 60 }}>
-      {/* ── Header ── */}
+      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
         <div>
           <h3 style={{ fontSize: 18, fontWeight: 600, color: "#fff", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
@@ -277,7 +277,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
         </div>
       </div>
 
-      {/* ── Table ── */}
+      {/* Table */}
       <div className="glass">
         <div className="table-wrap overflow-x-auto">
           <table className="table" style={{ minWidth: 1400, tableLayout: "auto" }}>
@@ -517,7 +517,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
         </div>
       </div>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <div style={{
         display: "flex",
         alignItems: "center",
@@ -639,7 +639,7 @@ export default function ImportDraftView({ draftValid, draftError, onCancel, onPu
         </div>
       </div>
 
-      {/* ── Double-validation Confirm Modal ── */}
+      {/* Double-validation Confirm Modal */}
       <ConfirmModal
         isOpen={!!confirmAction}
         title={activeConfirm?.title || ""}
