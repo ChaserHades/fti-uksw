@@ -1,7 +1,7 @@
 // app/api/barang/[id]/invoice/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import { publicUserSelect } from "@/lib/public-user";
 
 type Params = { params: Promise<{ id: string }> };
@@ -14,8 +14,8 @@ type Params = { params: Promise<{ id: string }> };
  */
 export async function GET(_: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error: authError } = await checkApiAuth();
+  if (authError) return authError;
 
   const barang = await prisma.barang.findUnique({
     where: { id },

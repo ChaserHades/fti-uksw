@@ -1,10 +1,11 @@
 // app/api/users/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 export async function GET(req: Request) {
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
-    const session = await getSession();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { error: authError } = await checkApiAuth();
+    if (authError) return authError;
 
     const count = await prisma.barang.count({
       where: {

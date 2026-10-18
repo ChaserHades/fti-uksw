@@ -25,5 +25,8 @@ export async function checkApiAuth() {
   if (session.statusVerifikasi !== "APPROVED") {
     return { error: NextResponse.json({ error: "Akun belum diverifikasi (Pending/Rejected)" }, { status: 403 }), session: null };
   }
+  if (session.mustChangePassword) {
+    return { error: NextResponse.json({ error: "Anda wajib mengganti password terlebih dahulu" }, { status: 403 }), session: null };
+  }
   return { error: null, session };
 }

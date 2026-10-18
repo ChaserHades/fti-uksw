@@ -1,10 +1,11 @@
 // app/api/me/route.ts
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 export async function GET() {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
+
   return NextResponse.json({
     id: session.id,
     email: session.email,

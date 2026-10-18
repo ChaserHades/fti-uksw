@@ -64,6 +64,7 @@ const changePasswordSchema = z.object({
 export async function changePasswordAction(formData: FormData) {
   const session = await getSession();
   if (!session) return { error: "Sesi tidak valid" };
+  if (session.statusVerifikasi !== "APPROVED") return { error: "Akun belum disetujui" };
 
   const raw = {
     password:        formData.get("password") as string,

@@ -1,13 +1,14 @@
 // app/api/kategori/[id]/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function PUT(req: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json();
@@ -28,7 +29,8 @@ export async function PUT(req: Request, { params }: Params) {
 
 export async function DELETE(_: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const kategoriToDelete = await prisma.kategori.findUnique({ where: { id } });

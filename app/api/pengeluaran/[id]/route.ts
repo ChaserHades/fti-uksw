@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import { publicUserSelect } from "@/lib/public-user";
 
 
@@ -10,8 +10,8 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(req: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error: authError } = await checkApiAuth();
+  if (authError) return authError;
 
   const item = await prisma.pengeluaran.findUnique({
     where: { id },
@@ -24,7 +24,8 @@ export async function GET(req: Request, { params }: Params) {
 
 export async function PUT(req: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
@@ -150,7 +151,8 @@ export async function PUT(req: Request, { params }: Params) {
 
 export async function DELETE(_: Request, { params }: Params) {
   const { id } = await params;
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   if (!session || session.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

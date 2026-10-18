@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import { publicUserSelect } from "@/lib/public-user";
 
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx"];
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   if (!session || session.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -45,7 +46,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   if (!session || session.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import QRCode from "qrcode";
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { error: authError } = await checkApiAuth();
+    if (authError) return authError;
 
     const body = await req.json();
     const mode = body.mode || "SELECTED";

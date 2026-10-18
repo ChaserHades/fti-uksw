@@ -1,6 +1,7 @@
 // lib/session.ts
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 
 const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "fallback-dev-secret-change-in-prod"
@@ -38,8 +39,30 @@ export async function getSession(): Promise<SessionPayload | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE)?.value;
     if (!token) return null;
-    const { payload } = await jwtVerify(token, SECRET);
-    return payload as unknown as SessionPayload;
+    const { payload } = await jwtVerify(token, SECRET, { algorithms: ["HS256"] });
+    if (typeof payload.id !== "string" || !payload.id || typeof payload.exp !== "number") return null;
+
+    // JWT establishes identity; current account permissions come from the database.
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        statusVerifikasi: true,
+        mustChangePassword: true,
+      },
+    });
+    if (!user) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? "",
+      role: user.role,
+      statusVerifikasi: user.statusVerifikasi,
+      mustChangePassword: user.mustChangePassword,
+    };
   } catch {
     return null;
   }

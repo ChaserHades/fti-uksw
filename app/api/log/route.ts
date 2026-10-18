@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const session = await getSession();
+  const { session, error: authError } = await checkApiAuth();
+  if (authError) return authError;
   
   if (!session || (session.role !== "ADMIN" && session.role !== "TEKNISI")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

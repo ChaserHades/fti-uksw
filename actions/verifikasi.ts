@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { checkApiAuth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function verifikasiUserAction(
@@ -9,8 +9,8 @@ export async function verifikasiUserAction(
   action: "APPROVE" | "REJECT"
 ): Promise<{ success: boolean; message: string }> {
   try {
-    const session = await getSession();
-    if (!session || session.role !== "ADMIN") {
+    const { session, error } = await checkApiAuth();
+    if (error || session.role !== "ADMIN") {
       return { success: false, message: "Akses ditolak" };
     }
 
