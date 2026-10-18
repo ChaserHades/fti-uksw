@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
+import { publicUserSelect } from "@/lib/public-user";
 
 
 export async function GET(req: Request) {
@@ -36,7 +37,7 @@ export async function GET(req: Request) {
       cursor: cursor ? { id: cursor } : undefined,
       where,
       orderBy: { tanggal: "desc" },
-      include: { user: true },
+      include: { user: { select: publicUserSelect } },
     }),
     prisma.pengeluaran.count({ where }),
   ]);
@@ -152,7 +153,7 @@ export async function POST(req: Request) {
       kelompokPembelianId,
       ...(barangIds.length > 0 ? { barang: { connect: barangIds.map(id => ({ id })) } } : {})
     },
-    include: { user: true },
+    include: { user: { select: publicUserSelect } },
   });
 
   if (kelompokPembelianId && barangIds.length > 0) {

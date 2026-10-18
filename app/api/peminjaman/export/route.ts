@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import * as xlsx from "xlsx";
+import { publicUserSelect } from "@/lib/public-user";
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -27,7 +28,7 @@ export async function GET(req: Request) {
       where,
       include: {
         barang: { include: { ruangan: true, kategori: true } },
-        user: true,
+        user: { select: publicUserSelect },
       },
       orderBy: { createdAt: "desc" }
     });

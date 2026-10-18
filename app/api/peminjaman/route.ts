@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
+import { publicUserSelect } from "@/lib/public-user";
 
 export async function GET(req: Request) {
   const { session, error } = await checkApiAuth();
@@ -44,7 +45,7 @@ export async function GET(req: Request) {
       where,
       include: {
         barang: { include: { kategori: true, ruangan: true } },
-        user: true,
+        user: { select: publicUserSelect },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
       },
       include: {
         barang: { include: { kategori: true, ruangan: true } },
-        user: true,
+        user: { select: publicUserSelect },
       },
     });
 

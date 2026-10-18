@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { publicUserSelect } from "@/lib/public-user";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -15,6 +16,7 @@ export async function PUT(req: Request, { params }: Params) {
   try {
     const updatedUser = await prisma.user.update({
       where: { id },
+      select: publicUserSelect,
       data: {
         name: body.name,
         email: body.email,

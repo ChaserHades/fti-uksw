@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { publicUserSelect } from "@/lib/public-user";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -22,7 +23,7 @@ export async function GET(_: Request, { params }: Params) {
       kategori: true, 
       ruangan: true,
       kelompokPembelian: {
-        include: { pengeluaran: { include: { user: true } } }
+        include: { pengeluaran: { include: { user: { select: publicUserSelect } } } }
       }
     },
   });
@@ -42,7 +43,7 @@ export async function GET(_: Request, { params }: Params) {
     if (kodePembelian) {
       pengeluarans = await prisma.pengeluaran.findMany({
         where: { kodePembelian },
-        include: { user: true },
+        include: { user: { select: publicUserSelect } },
       });
     }
   }

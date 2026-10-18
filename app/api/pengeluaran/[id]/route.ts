@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { publicUserSelect } from "@/lib/public-user";
 
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx"];
@@ -14,7 +15,7 @@ export async function GET(req: Request, { params }: Params) {
 
   const item = await prisma.pengeluaran.findUnique({
     where: { id },
-    include: { user: true, kelompokPembelian: true, barang: true }
+    include: { user: { select: publicUserSelect }, kelompokPembelian: true, barang: true }
   });
 
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });

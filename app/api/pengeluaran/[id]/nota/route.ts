@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { publicUserSelect } from "@/lib/public-user";
 
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx"];
@@ -37,7 +38,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const updated = await prisma.pengeluaran.update({
     where: { id },
     data: { notaUrls: { push: newUrl } },
-    include: { user: true }
+    include: { user: { select: publicUserSelect } }
   });
 
   return NextResponse.json(updated);
@@ -59,7 +60,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   const updated = await prisma.pengeluaran.update({
     where: { id },
     data: { notaUrls: { set: newUrls } },
-    include: { user: true }
+    include: { user: { select: publicUserSelect } }
   });
 
 
