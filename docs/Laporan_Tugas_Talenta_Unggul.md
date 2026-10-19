@@ -240,10 +240,10 @@ Tabel 4.1. Cakupan dan hasil verifikasi revisi 19 Oktober 2026
 | Pembaruan bersamaan | Prisma dan PostgreSQL uji | Versi bertambah atomik; hanya satu perubahan dengan versi awal yang sama berhasil. |
 | HTTP aplikasi | Next.js hasil build dan PostgreSQL uji | Sesi valid 200; sesi lama setelah reset 401; sesi wajib ganti password 403. |
 | Build dan tipe | npm run build; pemeriksaan TypeScript terarah | Build lulus. Tidak ada diagnostik pada tiga berkas autentikasi; pemeriksaan tipe seluruh proyek belum dinyatakan lulus. |
-| Akses Admin | Pemeriksaan manual oleh pengembang pada localhost | Halaman Dashboard, Peminjaman, Riwayat, Cashflow, dan Tim & Verifikasi dapat digunakan. |
-| Uji lanjutan | Browser lokal setelah pemasangan revisi, perangkat kamera, dan pengguna SARPRAS | Pencabutan sesi lintas browser serta penerimaan pengguna belum dicatat sebagai lulus manual. |
+| Pemeriksaan manual | Browser lokal; akun Admin, Teknisi, dan Universitas | Akses normal Admin berhasil. Sesi lama Teknisi tetap 401 setelah reset dan ganti password; sesi baru dapat membaca profil. Akun Universitas tetap 200. |
+| Uji lanjutan | Kamera lintas perangkat, beban, dan pengguna SARPRAS | Pengujian kamera, beban, dan penerimaan pengguna belum dicatat sebagai selesai. |
 
-Pemeriksaan manual pada komputer pengembang telah mengonfirmasi akses normal Admin ke Dashboard, Peminjaman, Riwayat, Cashflow, serta Tim & Verifikasi. Respons profil dan daftar pengguna yang diperiksa tidak memuat hash password. Wawancara SARPRAS yang telah dilakukan berlangsung pada versi aplikasi yang masih memiliki bug; kegiatan tersebut tidak digunakan untuk menyatakan bahwa revisi keamanan terbaru telah diterima pengguna. Pemeriksaan pencabutan sesi pada beberapa browser perlu dilakukan setelah migrasi dipasang pada database lokal. Pengujian kamera lintas perangkat, beban, dan penerimaan versi terbaru juga perlu dicatat tersendiri.
+Pengujian manual dilanjutkan pada browser lokal setelah perbaikan dipasang. Saat Admin mereset password Teknisi, sesi Teknisi yang masih terbuka mendapat HTTP 401 pada /api/me, sedangkan akun Universitas tetap mendapat HTTP 200. Login dengan password sementara mengarahkan Teknisi ke formulir wajib ganti password; API juga menampilkan pesan bahwa password harus diganti terlebih dahulu. Setelah password baru disimpan, sesi baru dapat membaca profil Teknisi. Sesi lama di Incognito tetap mendapat HTTP 401 ketika dimuat ulang. Hasil ini melengkapi pemeriksaan akses normal Admin dan respons tanpa hash password yang telah dilakukan sebelumnya. Wawancara SARPRAS berlangsung saat versi aplikasi masih memiliki bug. Pengujian penerimaan versi terbaru, kamera lintas perangkat, dan beban masih perlu dilakukan tersendiri.
 
 ### 4.8 Pembahasan
 
@@ -261,7 +261,7 @@ Pengembangan pada revisi ini menghasilkan tiga hal berikut.
 
 2. Hak akses diterapkan berdasarkan role dan kondisi akun terbaru. Pembatasan field respons menjaga hash password tetap di sisi server, sedangkan sessionVersion mencabut sesi yang diterbitkan sebelum perubahan atau reset password.
 
-3. Seluruh 60 tes otomatis lulus, disertai pemeriksaan migrasi dan perubahan versi sesi pada PostgreSQL uji. Akses normal Admin telah diperiksa secara manual. Hasil tersebut berlaku pada skenario yang diuji dan belum mencakup penerimaan pengguna atau seluruh beban operasional.
+3. Seluruh 60 tes otomatis lulus, disertai pemeriksaan migrasi dan perubahan versi sesi pada PostgreSQL uji. Pada pengujian manual, sesi lama tetap ditolak setelah reset dan penggantian password, sementara sesi baru dapat mengakses profil pengguna. Akun lain yang tidak di-reset tetap dapat digunakan. Hasil ini berlaku pada skenario yang diperiksa; pengujian penerimaan pengguna dan beban operasional belum selesai.
 
 ### 5.2 Keterbatasan
 

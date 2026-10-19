@@ -95,7 +95,22 @@ Catat langkah yang gagal, URL, status HTTP, dan pesan error. Jangan mengirim coo
 | HTTP Next.js dengan PostgreSQL uji | Akses anonim dan token tanpa versi ditolak 401; role Teknisi ditolak pada API Admin; reset mencabut sesi target, sesi Admin tetap sah, dan sesi wajib ganti password mendapat 403. |
 | `npm run build` | Berhasil. Konfigurasi lama `ignoreBuildErrors: true` masih berlaku. |
 | TypeScript terarah dan lint | Tidak ada diagnostik pada tiga berkas autentikasi yang diubah beserta dependensinya. Tidak ada temuan lint baru pada ketiganya. Ini bukan klaim seluruh proyek bebas error tipe/lint. |
-| Pemeriksaan manual pengguna | Akses normal Admin dan respons tanpa hash sudah dikonfirmasi sebelum tahap 3. Crosscheck beberapa browser setelah migrasi tahap 3 masih perlu dilakukan lokal. |
+| Pemeriksaan manual pengguna | Akses normal Admin dan respons tanpa hash sudah dikonfirmasi. Skenario utama reset dan penggantian password juga telah diperiksa di browser lokal; rincian bukti dicatat di bawah. |
+
+## Hasil crosscheck manual 19 Oktober 2026
+
+Pengembang menjalankan pemeriksaan di localhost dan memberikan hasil serta tangkapan layar. Skenario utama pencabutan sesi menunjukkan hasil berikut.
+
+| Langkah yang diperiksa | Hasil yang dilaporkan atau terlihat |
+| --- | --- |
+| Akses awal Teknisi dan Universitas | `/api/me` mengembalikan HTTP 200 dan profil sesuai akun pada kedua sesi. |
+| Admin mereset password Teknisi | Sesi Teknisi lama mendapat HTTP 401 tanpa login ulang. Hasil ini dikonfirmasi pengembang. |
+| Akun Universitas setelah reset Teknisi | Tetap HTTP 200; reset akun Teknisi tidak mencabut sesi akun Universitas. |
+| Login Teknisi dengan password sementara | Halaman wajib ganti password tampil. `/api/me` menampilkan pesan wajib mengganti password. Status HTTP pada tahap ini tidak terlihat di screenshot. |
+| Sesudah password baru disimpan | Sesi baru dapat membaca profil Teknisi berstatus APPROVED melalui `/api/me`. |
+| Sesi lama sesudah penggantian password | Screenshot Incognito menunjukkan `/api/me` tetap HTTP 401 dengan respons `Unauthorized`. |
+
+Skenario utama nomor 3 telah lulus crosscheck manual. Catatan ini tidak menyatakan bahwa seluruh langkah tambahan dalam panduan, pengujian kamera, beban, atau penerimaan pengguna sudah dijalankan. Hasil tersebut dipisahkan dari 60 tes otomatis dan pemeriksaan PostgreSQL di lingkungan cloud.
 
 ## Penyelarasan laporan
 
