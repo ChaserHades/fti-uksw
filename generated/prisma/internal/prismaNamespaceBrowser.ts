@@ -86,6 +86,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   statusVerifikasi: 'statusVerifikasi',
   mustChangePassword: 'mustChangePassword',
+  sessionVersion: 'sessionVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

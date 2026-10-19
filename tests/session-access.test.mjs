@@ -16,7 +16,7 @@ const dependency = createRequire(import.meta.url);
 const secret = 'isolated-test-key-not-an-application-secret';
 const key = new TextEncoder().encode(secret);
 const account = { id: 'test-user', name: 'Current name', email: 'current@uksw.edu',
-  role: 'ADMIN', statusVerifikasi: 'APPROVED', mustChangePassword: false };
+  role: 'ADMIN', statusVerifikasi: 'APPROVED', mustChangePassword: false, sessionVersion: 0 };
 const compiled = new Map();
 function compile(file) {
   if (!compiled.has(file)) compiled.set(file, ts.transpileModule(fs.readFileSync(path.join(root, file), 'utf8'), {
@@ -38,8 +38,9 @@ function fixture({ cookie, user = { ...account }, databaseError = false, busines
   };
   const prisma = new Proxy({}, { get: (_, model) => new Proxy({}, { get: (_, method) => {
     if (model === 'user' && method === 'findUnique') return async query => {
+      if (query.where.email && business.user?.findUnique) return business.user.findUnique(query);
       state.reads++;
-      assert.equal(query.where.id, account.id);
+      assert.equal(query.where.id, user?.id ?? account.id);
       assert.ok(query.select, 'Session lookup must explicitly select safe fields');
       assert.equal(query.select.password, undefined);
       if (databaseError) throw new Error('Fixture database unavailable');
@@ -90,7 +91,8 @@ const request = method => new Request('http://localhost/api/test', {
 });
 const params = () => ({ params: Promise.resolve({ id: 'target-id' }) });
 
-for (const invalid of ['missing', 'malformed', 'expired', 'wrong-signature', 'wrong-algorithm', 'missing-id', 'missing-exp']) {
+for (const invalid of ['missing', 'malformed', 'expired', 'wrong-signature', 'wrong-algorithm', 'missing-id', 'missing-exp',
+  'missing-version', 'string-version', 'negative-version', 'fractional-version']) {
   test(`JWT ${invalid}: reject before querying database`, async () => {
     let cookie;
     if (invalid === 'malformed') cookie = 'invalid-jwt';
@@ -99,6 +101,10 @@ for (const invalid of ['missing', 'malformed', 'expired', 'wrong-signature', 'wr
     if (invalid === 'wrong-algorithm') cookie = await token({}, { algorithm: 'HS384' });
     if (invalid === 'missing-id') cookie = await token({ id: undefined });
     if (invalid === 'missing-exp') cookie = await token({}, { expiration: null });
+    if (invalid === 'missing-version') cookie = await token({ sessionVersion: undefined });
+    if (invalid === 'string-version') cookie = await token({ sessionVersion: '0' });
+    if (invalid === 'negative-version') cookie = await token({ sessionVersion: -1 });
+    if (invalid === 'fractional-version') cookie = await token({ sessionVersion: 0.5 });
     const f = fixture({ cookie });
     assert.equal(await f.load('lib/session.ts').getSession(), null);
     assert.equal(f.state.reads, 0);
@@ -120,7 +126,7 @@ test('same token observes approval and subsequent role changes on the next reque
   f.state.user = { ...account, role: 'TEKNISI' };
   await assert.rejects(guard.requireRole('ADMIN'), error => error.target === '/unauthorized');
 });
-for (const scenario of ['missing', 'expired', 'deleted', 'database-failure', 'pending', 'rejected', 'force-change']) {
+for (const scenario of ['missing', 'expired', 'deleted', 'database-failure', 'pending', 'rejected', 'force-change', 'revoked']) {
   test(`all ${endpoints.length} protected API handlers deny ${scenario} before business access`, async () => {
     const options = { cookie: await token() };
     let expected = 403;
@@ -131,6 +137,7 @@ for (const scenario of ['missing', 'expired', 'deleted', 'database-failure', 'pe
     if (scenario === 'pending') options.user = { ...account, statusVerifikasi: 'PENDING' };
     if (scenario === 'rejected') options.user = { ...account, statusVerifikasi: 'REJECTED' };
     if (scenario === 'force-change') options.user = { ...account, mustChangePassword: true };
+    if (scenario === 'revoked') { options.user = { ...account, sessionVersion: 1 }; expected = 401; }
     for (const { file, method } of endpoints) {
       const f = fixture(options);
       const response = await f.load(file)[method](request(method), params());
@@ -188,16 +195,19 @@ test('approved administrator can still verify a user', async () => {
 test('forced password change succeeds and unlocks subsequent API access', async () => {
   let updated;
   const f = fixture({ cookie: await token(), user: { ...account, mustChangePassword: true }, business: {
-    user: { update: async query => { updated = query; f.state.user = { ...account, ...query.data }; return f.state.user; } },
+    user: { update: async query => { updated = query; f.state.user = { ...account, ...query.data,
+      sessionVersion: f.state.user.sessionVersion + query.data.sessionVersion.increment }; return f.state.user; } },
   } });
   assert.equal((await f.load('lib/auth.ts').checkApiAuth()).error.status, 403);
   const form = new FormData(); form.set('password', 'fixture-password-only'); form.set('confirmPassword', 'fixture-password-only');
   assert.equal((await f.load('actions/auth.ts').changePasswordAction(form)).success, true);
   assert.equal(updated.where.id, account.id); assert.equal(updated.data.mustChangePassword, false);
+  assert.equal(updated.where.sessionVersion, 0); assert.equal(updated.data.sessionVersion.increment, 1);
   assert.ok(await bcrypt.compare('fixture-password-only', updated.data.password));
   assert.equal((await f.load('lib/auth.ts').checkApiAuth()).error, null);
   const payload = (await jwtVerify(f.state.cookie, key)).payload;
   assert.equal(payload.mustChangePassword, false); assert.equal(payload.password, undefined);
+  assert.equal(payload.sessionVersion, 1);
   assert.equal(payload.exp - payload.iat, 7 * 24 * 60 * 60);
   assert.equal(f.state.cookieOptions.httpOnly, true); assert.equal(f.state.cookieOptions.sameSite, 'lax');
 });
@@ -216,4 +226,124 @@ test('password mismatch does not update account or clear forced-change state', a
   const form = new FormData(); form.set('password', 'fixture-password-only'); form.set('confirmPassword', 'different-fixture-password');
   assert.ok((await f.load('actions/auth.ts').changePasswordAction(form)).error);
   assert.deepEqual(f.state.businessCalls, []); assert.equal(f.state.user.mustChangePassword, true);
+});
+
+function passwordForm(password = 'fixture-new-password') {
+  const form = new FormData();
+  form.set('password', password); form.set('confirmPassword', password);
+  return form;
+}
+function applyPasswordUpdate(state, query) {
+  assert.equal(query.where.id, state.user.id);
+  if (query.where.sessionVersion !== undefined && query.where.sessionVersion !== state.user.sessionVersion) {
+    throw Object.assign(new Error('Session changed before write'), { code: 'P2025' });
+  }
+  assert.equal(query.data.sessionVersion.increment, 1);
+  state.user = { ...state.user, ...query.data, sessionVersion: state.user.sessionVersion + 1 };
+  return state.user;
+}
+test('changing a password revokes other browsers while keeping the new session usable', async () => {
+  const oldCookie = await token();
+  const f = fixture({ cookie: oldCookie, business: { user: {
+    update: async query => applyPasswordUpdate(f.state, query),
+  } } });
+  assert.equal((await f.load('actions/auth.ts').changePasswordAction(passwordForm())).success, true);
+  const currentCookie = f.state.cookie;
+  assert.equal((await f.load('app/api/me/route.ts').GET()).status, 200);
+  f.state.cookie = oldCookie;
+  assert.equal((await f.load('app/api/me/route.ts').GET()).status, 401);
+  assert.ok((await f.load('actions/auth.ts').changePasswordAction(passwordForm())).error);
+  assert.equal(f.state.user.sessionVersion, 1);
+  f.state.cookie = currentCookie;
+  assert.equal((await f.load('app/api/me/route.ts').GET()).status, 200);
+});
+test('admin reset revokes the target session permanently, including after forced change is completed', async () => {
+  const target = fixture({ cookie: await token() });
+  const oldCookie = target.state.cookie;
+  const admin = fixture({ cookie: await token({ id: 'reset-admin' }), user: { ...account, id: 'reset-admin' }, business: {
+    user: { update: async query => applyPasswordUpdate(target.state, query) },
+  } });
+  const response = await admin.load('app/api/users/[id]/reset-password/route.ts').POST(request('POST'),
+    { params: Promise.resolve({ id: account.id }) });
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(typeof body.newPassword, 'string');
+  assert.ok(await bcrypt.compare(body.newPassword, target.state.user.password));
+  assert.equal(target.state.user.mustChangePassword, true);
+  assert.equal(target.state.user.sessionVersion, 1);
+  assert.equal((await target.load('app/api/me/route.ts').GET()).status, 401);
+  assert.equal((await admin.load('app/api/me/route.ts').GET()).status, 200);
+
+  const forced = fixture({ user: target.state.user, business: { user: {
+    findUnique: async () => ({ ...forced.state.user }),
+    update: async query => applyPasswordUpdate(forced.state, query),
+  } } });
+  const login = new FormData(); login.set('email', account.email); login.set('password', body.newPassword);
+  await assert.rejects(forced.load('actions/auth.ts').loginAction(login), error => error.target === '/force-change-password');
+  const temporaryCookie = forced.state.cookie;
+  assert.equal((await forced.load('app/api/me/route.ts').GET()).status, 403);
+  assert.equal((await forced.load('actions/auth.ts').changePasswordAction(passwordForm())).success, true);
+  assert.equal(forced.state.user.sessionVersion, 2);
+  assert.equal((await forced.load('app/api/me/route.ts').GET()).status, 200);
+  const newCookie = forced.state.cookie;
+  for (const staleCookie of [oldCookie, temporaryCookie]) {
+    forced.state.cookie = staleCookie;
+    assert.equal((await forced.load('app/api/me/route.ts').GET()).status, 401);
+  }
+  forced.state.cookie = newCookie;
+  assert.equal((await forced.load('app/api/me/route.ts').GET()).status, 200);
+});
+test('reset racing with password change cannot be overwritten by the old session', async () => {
+  const f = fixture({ cookie: await token(), business: { user: { update: async query => {
+    f.state.user = { ...account, sessionVersion: 1, password: 'new-reset-hash', mustChangePassword: true };
+    return applyPasswordUpdate(f.state, query);
+  } } } });
+  const oldCookie = f.state.cookie;
+  assert.ok((await f.load('actions/auth.ts').changePasswordAction(passwordForm())).error);
+  assert.equal(f.state.cookie, oldCookie, 'Failed change must not issue a session');
+  assert.equal(f.state.user.password, 'new-reset-hash');
+  assert.equal(f.state.user.mustChangePassword, true);
+  assert.equal((await f.load('app/api/me/route.ts').GET()).status, 401);
+});
+test('two concurrent password changes from one session permit only one update', async () => {
+  const f = fixture({ cookie: await token(), business: { user: {
+    update: async query => applyPasswordUpdate(f.state, query),
+  } } });
+  const action = f.load('actions/auth.ts').changePasswordAction;
+  const results = await Promise.all([action(passwordForm('first-fixture-password')), action(passwordForm('second-fixture-password'))]);
+  assert.equal(results.filter(result => result.success).length, 1);
+  assert.equal(results.filter(result => result.error).length, 1);
+  assert.equal(f.state.user.sessionVersion, 1);
+  assert.equal((await f.load('app/api/me/route.ts').GET()).status, 200);
+});
+for (const role of ['ADMIN', 'TEKNISI', 'UNIVERSITAS']) {
+  test(`login for ${role} signs the version read with the password and preserves destination`, async () => {
+    const password = await bcrypt.hash('fixture-login-password', 4);
+    const user = { ...account, role, sessionVersion: 4, password };
+    const f = fixture({ user, business: { user: { findUnique: async () => ({ ...user }) } } });
+    const form = new FormData(); form.set('email', user.email); form.set('password', 'fixture-login-password');
+    const destination = { ADMIN: '/admin/dashboard', TEKNISI: '/petugas/dashboard', UNIVERSITAS: '/universitas/dashboard' }[role];
+    await assert.rejects(f.load('actions/auth.ts').loginAction(form), error => error.target === destination);
+    const payload = (await jwtVerify(f.state.cookie, key)).payload;
+    assert.equal(payload.sessionVersion, 4); assert.equal(payload.password, undefined);
+    assert.equal((await f.load('app/api/me/route.ts').GET()).status, 200);
+  });
+}
+test('login using a password read before a concurrent reset cannot acquire a valid newer session', async () => {
+  const password = await bcrypt.hash('old-fixture-password', 4);
+  const f = fixture({ business: { user: { findUnique: async () => {
+    const snapshot = { ...account, password };
+    f.state.user = { ...account, sessionVersion: 1, mustChangePassword: true };
+    return snapshot;
+  } } } });
+  const form = new FormData(); form.set('email', account.email); form.set('password', 'old-fixture-password');
+  await assert.rejects(f.load('actions/auth.ts').loginAction(form), error => error.target === '/admin/dashboard');
+  assert.equal((await jwtVerify(f.state.cookie, key)).payload.sessionVersion, 0);
+  assert.equal((await f.load('app/api/me/route.ts').GET()).status, 401);
+});
+test('database failure during password change leaves cookie and version unchanged', async () => {
+  const f = fixture({ cookie: await token(), business: { user: { update: async () => { throw new Error('write unavailable'); } } } });
+  const oldCookie = f.state.cookie;
+  await assert.rejects(f.load('actions/auth.ts').changePasswordAction(passwordForm()), /write unavailable/);
+  assert.equal(f.state.cookie, oldCookie); assert.equal(f.state.user.sessionVersion, 0);
 });

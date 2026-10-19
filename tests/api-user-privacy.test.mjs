@@ -18,6 +18,7 @@ const user = {
   createdAt: new Date('2026-01-01T00:00:00Z'),
   password: 'FIXTURE_PASSWORD_HASH_DO_NOT_EXPOSE', provider: 'credentials',
   futureSecret: 'FIXTURE_FUTURE_SECRET_DO_NOT_EXPOSE',
+  sessionVersion: 9,
 };
 const expectedUser = {
   id: user.id, name: user.name, email: user.email, role: user.role,

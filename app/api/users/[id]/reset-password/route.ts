@@ -28,6 +28,7 @@ export async function POST(req: Request, { params }: Params) {
       where: { id },
       data: {
         password: hashedPassword,
+        sessionVersion: { increment: 1 },
         mustChangePassword: true, // Paksa user ganti password saat login
       },
     });

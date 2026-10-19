@@ -42,6 +42,7 @@ export async function loginAction(formData: FormData) {
     role:             user.role,
     statusVerifikasi: user.statusVerifikasi,
     mustChangePassword: user.mustChangePassword,
+    sessionVersion: user.sessionVersion,
   });
 
   if (user.statusVerifikasi === "PENDING")  redirect("/pending");
@@ -77,9 +78,18 @@ export async function changePasswordAction(formData: FormData) {
   const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
 
   const updatedUser = await prisma.user.update({
-    where: { id: session.id },
-    data: { password: hashedPassword, mustChangePassword: false },
+    // A reset during hashing must not let the old session replace the new password.
+    where: { id: session.id, sessionVersion: session.sessionVersion },
+    data: {
+      password: hashedPassword,
+      mustChangePassword: false,
+      sessionVersion: { increment: 1 },
+    },
+  }).catch((error: unknown) => {
+    if (error && typeof error === "object" && "code" in error && error.code === "P2025") return null;
+    throw error;
   });
+  if (!updatedUser) return { error: "Sesi tidak valid. Silakan login kembali." };
 
   await createSession({
     id:               updatedUser.id,
@@ -88,6 +98,7 @@ export async function changePasswordAction(formData: FormData) {
     role:             updatedUser.role,
     statusVerifikasi: updatedUser.statusVerifikasi,
     mustChangePassword: false,
+    sessionVersion: updatedUser.sessionVersion,
   });
 
   return { success: true };

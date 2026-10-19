@@ -15,6 +15,7 @@ export interface SessionPayload {
   role: string;
   statusVerifikasi: string;
   mustChangePassword: boolean;
+  sessionVersion: number;
 }
 
 export async function createSession(payload: SessionPayload) {
@@ -41,6 +42,7 @@ export async function getSession(): Promise<SessionPayload | null> {
     if (!token) return null;
     const { payload } = await jwtVerify(token, SECRET, { algorithms: ["HS256"] });
     if (typeof payload.id !== "string" || !payload.id || typeof payload.exp !== "number") return null;
+    if (typeof payload.sessionVersion !== "number" || !Number.isSafeInteger(payload.sessionVersion) || payload.sessionVersion < 0) return null;
 
     // JWT establishes identity; current account permissions come from the database.
     const user = await prisma.user.findUnique({
@@ -52,9 +54,10 @@ export async function getSession(): Promise<SessionPayload | null> {
         role: true,
         statusVerifikasi: true,
         mustChangePassword: true,
+        sessionVersion: true,
       },
     });
-    if (!user) return null;
+    if (!user || user.sessionVersion !== payload.sessionVersion) return null;
     return {
       id: user.id,
       email: user.email,
@@ -62,6 +65,7 @@ export async function getSession(): Promise<SessionPayload | null> {
       role: user.role,
       statusVerifikasi: user.statusVerifikasi,
       mustChangePassword: user.mustChangePassword,
+      sessionVersion: user.sessionVersion,
     };
   } catch {
     return null;
