@@ -36,7 +36,7 @@ Jalankan PowerShell dari `D:\ProjectTTU\fti-uksw`. Pastikan database yang ditunj
    npx prisma migrate status
    ```
 
-   Lanjut ke langkah 3 jika enam migrasi lama sudah tercatat selesai dan hanya `20261019070000_add_session_version` yang belum diterapkan. Jika migrasi baru sudah selesai, lewati langkah deploy. Jika database pernah dibuat dengan `db push`, tidak memiliki tabel riwayat migrasi, mempunyai migrasi gagal, atau menampilkan migrasi lama sebagai pending, hentikan bagian migrasi dan kirim keluaran status untuk diperiksa. Migrasi lama dalam repositori memuat perubahan penghapusan tabel/kolom; jangan menjalankan semuanya begitu saja pada database berisi data.
+   Repositori sekarang berisi delapan migrasi, termasuk migrasi historis `20261002072806_add_superadmin_role` yang dipulihkan. Untuk database lokal yang telah diperiksa, lanjut ke langkah 3 jika tujuh migrasi lama sudah tercatat selesai dan hanya `20261019070000_add_session_version` yang belum diterapkan. Jika migrasi baru sudah selesai, lewati langkah deploy. Jika database pernah dibuat dengan `db push`, tidak memiliki tabel riwayat migrasi, mempunyai migrasi gagal, atau menampilkan migrasi lama sebagai pending, hentikan bagian migrasi dan kirim keluaran status untuk diperiksa. Migrasi lama dalam repositori memuat perubahan penghapusan tabel/kolom; jangan menjalankan semuanya begitu saja pada database berisi data.
 
 3. Setelah riwayat sesuai, buat cadangan melalui alat database yang biasa dipakai, lalu terapkan migrasi dan perbarui Prisma Client:
 
@@ -58,6 +58,16 @@ Jalankan PowerShell dari `D:\ProjectTTU\fti-uksw`. Pastikan database yang ditunj
    Hasil tes yang diharapkan: 60 pass, 0 fail. Semua tes pada perintah ini memakai database tiruan sehingga tidak menulis data aplikasi. Untuk mode produksi lokal, gunakan `npm run build` lalu `npm run start`.
 
 ## Crosscheck manual
+
+### Pemulihan riwayat migrasi lokal
+
+Database lokal mencatat `20261002072806_add_superadmin_role` sebagai migrasi selesai tanpa rollback. File yang hilang dipulihkan setelah perbandingan checksum di database menghasilkan `true`. SHA-256 file tersebut adalah `ed2afbf93fda096aba010bec7c9bcb8a7e71146d899b36ce93aa36716c9c1535`. Aturan `.gitattributes` mempertahankan akhiran baris LF khusus untuk file ini agar checkout Windows tidak mengubah byte-nya.
+
+SQL historis itu menambahkan nilai enum `SUPERADMIN`. Pemulihan file tidak memberikan hak akses baru pada aplikasi; role yang didukung alur aplikasi tetap ADMIN, TEKNISI, dan UNIVERSITAS. Pada database yang telah mencatat migrasi ini selesai, `migrate deploy` tidak menjalankannya ulang. Riwayat `_prisma_migrations` dan role akun tidak perlu diedit manual. Ketika delapan file tersedia, pemeriksaan status seharusnya hanya menyebut migrasi `add_session_version` sebagai tertunda, tanpa peringatan migrasi database yang hilang secara lokal.
+
+### Pemeriksaan sesi setelah migrasi
+
+Pemulihan riwayat diuji pada PostgreSQL terpisah dengan tujuh migrasi lama sudah diterapkan. Pemeriksaan status hanya menyebut `add_session_version` sebagai tertunda; deploy menerapkan satu migrasi tersebut dan status berikutnya menyatakan database sudah mutakhir. Akun fixture, role, serta hash password tetap tersimpan, dengan `sessionVersion` awal 0.
 
 Gunakan akun Teknisi uji. Reset password memang mengubah password akun tersebut. Jangan gunakan akun Admin utama sebagai sasaran reset.
 
