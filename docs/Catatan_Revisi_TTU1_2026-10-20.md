@@ -58,4 +58,14 @@ Untuk memeriksa di Microsoft Word:
 
 Daftar isi tidak dihitung ulang pada setiap ketikan. Pembaruan dilakukan oleh Word ketika field diperbarui; PDF merupakan hasil render dengan nomor halaman pada saat dibuat. Pemeriksaan di lingkungan cloud mencakup struktur field, bookmark, kesesuaian nomor halaman PDF, dan tampilan hasil render. Interaksi tombol Update Table pada Microsoft Word perlu dicoba pada komputer pengguna.
 
-Hasil pemeriksaan versi dengan format asli: 23 halaman PDF, 43 referensi halaman yang cocok, serta 143 paragraf bab dan semua sel tabel pengujian sesuai dengan Markdown. Struktur field berpasangan dengan benar dan semua target bookmark tersedia. Dari seluruh bagian paket DOCX unggahan, hanya `word/document.xml` (isi) serta `word/styles.xml` (penambahan gaya TOC) yang berubah. Seluruh gaya lama dan lima pengaturan bagian halaman tetap sama. Sorotan kuning dari unggahan asli dipertahankan.
+Hasil pemeriksaan sebelum penyesuaian bahasa: 23 halaman PDF, 43 referensi halaman yang cocok, serta 143 paragraf bab dan semua sel tabel pengujian sesuai dengan Markdown. Struktur field berpasangan dengan benar dan semua target bookmark tersedia. Dari seluruh bagian paket DOCX unggahan, hanya `word/document.xml` (isi) serta `word/styles.xml` (penambahan gaya TOC) yang berubah. Seluruh gaya lama dan lima pengaturan bagian halaman tetap sama. Sorotan kuning dari unggahan asli dipertahankan.
+
+## Penyesuaian bahasa berdasarkan naskah awal penulis
+
+Unggahan `TTU1_Abiezer.docx` digunakan sebagai referensi gaya bahasa. Isi file yang terbaca memuat Bab I dan Bab II sampai Bagian 2.3, diikuti judul Daftar Pustaka. Penyesuaian mengikuti cara naskah tersebut menjelaskan persoalan operasional terlebih dahulu, lalu alur sistem serta alasan pemilihan teknologinya. Susunan lima bab pada naskah lengkap tetap dipakai.
+
+Sebanyak 20 paragraf pada Bab IV dan V ditulis ulang. Kalimat diarahkan pada pekerjaan petugas, hubungan data, dan hasil yang dapat diamati. Rincian pemeriksaan tetap dicatat pada tabel pengujian serta panduan verifikasi. Fakta lama yang sudah dikoreksi—seperti registrasi otomatis dari QR yang tidak dikenal, klaim penerapan hosting, atau hasil pengujian yang belum tersedia—tidak diambil kembali dari naskah referensi. Tidak ditambahkan pengalaman, kutipan wawancara, maupun hasil ukur baru.
+
+Isi Bab I–III, judul bab/subbab, daftar pustaka, dan tabel hasil pengujian tetap mengikuti versi sebelumnya. Margin, format paragraf, penomoran, sorotan kuning, serta field daftar isi dipertahankan. Setelah penyesuaian bahasa, PDF berjumlah 24 halaman; nomor halaman pada 43 entri daftar isi diperbarui mengikuti hasil render terbaru. Isi bab tetap diselaraskan dengan laporan Markdown.
+
+Untuk crosscheck, baca Bagian 4.2, 4.4, dan 4.8 untuk membandingkan gaya penjelasan dengan naskah awal. Periksa kembali Bagian 4.7 agar hasil pengujian tetap sesuai dengan pemeriksaan yang sudah dilakukan, lalu perbarui seluruh daftar isi di Word apabila tata letak pada komputer pengguna berubah.
