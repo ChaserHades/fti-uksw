@@ -6,9 +6,9 @@ Abiezer B. A. Gamaliel — 672023096
 
 Program Studi Teknik Informatika, FTI UKSW — 2026
 
-Revisi 19 Oktober 2026. Isi bab diselaraskan dengan [TTU1 versi DOCX](TTU1_Abiezer_Revisi_2026-10-19.docx). Implementasi keamanan yang diperiksa: [`bc5ae72`](https://github.com/ChaserHades/fti-uksw/commit/bc5ae72). Panduan pemasangan dan pemeriksaan manual tersedia di [Verifikasi Perbaikan 03](Verifikasi_Perbaikan_03.md).
+Revisi bimbingan 20 Oktober 2026. Isi bab diselaraskan dengan [TTU1 versi DOCX](TTU1_Abiezer_Revisi_2026-10-20.docx) dan [PDF untuk dibaca](TTU1_Abiezer_Revisi_2026-10-20.pdf). Catatan lingkup perubahan tersedia di [Catatan Revisi TTU1](Catatan_Revisi_TTU1_2026-10-20.md). Bukti teknis serta langkah pemeriksaan manual tercatat pada [Verifikasi Perbaikan 03](Verifikasi_Perbaikan_03.md).
 
-## BAB I  PENDAHULUAN
+## BAB I PENDAHULUAN
 
 ### 1.1 Latar Belakang Masalah
 
@@ -16,11 +16,11 @@ Pengelolaan aset Sarana dan Prasarana Fakultas Teknologi Informasi (SARPRAS FTI)
 
 Kebutuhan informasi juga berbeda untuk setiap pengguna. Admin mengelola data dan akun, Teknisi menangani pekerjaan operasional, sedangkan pihak Universitas melihat data inventaris dan pengeluaran. Pembagian ini perlu diterapkan pada server. Menyembunyikan tombol pada halaman saja belum mencegah pengguna mengirim permintaan langsung ke API.
 
-Sebelum revisi ini, penulis telah melakukan wawancara untuk memahami kebutuhan SARPRAS. Pada saat wawancara, aplikasi masih memiliki bug dan beberapa bagian perlu diperbaiki. Masukan tersebut menjadi bahan peninjauan berikutnya, bukan bukti bahwa sistem sudah siap digunakan tanpa kendala. Aplikasi disusun untuk menghubungkan pendataan aset, ruangan, peminjaman, pengembalian, dan pengeluaran. Akun baru berstatus PENDING sampai memperoleh persetujuan Admin. Admin dan Teknisi menjalankan fungsi operasional sesuai hak akses, sedangkan pengelolaan akun, penghapusan aset, dan perubahan pengeluaran dibatasi kepada Admin.
+Penulis telah melakukan wawancara dengan pihak SARPRAS ketika aplikasi masih memiliki bug dan membutuhkan perbaikan. Kegiatan tersebut menjadi bagian dari pengumpulan kebutuhan selama pengembangan. Setelah wawancara, penulis melanjutkan peninjauan implementasi dan pengujian aplikasi. Laporan ini membedakan hasil pengembangan tersebut dari penerimaan sistem oleh pengguna SARPRAS, yang belum dinyatakan selesai.
 
-Data aset dapat dimasukkan melalui formulir atau impor Excel (.xlsx). Berkas impor diperiksa dalam pratinjau sebelum disimpan. QR Code dari sistem dipakai untuk membuka data barang, membantu transaksi, dan memeriksa aset yang pernah dihapus. Pada fitur pemulihan, kode yang tidak ditemukan tidak langsung membuat aset baru. Peminjaman mencatat nama peminjam, petugas, ruangan tujuan, dan tenggat pengembalian. Pengeluaran pembelian maupun pemeliharaan dapat dihubungkan dengan aset melalui kelompok pembelian. Ekspor CSV dan Excel tersedia pada endpoint laporan sesuai hak akses masing-masing.
+Aplikasi yang dikembangkan menghubungkan pendataan aset, kategori, ruangan, peminjaman, pengembalian, dan pengeluaran. Formulir serta impor Excel (.xlsx) digunakan untuk memasukkan data aset. QR Code membantu petugas menemukan barang yang sesuai sebelum melakukan tindakan. Peminjaman mencatat nama peminjam, petugas, ruangan tujuan, dan tenggat pengembalian; kelompok pembelian menghubungkan aset dengan catatan pengeluaran. Pembagian akses disertai persetujuan akun baru oleh Admin sebelum akun dapat digunakan.
 
-Aplikasi menggunakan Next.js App Router, React, TypeScript, Prisma ORM, dan PostgreSQL. Login yang tersedia saat revisi ini memakai email dan password, dengan sesi JWT pada cookie HttpOnly. Server membaca role dan status akun terbaru serta memeriksa versi sesi. Gambar QR dan berkas nota masih dapat disimpan sebagai data URL Base64 di basis data. Rencana hosting yang sebelumnya mengacu pada Vercel sedang diarahkan ke Cloudflare, dengan tetap memerlukan pemeriksaan kompatibilitas. Login Google melalui akun mahasiswa atau SSO juga merupakan rencana lanjutan. Kedua rencana tersebut belum dihitung sebagai hasil implementasi dalam revisi ini.
+Pengembangan menggunakan Next.js, React, TypeScript, Prisma ORM, dan PostgreSQL. Pada versi yang dibahas, pengguna login dengan email dan password. Pemeriksaan sesi mencakup kondisi akun terbaru serta pencabutan sesi setelah reset atau penggantian password. Hosting Cloudflare dan login Google melalui akun mahasiswa atau SSO masih menjadi rencana pengembangan. Penilaian pada laporan ini didasarkan pada implementasi dan hasil pengujian yang telah tersedia, bukan pada fitur yang masih direncanakan.
 
 ### 1.2 Rumusan Masalah
 
@@ -72,7 +72,7 @@ Manfaat yang diharapkan dari pembangunan sistem ini adalah sebagai berikut:
 
 Laporan ini disusun dalam lima bab. Bab I membahas latar belakang, rumusan masalah, tujuan, batasan, dan manfaat penelitian. Bab II memuat penelitian terdahulu serta teori yang digunakan. Bab III menjelaskan metode dan rancangan sistem. Bab IV membahas implementasi serta hasil pemeriksaan. Bab V memuat hasil yang dicapai, keterbatasan, dan saran pengembangan.
 
-## BAB II  TINJAUAN PUSTAKA DAN LANDASAN TEORI
+## BAB II TINJAUAN PUSTAKA DAN LANDASAN TEORI
 
 ### 2.1 Penelitian Terdahulu
 
@@ -106,7 +106,7 @@ Aplikasi dibangun menggunakan Next.js dengan TypeScript. Next.js menyediakan App
 
 Black-box testing memeriksa fungsi berdasarkan masukan dan keluaran yang diharapkan [4]. Skenario pada aplikasi mencakup login, akses setiap role, aset, QR Code, peminjaman, pengembalian, serta impor dan ekspor. Pemeriksaan melalui antarmuka dilengkapi tes otomatis untuk respons API dan sesi. Tes yang memakai database tiruan dipisahkan dari pemeriksaan dengan PostgreSQL agar batas bukti pengujiannya jelas.
 
-## BAB III  METODE PENELITIAN
+## BAB III METODE PENELITIAN
 
 ### 3.1 Jenis Penelitian
 
@@ -114,11 +114,11 @@ Penelitian ini termasuk penelitian terapan (Applied Research) di bidang Rekayasa
 
 ### 3.2 Metode Pengumpulan Data
 
-Pengumpulan kebutuhan dan pemeriksaan implementasi disusun melalui dua sumber berikut.
+Pengumpulan kebutuhan dilakukan melalui wawancara dengan pihak SARPRAS dan studi literatur. Untuk menilai kesesuaian laporan dengan aplikasi, penulis juga menelaah struktur basis data, pembatasan akses, serta hasil pengujian pada versi yang dibahas.
 
-1. Studi literatur dan dokumentasi: menelaah referensi QR Code, RBAC, aplikasi web, dan basis data relasional. Dokumentasi Next.js, PostgreSQL, serta Prisma menjadi rujukan teknis selama pengembangan.
+Studi literatur mencakup pengelolaan aset, QR Code, RBAC, dan pengujian perangkat lunak. Dokumentasi Next.js, PostgreSQL, dan Prisma digunakan sebagai rujukan implementasi. Sumber tersebut membantu menjelaskan pilihan teknologi dan cara kerjanya, sedangkan kebutuhan penggunaan tetap mengacu pada konteks SARPRAS.
 
-2. Wawancara kebutuhan: penulis telah mewawancarai pihak SARPRAS ketika aplikasi masih memiliki bug dan membutuhkan perbaikan. Wawancara membantu meninjau kebutuhan dan alur penggunaan. Catatan wawancara serta masukan yang diperoleh perlu disertakan sebagai bukti kegiatan, terpisah dari hasil pengujian teknis pada versi aplikasi sesudah perbaikan.
+Wawancara berlangsung ketika aplikasi masih dalam tahap perbaikan. Karena itu, informasi dari kegiatan tersebut digunakan untuk memahami kebutuhan dan meninjau alur penggunaan pada tahap pengembangan. Hasil wawancara tidak diperlakukan sebagai persetujuan terhadap versi aplikasi setelah perbaikan. Pemeriksaan teknis dan pengujian penerimaan pengguna merupakan kegiatan terpisah.
 
 ### 3.3 Metode Pengembangan Sistem
 
@@ -128,7 +128,7 @@ Analisis kebutuhan: menetapkan tiga role pengguna dan hubungan data User, Barang
 
 Perancangan sistem: menyusun relasi basis data dan halaman kerja untuk inventaris, peminjaman, riwayat, Cashflow, serta Tim & Verifikasi. Antarmuka memakai gaya visual yang sudah digunakan pada aplikasi, dengan tabel, pencarian, formulir, dan dialog konfirmasi.
 
-Implementasi Kode (Implementation):
+Implementasi menggabungkan antarmuka, akses data, autentikasi, pengelolaan berkas, dan pembacaan QR Code. Pemilihan teknologi mengikuti kebutuhan masing-masing bagian, seperti dijelaskan berikut.
 
 Frontend dan backend: menggunakan Next.js App Router dengan komponen React. Server menangani pemeriksaan akses dan pembacaan data, sedangkan komponen client menangani interaksi formulir, tabel, serta kamera.
 
@@ -146,15 +146,15 @@ Pengujian: menjalankan tes otomatis pada penjagaan akses, kerahasiaan respons pe
 
 Perbaikan lanjutan: temuan di luar tahap yang sedang dikerjakan dicatat untuk pemeriksaan berikutnya. Hasil build dipakai untuk memastikan aplikasi dapat dibangun, bukan untuk menyatakan seluruh fungsi bebas kesalahan.
 
-### 3.4 Analisis Sistem Berjalan
+### 3.4 Analisis Proses dan Kebutuhan Operasional
 
-Analisis berangkat dari kebutuhan mencocokkan data fisik aset dengan catatan ruangan, peminjaman, dan pengeluaran. Bila catatan tersebut dikelola terpisah, pemindahan atau pengembalian barang memerlukan pembaruan pada lebih dari satu tempat. Aplikasi menyatukan hubungan datanya agar petugas dapat memeriksa status dan riwayat dari halaman yang saling terkait.
+Proses yang menjadi perhatian penelitian meliputi pendataan barang, penempatan ruangan, peminjaman, pengembalian, dan pencatatan pengeluaran. Setiap proses memerlukan hubungan data yang jelas. Misalnya, catatan peminjaman perlu menunjukkan barang yang digunakan, nama peminjam, petugas pencatat, serta waktu pengembalian. Informasi tersebut menjadi dasar penyusunan alur aplikasi. Pembahasan ini tidak menetapkan besarnya kesalahan atau waktu kerja pada proses sebelumnya karena pengukuran tersebut belum tersedia.
 
-Pada sisi pengeluaran, satu pembelian dapat berkaitan dengan beberapa barang dan beberapa bukti pembayaran. Karena itu, hubungan tidak cukup diwakili oleh satu kolom nota pada barang. Model KelompokPembelian digunakan sebagai penghubung, sementara catatan pengeluaran tetap dapat berdiri sendiri ketika belum dikaitkan dengan aset.
+Perubahan ruangan dan peminjaman diperlakukan sebagai dua kegiatan berbeda. Pemindahan memperbarui ruangan pada data aset, sedangkan peminjaman menyimpan ruangan tujuan penggunaan pada catatan transaksi. Pada sisi pengeluaran, satu kelompok pembelian dapat menghubungkan beberapa aset dan bukti pembayaran. Catatan pengeluaran juga dapat disimpan tanpa hubungan ke barang, misalnya ketika belum ada aset yang dikaitkan. Hubungan ini dituangkan ke rancangan basis data pada Bagian 3.6.2.
 
 ### 3.5 Analisis Kebutuhan Sistem
 
-Kebutuhan sistem dibagi menjadi kebutuhan fungsional dan kebutuhan nonfungsional. Kebutuhan fungsional berhubungan langsung dengan proses yang dilakukan pengguna, sedangkan kebutuhan nonfungsional digunakan untuk menentukan batas dari sisi keamanan dan cara sistem digunakan.
+Kebutuhan fungsional menjelaskan tindakan yang harus disediakan bagi pengguna. Kebutuhan nonfungsional berkaitan dengan pembatasan akses, keterjagaan data, dan kondisi penggunaan aplikasi. Kebutuhan fungsional yang menjadi cakupan pengembangan adalah sebagai berikut.
 
 1.	Sistem menyediakan autentikasi pengguna dan proses persetujuan akun sebelum akun dapat digunakan.
 
@@ -166,7 +166,9 @@ Kebutuhan sistem dibagi menjadi kebutuhan fungsional dan kebutuhan nonfungsional
 
 5. Impor menerima berkas Excel (.xlsx). Ekspor laporan menyediakan CSV dan Excel sesuai pembatasan role pada endpoint.
 
-6. Operasi yang dicakup pencatatan log menyimpan pelaku, waktu, entitas, dan ringkasan tindakan. Akun yang belum disetujui atau wajib mengganti password tidak dapat mengakses API operasional.
+6. Sistem mencatat pengeluaran dan hubungan kelompok pembelian. Pada operasi yang memiliki pencatatan log, sistem menyimpan pelaku, waktu, entitas, dan ringkasan tindakan.
+
+Kebutuhan nonfungsional meliputi pemeriksaan akses pada server, penyimpanan password dalam bentuk hash, pembatasan field profil pada respons, dan pencabutan sesi setelah perubahan password. Aplikasi ditujukan untuk penggunaan melalui browser, dengan izin kamera apabila pemindaian digunakan. Relasi dan transaksi basis data mendukung keterjagaan hubungan catatan. Target waktu respons, jumlah pengguna serentak, serta tingkat ketersediaan layanan belum ditetapkan sebagai hasil terukur pada penelitian ini.
 
 ### 3.6 Perancangan Sistem
 
@@ -178,11 +180,17 @@ Hak akses mengikuti role dan kondisi akun. Admin mengelola data utama serta akun
 
 #### 3.6.2 Perancangan Basis Data
 
-Basis data terdiri atas delapan model utama: User, Barang, Kategori, Ruangan, Peminjaman, Pengeluaran, KelompokPembelian, dan LogAktivitas. Barang memiliki relasi ke kategori dan ruangan, serta hubungan opsional ke pengeluaran dan kelompok pembelian. Peminjaman menyimpan nama peminjam aktual dan userId petugas pencatat. Pada User, sessionVersion berupa bilangan bulat dengan nilai awal 0. Nilai ini dinaikkan ketika password diganti atau di-reset, tanpa mengubah data aset dan transaksi.
+Basis data terdiri atas delapan model utama: User, Barang, Kategori, Ruangan, Peminjaman, Pengeluaran, KelompokPembelian, dan LogAktivitas. Setiap barang terhubung ke satu kategori dan dapat ditempatkan pada satu ruangan. Satu barang dapat memiliki banyak riwayat peminjaman dari waktu yang berbeda. Pada setiap peminjaman, userId menunjuk akun petugas pencatat, sedangkan namaPeminjam menyimpan nama peminjam aktual. Dengan rancangan ini, peminjam tidak harus mempunyai akun aplikasi.
+
+Kategori dan Ruangan masing-masing dapat berkaitan dengan banyak barang. Satu KelompokPembelian dapat menghubungkan banyak Barang dan banyak Pengeluaran, sedangkan setiap catatan tersebut memiliki paling banyak satu kelompok pembelian. Hubungan langsung Pengeluaran ke Barang juga masih tersedia pada model. User terhubung ke peminjaman, pengeluaran, dan log aktivitas sebagai pencatat tindakan. LogAktivitas menyimpan nama entitas serta ID entitas yang dicatat, tanpa foreign key ke setiap jenis entitas.
+
+Pada User, sessionVersion disimpan sebagai bilangan bulat dengan nilai awal 0. Login menyalin versi tersebut ke JWT. Ketika password di-reset atau diganti, versi pada akun dinaikkan. Permintaan berikutnya membandingkan versi token dengan versi akun; perbedaan nilai menyebabkan sesi ditolak. Mekanisme ini tidak mengubah hubungan data aset dan transaksi.
 
 #### 3.6.3 Perancangan Alur QR Code
 
-QR Code digunakan untuk mencari aset berdasarkan identitas yang dibaca. Pada fitur pemulihan, server membedakan lima hasil: ACTIVE untuk aset aktif, RECOVERABLE untuk aset terhapus yang masih dapat dipulihkan, EXPIRED ketika masa pemulihan berakhir, AMBIGUOUS ketika label lama cocok dengan lebih dari satu aset, dan NOT_FOUND ketika tidak ada data yang sesuai. Batas pemulihan adalah enam hari sejak deletedAt. Hasil NOT_FOUND atau AMBIGUOUS tidak membuat barang baru secara otomatis.
+QR Code yang dihasilkan sistem memuat ID internal barang dan kode label dalam format JSON. Pembaca mendahulukan ID untuk menemukan barang; format kode lama tetap dapat dibaca melalui nilai kode atau teks biasa. Hasil pindaian digunakan sebagai masukan pencarian. Tindakan berikutnya bergantung pada halaman yang digunakan, misalnya membuka formulir peminjaman atau memeriksa kemungkinan pemulihan barang terhapus.
+
+Pada alur pemulihan, server mencari ID internal terlebih dahulu, kemudian mencoba label lama. Hasilnya adalah ACTIVE untuk aset aktif, RECOVERABLE untuk aset terhapus yang masih dalam masa pemulihan, EXPIRED setelah masa tersebut berakhir, AMBIGUOUS untuk label yang cocok dengan lebih dari satu barang, atau NOT_FOUND apabila tidak ada kecocokan. Batas pemulihan adalah enam hari sejak deletedAt. Status RECOVERABLE masih memerlukan tindakan pemulihan oleh pengguna yang berhak; hasil pindaian tidak langsung memulihkan atau membuat barang baru.
 
 #### 3.6.4 Rancangan Pengujian
 
@@ -196,21 +204,23 @@ Skenario pengujian disusun dari fungsi operasional dan aturan akses. Daftar beri
 
 4. Barang berstatus DIPINJAM ditolak pada peminjaman berikutnya dalam urutan biasa. Permintaan peminjaman serentak perlu diuji secara terpisah karena pemeriksaan status dilakukan sebelum transaksi penyimpanan.
 
-5. Berkas Excel diperiksa dalam pratinjau sebelum disimpan. Untuk sesi, cookie lama diuji kembali setelah password diganti, setelah reset Admin, dan setelah kewajiban ganti password selesai.
+5. Berkas Excel diperiksa dalam pratinjau sebelum disimpan. Pemeriksaan meliputi kesesuaian kolom dan ringkasan hasil impor; ketersediaan fungsi pada kode dibedakan dari bukti bahwa seluruh variasi berkas telah diuji.
 
-## BAB IV  HASIL IMPLEMENTASI DAN PEMBAHASAN
+6. Reset dan penggantian password diperiksa dengan sesi browser terpisah. Sesi lama harus ditolak, login dengan password sementara harus mengikuti kewajiban ganti password, dan sesi baru setelah penggantian harus dapat membaca profil. Akun lain yang tidak menjadi sasaran reset diperiksa untuk memastikan aksesnya tetap berjalan.
+
+## BAB IV HASIL IMPLEMENTASI DAN PEMBAHASAN
 
 ### 4.1 Hasil Implementasi Sistem
 
-Hasil implementasi berupa aplikasi manajemen aset SARPRAS FTI UKSW berbasis web. Menu Admin mencakup Dashboard, Manajemen Aset, serta Tim & Verifikasi. Pada Manajemen Aset tersedia bagian Aset, Peminjaman, Riwayat, dan Cashflow. Aplikasi dibangun dengan Next.js dan TypeScript, menggunakan Prisma ORM serta PostgreSQL. Revisi laporan ini mengikuti kode perbaikan sesi bc5ae72, yang melanjutkan pembatasan respons pengguna dan pemeriksaan kondisi akun pada revisi sebelumnya.
+Hasil pengembangan berupa aplikasi manajemen aset SARPRAS FTI UKSW berbasis web. Admin menggunakan menu Dashboard, Manajemen Aset, serta Tim & Verifikasi. Manajemen Aset memuat Aset, Peminjaman, Riwayat, dan Cashflow. Halaman Teknisi berfokus pada peminjaman, ketersediaan, dan riwayat, sedangkan halaman Universitas menyajikan inventaris dan pengeluaran. Penjelasan implementasi berikut mengacu pada kode yang tersedia sampai 20 Oktober 2026.
 
 ### 4.2 Implementasi Pengelolaan Aset
 
-Data aset mencakup identitas barang, kategori, ruangan, kondisi, status, jumlah, serta informasi pembelian yang tersedia. Admin dan Teknisi dapat menambah atau memperbarui aset sesuai endpoint yang digunakan. Penghapusan oleh Admin mula-mula mengisi deletedAt sehingga barang masuk daftar terhapus. Aset tersebut dikecualikan dari peminjaman baru dan beberapa pemilihan data operasional. Pemulihan tersedia dalam waktu enam hari; penghapusan permanen tetap memeriksa hubungan dengan riwayat peminjaman. Impor .xlsx menyediakan pratinjau dan ringkasan hasil penyimpanan.
+Data aset menyimpan identitas barang, kategori, ruangan, kondisi, status, jumlah, dan informasi pembelian. Kondisi fisik, seperti BAIK atau RUSAK_RINGAN, dibedakan dari status penggunaan TERSEDIA, DIPINJAM, atau MAINTENANCE. Endpoint penambahan dan pembaruan aset mengizinkan Admin serta Teknisi. Pemindahan barang dilakukan melalui pembaruan ruangan pada aset. Penghapusan oleh Admin mengisi deletedAt sehingga data masuk daftar terhapus, tanpa langsung menghilangkan seluruh catatannya. Pemulihan tersedia selama enam hari sejak penghapusan. Penghapusan permanen ditolak apabila barang masih mempunyai riwayat peminjaman. Impor .xlsx menyediakan pratinjau dan ringkasan hasil penyimpanan.
 
 ### 4.3 Implementasi QR Code
 
-QR Code yang dibuat sistem dapat dicetak untuk identifikasi barang. Pemindaian menghubungkan kode dengan data di basis data dan menampilkan hasil yang sesuai. Fitur pemulihan menggunakan lima status yang dijelaskan pada Bab III. Label lama yang dipakai lebih dari satu aset menghasilkan AMBIGUOUS, sehingga sistem tidak memilih satu barang secara acak. Kamera memerlukan dukungan browser dan izin pengguna; pengujian pada satu perangkat belum membuktikan kompatibilitas semua perangkat.
+QR Code dapat dibuat dan dicetak untuk ditempelkan pada barang. Pada halaman Peminjaman, petugas memindai kode atau memasukkannya secara manual untuk mencari aset. Barang yang tersedia dapat dilanjutkan ke formulir peminjaman, sedangkan barang yang sedang dipinjam diperiksa terhadap transaksi aktif untuk proses pengembalian. Pada halaman pemulihan, hasil pencarian mengikuti lima status yang dijelaskan pada Bab III. Penanganan label yang cocok dengan beberapa barang pada alur pemulihan menghasilkan AMBIGUOUS. Pembacaan kamera memakai jsQR dan izin kamera browser; akses kamera memerlukan konteks aman, seperti HTTPS atau localhost. Kesesuaian kamera lintas perangkat masih perlu diuji.
 
 ### 4.4 Implementasi Role-Based Access Control
 
@@ -220,7 +230,7 @@ Pencabutan sesi memakai sessionVersion pada akun dan JWT. Reset Admin menyimpan 
 
 ### 4.5 Implementasi Peminjaman dan Pengembalian
 
-Peminjaman menyimpan barang, nama peminjam, ruangan tujuan, petugas pencatat, dan deadlineKembali. Transaksi baru memakai status AKTIF dan mengubah status barang menjadi DIPINJAM. Pengembalian mengisi tanggalKembali dan mengubah transaksi menjadi SELESAI. Barang aktif kembali menjadi TERSEDIA; barang yang telah dihapus tetap diperlakukan sebagai barang terhapus. Penanda terlambat disimpan pada riwayat. Pemeriksaan status yang ada menangani peminjaman berurutan, tetapi belum menjadi bukti pencegahan dua permintaan pinjam yang datang bersamaan.
+Peminjaman mencatat barang, nama peminjam, ruangan tujuan, akun petugas, dan tenggat pengembalian. Transaksi baru berstatus AKTIF dan mengubah status barang menjadi DIPINJAM. Pengembalian mengisi tanggal kembali dan mengubah transaksi menjadi SELESAI. Barang yang belum dihapus kembali berstatus TERSEDIA. Jika barang telah dihapus, proses pengembalian tidak memulihkannya secara otomatis. Penanda keterlambatan disimpan pada riwayat agar keterlambatan sebelumnya tetap dapat diketahui. Pemeriksaan ketersediaan barang berlangsung sebelum transaksi penyimpanan; karena itu, penggunaan transaksi saja belum menjamin penolakan dua permintaan pinjam yang datang bersamaan.
 
 ### 4.6 Implementasi Pengeluaran dan Laporan
 
@@ -228,30 +238,32 @@ Cashflow mencatat pengeluaran dengan jenis PEMBELIAN_ASET, MAINTENANCE, atau LAI
 
 ### 4.7 Hasil Pengujian
 
-Pada revisi 19 Oktober 2026, perintah node --test tests/*.test.mjs menjalankan 60 tes dan seluruhnya lulus. Sebanyak 13 tes memeriksa pembatasan profil pengguna pada respons dan ekspor; 47 tes lainnya mencakup sesi, akses, perubahan password, dan reset. Modul aplikasi yang sebenarnya dijalankan dengan batas database dan cookie tiruan pada tes tersebut. Verifikasi JWT dan hashing tetap memakai library yang digunakan aplikasi. Hasil ini dilengkapi pemeriksaan PostgreSQL serta permintaan HTTP ke aplikasi yang dibangun.
+Pengujian otomatis pada 19 Oktober 2026 menjalankan 60 tes melalui perintah node --test tests/*.test.mjs dan seluruhnya lulus. Sebanyak 13 tes memeriksa pembatasan profil pengguna pada respons API dan ekspor. Sebanyak 47 tes memeriksa sesi, hak akses, reset, dan penggantian password. Tes menggunakan modul aplikasi dengan database dan cookie tiruan, sedangkan verifikasi JWT serta hashing memakai library aplikasi. Pemeriksaan terpisah menggunakan PostgreSQL uji dan permintaan HTTP ke aplikasi hasil build. Jumlah tersebut menunjukkan cakupan tes yang dijalankan, bukan persentase keberhasilan seluruh fitur.
 
-Tabel 4.1. Cakupan dan hasil verifikasi revisi 19 Oktober 2026
+Tabel 4.1. Cakupan dan hasil pengujian yang tersedia pada revisi 20 Oktober 2026
 
 | Pemeriksaan | Lingkungan/bukti | Hasil |
 | --- | --- | --- |
 | Profil pengguna | 13 tes modul API dan ekspor; database tiruan | Lulus; field profil terpilih, tanpa hash password. |
 | Sesi dan akses | 47 tes; JWT/bcrypt nyata, cookie dan database tiruan | Lulus; termasuk token lama, role, reset, dan perubahan bersamaan. |
 | Migrasi akun | PostgreSQL uji; akun dibuat sebelum migrasi baru | Lulus; data dan hash tetap, sessionVersion menjadi 0. |
-| Pembaruan bersamaan | Prisma dan PostgreSQL uji | Versi bertambah atomik; hanya satu perubahan dengan versi awal yang sama berhasil. |
+| Penggantian password bersamaan | Prisma dan PostgreSQL uji | Versi sesi bertambah atomik; satu pembaruan dengan versi awal yang sama berhasil. Tidak menguji peminjaman bersamaan. |
 | HTTP aplikasi | Next.js hasil build dan PostgreSQL uji | Sesi valid 200; sesi lama setelah reset 401; sesi wajib ganti password 403. |
 | Build dan tipe | npm run build; pemeriksaan TypeScript terarah | Build lulus. Tidak ada diagnostik pada tiga berkas autentikasi; pemeriksaan tipe seluruh proyek belum dinyatakan lulus. |
 | Pemeriksaan manual | Browser lokal; akun Admin, Teknisi, dan Universitas | Akses normal Admin berhasil. Sesi lama Teknisi tetap 401 setelah reset dan ganti password; sesi baru dapat membaca profil. Akun Universitas tetap 200. |
-| Uji lanjutan | Kamera lintas perangkat, beban, dan pengguna SARPRAS | Pengujian kamera, beban, dan penerimaan pengguna belum dicatat sebagai selesai. |
+| Uji lanjutan | Kamera lintas perangkat, beban, dan pengguna SARPRAS | Belum selesai; tidak dihitung sebagai pengujian yang lulus. |
 
-Pengujian manual dilanjutkan pada browser lokal setelah perbaikan dipasang. Saat Admin mereset password Teknisi, sesi Teknisi yang masih terbuka mendapat HTTP 401 pada /api/me, sedangkan akun Universitas tetap mendapat HTTP 200. Login dengan password sementara mengarahkan Teknisi ke formulir wajib ganti password; API juga menampilkan pesan bahwa password harus diganti terlebih dahulu. Setelah password baru disimpan, sesi baru dapat membaca profil Teknisi. Sesi lama di Incognito tetap mendapat HTTP 401 ketika dimuat ulang. Hasil ini melengkapi pemeriksaan akses normal Admin dan respons tanpa hash password yang telah dilakukan sebelumnya. Wawancara SARPRAS berlangsung saat versi aplikasi masih memiliki bug. Pengujian penerimaan versi terbaru, kamera lintas perangkat, dan beban masih perlu dilakukan tersendiri.
+Pengujian manual melalui browser lokal menunjukkan bahwa Admin dapat membuka Dashboard, Peminjaman, Riwayat, Cashflow, serta Tim & Verifikasi. Respons profil yang diperiksa tidak lagi memuat hash password. Sesudah Admin mereset password Teknisi, sesi lama Teknisi mendapat HTTP 401 pada /api/me, sedangkan akun Universitas tetap mendapat HTTP 200. Login menggunakan password sementara menampilkan formulir wajib ganti password dan pesan penolakan akses API sampai password diganti. Setelah penyimpanan password baru, sesi baru dapat membaca profil Teknisi. Sesi lama di Incognito tetap mendapat HTTP 401 saat dimuat ulang. Hasil tersebut memperlihatkan bahwa reset hanya mencabut sesi akun sasaran pada skenario yang diperiksa.
+
+Status HTTP pada tahap wajib ganti password di screenshot manual tidak terlihat, sehingga laporan hanya mencatat pesan penolakan yang tampil. HTTP 403 pada kondisi tersebut telah diperiksa melalui pengujian HTTP terpisah. Pengujian penerimaan bersama SARPRAS, pembacaan kamera lintas perangkat, dan pengujian beban belum dicatat sebagai selesai. Wawancara pada versi yang masih memiliki bug tidak digunakan sebagai pengganti kegiatan-kegiatan tersebut.
 
 ### 4.8 Pembahasan
 
-Hubungan antara barang, transaksi, ruangan, dan pengeluaran membuat informasi dapat dibaca dari satu aplikasi. Perbaikan keamanan memperjelas batas akses: perubahan role mengikuti data terbaru, profil yang dikirim ke browser tidak membawa hash password, dan reset password membatalkan sesi lama. Pada kasus reset, penanda wajib ganti password saja tidak cukup. Tanpa versi sesi, token lama berpotensi dapat digunakan lagi ketika penanda tersebut sudah dinonaktifkan.
+Hasil implementasi menjawab kebutuhan pengelolaan data melalui hubungan aset, ruangan, peminjaman, dan pengeluaran dalam satu aplikasi. QR Code menyediakan cara untuk menemukan data aset, sementara pemeriksaan role membatasi tindakan yang boleh dilakukan pengguna. Namun, keberadaan fitur pada kode dan keberhasilan membuka halaman belum menunjukkan besarnya penghematan waktu kerja. Penilaian manfaat operasional membutuhkan pengukuran serta keterlibatan pengguna SARPRAS.
 
-Implementasi tersebut belum membuktikan kesiapan pada semua kondisi penggunaan. Pengujian keamanan sesi memiliki cakupan yang jelas, sedangkan alur lain masih memerlukan pemeriksaan tersendiri. Penyimpanan Base64, konsistensi perhitungan keterlambatan, dan peminjaman serentak tetap perlu ditinjau. Rencana Cloudflare serta login Google/SSO belum diterapkan pada versi yang diuji. Efisiensi kerja petugas juga belum dapat dinyatakan dalam angka tanpa pengukuran sebelum dan sesudah penggunaan sistem.
+Pengujian yang paling lengkap pada revisi ini berada pada pembatasan respons pengguna dan pengelolaan sesi. Sebelum perbaikan, penanda wajib ganti password belum cukup untuk mencabut sesi lama secara permanen. Pemeriksaan versi sesi menutup kemungkinan penggunaan kembali token tersebut setelah kewajiban ganti password selesai. Bukti manual memperlihatkan sesi lama tetap ditolak dan sesi baru dapat membaca profil. Hasil ini mendukung perbaikan pada skenario tersebut, tetapi tidak menggantikan pengujian peminjaman serentak, konsistensi keterlambatan, kamera, beban, dan penerimaan pengguna.
 
-## BAB V  PENUTUP
+## BAB V PENUTUP
 
 ### 5.1 Hasil yang Dicapai
 
@@ -265,15 +277,15 @@ Pengembangan pada revisi ini menghasilkan tiga hal berikut.
 
 ### 5.2 Keterbatasan
 
-Keterbatasan saat ini meliputi penyimpanan lampiran sebagai Base64, belum lengkapnya pengujian kamera dan beban, serta risiko peminjaman serentak yang perlu diperiksa lebih lanjut. Build masih memakai konfigurasi ignoreBuildErrors, sehingga build yang berhasil tidak berarti semua berkas proyek telah lolos TypeScript. Pemeriksaan TypeScript terarah pada tiga berkas autentikasi yang diubah tidak menemukan diagnostik. Pemasangan sessionVersion membutuhkan migrasi database dan membuat sesi dari versi aplikasi sebelumnya tidak berlaku; pengguna perlu login ulang.
+Pengujian belum mencakup seluruh variasi transaksi, perangkat kamera, dan beban penggunaan. Efisiensi kerja SARPRAS belum diukur secara kuantitatif dan pengujian penerimaan versi terbaru belum selesai. Pada implementasi, lampiran masih disimpan sebagai data URL Base64 di basis data. Peminjaman serentak serta konsistensi aturan keterlambatan juga memerlukan pemeriksaan lanjutan. Dari sisi pemeriksaan kode, build masih menggunakan ignoreBuildErrors; keberhasilan build belum berarti seluruh proyek bebas kesalahan tipe. Pemeriksaan TypeScript yang telah dilakukan hanya mencakup tiga berkas autentikasi yang diubah beserta dependensinya.
 
 ### 5.3 Saran
 
 Pengembangan berikutnya perlu mempertimbangkan kebutuhan penggunaan nyata dan temuan pengujian yang belum selesai.
 
-1. Menuntaskan pemeriksaan peminjaman serentak, konsistensi batas keterlambatan, dan validasi masukan. Sesudah itu, lakukan pengujian penerimaan dengan pengguna SARPRAS dan simpan bukti setiap skenario.
+1. Prioritas berikutnya adalah menuntaskan pemeriksaan peminjaman serentak, aturan keterlambatan, dan validasi masukan, kemudian menjalankan uji regresi alur aset, peminjaman, pengembalian, serta pengeluaran. Pengujian bersama SARPRAS perlu mencatat skenario, hasil aktual, dan masukan pengguna agar penerimaan sistem dapat dinilai berdasarkan bukti.
 
-2. Memeriksa kelayakan Cloudflare untuk menjalankan aplikasi Next.js, mengakses PostgreSQL, dan menangani berkas yang digunakan sistem. Login Google melalui akun mahasiswa atau SSO perlu dirancang dengan verifikasi identitas dan kebijakan akun institusi, sambil mempertahankan persetujuan Admin serta pembagian role. Setelah lingkungan tujuan siap, lakukan pengujian integrasi, cadangan basis data, dan beban sebelum publikasi.
+2. Rencana Cloudflare perlu didahului pemeriksaan kompatibilitas Next.js, koneksi PostgreSQL, dan penyimpanan berkas. Login Google melalui email mahasiswa atau SSO memerlukan verifikasi identitas serta kebijakan akun institusi, dengan tetap mempertahankan persetujuan Admin dan pembagian role. Pengujian kamera lintas perangkat, cadangan basis data, dan uji beban dilakukan pada lingkungan tujuan sebelum aplikasi dipublikasikan.
 
 ## DAFTAR PUSTAKA
 
