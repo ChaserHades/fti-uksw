@@ -1,6 +1,6 @@
 # Catatan revisi TTU1 untuk bimbingan, 20 Oktober 2026
 
-Naskah utama: [DOCX](TTU1_Abiezer_Revisi_2026-10-20.docx), [PDF](TTU1_Abiezer_Revisi_2026-10-20.pdf), dan [isi bab dalam Markdown](Laporan_Tugas_Talenta_Unggul.md). Versi 19 Oktober tetap disimpan sebagai arsip.
+Naskah utama: [DOCX](TTU1_Abiezer_Google_Docs_Final.docx), [PDF](TTU1_Abiezer_Google_Docs_Final.pdf), dan [isi bab dalam Markdown](Laporan_Tugas_Talenta_Unggul.md). Versi 19 Oktober tetap disimpan sebagai arsip.
 
 Revisi ini hanya memperbarui dokumen. Tidak ada perubahan kode aplikasi, tampilan, alur operasional, dependensi, atau database. Pemeriksaan sumber mengacu pada keadaan repositori setelah `c9122b0`; implementasi pencabutan sesi terdapat pada `bc5ae72` dan pemulihan migrasi historis pada `c1a43c2`. Hasil tes otomatis yang dicantumkan berasal dari pemeriksaan 19 Oktober, bukan pengujian baru pada 20 Oktober.
 
@@ -30,7 +30,7 @@ Penerapan Cloudflare dan Google/SSO, pengujian kamera lintas perangkat, pengujia
 ## Crosscheck manual dokumen
 
 1. Jalankan `git status --short`, kemudian `git pull --ff-only origin main` dari folder proyek. Jika perubahan lokal menghalangi pull, simpan dan periksa perubahan tersebut terlebih dahulu. Cadangan laporan yang sebelumnya dibuat dengan Git stash tetap terpisah; jangan menimpakannya langsung ke naskah terbaru.
-2. Buka `docs/TTU1_Abiezer_Revisi_2026-10-20.docx`. Pastikan judul, nama, NIM, dan halaman pengesahan sesuai data akademik.
+2. Buka `docs/TTU1_Abiezer_Google_Docs_Final.docx`. Pastikan judul, nama, NIM, dan halaman pengesahan sesuai data akademik.
 3. Baca Bagian 3.4 dan 3.6. Cocokkan penjelasan akun petugas, nama peminjam, ruangan aset, ruangan tujuan peminjaman, dan alur QR dengan aplikasi.
 4. Baca Bagian 4.7. Cocokkan hasil reset/password dengan pemeriksaan browser yang sudah dilakukan. Pastikan hasil uji yang belum dilakukan tidak berubah menjadi klaim lulus.
 5. Baca Bagian 5.2–5.3 untuk bahan pembahasan keterbatasan dan pekerjaan berikutnya. Rencana Cloudflare serta Google/SSO belum ditulis sebagai fitur selesai.
@@ -40,4 +40,22 @@ Pembaruan ini tidak membutuhkan restart aplikasi atau perintah migrasi database.
 
 ## Pemeriksaan dokumen
 
-DOCX dirender menjadi PDF 23 halaman. Isi 143 paragraf bab dan seluruh sel tabel pengujian dicocokkan dengan Markdown. Sebanyak 39 nomor halaman daftar isi diperiksa terhadap judul pada PDF. Logo, tabel identitas, dan lima bagian dokumen dipertahankan; pemeriksaan halaman tidak menemukan halaman kosong atau teks keluar dari batas kertas. Sampul, daftar isi, dan tabel hasil pengujian juga diperiksa secara visual.
+Versi awal revisi 20 Oktober dirender menjadi PDF 23 halaman; isi 143 paragraf bab dan seluruh sel tabel pengujian dicocokkan dengan Markdown. Pemeriksaan format lanjutan di bawah mengikuti file asli yang diunggah kembali oleh pengembang.
+
+## Penyesuaian format berdasarkan unggahan asli
+
+File utama sekarang bernama `TTU1_Abiezer_Google_Docs_Final.docx`. File ini dibentuk dari paket DOCX unggahan pengguna, dengan isi bab dari revisi yang telah diselaraskan dengan aplikasi. Format paragraf dan penomoran bertingkat mengikuti unggahan asli. Bagian paket seperti header, footer, gambar, numbering, relasi, dan pengaturan halaman tidak diganti. Gaya dokumen lama dipertahankan; tiga gaya TOC ditambahkan agar pembaruan daftar isi menggunakan Times New Roman 12 pt dan tab titik-titik.
+
+Daftar isi tetap menggunakan field `TOC` dengan cakupan Heading 1–3. Nomor halamannya memakai field `PAGEREF` yang menunjuk bookmark judul. Empat subbab 3.6.1–3.6.4 ditambahkan ke tampilan daftar isi sehingga terdapat 43 entri. Pengaturan `updateFields` dari dokumen asli tetap aktif. Nomor halaman pada header/footer tetap berupa field Word, bukan angka yang diketik manual.
+
+Untuk memeriksa di Microsoft Word:
+
+1. Buka DOCX dan aktifkan pengeditan apabila masih berada dalam Protected View.
+2. Klik daftar isi → **Update Table / Perbarui Tabel** → **Update entire table / Perbarui seluruh tabel**. Nomor halaman akan mengikuti tata letak Word pada komputer yang digunakan.
+3. Pada salinan percobaan, tambahkan satu page break sebelum Bab IV, lalu ulangi pembaruan daftar isi. Periksa perubahan nomor halaman Bab IV dan bagian berikutnya.
+4. Hapus page break percobaan dan perbarui kembali. Untuk memperbarui semua field dokumen, gunakan **Ctrl+A**, lalu **F9** (atau **Fn+F9** pada keyboard tertentu).
+5. Saat menambah judul baru, gunakan **Heading 1**, **Heading 2**, atau **Heading 3** sesuai tingkatnya supaya ikut masuk ke daftar isi setelah diperbarui.
+
+Daftar isi tidak dihitung ulang pada setiap ketikan. Pembaruan dilakukan oleh Word ketika field diperbarui; PDF merupakan hasil render dengan nomor halaman pada saat dibuat. Pemeriksaan di lingkungan cloud mencakup struktur field, bookmark, kesesuaian nomor halaman PDF, dan tampilan hasil render. Interaksi tombol Update Table pada Microsoft Word perlu dicoba pada komputer pengguna.
+
+Hasil pemeriksaan versi dengan format asli: 23 halaman PDF, 43 referensi halaman yang cocok, serta 143 paragraf bab dan semua sel tabel pengujian sesuai dengan Markdown. Struktur field berpasangan dengan benar dan semua target bookmark tersedia. Dari seluruh bagian paket DOCX unggahan, hanya `word/document.xml` (isi) serta `word/styles.xml` (penambahan gaya TOC) yang berubah. Seluruh gaya lama dan lima pengaturan bagian halaman tetap sama. Sorotan kuning dari unggahan asli dipertahankan.
