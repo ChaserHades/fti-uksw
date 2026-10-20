@@ -8,6 +8,8 @@ Program Studi Teknik Informatika, FTI UKSW — 2026
 
 Revisi bimbingan 20 Oktober 2026. Isi bab diselaraskan dengan [TTU1 versi DOCX](TTU1_Abiezer_Google_Docs_Final.docx) dan [PDF untuk dibaca](TTU1_Abiezer_Google_Docs_Final.pdf). Catatan lingkup perubahan tersedia di [Catatan Revisi TTU1](Catatan_Revisi_TTU1_2026-10-20.md). Bukti teknis serta langkah pemeriksaan manual tercatat pada [Verifikasi Perbaikan 03](Verifikasi_Perbaikan_03.md).
 
+Arti stabilo kuning, bagian yang perlu dicek faktanya, serta usulan dokumentasi tersedia di [Panduan Penulisan dan Dokumentasi TTU1](Panduan_Penulisan_dan_Dokumentasi_TTU1.md). Stabilo pada Word/PDF hanya menandai petikan narasi untuk ditulis ulang oleh penulis; isi bab pada Markdown tetap sama.
+
 ## BAB I PENDAHULUAN
 
 ### 1.1 Latar Belakang Masalah

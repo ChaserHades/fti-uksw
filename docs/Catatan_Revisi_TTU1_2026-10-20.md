@@ -69,3 +69,11 @@ Sebanyak 20 paragraf pada Bab IV dan V ditulis ulang. Kalimat diarahkan pada pek
 Isi Bab I–III, judul bab/subbab, daftar pustaka, dan tabel hasil pengujian tetap mengikuti versi sebelumnya. Margin, format paragraf, penomoran, sorotan kuning, serta field daftar isi dipertahankan. Setelah penyesuaian bahasa, PDF berjumlah 24 halaman; nomor halaman pada 43 entri daftar isi diperbarui mengikuti hasil render terbaru. Isi bab tetap diselaraskan dengan laporan Markdown.
 
 Untuk crosscheck, baca Bagian 4.2, 4.4, dan 4.8 untuk membandingkan gaya penjelasan dengan naskah awal. Periksa kembali Bagian 4.7 agar hasil pengujian tetap sesuai dengan pemeriksaan yang sudah dilakukan, lalu perbarui seluruh daftar isi di Word apabila tata letak pada komputer pengguna berubah.
+
+## Ralat acuan gaya dan penggunaan stabilo
+
+Penulis menegaskan bahwa acuan gaya pada `TTU1_Abiezer.docx` hanya sampai **2.3 Metode Pengembangan Sistem**. Pada naskah lengkap, materi metode pengembangan berada di 3.3; susunan lima bab tetap digunakan.
+
+Aturan stabilo berikut menggantikan keputusan sebelumnya untuk mempertahankan semua sorotan lama. Seluruh sorotan lama dihapus, kemudian 14 petikan narasi dipilih untuk ditulis ulang dengan bahasa penulis sendiri. Sorotan tidak diterapkan pada judul, daftar isi, nomor halaman, tabel hasil pengujian, maupun daftar pustaka. Nama fitur, status, angka, dan hasil teknis tidak ditandai untuk diganti secara bebas. Isi teks, tata letak paragraf, serta field Word tidak diubah pada tahap penandaan ini.
+
+[Panduan Penulisan dan Dokumentasi TTU1](Panduan_Penulisan_dan_Dokumentasi_TTU1.md) memuat lokasi dan arah penulisan ulang setiap petikan, bagian tanpa stabilo yang perlu diverifikasi, serta bukti yang dapat ditambahkan ke tiap bab. Tanpa stabilo tidak berarti suatu klaim sudah otomatis terverifikasi. PDF tetap 24 halaman, dengan 43 referensi daftar isi yang diperiksa kembali.
