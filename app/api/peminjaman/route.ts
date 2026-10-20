@@ -70,6 +70,8 @@ export async function POST(req: Request) {
 
   const { barangId, namaPeminjam, ruanganTujuan, deadlineKembali, catatan } = await req.json();
 
+  if (typeof barangId !== "string" || !barangId.trim())
+    return NextResponse.json({ error: "Barang wajib dipilih" }, { status: 400 });
   if (!namaPeminjam?.trim())
     return NextResponse.json({ error: "Nama peminjam wajib diisi" }, { status: 400 });
   if (!ruanganTujuan?.trim())
@@ -77,14 +79,23 @@ export async function POST(req: Request) {
   if (!deadlineKembali)
     return NextResponse.json({ error: "Deadline kembali wajib diisi" }, { status: 400 });
 
-  const barang = await prisma.barang.findUnique({ where: { id: barangId } });
-  if (!barang || barang.deletedAt !== null) {
-    return NextResponse.json({ error: "Barang tidak ditemukan atau sudah dihapus" }, { status: 400 });
-  }
-  if (barang.status !== "TERSEDIA")
-    return NextResponse.json({ error: "Barang tidak tersedia" }, { status: 400 });
+  const result = await prisma.$transaction(async (tx) => {
+    // Pembaruan bersyarat memastikan hanya satu transaksi dapat mengambil barang.
+    const claimed = await tx.barang.updateMany({
+      where: { id: barangId, status: "TERSEDIA", deletedAt: null },
+      data: { status: "DIPINJAM" },
+    });
+    if (claimed.count === 0) {
+      const barang = await tx.barang.findUnique({ where: { id: barangId } });
+      if (!barang || barang.deletedAt !== null) {
+        return { error: "Barang tidak ditemukan atau sudah dihapus", status: 400 };
+      }
+      return {
+        error: "Barang sudah dipinjam atau tidak lagi tersedia. Muat ulang data sebelum mencoba lagi.",
+        status: 409,
+      };
+    }
 
-  const peminjaman = await prisma.$transaction(async (tx) => {
     const p = await tx.peminjaman.create({
       data: {
         barangId,
@@ -102,20 +113,21 @@ export async function POST(req: Request) {
       },
     });
 
-    await tx.barang.update({ where: { id: barangId }, data: { status: "DIPINJAM" } });
-
     await tx.logAktivitas.create({
       data: {
         aksi: "CREATE",
         entitas: "PEMINJAMAN",
         entitasId: p.id,
-        detail: `Meminjamkan ${barang.label || barang.labelAset || barang.merek || "barang"} kepada ${p.namaPeminjam}`,
+        detail: `Meminjamkan ${p.barang.label || p.barang.labelAset || p.barang.merek || "barang"} kepada ${p.namaPeminjam}`,
         userId: session.id,
       }
     });
 
-    return p;
+    return { peminjaman: p };
   });
 
-  return NextResponse.json(peminjaman, { status: 201 });
+  if ("error" in result) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+  return NextResponse.json(result.peminjaman, { status: 201 });
 }

@@ -101,17 +101,28 @@ test('POST peminjaman: existing transaction returns safe user profile', async ()
   const calls = [];
   const tx = {
     peminjaman: { create: async q => { calls.push(['loan', q.data]); return project({ ...loan, ...q.data }, q); } },
-    barang: { update: async q => { calls.push(['asset', q.data]); return asset; } },
+    barang: { updateMany: async q => { calls.push(['asset', q.data]); return { count: 1 }; } },
     logAktivitas: { create: async () => { calls.push(['log']); } },
   };
-  const handler = load('app/api/peminjaman/route.ts', { barang: { findUnique: async () => asset }, $transaction: fn => fn(tx) });
+  const handler = load('app/api/peminjaman/route.ts', { $transaction: fn => fn(tx) });
   const body = await json(await handler.POST(request('/api/peminjaman', 'POST', {
     barangId: asset.id, namaPeminjam: 'Peminjam', ruanganTujuan: 'Lab', deadlineKembali: '2026-02-01',
   })), 201);
   assertProfile(body.user); assert.equal(body.namaPeminjam, 'Peminjam');
-  assert.deepEqual(calls.map(c => c[0]), ['loan', 'asset', 'log']);
-  assert.equal(calls[1][1].status, 'DIPINJAM');
+  assert.deepEqual(calls.map(c => c[0]), ['asset', 'loan', 'log']);
+  assert.equal(calls[0][1].status, 'DIPINJAM');
 });
+for (const barangId of [undefined, null, '', '   ', 123, {}, []]) {
+  test(`POST peminjaman: invalid barangId ${JSON.stringify(barangId)} cannot update assets`, async () => {
+    const handler = load('app/api/peminjaman/route.ts', {
+      $transaction: () => assert.fail('Invalid asset ID must not reach the database'),
+    });
+    const response = await handler.POST(request('/api/peminjaman', 'POST', {
+      barangId, namaPeminjam: 'Peminjam', ruanganTujuan: 'Lab', deadlineKembali: '2026-02-01',
+    }));
+    assert.equal((await json(response, 400)).error, 'Barang wajib dipilih');
+  });
+}
 test('POST pengeluaran: expense and log flow preserved', async () => {
   let logged = false;
   const handler = load('app/api/pengeluaran/route.ts', {
