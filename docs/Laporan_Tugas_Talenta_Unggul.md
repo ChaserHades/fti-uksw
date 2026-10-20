@@ -6,9 +6,9 @@ Abiezer B. A. Gamaliel — 672023096
 
 Program Studi Teknik Informatika, FTI UKSW — 2026
 
-Revisi bimbingan 20 Oktober 2026. Isi bab diselaraskan dengan [TTU1 versi DOCX](TTU1_Abiezer_Google_Docs_Final.docx) dan [PDF untuk dibaca](TTU1_Abiezer_Google_Docs_Final.pdf). Catatan lingkup perubahan tersedia di [Catatan Revisi TTU1](Catatan_Revisi_TTU1_2026-10-20.md). Bukti teknis serta langkah pemeriksaan manual tercatat pada [Verifikasi Perbaikan 03](Verifikasi_Perbaikan_03.md).
+Revisi bimbingan 20 Oktober 2026. Isi bab diselaraskan dengan [TTU1 versi DOCX](TTU_Abiezer_Gamaliel_Revisi.docx) dan [PDF untuk dibaca](TTU_Abiezer_Gamaliel_Revisi.pdf). Catatan lingkup perubahan tersedia di [Catatan Revisi TTU1](Catatan_Revisi_TTU1_2026-10-20.md). Bukti teknis serta langkah pemeriksaan manual tercatat pada [Verifikasi Perbaikan 03](Verifikasi_Perbaikan_03.md).
 
-Arti stabilo kuning, bagian yang perlu dicek faktanya, serta usulan dokumentasi tersedia di [Panduan Penulisan dan Dokumentasi TTU1](Panduan_Penulisan_dan_Dokumentasi_TTU1.md). Stabilo pada Word/PDF hanya menandai petikan narasi untuk ditulis ulang oleh penulis; isi bab pada Markdown tetap sama.
+Arti stabilo kuning, bagian yang perlu dicek faktanya, serta usulan dokumentasi tersedia di [Panduan Penulisan dan Dokumentasi TTU1](Panduan_Penulisan_dan_Dokumentasi_TTU1.md). Naskah menggunakan unggahan terbaru `TTU_Abiezer Gamaliel.docx` sebagai dasar. Satu petikan kuning yang masih ada pada unggahan dipertahankan. Referensi yang belum dikonfirmasi penggunaannya telah dikeluarkan; kebutuhan sumber akademik masih perlu dibahas saat bimbingan.
 
 ## BAB I PENDAHULUAN
 
@@ -72,17 +72,17 @@ Manfaat yang diharapkan dari pembangunan sistem ini adalah sebagai berikut:
 
 ### 1.6 Sistematika Penulisan
 
-Laporan ini disusun dalam lima bab. Bab I membahas latar belakang, rumusan masalah, tujuan, batasan, dan manfaat penelitian. Bab II memuat penelitian terdahulu serta teori yang digunakan. Bab III menjelaskan metode dan rancangan sistem. Bab IV membahas implementasi serta hasil pemeriksaan. Bab V memuat hasil yang dicapai, keterbatasan, dan saran pengembangan.
+Laporan ini disusun dalam lima bab. Bab I membahas latar belakang, rumusan masalah, tujuan, batasan, dan manfaat penelitian. Bab II menjelaskan dasar pengembangan serta penggunaan konsep dan teknologi pada aplikasi. Bab III menjelaskan metode dan rancangan sistem. Bab IV membahas implementasi serta hasil pemeriksaan. Bab V memuat hasil yang dicapai, keterbatasan, dan saran pengembangan.
 
-## BAB II TINJAUAN PUSTAKA DAN LANDASAN TEORI
+## BAB II DASAR PENGEMBANGAN SISTEM
 
-### 2.1 Penelitian Terdahulu
+### 2.1 Latar Pengembangan Aplikasi
 
-Penelitian mengenai pengelolaan aset dengan QR Code sudah pernah dilakukan pada beberapa objek yang berbeda. Matondang dkk. membangun sistem manajemen aset berbasis web untuk lingkungan perguruan tinggi dengan fitur pendataan aset, lokasi, QR Code, mutasi, riwayat aset, dan laporan. QR Code digunakan untuk menghubungkan barang fisik dengan data yang tersimpan di dalam sistem [1].
+Pengembangan aplikasi ini berangkat dari pengetahuan dan pengalaman penulis dalam membuat aplikasi web. Pengetahuan tersebut digunakan untuk menyusun sistem yang menghubungkan data aset, ruangan, peminjaman, dan pengeluaran. Kebutuhan penggunaan dibahas melalui wawancara dengan pihak SARPRAS ketika aplikasi masih dalam tahap perbaikan.
 
-Penelitian lain dilakukan oleh Sitanggang dkk. melalui aplikasi SpaceLog untuk pengelolaan inventaris dan pelacakan aset. Sistem tersebut memakai QR Code, pembagian lokasi, audit trail, dan Role-Based Access Control. Pengguna dibagi berdasarkan peran agar fungsi yang dapat dilakukan tetap sesuai dengan tanggung jawab masing-masing [2].
+Dalam pengerjaannya, penulis meninjau kembali hubungan data dan alur yang sudah dibuat. Barang yang dipinjam perlu terhubung dengan catatan transaksi, sedangkan akun petugas dibedakan dari nama orang yang meminjam. Pembagian akses juga disesuaikan dengan pekerjaan Admin, Teknisi, dan pihak Universitas. Bagian-bagian tersebut menjadi dasar penjelasan rancangan serta implementasi pada bab berikutnya.
 
-Penelitian ini memiliki beberapa bagian yang serupa, terutama pada penggunaan aplikasi web, QR Code, dan pembagian hak akses. Perbedaannya ada pada kebutuhan SARPRAS FTI UKSW. Sistem yang dibangun tidak hanya mencatat aset, tetapi juga menangani peminjaman, pemindahan barang antar ruangan, pengeluaran, persetujuan akun, dan laporan yang dapat diakses oleh pihak Universitas.
+Pembahasan pada bab ini dibatasi pada konsep dan teknologi yang digunakan dalam aplikasi. Pengelolaan aset, QR Code, pembagian hak akses, dan pengujian dijelaskan melalui penerapannya pada sistem yang dibangun. Hasil pengembangan dinilai dari fungsi serta bukti pemeriksaan yang tersedia, tanpa menyatakan keunggulan terhadap aplikasi atau penelitian lain yang belum dibandingkan.
 
 ### 2.2 Sistem Manajemen Aset
 
@@ -90,11 +90,11 @@ Manajemen aset pada penelitian ini berkaitan dengan pencatatan barang sejak aset
 
 ### 2.3 QR Code
 
-QR Code merupakan kode dua dimensi yang dapat dibaca menggunakan kamera atau perangkat pemindai. QR Code juga memiliki kemampuan koreksi kesalahan pada beberapa tingkat sehingga sebagian data masih dapat dibaca ketika kode mengalami kerusakan tertentu [5]. Pada sistem ini, QR Code digunakan sebagai identitas barang. Hasil pindaian tidak digunakan untuk mengetahui posisi barang secara otomatis, tetapi untuk memanggil data aset yang sesuai dari basis data.
+Pada aplikasi ini, QR Code digunakan untuk menghubungkan barang fisik dengan data aset yang tersimpan. Kode memuat identitas barang dan dapat dicetak sebagai label. Ketika kode dipindai, aplikasi mencari data barang yang sesuai untuk ditampilkan dan diproses oleh petugas. Penggunaannya terbatas pada identifikasi aset; kode tersebut tidak digunakan untuk mengetahui posisi barang secara otomatis.
 
 ### 2.4 Role-Based Access Control
 
-Role-Based Access Control (RBAC) memberikan izin berdasarkan peran pengguna [3]. Pada aplikasi ini, tiga peran yang digunakan adalah ADMIN, TEKNISI, dan UNIVERSITAS. Hak akses diperiksa kembali pada server ketika permintaan diproses. Karena tugas pengguna dapat berubah, informasi role pada token tidak dijadikan satu-satunya acuan; server mengambil nilai terbaru dari tabel pengguna.
+Pembatasan akses pada aplikasi mengikuti peran pengguna, yaitu ADMIN, TEKNISI, dan UNIVERSITAS. Penerapan Role-Based Access Control (RBAC) tersebut membedakan tindakan yang dapat dilakukan oleh setiap peran. Hak akses diperiksa kembali pada server ketika permintaan diproses. Karena tugas pengguna dapat berubah, informasi role pada token tidak dijadikan satu-satunya acuan; server mengambil nilai terbaru dari tabel pengguna.
 
 ### 2.5 Sistem Informasi Berbasis Web
 
@@ -102,11 +102,11 @@ Sistem berbasis web dipilih karena dapat digunakan melalui browser tanpa pemasan
 
 ### 2.6 Teknologi Pengembangan Sistem
 
-Aplikasi dibangun menggunakan Next.js dengan TypeScript. Next.js menyediakan App Router yang digunakan untuk mengatur halaman, komponen, serta proses yang berjalan pada sisi server maupun client [6]. Data aplikasi disimpan menggunakan PostgreSQL, sedangkan Prisma ORM digunakan sebagai penghubung antara kode TypeScript dan basis data. PostgreSQL mendukung relasi, foreign key, dan transaksi [7], sementara Prisma menyediakan akses basis data yang mengikuti tipe data pada model aplikasi [8].
+Aplikasi dibangun menggunakan Next.js dengan TypeScript dan komponen React. Susunan halaman serta endpoint API mengikuti App Router. Komponen client menangani interaksi pengguna, sedangkan proses pada server memeriksa akses dan mengolah data. PostgreSQL digunakan untuk menyimpan data aplikasi, dengan Prisma ORM sebagai penghubung antara kode dan basis data. Model serta relasi disusun pada schema Prisma, lalu perubahan struktur dicatat melalui migrasi.
 
 ### 2.7 Black-Box Testing
 
-Black-box testing memeriksa fungsi berdasarkan masukan dan keluaran yang diharapkan [4]. Skenario pada aplikasi mencakup login, akses setiap role, aset, QR Code, peminjaman, pengembalian, serta impor dan ekspor. Pemeriksaan melalui antarmuka dilengkapi tes otomatis untuk respons API dan sesi. Tes yang memakai database tiruan dipisahkan dari pemeriksaan dengan PostgreSQL agar batas bukti pengujiannya jelas.
+Pemeriksaan fungsi dilakukan dengan memberikan masukan dan membandingkan keluaran aplikasi dengan hasil yang diharapkan. Cara pemeriksaan ini digunakan pada skenario black-box testing dalam laporan. Cakupan skenarionya meliputi login, akses setiap role, aset, QR Code, peminjaman, pengembalian, serta impor dan ekspor. Pemeriksaan melalui antarmuka dilengkapi tes otomatis untuk respons API dan sesi. Tes yang memakai database tiruan dipisahkan dari pemeriksaan dengan PostgreSQL. Hasil yang sudah tersedia dan bagian yang belum selesai diuji dijelaskan pada Bab IV.
 
 ## BAB III METODE PENELITIAN
 
@@ -116,15 +116,15 @@ Penelitian ini termasuk penelitian terapan (Applied Research) di bidang Rekayasa
 
 ### 3.2 Metode Pengumpulan Data
 
-Pengumpulan kebutuhan dilakukan melalui wawancara dengan pihak SARPRAS dan studi literatur. Untuk menilai kesesuaian laporan dengan aplikasi, penulis juga menelaah struktur basis data, pembatasan akses, serta hasil pengujian pada versi yang dibahas.
+Kebutuhan penggunaan dikumpulkan melalui wawancara dengan pihak SARPRAS. Penulis juga menggunakan pengalaman selama mengembangkan aplikasi untuk meninjau alur yang telah dibuat. Untuk menilai kesesuaian laporan dengan aplikasi, pemeriksaan dilakukan pada struktur basis data, pembatasan akses, serta hasil pengujian pada versi yang dibahas.
 
-Studi literatur mencakup pengelolaan aset, QR Code, RBAC, dan pengujian perangkat lunak. Dokumentasi Next.js, PostgreSQL, dan Prisma digunakan sebagai rujukan implementasi. Sumber tersebut membantu menjelaskan pilihan teknologi dan cara kerjanya, sedangkan kebutuhan penggunaan tetap mengacu pada konteks SARPRAS.
+Bahan pemeriksaan meliputi kode aplikasi, schema basis data, riwayat perubahan, keluaran tes, dan hasil pengecekan melalui browser. Setiap bahan digunakan sesuai dengan hal yang dapat ditunjukkannya. Struktur kode menjelaskan cara fungsi disusun, sedangkan hasil pengujian menunjukkan perilaku pada skenario yang dijalankan. Masukan dari SARPRAS tetap dibedakan dari temuan teknis selama perbaikan aplikasi.
 
-Wawancara berlangsung ketika aplikasi masih dalam tahap perbaikan. Karena itu, informasi dari kegiatan tersebut digunakan untuk memahami kebutuhan dan meninjau alur penggunaan pada tahap pengembangan. Hasil wawancara tidak diperlakukan sebagai persetujuan terhadap versi aplikasi setelah perbaikan. Pemeriksaan teknis dan pengujian penerimaan pengguna merupakan kegiatan terpisah.
+Pengujian berlangsung ketika aplikasi masih dalam tahap perbaikan. Karena itu, informasi dari kegiatan tersebut digunakan untuk memahami kebutuhan dan meninjau alur penggunaan pada tahap pengembangan. Hasil wawancara tidak diperlakukan sebagai persetujuan terhadap versi aplikasi setelah perbaikan. Pemeriksaan teknis dan pengujian penerimaan pengguna merupakan kegiatan terpisah.
 
 ### 3.3 Metode Pengembangan Sistem
 
-Pengembangan dilakukan secara bertahap. Masukan dari wawancara dan temuan saat aplikasi diperiksa digunakan untuk menentukan bagian yang perlu diperbaiki. Perubahan dibatasi pada masalah yang sedang dikerjakan agar alur operasional tetap dapat ditinjau. Cara kerja ini mengikuti pendekatan iteratif: kebutuhan diterjemahkan menjadi rancangan, diimplementasikan, diuji, dan diperbaiki kembali. Tahapannya dijelaskan sebagai berikut.
+Pengembangan dilakukan secara bertahap. Masukan dari unit SARPRAS dan temuan saat aplikasi diperiksa digunakan untuk menentukan bagian yang perlu diperbaiki. Perubahan dibatasi pada masalah yang sedang dikerjakan agar alur operasional tetap dapat ditinjau. Cara kerja ini mengikuti pendekatan iteratif: kebutuhan diterjemahkan menjadi rancangan, diimplementasikan, diuji, dan diperbaiki kembali. Tahapannya dijelaskan sebagai berikut.
 
 Analisis kebutuhan: menetapkan tiga role pengguna dan hubungan data User, Barang, Kategori, Ruangan, Peminjaman, Pengeluaran, KelompokPembelian, serta LogAktivitas. Nama peminjam dibedakan dari akun petugas yang mencatat transaksi.
 
@@ -291,18 +291,4 @@ Pengembangan berikutnya perlu diarahkan pada penyelesaian temuan yang masih meme
 
 ## DAFTAR PUSTAKA
 
-[1] A. Matondang, D. N. D. Sari, M. E. Zuwanda, H. Y. Tumanggor, N. L. Siregar, dan R. N. Simanjuntak, “Rancang Bangun Sistem Informasi Manajemen Aset Berbasis Web Menggunakan QR Code Untuk Meningkatkan Efisiensi Inventarisasi AMIK Universal,” Jutisal Jurnal Teknik Informatika Universal, vol. 3, no. 2, 2023.
-
-[2] J. A. Sitanggang, B. H. Saputra, A. Hidayati, dan H. Saragih, “Design and development of the spacelog web application for inventory management and asset tracking using QR codes at the Cyber Defense Center of the Ministry of Defense,” Jurnal Mandiri IT, vol. 14, no. 3, pp. 283–293, 2026, doi: 10.35335/mandiri.v14i3.481.
-
-[3] R. S. Sandhu, E. J. Coyne, H. L. Feinstein, dan C. E. Youman, “Role-Based Access Control Models,” Computer, vol. 29, no. 2, pp. 38–47, 1996, doi: 10.1109/2.485845.
-
-[4] I. Sommerville, Software Engineering, 10th ed. Pearson, 2015.
-
-[5] DENSO WAVE, “QR Code Error Correction Feature.” [Online]. Available: https://www.qrcode.com/en/about/error_correction.html
-
-[6] Vercel, “Next.js Documentation - App Router.” [Online]. Available: https://nextjs.org/docs/app
-
-[7] PostgreSQL Global Development Group, “PostgreSQL Documentation.” [Online]. Available: https://www.postgresql.org/docs/
-
-[8] Prisma Data, Inc., “Prisma ORM Documentation.” [Online]. Available: https://www.prisma.io/docs/orm
+Catatan naskah bimbingan: Bagian ini belum memuat referensi. Sumber pustaka akan dicantumkan setelah dibaca dan digunakan dalam pembahasan, sesuai kebutuhan landasan teori dan arahan dosen pembimbing.

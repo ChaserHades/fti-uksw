@@ -1,6 +1,22 @@
 # Catatan revisi TTU1 untuk bimbingan, 20 Oktober 2026
 
-Naskah utama: [DOCX](TTU1_Abiezer_Google_Docs_Final.docx), [PDF](TTU1_Abiezer_Google_Docs_Final.pdf), dan [isi bab dalam Markdown](Laporan_Tugas_Talenta_Unggul.md). Versi 19 Oktober tetap disimpan sebagai arsip.
+Naskah terbaru: [DOCX](TTU_Abiezer_Gamaliel_Revisi.docx), [PDF](TTU_Abiezer_Gamaliel_Revisi.pdf), dan [isi bab dalam Markdown](Laporan_Tugas_Talenta_Unggul.md). Versi sebelumnya tetap disimpan sebagai arsip.
+
+## Pembaruan terakhir: koreksi penggunaan sumber
+
+Dasar revisi adalah unggahan terbaru `TTU_Abiezer Gamaliel.docx`, yang sudah memuat perbaikan penulis. Penulis menyampaikan bahwa pengembangan berasal dari pengetahuan dan pengalaman sendiri serta tidak menggunakan artikel yang tercantum sebelumnya. Karena penggunaan referensi belum dikonfirmasi, delapan entri lama dan penanda kutipannya dikeluarkan. Tindakan ini bukan penilaian bahwa sumber tersebut tidak relevan atau salah secara ilmiah.
+
+Bagian 1.6 mengikuti judul baru Bab II, **Dasar Pengembangan Sistem**. Bagian 2.1 menjadi **Latar Pengembangan Aplikasi**, berisi konteks pengerjaan dan hubungan data pada aplikasi. Uraian 2.3, 2.4, 2.6, serta 2.7 menjelaskan penerapan yang dapat dicocokkan dengan sistem. Dua paragraf pada 3.2 diperbaiki agar tidak menyatakan studi literatur atau penggunaan dokumentasi sebagai rujukan yang belum dikonfirmasi. Bab IV–V dan tabel hasil pengujian tetap mengikuti unggahan terbaru.
+
+Bagian Daftar Pustaka tetap tersedia dalam struktur Word dan daftar isi, dengan catatan singkat bahwa sumber belum dilengkapi pada naskah bimbingan ini. Kebutuhan landasan teori, penelitian terdahulu, dan kesesuaian judul Bab II dengan pedoman prodi perlu dibahas bersama pembimbing. Aplikasi buatan sendiri tidak otomatis menghapus kebutuhan sumber akademik. Referensi dapat ditambahkan setelah benar-benar dibaca dan dipakai dalam pembahasan.
+
+Perbaikan penulis seperti frasa “Pengujian berlangsung” pada 3.2 dan “Masukan dari unit SARPRAS” pada 3.3 dipertahankan. Unggahan terbaru menyisakan satu petikan kuning pada 1.1; sorotan lama tidak ditambahkan kembali. Panduan pendamping disesuaikan dengan keadaan ini dan tetap memuat bagian tanpa stabilo yang perlu dicek serta usulan dokumentasi.
+
+Validasi revisi: hanya `word/document.xml` yang berubah dibanding paket unggahan terbaru. Seluruh bagian paket lainnya, lima pengaturan bagian halaman, kedua tabel, dan 44 field Word (satu TOC serta 43 PAGEREF) dipertahankan. Paragraf di luar lingkup perubahan identik dengan unggahan. PDF hasil render berjumlah 24 halaman; 43 nomor halaman daftar isi telah dicocokkan dengan lokasi judul. Isi bab dan tabel pada Markdown sesuai dengan DOCX. Pemeriksaan ini memvalidasi dokumen, bukan menjalankan ulang tes aplikasi.
+
+Untuk crosscheck, gunakan langkah pada [panduan terbaru](Panduan_Penulisan_dan_Dokumentasi_TTU1.md). Berkas `TTU1_Abiezer_Google_Docs_Final.docx` di bawah merupakan versi historis. Catatan berikut merekam tahap sebelumnya; keterangan lama tentang mempertahankan daftar pustaka dan 14 sorotan sudah digantikan oleh pembaruan terakhir ini.
+
+## Riwayat revisi sebelumnya
 
 Revisi ini hanya memperbarui dokumen. Tidak ada perubahan kode aplikasi, tampilan, alur operasional, dependensi, atau database. Pemeriksaan sumber mengacu pada keadaan repositori setelah `c9122b0`; implementasi pencabutan sesi terdapat pada `bc5ae72` dan pemulihan migrasi historis pada `c1a43c2`. Hasil tes otomatis yang dicantumkan berasal dari pemeriksaan 19 Oktober, bukan pengujian baru pada 20 Oktober.
 

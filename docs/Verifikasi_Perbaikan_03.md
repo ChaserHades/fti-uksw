@@ -1,6 +1,6 @@
 # Perbaikan 03: pencabutan sesi setelah perubahan password
 
-Revisi 19 Oktober 2026, implementasi `bc5ae72`. Panduan ini mendampingi [laporan TTU](Laporan_Tugas_Talenta_Unggul.md) dan [TTU1 untuk bimbingan 20 Oktober 2026](TTU1_Abiezer_Google_Docs_Final.docx).
+Revisi 19 Oktober 2026, implementasi `bc5ae72`. Panduan ini mendampingi [laporan TTU](Laporan_Tugas_Talenta_Unggul.md) dan [TTU1 untuk bimbingan 20 Oktober 2026](TTU_Abiezer_Gamaliel_Revisi.docx).
 
 ## Perubahan dan dampak
 
