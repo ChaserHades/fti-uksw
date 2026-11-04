@@ -1,4 +1,5 @@
 // helpers/format.ts
+export { isOverdue, isDueSoon } from "./peminjaman";
 
 export function fDate(date: string | Date): string {
   return new Date(date).toLocaleDateString("id-ID", {
@@ -32,19 +33,6 @@ export function fCurrency(amount: number): string {
     currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
-}
-
-export function isOverdue(deadline: string | Date): boolean {
-  const d = new Date(deadline);
-  const targetTime = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 18, 0, 0);
-  return new Date() > targetTime;
-}
-
-export function isDueSoon(deadline: string | Date): boolean {
-  const d = new Date(deadline);
-  const targetTime = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 18, 0, 0);
-  const diff = targetTime.getTime() - Date.now();
-  return diff > 0 && diff <= 86_400_000;
 }
 
 export function initials(name?: string | null): string {

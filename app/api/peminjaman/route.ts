@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { publicUserSelect } from "@/lib/public-user";
+import { isLoanLate, lateLoanFilter } from "@/helpers/peminjaman";
 
 export async function GET(req: Request) {
   const { session, error } = await checkApiAuth();
@@ -16,6 +17,7 @@ export async function GET(req: Request) {
   const cursor = searchParams.get("cursor");
 
   const search = searchParams.get("search");
+  const now = new Date();
 
   // Build where clause
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,8 +25,8 @@ export async function GET(req: Request) {
   if (userId) where.userId = userId;
 
   if (status === "TERLAMBAT") {
-    // Terlambat = pernah melewati deadline (persisten, termasuk yang sudah SELESAI)
-    where.terlambat = true;
+    // AND menjaga filter keterlambatan saat pencarian juga memakai OR.
+    where.AND = [lateLoanFilter(now)];
   } else if (status === "AKTIF" || status === "SELESAI") {
     where.status = status;
   }
@@ -58,7 +60,8 @@ export async function GET(req: Request) {
     nextCursor = list[list.length - 1].id;
   }
 
-  return NextResponse.json({ data: list, nextCursor, totalCount });
+  const data = list.map(loan => ({ ...loan, terlambat: isLoanLate(loan, now) }));
+  return NextResponse.json({ data, nextCursor, totalCount });
 }
 
 export async function POST(req: Request) {

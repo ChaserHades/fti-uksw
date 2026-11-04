@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/helpers/api";
-import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
+import { fDateShort, isDueSoon } from "@/helpers/format";
+import { isLoanLate } from "@/helpers/peminjaman";
 import type { Peminjaman, Barang } from "@/types";
 
 interface Me { id: string; name: string; email: string; }
@@ -33,7 +34,7 @@ export default function TeknisiDashboard() {
 
   // Statistik sistem (bukan hanya milik teknisi ini)
   const aktif     = allAktif.length;
-  const terlambat = allAktif.filter(t => isOverdue(t.deadlineKembali)).length;
+  const terlambat = allAktif.filter(t => isLoanLate(t)).length;
 
   const statusBadge: Record<string, string> = { AKTIF: "badge-warn", SELESAI: "badge-ok" };
   const kondisiBadge: Record<string, string> = { BAIK: "badge-ok", RUSAK_RINGAN: "badge-warn", RUSAK_BERAT: "badge-danger" };
@@ -126,7 +127,7 @@ export default function TeknisiDashboard() {
             {allAktif.length === 0 ? (
               <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Kosong</div>
             ) : allAktif.map((t, idx) => {
-              const late = isOverdue(t.deadlineKembali);
+              const late = isLoanLate(t);
               const soon = !late && isDueSoon(t.deadlineKembali);
               return (
                 <div key={t.id} className="bento-row" style={{ padding: "12px 32px", borderTop: idx === 0 ? "none" : "" }}>
@@ -160,7 +161,7 @@ export default function TeknisiDashboard() {
                   <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{t.barang.label} · Deadline: {fDateShort(t.deadlineKembali)}</div>
                 </div>
                 <div>
-                  {t.status === "AKTIF" && isOverdue(t.deadlineKembali)
+                  {t.status === "AKTIF" && isLoanLate(t)
                     ? <span className="badge badge-danger">Terlambat</span>
                     : <span className={`badge ${statusBadge[t.status]}`}>{t.status}</span>
                   }

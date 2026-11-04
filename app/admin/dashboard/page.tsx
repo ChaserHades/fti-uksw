@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { api } from "@/helpers/api";
-import { fDateShort, isOverdue, isDueSoon } from "@/helpers/format";
+import { fDateShort, isDueSoon } from "@/helpers/format";
+import { isLoanLate } from "@/helpers/peminjaman";
 import { SkeletonCard, SkeletonTable } from "@/components/LoadingSkeleton";
 import type { DashboardStats, Peminjaman, Barang } from "@/types";
 
@@ -161,7 +162,7 @@ export default function AdminDashboard() {
               <div style={{ padding: "32px", color: "var(--text-muted)", textAlign: "center" }}>Tidak ada peminjaman aktif saat ini.</div>
             ) : (
               peminjaman.map((t, idx) => {
-                const late = isOverdue(t.deadlineKembali);
+                const late = isLoanLate(t);
                 const soon = !late && isDueSoon(t.deadlineKembali);
                 return (
                   <div key={t.id} className="bento-row" style={{ borderTop: idx === 0 ? "none" : "" }}>

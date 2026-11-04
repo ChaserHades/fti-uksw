@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
+import { isLoanLate } from "@/helpers/peminjaman";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -19,14 +20,7 @@ export async function POST(_: Request, { params }: Params) {
 
   // Persisten: jika kembali melewati deadline, terlambat = true
   const now = new Date();
-  
-  // Ambil tanggal saja dari deadline (yang tersimpan dalam UTC midnight)
-  const str = peminjaman.deadlineKembali.toISOString();
-  const dateOnly = str.split("T")[0]; 
-  // Deadline dianggap jam 18:00 waktu lokal (WIB/UTC+7) di hari H
-  const targetTime = new Date(`${dateOnly}T18:00:00+07:00`);
-  
-  const wasLate = peminjaman.terlambat || now > targetTime;
+  const wasLate = isLoanLate(peminjaman, now);
 
   const barang = await prisma.barang.findUnique({ where: { id: peminjaman.barangId } });
 

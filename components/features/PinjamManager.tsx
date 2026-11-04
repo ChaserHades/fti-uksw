@@ -6,7 +6,8 @@ import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import toast from "react-hot-toast";
 import { api } from "@/helpers/api";
-import { fDateShort, isOverdue, isDueSoon, parseQrPayload } from "@/helpers/format";
+import { fDateShort, isDueSoon, parseQrPayload } from "@/helpers/format";
+import { isLoanLate } from "@/helpers/peminjaman";
 import { useQrScanner } from "@/hooks/useQrScanner";
 import type { Barang, Peminjaman } from "@/types";
 
@@ -161,7 +162,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
     } finally { setProcessing(false); }
   }
 
-  const terlambat = allAktif.filter(t => isOverdue(t.deadlineKembali));
+  const terlambat = allAktif.filter(t => isLoanLate(t));
 
   return (
     <>
@@ -283,7 +284,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                       </div>
                     </td></tr>
                   ) : allAktif.map(t => {
-                    const late = isOverdue(t.deadlineKembali);
+                    const late = isLoanLate(t);
                     const soon = !late && isDueSoon(t.deadlineKembali);
                     return (
                       <tr key={t.id}>
@@ -400,7 +401,7 @@ export default function AdminPinjamPage({ role = "ADMIN" }: { role?: string }) {
                 <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>Batas Kembali</span>
                 <span style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 500 }}>{fDateShort(peminjamanAktif.deadlineKembali)}</span>
               </div>
-              {isOverdue(peminjamanAktif.deadlineKembali) && (
+              {isLoanLate(peminjamanAktif) && (
                 <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)", color: "var(--color-danger)", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                   <i className="ti ti-alert-circle" style={{ fontSize: 16 }} /> Melewati batas waktu pengembalian!
                 </div>

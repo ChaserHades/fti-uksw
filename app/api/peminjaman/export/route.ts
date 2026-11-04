@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import * as xlsx from "xlsx";
 import { publicUserSelect } from "@/lib/public-user";
+import { isLoanLate } from "@/helpers/peminjaman";
 
 export async function GET(req: Request) {
   const { session, error: authError } = await checkApiAuth();
@@ -14,6 +15,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") || "xlsx";
   const mode = searchParams.get("mode") || "ALL";
+  const now = new Date();
 
   // Base query
   const where: any = {};
@@ -45,7 +47,7 @@ export async function GET(req: Request) {
       "DEADLINE KEMBALI": t.deadlineKembali ? new Date(t.deadlineKembali).toLocaleDateString("id-ID") : "-",
       "TANGGAL KEMBALI": t.tanggalKembali ? new Date(t.tanggalKembali).toLocaleString("id-ID") : "-",
       STATUS: t.status,
-      KETERANGAN: t.terlambat ? "Terlambat" : (t.status === "AKTIF" ? "Aktif" : "Selesai"),
+      KETERANGAN: isLoanLate(t, now) ? "Terlambat" : (t.status === "AKTIF" ? "Aktif" : "Selesai"),
       CATATAN: t.catatan || "-",
       DIPROSES_OLEH: t.user?.name || "-"
     }));

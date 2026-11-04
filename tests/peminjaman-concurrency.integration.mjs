@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
 import { fileURLToPath } from 'node:url';
+import xlsx from 'xlsx';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -196,6 +197,61 @@ test('peminjaman with real HTTP, Prisma and PostgreSQL', { timeout: 120_000 }, a
       assert.equal((await borrow(id, 'Anonymous', null)).status, 401);
       assert.equal((await borrow(id, 'University', 'univ')).status, 403);
       assert.deepEqual(await state(id), { status: 'TERSEDIA', loans: 0, active: 0, logs: 0 });
+    });
+
+    await t.test('deadline flags, filters, dashboard, export and return agree without GET writes', async () => {
+      const read = async route => {
+        const response = await fetch(base + route, { headers: { cookie: cookies.admin } });
+        assert.equal(response.status, 200);
+        return response.json();
+      };
+      const before = await read('/api/dashboard/stats');
+      const now = new Date();
+      const day = now.toISOString().slice(0, 10);
+      const yesterday = new Date(new Date(day).getTime() - 86400000).toISOString().slice(0, 10);
+      const tomorrow = new Date(new Date(day).getTime() + 86400000).toISOString().slice(0, 10);
+      const todayLate = now > new Date(day + 'T11:00:00Z');
+      const prefix = 'deadline-' + randomUUID();
+      const records = [];
+      for (const [label, date, late] of [['yesterday', yesterday, true], ['today', day, todayLate], ['future', tomorrow, false]]) {
+        const id = await asset();
+        const response = await send('/api/peminjaman', { ...payload(id, prefix + '-' + label), deadlineKembali: date });
+        assert.equal(response.status, 201);
+        records.push({ ...(await response.json()), expectedLate: late });
+      }
+      const query = '?search=' + encodeURIComponent(prefix);
+      const all = await read('/api/peminjaman' + query);
+      assert.equal(all.totalCount, 3);
+      for (const row of records) assert.equal(all.data.find(r => r.id === row.id).terlambat, row.expectedLate);
+      const filtered = await read('/api/peminjaman' + query + '&status=TERLAMBAT&userId=admin');
+      assert.deepEqual(filtered.data.map(r => r.id).sort(), records.filter(r => r.expectedLate).map(r => r.id).sort());
+      assert.equal(filtered.totalCount, 1 + Number(todayLate));
+      const paged = await read('/api/peminjaman' + query + '&status=TERLAMBAT&limit=1');
+      assert.equal(paged.data.length, 1);
+      assert.equal(paged.totalCount, filtered.totalCount);
+      assert.equal((await read('/api/dashboard/stats')).terlambat, before.terlambat + filtered.totalCount);
+      for (const format of ['csv', 'xlsx']) {
+        const response = await fetch(base + '/api/peminjaman/export?format=' + format, { headers: { cookie: cookies.admin } });
+        assert.equal(response.status, 200);
+        const workbook = xlsx.read(Buffer.from(await response.arrayBuffer()), { type: 'buffer' });
+        const rows = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        for (const row of records) assert.equal(rows.find(r => r.PEMINJAM === row.namaPeminjam).KETERANGAN, row.expectedLate ? 'Terlambat' : 'Aktif');
+      }
+      const { rows: stored } = await db.query('SELECT terlambat FROM peminjaman WHERE id = ANY($1::text[])', [records.map(r => r.id)]);
+      assert.ok(stored.every(r => r.terlambat === false), 'Read and export must not persist computed lateness');
+      const lateReturn = await send(`/api/peminjaman/${records[0].id}/kembali`, {});
+      assert.equal(lateReturn.status, 200);
+      assert.equal((await lateReturn.json()).terlambat, true);
+      const onTimeReturn = await send(`/api/peminjaman/${records[2].id}/kembali`, {});
+      assert.equal(onTimeReturn.status, 200);
+      assert.equal((await onTimeReturn.json()).terlambat, false);
+      // A historical on-time return must not become late as time passes.
+      await db.query('UPDATE peminjaman SET "deadlineKembali" = $1, "tanggalKembali" = $2 WHERE id = $3',
+        [yesterday, yesterday + 'T10:00:00Z', records[2].id]);
+      const history = await read('/api/peminjaman' + query + '&status=TERLAMBAT');
+      assert.ok(history.data.some(r => r.id === records[0].id && r.status === 'SELESAI' && r.terlambat));
+      assert.ok(!history.data.some(r => r.id === records[2].id));
+      assert.equal((await read('/api/dashboard/stats')).terlambat, before.terlambat + Number(todayLate));
     });
   } finally {
     if (server && server.exitCode === null) server.kill('SIGTERM');

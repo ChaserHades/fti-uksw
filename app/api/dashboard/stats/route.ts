@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
+import { lateLoanFilter } from "@/helpers/peminjaman";
 
 export async function GET() {
   const { error: authError } = await checkApiAuth();
@@ -19,7 +20,7 @@ export async function GET() {
     prisma.user.count(),
     prisma.user.count({ where: { statusVerifikasi: "PENDING" } }),
     prisma.peminjaman.count({ where: { status: "AKTIF" } }),
-    prisma.peminjaman.count({ where: { status: "AKTIF", deadlineKembali: { lt: new Date() } } }),
+    prisma.peminjaman.count({ where: { status: "AKTIF", ...lateLoanFilter() } }),
     prisma.barang.count({ where: { status: "TERSEDIA", deletedAt: null } }),
     prisma.barang.count({ where: { status: "DIPINJAM", deletedAt: null } }),
     prisma.barang.count({ where: { status: "MAINTENANCE", deletedAt: null } }),
