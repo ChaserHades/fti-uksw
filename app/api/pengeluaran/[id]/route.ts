@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { publicUserSelect } from "@/lib/public-user";
+import { readPengeluaranInput } from "@/lib/pengeluaran-input";
 
-
-const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx"];
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -30,34 +29,16 @@ export async function PUT(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const formData = await req.formData();
-    const judul = formData.get("judul") as string;
-    const keterangan = formData.get("keterangan") as string | null;
-    const namaBarang = formData.get("namaBarang") as string | null;
-    const progdi = formData.get("progdi") as string | null;
-    const nominal = Number(formData.get("nominal"));
-    const tanggalStr = formData.get("tanggal") as string;
-    const jenis = formData.get("jenis") as string;
-    const jenisBukti = formData.get("jenisBukti") as string | null;
-    const nomorBukti = formData.get("nomorBukti") as string | null;
-    const pembelianKe = formData.get("pembelianKe") ? Number(formData.get("pembelianKe")) : null;
-    const hasBarangIds = formData.has("barangIds");
-    const barangIdsRaw = formData.get("barangIds") as string | null;
-    const barangIds: string[] = barangIdsRaw ? JSON.parse(barangIdsRaw) : [];
-    
-    const notas = formData.getAll("nota") as File[];
+    const input = await readPengeluaranInput(req);
+    if ("error" in input) return NextResponse.json({ error: input.error }, { status: 400 });
+    const { judul, keterangan, namaBarang, progdi, nominal, tanggal: tanggalStr, jenis,
+      jenisBukti, nomorBukti, pembelianKe, hasBarangIds, barangIds, notas } = input.data;
     const uploadedUrls: string[] = [];
 
     if (notas && notas.length > 0) {
       for (const nota of notas) {
         if (nota.size === 0) continue;
         const ext = (nota.name.split(".").pop() ?? "").toLowerCase();
-        if (!ALLOWED_EXTENSIONS.includes(ext)) {
-          return NextResponse.json(
-            { error: `Format file .${ext} tidak didukung. Gunakan: ${ALLOWED_EXTENSIONS.join(", ")}` },
-            { status: 400 }
-          );
-        }
         
         const buffer = Buffer.from(await nota.arrayBuffer());
         const base64String = buffer.toString("base64");
