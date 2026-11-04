@@ -4,16 +4,23 @@ import { prisma } from "@/lib/prisma";
 import { checkApiAuth } from "@/lib/auth";
 import { publicUserSelect } from "@/lib/public-user";
 import { isLoanLate, lateLoanFilter } from "@/helpers/peminjaman";
+import { peminjamanInput, peminjamanQuery } from "@/lib/peminjaman-input";
 
 export async function GET(req: Request) {
   const { session, error } = await checkApiAuth();
   if (error) return error;
 
   const searchParams = new URL(req.url).searchParams;
-  const status = searchParams.get("status");
+  const query = peminjamanQuery.safeParse({
+    status: searchParams.get("status") || "",
+    limit: searchParams.get("limit") || "50",
+  });
+  if (!query.success) {
+    return NextResponse.json({ error: query.error.issues[0].message }, { status: 400 });
+  }
+  const { status, limit } = query.data;
   const userId = searchParams.get("userId");
   
-  const limit  = parseInt(searchParams.get("limit") || "50", 10);
   const cursor = searchParams.get("cursor");
 
   const search = searchParams.get("search");
@@ -71,16 +78,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden: Hanya teknisi atau admin yang dapat memproses peminjaman" }, { status: 403 });
   }
 
-  const { barangId, namaPeminjam, ruanganTujuan, deadlineKembali, catatan } = await req.json();
-
-  if (typeof barangId !== "string" || !barangId.trim())
-    return NextResponse.json({ error: "Barang wajib dipilih" }, { status: 400 });
-  if (!namaPeminjam?.trim())
-    return NextResponse.json({ error: "Nama peminjam wajib diisi" }, { status: 400 });
-  if (!ruanganTujuan?.trim())
-    return NextResponse.json({ error: "Ruangan wajib diisi" }, { status: 400 });
-  if (!deadlineKembali)
-    return NextResponse.json({ error: "Deadline kembali wajib diisi" }, { status: 400 });
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Body permintaan harus berupa JSON yang valid" }, { status: 400 });
+  }
+  const input = peminjamanInput.safeParse(body);
+  if (!input.success) {
+    return NextResponse.json({ error: input.error.issues[0].message }, { status: 400 });
+  }
+  const { barangId, namaPeminjam, ruanganTujuan, deadlineKembali, catatan } = input.data;
 
   const result = await prisma.$transaction(async (tx) => {
     // Pembaruan bersyarat memastikan hanya satu transaksi dapat mengambil barang.
@@ -103,8 +111,8 @@ export async function POST(req: Request) {
       data: {
         barangId,
         userId:          session.id,
-        namaPeminjam:    namaPeminjam.trim(),
-        ruanganTujuan:     ruanganTujuan.trim(),
+        namaPeminjam,
+        ruanganTujuan,
         deadlineKembali: new Date(deadlineKembali),
         catatan:         catatan ?? null,
         status:          "AKTIF",

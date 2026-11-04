@@ -100,6 +100,37 @@ test('peminjaman with real HTTP, Prisma and PostgreSQL', { timeout: 120_000 }, a
       assert.equal(body.barang.status, 'DIPINJAM');
     };
 
+    await t.test('invalid HTTP input returns 400 without changing assets, loans or logs', async () => {
+      const id = await asset();
+      const bodies = ['{', '', 'null', '[]',
+        JSON.stringify({ ...payload(id), namaPeminjam: 123 }),
+        JSON.stringify({ ...payload(id), ruanganTujuan: {} }),
+        JSON.stringify({ ...payload(id), deadlineKembali: '2026-02-30' }),
+        JSON.stringify({ ...payload(id), catatan: [] })];
+      const before = (await db.query('SELECT count(*)::int AS count FROM log_aktivitas')).rows[0].count;
+      for (const body of bodies) {
+        const response = await fetch(base + '/api/peminjaman', {
+          method: 'POST', headers: { 'content-type': 'application/json', cookie: cookies.admin }, body,
+        });
+        assert.equal(response.status, 400, body);
+        assert.equal(typeof (await response.json()).error, 'string');
+        assert.deepEqual(await state(id), { status: 'TERSEDIA', loans: 0, active: 0, logs: 0 });
+      }
+      assert.equal((await db.query('SELECT count(*)::int AS count FROM log_aktivitas')).rows[0].count, before);
+      for (const query of ['limit=0', 'limit=501', 'limit=10junk', 'status=INVALID']) {
+        const response = await fetch(base + '/api/peminjaman?' + query, { headers: { cookie: cookies.admin } });
+        assert.equal(response.status, 400, query);
+      }
+      for (const query of ['', 'limit=500', 'status=AKTIF&limit=6']) {
+        const response = await fetch(base + '/api/peminjaman?' + query, { headers: { cookie: cookies.admin } });
+        assert.equal(response.status, 200, query);
+      }
+      const response = await borrow(id);
+      assert.equal(response.status, 201);
+      assertSafe(await response.json());
+      assert.deepEqual(await state(id), { status: 'DIPINJAM', loans: 1, active: 1, logs: 1 });
+    });
+
     await t.test('two overlapping requests: one 201, one 409, one loan and one log (three rounds)', async () => {
       blocker = new Client({ connectionString: url.toString() });
       await blocker.connect();
